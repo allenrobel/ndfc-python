@@ -806,7 +806,7 @@ class Common(object):
         expectation = 'bool(): True or False'
         self.fail(self.class_name, parameter, x, parameter, expectation)
 
-    def verify_vlan(self, x, expectation, parameter='verify_vlan'):
+    def verify_vlan(self, x, parameter='verify_vlan'):
         self.verify_integer_range(x, self.min_vlan, self.max_vlan, self.class_name, 'verify_vlan')
 
     def verify_vrf_vlan_id(self, x, parameter='verify_vrf_vlan_id'):
@@ -827,7 +827,7 @@ class Common(object):
     def verify_routing_tag(self, x, expectation, parameter='verify_routing_tag'):
         self.verify_integer_range(x, self.min_routing_tag, self.max_routing_tag, self.class_name, 'verify_routing_tag')
 
-    def verify_vni(self, x, expectation, parameter='verify_vni'):
+    def verify_vni(self, x, parameter='verify_vni'):
         self.verify_integer_range(x, self.min_vni, self.max_vni, self.class_name, 'verify_vni')
 
     def verify_vlan_list(self, x, parameter='unspecified'):
