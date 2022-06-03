@@ -25,8 +25,8 @@ class NDFC(Common):
         urllib3.disable_warnings()
         url = 'https://{}/login'.format(self.ip)
         payload = dict()
-        payload['userName'] = self.properties['username']
-        payload['userPasswd'] = self.properties['password']
+        payload['userName'] = self.username
+        payload['userPasswd'] = self.password
         payload['domain'] = 'DefaultAuth'
         headers = dict()
         headers['Content-Type'] = 'application/json'
@@ -37,13 +37,23 @@ class NDFC(Common):
         self.auth_token = op["jwttoken"]
         self.bearer_token = 'Bearer {}'.format(self.auth_token)
 
+    def get(self, url, headers):
+        self.response = requests.get(url,
+                        verify=False,
+                        headers=headers)
+        if self.response.status_code == 200:
+            self.log.debug('GET succeeded {}'.format(url))
+            return self.response.json()
+        else:
+            self.log.error('exiting. GET error response from NDFC controller during {}'.format(url))
+            self.log.error('response.status_code: {}'.format(self.response.status_code))
+            try:
+                self.log.info('response.reason: {}'.format(self.response.reason))
+                self.log.info('response.text: {}'.format(self.response.text))
+            except:
+                self.log.error('Unable to log response.reason or response.text from NDFC controller for {}'.format(url))
+            exit(1)
     def post(self, url, headers, payload):
-        # headers = dict()
-        # headers['Content-Type'] = 'application/json'
-        # headers['Authorization'] = self.bearer_token
-        # print('self.url: {}'.format(self.url))
-        # print('self.headers: {}'.format(self.headers))
-        # print('self.payload: {}'.format(json.dumps(self.payload)))
         self.response = requests.post(url,
                         data=json.dumps(payload),
                         verify=False,
@@ -52,14 +62,31 @@ class NDFC(Common):
             self.log.info('POST succeeded {}'.format(url))
             return
         else:
-            self.log.error('Error response from NDFC controller during {}'.format(url))
-            self.log.error('self.response {}'.format(self.response.status_code))
+            self.log.error('exiting. POST error response from NDFC controller during {}'.format(url))
+            self.log.error('response.status_code: {}'.format(self.response.status_code))
             try:
-                self.log.info(self.response.reason)
+                self.log.info('response.reason: {}'.format(self.response.reason))
+                self.log.info('response.text: {}'.format(self.response.text))
             except:
-                self.log.error(self.response.reason)
-                self.log.info(self.response.txt)
+                self.log.error('Unable to log response.reason or response.text from NDFC controller for {}'.format(url))
+            exit(1)
 
+    def delete(self, url, headers):
+        self.response = requests.delete(url,
+                        verify=False,
+                        headers=headers)
+        if self.response.status_code == 200:
+            self.log.info('DELETE succeeded {}'.format(url))
+            return
+        else:
+            self.log.error('exiting. DELETE error response from NDFC controller during {}'.format(url))
+            self.log.error('response.status_code: {}'.format(self.response.status_code))
+            try:
+                self.log.info('response.reason: {}'.format(self.response.reason))
+                self.log.info('response.text: {}'.format(self.response.text))
+            except:
+                self.log.error('Unable to log response.reason or response.text from NDFC controller for {}'.format(url))
+            exit(1)
 
     @property
     def username(self):
