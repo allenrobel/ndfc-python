@@ -14,10 +14,10 @@ ndfc.password = nc.password
 ndfc.ip = nc.ndfc_ip
 ndfc.login()
 
-vrf = NdfcVrf(ndfc)
-vrf.displayName = 'foo_vrf'
-vrf.fabric = 'foo'
-vrf.vrfId = 50055
-vrf.vrfName = 'foo_vrf'
-vrf.vrfVlanId = 2000
-vrf.post()
+instance = NdfcVrf(ndfc)
+instance.displayName = 'foo_vrf'
+instance.fabric = 'foo'
+instance.vrfId = 50055
+instance.vrfName = 'foo_vrf'
+instance.vrfVlanId = 2000
+instance.post()
