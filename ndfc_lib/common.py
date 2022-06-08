@@ -503,7 +503,7 @@ class Common(object):
 
     def is_valid_rd(self, x):
         try:
-            asn,nn = re.split(':', item)
+            asn,nn = re.split(':', x)
         except:
             return False
         if self.is_digits(asn) and self.is_digits(nn):
