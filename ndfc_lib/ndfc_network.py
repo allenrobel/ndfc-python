@@ -1,6 +1,70 @@
 our_version = 100
 import json
+'''
+Create / delete networks  The JSON payload constructed by this
+class is shown below.
+
+network = {'displayName': 'MyNetwork_30000',
+ 'fabric': 'IBM_VxLAN_Fabric',
+ 'networkExtensionTemplate': 'Default_Network_Extension_Universal',
+ 'networkId': '30000',
+ 'networkName': 'MyNetwork_30000',
+ 'networkTemplate': 'Default_Network_Universal',
+ 'networkTemplateConfig': {'dhcpServerAddr1': '',
+                           'dhcpServerAddr2': '',
+                           'dhcpServerAddr3': '',
+                           'enableIR': False,
+                           'enableL3OnBorder': True,
+                           'gatewayIpAddress': '10.1.1.1/24',
+                           'gatewayIpV6Address': '',
+                           'intfDescription': '',
+                           'isLayer2Only': False,
+                           'loopbackId': '',
+                           'mcastGroup': '',
+                           'mtu': '9216',
+                           'networkName': 'MyNetwork_30000',
+                           'nveId': 1,
+                           'rtBothAuto': True,
+                           'secondaryGW1': '',
+                           'secondaryGW2': '',
+                           'secondaryGW3': '',
+                           'secondaryGW4': '',
+                           'segmentId': '30000',
+                           'suppressArp': True,
+                           'tag': '12345',
+                           'trmEnabled': False,
+                           'vlanId': '',
+                           'vlanName': '',
+                           'vrfDhcp': '',
+                           'vrfDhcp2': '',
+                           'vrfDhcp3': '',
+                           'vrfName': 'Customer-001'},
+ 'serviceNetworkTemplate': None,
+ 'source': None,
+ 'vrf': 'Customer-001'}
+ 
+'''
 class NdfcNetwork(object):
+    '''
+    create / delete networks
+
+    Example create operation
+
+    instance = NdfcNetwork(ndfc)
+    instance.fabric = 'foo'
+    instance.networkId = 30000
+    instance.vlanId = 3000
+    instance.vrf = 'foo_vrf'
+    instance.create()
+
+    Example delete operation
+
+    instance = NdfcNetwork(ndfc)
+    instance.fabric = 'foo'
+    instance.networkName = 'MyNetwork_30000'
+    instance.delete()
+
+    '''
     def __init__(self, ndfc):
         self.lib_version = our_version
         self.class_name = __class__.__name__
@@ -117,11 +181,11 @@ class NdfcNetwork(object):
     def final_verification(self):
         for p in self.payload_set_mandatory:
             if self.payload[p] == "":
-                self.ndfc.log.error('exiting. call instance.{} before calling instance.post()'.format(p))
+                self.ndfc.log.error('exiting. call instance.{} before calling instance.create()'.format(p))
                 exit(1)
         for p in self.template_config_set_mandatory:
             if self.template_config[p] == "":
-                self.ndfc.log.error('exiting. call instance.{} before calling instance.post()'.format(p))
+                self.ndfc.log.error('exiting. call instance.{} before calling instance.create()'.format(p))
                 exit(1)
 
     def verify_vrf_exists_in_fabric(self):
@@ -182,7 +246,7 @@ class NdfcNetwork(object):
             print('type(d[networkName] {} type(self.networkName) {}'.format(type(d['networkName'], type(self.networkName))))
         return False
 
-    def post(self):
+    def create(self):
         self.preprocess_payload()
         self.final_verification()
 
@@ -196,12 +260,11 @@ class NdfcNetwork(object):
 
         result = self.verify_network_id_does_not_exist_in_fabric()
         if result == False:
-            self.ndfc.log.error('networkId {} already exists in fabric {}.  Delete it before calling NdfcNetwork.post()'.format(
+            self.ndfc.log.error('networkId {} already exists in fabric {}.  Delete it before calling NdfcNetwork.create()'.format(
                 self.networkId,
                 self.fabric
             ))
             exit(1)
-
 
         url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{}/networks'.format(self.ndfc.ip, self.fabric)
 
@@ -391,12 +454,9 @@ class NdfcNetwork(object):
         self.ndfc.verify_mtu(x, '{}.mtu.setter'.format(self.class_name))
         self.template_config['mtu'] = x
 
-    # @property
-    # def networkName(self):
-    #     return self.template_config['networkName']
-    # @networkName.setter
-    # def networkName(self, x):
-    #     self.template_config['networkName'] = x
+    # networkName (see property for self.payload['networkName])
+    # We populate self.template_config['networkName'] from the value
+    # in self.payload['networkName']
 
     @property
     def nveId(self):
@@ -506,50 +566,3 @@ class NdfcNetwork(object):
     @vrfDhcp3.setter
     def vrfDhcp3(self, x):
         self.template_config['vrfDhcp3'] = x
-
-    # @property
-    # def vrfName(self):
-    #     return self.template_config['vrfName']
-    # @vrfName.setter
-    # def vrfName(self, x):
-    #     self.template_config['vrfName'] = x
-
-
-# network = {'displayName': 'MyNetwork_30000',
-#  'fabric': 'IBM_VxLAN_Fabric',
-#  'networkExtensionTemplate': 'Default_Network_Extension_Universal',
-#  'networkId': '30000',
-#  'networkName': 'MyNetwork_30000',
-#  'networkTemplate': 'Default_Network_Universal',
-#  'networkTemplateConfig': {'dhcpServerAddr1': '',
-#                            'dhcpServerAddr2': '',
-#                            'dhcpServerAddr3': '',
-#                            'enableIR': False,
-#                            'enableL3OnBorder': True,
-#                            'gatewayIpAddress': '10.1.1.1/24',
-#                            'gatewayIpV6Address': '',
-#                            'intfDescription': '',
-#                            'isLayer2Only': False,
-#                            'loopbackId': '',
-#                            'mcastGroup': '',
-#                            'mtu': '9216',
-#                            'networkName': 'MyNetwork_30000',
-#                            'nveId': 1,
-#                            'rtBothAuto': True,
-#                            'secondaryGW1': '',
-#                            'secondaryGW2': '',
-#                            'secondaryGW3': '',
-#                            'secondaryGW4': '',
-#                            'segmentId': '30000',
-#                            'suppressArp': True,
-#                            'tag': '12345',
-#                            'trmEnabled': False,
-#                            'vlanId': '',
-#                            'vlanName': '',
-#                            'vrfDhcp': '',
-#                            'vrfDhcp2': '',
-#                            'vrfDhcp3': '',
-#                            'vrfName': 'Customer-001'},
-#  'serviceNetworkTemplate': None,
-#  'source': None,
-#  'vrf': 'Customer-001'}

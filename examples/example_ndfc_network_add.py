@@ -19,4 +19,4 @@ instance.fabric = 'foo'
 instance.networkId = 30000
 instance.vlanId = 3000
 instance.vrf = 'foo_vrf'
-instance.post()
+instance.create()
