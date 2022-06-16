@@ -143,6 +143,10 @@ class Common(object):
         self.valid_platforms.add(92304)
         self.valid_platforms.add(93180)
 
+        self.valid_replication_mode = set()
+        self.valid_replication_mode.add('Ingress')
+        self.valid_replication_mode.add('Multicast')
+
         self.valid_state = set()
         self.valid_state.add('present')
         self.valid_state.add('absent')
@@ -779,6 +783,12 @@ class Common(object):
             return
         expectation = 'list_or_default, e.g. [x, y, z] or default'
         self.fail(self.class_name, parameter, x, parameter, expectation)
+
+    def verify_replication_mode(self, x, parameter=''):
+        verify_set = self.valid_replication_mode
+        if x not in verify_set:
+            expectation = ','.join(verify_set)
+            self.fail(self.class_name, parameter, x, parameter, expectation)
 
     def verify_state(self, x, parameter=''):
         verify_set = self.valid_state
