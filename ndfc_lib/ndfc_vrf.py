@@ -22,7 +22,6 @@ class NdfcVrf(object):
         self.mandatory_payload_set.add('vrfName')
 
         self.mandatory_template_config_set = set()
-        #self.mandatory_template_config_set.add('asn')
         self.mandatory_template_config_set.add('vrfVlanId')
 
         self.payload_default = dict()
@@ -32,7 +31,6 @@ class NdfcVrf(object):
         self.template_config_set = set()
         self.template_config_set.add('advertiseHostRouteFlag')
         self.template_config_set.add('advertiseDefaultRouteFlag')
-        # self.template_config_set.add('asn')
         self.template_config_set.add('bgpPassword')
         self.template_config_set.add('bgpPasswordKeyType')
         self.template_config_set.add('configureStaticDefaultRouteFlag')
@@ -205,14 +203,6 @@ class NdfcVrf(object):
     def advertiseDefaultRouteFlag(self, x):
         self.ndfc.verify_boolean(x)
         self.template_config['advertiseDefaultRouteFlag'] = x
-
-    # @property
-    # def asn(self):
-    #     return self.template_config['asn']
-    # @asn.setter
-    # def asn(self, x):
-    #     self.verify_bgp_asn(x)
-    #     self.template_config['asn'] = x
 
     @property
     def bgpPassword(self):
