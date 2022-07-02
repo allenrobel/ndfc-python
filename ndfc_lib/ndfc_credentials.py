@@ -61,6 +61,14 @@ class NdfcCredentials(object):
         self.credentials['username'] = str(data['ansible_user'])
         self.credentials['password'] = str(data['ansible_password'])
         self.credentials['ndfc_ip'] = str(data['ndfc_ip'])
+        self.credentials['discover_username'] = str(data['discover_username'])
+        self.credentials['discover_password'] = str(data['discover_password'])
+    @property
+    def discover_username(self):
+        return self.credentials['discover_username']
+    @property
+    def discover_password(self):
+        return self.credentials['discover_password']
     @property
     def username(self):
         return self.credentials['username']
