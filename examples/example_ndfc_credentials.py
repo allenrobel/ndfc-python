@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from ndfc_lib.ndfc_credentials import NdfcCredentials
+from ndfc_python.ndfc_credentials import NdfcCredentials
 
 nc = NdfcCredentials()
 

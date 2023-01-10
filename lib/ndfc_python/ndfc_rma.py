@@ -1,68 +1,39 @@
 our_version = 100
 import json
 '''
-Create / delete networks  The JSON payload constructed by this
+RMA a switch. The JSON payload constructed by this
 class is shown below.
 
-network = {'displayName': 'MyNetwork_30000',
- 'fabric': 'IBM_VxLAN_Fabric',
- 'networkExtensionTemplate': 'Default_Network_Extension_Universal',
- 'networkId': '30000',
- 'networkName': 'MyNetwork_30000',
- 'networkTemplate': 'Default_Network_Universal',
- 'networkTemplateConfig': {'dhcpServerAddr1': '',
-                           'dhcpServerAddr2': '',
-                           'dhcpServerAddr3': '',
-                           'enableIR': False,
-                           'enableL3OnBorder': True,
-                           'gatewayIpAddress': '10.1.1.1/24',
-                           'gatewayIpV6Address': '',
-                           'intfDescription': '',
-                           'isLayer2Only': False,
-                           'loopbackId': '',
-                           'mcastGroup': '',
-                           'mtu': '9216',
-                           'networkName': 'MyNetwork_30000',
-                           'nveId': 1,
-                           'rtBothAuto': True,
-                           'secondaryGW1': '',
-                           'secondaryGW2': '',
-                           'secondaryGW3': '',
-                           'secondaryGW4': '',
-                           'segmentId': '30000',
-                           'suppressArp': True,
-                           'tag': '12345',
-                           'trmEnabled': False,
-                           'vlanId': '',
-                           'vlanName': '',
-                           'vrfDhcp': '',
-                           'vrfDhcp2': '',
-                           'vrfDhcp3': '',
-                           'vrfName': 'Customer-001'},
- 'serviceNetworkTemplate': None,
- 'source': None,
- 'vrf': 'Customer-001'}
- 
+{
+  "oldSerialNumber": "string",
+  "newSerialNumber": "string",
+  "model": "string",
+  "version": "string",
+  "hostname": "string",
+  "ipAddress": "string",
+  "publicKey": "string",
+  "imagePolicy": "string",
+  "password": "string",
+  "discoveryUsername": "string",
+  "discoveryPassword": "string",
+  "discoveryAuthProtocol": 0,
+  "data": "string",
+  "fingerprint": "string",
+  "reAdd": true
+}
+
 '''
-class NdfcNetwork(object):
+class NdfcRma(object):
     '''
-    create / delete networks
+    RMA a switch
 
-    Example create operation
+    Example create RMA
 
-    instance = NdfcNetwork(ndfc)
+    instance = NdfcRma(ndfc)
     instance.fabric = 'foo'
-    instance.networkId = 30000
-    instance.vlanId = 3000
-    instance.vrf = 'foo_vrf'
+    instance.old_serial_number = FDO21120U5D
+    instance.new_serial_number = FDO211218GC
     instance.create()
-
-    Example delete operation
-
-    instance = NdfcNetwork(ndfc)
-    instance.fabric = 'foo'
-    instance.networkName = 'MyNetwork_30000'
-    instance.delete()
 
     '''
     def __init__(self, ndfc):
@@ -75,72 +46,33 @@ class NdfcNetwork(object):
         self.headers['Content-Type'] = 'application/json'
 
         self.payload_set = set()
-        self.payload_set.add('displayName')
+        self.payload_set.add('data')
+        self.payload_set.add('discoveryAuthProtocol')
+        self.payload_set.add('discoveryUsername')
+        self.payload_set.add('discoveryPassword')
         self.payload_set.add('fabric')
-        self.payload_set.add('networkExtensionTemplate')
-        self.payload_set.add('networkId')
-        self.payload_set.add('networkName')
-        self.payload_set.add('networkTemplate')
-        self.payload_set.add('serviceNetworkTemplate')
-        self.payload_set.add('source')
-        self.payload_set.add('vrf')
+        self.payload_set.add('fingerprint')
+        self.payload_set.add('hostname')
+        self.payload_set.add('imagePolicy')
+        self.payload_set.add('ipAddress')
+        self.payload_set.add('model')
+        self.payload_set.add('newSerialNumber')
+        self.payload_set.add('oldSerialNumber')
+        self.payload_set.add('password')
+        self.payload_set.add('publicKey')
+        self.payload_set.add('reAdd')
+        self.payload_set.add('version')
 
         self.payload_set_mandatory = set()
         self.payload_set_mandatory.add('fabric')
-        self.payload_set_mandatory.add('networkId')
-        self.payload_set_mandatory.add('vrf')
+        self.payload_set_mandatory.add('newSerialNumber')
+        self.payload_set_mandatory.add('oldSerialNumber')
 
         self.payload_default = dict()
-        self.payload_default['networkExtensionTemplate'] = 'Default_Network_Extension_Universal'
-        self.payload_default['networkTemplate'] = 'Default_Network_Universal'
-
-        self.template_config_set = set()
-        self.template_config_set.add('dhcpServerAddr1')
-        self.template_config_set.add('dhcpServerAddr2')
-        self.template_config_set.add('dhcpServerAddr3')
-        self.template_config_set.add('enableIR')
-        self.template_config_set.add('enableL3OnBorder')
-        self.template_config_set.add('gatewayIpAddress')
-        self.template_config_set.add('gatewayIpV6Address')
-        self.template_config_set.add('intfDescription')
-        self.template_config_set.add('isLayer2Only')
-        self.template_config_set.add('loopbackId')
-        self.template_config_set.add('mcastGroup')
-        self.template_config_set.add('mtu')
-        self.template_config_set.add('networkName')
-        self.template_config_set.add('nveId')
-        self.template_config_set.add('rtBothAuto')
-        self.template_config_set.add('secondaryGW1')
-        self.template_config_set.add('secondaryGW2')
-        self.template_config_set.add('secondaryGW3')
-        self.template_config_set.add('secondaryGW4')
-        self.template_config_set.add('segmentId')
-        self.template_config_set.add('suppressArp')
-        self.template_config_set.add('tag')
-        self.template_config_set.add('trmEnabled')
-        self.template_config_set.add('vlanId')
-        self.template_config_set.add('vlanName')
-        self.template_config_set.add('vrfDhcp')
-        self.template_config_set.add('vrfDhcp2')
-        self.template_config_set.add('vrfDhcp3')
-        self.template_config_set.add('vrfName')
-
-        self.template_config_set_mandatory = set()
-        self.template_config_set_mandatory.add('vlanId')
-
-        self.template_config_default = dict()
-        self.template_config_default['enableIR'] = True
-        self.template_config_default['enableL3OnBorder'] = False
-        self.template_config_default['isLayer2Only'] = False
-        self.template_config_default['mtu'] = 9216
-        self.template_config_default['nveId'] = 1
-        self.template_config_default['rtBothAuto'] = False
-        self.template_config_default['suppressArp'] = True
-        self.template_config_default['tag'] = '12345'
-        self.template_config_default['trmEnabled'] = False
+        self.payload_default['discoveryAuthProtocol'] = 0
+        self.payload_default['reAdd'] = True
 
         self.init_payload()
-        self.init_template_config()
 
     def init_payload(self):
         self.payload = dict()
@@ -149,13 +81,6 @@ class NdfcNetwork(object):
                 self.payload[p] = self.payload_default[p]
             else:
                 self.payload[p] = ""
-    def init_template_config(self):
-        self.template_config = dict()
-        for p in self.template_config_set:
-            if p in self.template_config_default:
-                self.template_config[p] = self.template_config_default[p]
-            else:
-                self.template_config[p] = ""
 
     def preprocess_payload(self):
         '''
@@ -165,32 +90,18 @@ class NdfcNetwork(object):
 
         3. Any other fixup that may be required
         '''
-        # if source is null, NDFC complains if it's present
-        if self.source == "":
-            self.payload.pop('source', None)
-            self.ndfc.log.debug('deleted null source key from payload to avoid ndfc complaints')
-        if self.networkName == "":
-            self.networkName = 'MyNetwork_{}'.format(self.networkId)
-            self.template_config['networkName'] = self.networkName
-        if self.displayName == "":
-            self.displayName = self.networkName
-        self.template_config['vrfName'] = self.vrf
-        if self.segmentId == "":
-            self.segmentId = self.networkId
+        if self.discoveryUsername == "":
+            self.discoveryUsername = 'admin'
 
     def final_verification(self):
         for p in self.payload_set_mandatory:
             if self.payload[p] == "":
                 self.ndfc.log.error('exiting. call instance.{} before calling instance.create()'.format(p))
                 exit(1)
-        for p in self.template_config_set_mandatory:
-            if self.template_config[p] == "":
-                self.ndfc.log.error('exiting. call instance.{} before calling instance.create()'.format(p))
-                exit(1)
 
-    def verify_vrf_exists_in_fabric(self):
+    def verify_fabric_exists(self):
         '''
-        Return True if vrfName is present in the fabric
+        Return True if fabric is present
         Else, return False
         '''
         url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{}/vrfs'.format(self.ndfc.ip, self.fabric)

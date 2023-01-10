@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
-from ndfc_lib.log import Log
-from ndfc_lib.ndfc import NDFC
-from ndfc_lib.ndfc_network import NdfcNetwork
-from ndfc_lib.ndfc_credentials import NdfcCredentials
+from ndfc_python.log import Log
+from ndfc_python.ndfc import NDFC
+from ndfc_python.ndfc_network import NdfcNetwork
+from ndfc_python.ndfc_credentials import NdfcCredentials
 
 nc = NdfcCredentials()
 
@@ -15,6 +15,6 @@ ndfc.ip = nc.ndfc_ip
 ndfc.login()
 
 instance = NdfcNetwork(ndfc)
-instance.fabric = 'foo'
-instance.networkName = 'MyNetwork_30000'
+instance.fabric = 'MSD'
+instance.networkName = 'MyNetwork_30005'
 instance.delete()

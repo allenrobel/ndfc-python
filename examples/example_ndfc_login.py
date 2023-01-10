@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-from ndfc_lib.log import Log
-from ndfc_lib.ndfc import NDFC
-from ndfc_lib.ndfc_credentials import NdfcCredentials
+from ndfc_python.log import Log
+from ndfc_python.ndfc import NDFC
+from ndfc_python.ndfc_credentials import NdfcCredentials
 
 log = Log('ndfc_log', 'INFO', 'DEBUG')
 

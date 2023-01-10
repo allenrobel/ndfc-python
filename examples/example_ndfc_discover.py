@@ -4,10 +4,10 @@ Description:
 
 Discover switch
 '''
-from ndfc_lib.log import Log
-from ndfc_lib.ndfc import NDFC
-from ndfc_lib.ndfc_discover import NdfcDiscover
-from ndfc_lib.ndfc_credentials import NdfcCredentials
+from ndfc_python.log import Log
+from ndfc_python.ndfc import NDFC
+from ndfc_python.ndfc_discover import NdfcDiscover
+from ndfc_python.ndfc_credentials import NdfcCredentials
 
 nc = NdfcCredentials()
 
@@ -19,12 +19,14 @@ ndfc.ip = nc.ndfc_ip
 ndfc.login()
 
 instance = NdfcDiscover(ndfc)
-instance.seedIP = '172.22.150.115'
-instance.fabric = 'f2'
+instance.fabric = 'f1'
 instance.cdpSecondTimeout = 5
 instance.username = nc.discover_username
 instance.password = nc.discover_password
 instance.preserveConfig = False
-instance.discover()
-print('discover_status_code {}'.format(instance.discover_status_code))
-print('discover_response {}'.format(instance.discover_response))
+seedIps = ['172.22.150.110', '172.22.150.111']
+for seedIp in seedIps:
+    instance.seedIP = seedIp
+    instance.discover()
+    print('discover_status_code {}'.format(instance.discover_status_code))
+    print('discover_response {}'.format(instance.discover_response))

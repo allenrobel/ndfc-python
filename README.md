@@ -49,7 +49,7 @@ Spines and Leafs can be added/removed by updating the Common Role Variables desc
 
 ### Config File
 
-To use these scripts and libraries, you'll need to update a common settings file located in ``./ndfc-python/ndfc_lib/config.yml``.  This points to the locaton of your Ansible Vault file (see below for how Ansible Vault is used).
+To use these scripts and libraries, you'll need to update a common settings file located in ``./ndfc-python/lib/ndfc_python/config.yml``.  This points to the locaton of your Ansible Vault file (see below for how Ansible Vault is used).
 
 There is one setting in this file (currently):
 
@@ -126,6 +126,12 @@ device_username: admin
 ndfc_ip: 192.168.1.1
 ```
 
+##### Add this repo's library to your python path.  For example, in .bash_profile or .zprofile
+
+```bash
+PYTHONPATH=${PYTHONPATH}:${HOME}/repos/ndfc-python/lib
+export PYTHONPATH
+```
 
 ##### To run a playbook if you encrypted your NDFC password
 

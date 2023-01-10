@@ -7,7 +7,7 @@ Load YAML file pointed to by the config_file variable, and return the contents a
 
 Usage:
 
-from ndfc_lib.ndfc_config import NdfcLoadConfig
+from ndfc_python.ndfc_config import NdfcLoadConfig
 
 c = NdfcLoadConfig()
 print('c.ansible_vault {}'.format(c.config['ansible_vault']))
@@ -18,7 +18,7 @@ Allen Robel (arobel@cisco.com)
 '''
 import yaml
 
-config_file = '/Users/arobel/repos/ndfc-python/ndfc_lib/config.yml'
+config_file = '/Users/arobel/repos/ndfc-python/lib/ndfc_python/config/config.yml'
 class NdfcLoadConfig(object):
     def __init__(self):
         self.properties = dict()

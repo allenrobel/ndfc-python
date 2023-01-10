@@ -18,17 +18,17 @@ pip install ansible
 
 2. NdfcLoadConfig()
 
-In this repo at ndfc_lib/ndfc_config.py
+In this repo at lib/ndfc_python/ndfc_config.py
 
 NdfcLoadConfig() loads ndfc_python's settings, which includes the path to your
-ansible vault.  To configure this path, edit ndfc-python/ndfc_lib/ndfc_config.py
+ansible vault.  To configure this path, edit ndfc-python/lib/ndfc_python/ndfc_config.py
 and modify the config_file variable at the top of the file.
 '''
 from ansible import constants as C
 from ansible.cli import CLI
 from ansible.parsing.dataloader import DataLoader
 
-from ndfc_lib.ndfc_config import NdfcLoadConfig 
+from ndfc_python.ndfc_config import NdfcLoadConfig 
 
 class NdfcCredentials(object):
     def __init__(self):
@@ -36,6 +36,9 @@ class NdfcCredentials(object):
         self.mandatory_keys.add('ansible_user')
         self.mandatory_keys.add('ansible_password')
         self.mandatory_keys.add('ndfc_ip')
+        self.mandatory_keys.add('discover_username')
+        self.mandatory_keys.add('discover_password')
+
 
         self.c = NdfcLoadConfig()
 

@@ -4,10 +4,10 @@ Description:
 
 Create a site/child fabric using NdfcFabricSite()
 '''
-from ndfc_lib.log import Log
-from ndfc_lib.ndfc import NDFC
-from ndfc_lib.ndfc_fabric_site import NdfcFabricSite
-from ndfc_lib.ndfc_credentials import NdfcCredentials
+from ndfc_python.log import Log
+from ndfc_python.ndfc import NDFC
+from ndfc_python.ndfc_fabric_site import NdfcFabricSite
+from ndfc_python.ndfc_credentials import NdfcCredentials
 
 nc = NdfcCredentials()
 
