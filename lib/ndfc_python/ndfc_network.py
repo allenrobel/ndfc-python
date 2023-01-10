@@ -55,8 +55,8 @@ class NdfcNetwork:
 
     instance = NdfcNetwork(ndfc)
     instance.fabric = 'foo'
-    instance.networkId = 30000
-    instance.vlanId = 3000
+    instance.network_id = 30000
+    instance.vlan_id = 3000
     instance.vrf = 'foo_vrf'
     instance.create()
 
@@ -64,7 +64,7 @@ class NdfcNetwork:
 
     instance = NdfcNetwork(ndfc)
     instance.fabric = 'foo'
-    instance.networkName = 'MyNetwork_30000'
+    instance.network_name = 'MyNetwork_30000'
     instance.delete()
 
     """
