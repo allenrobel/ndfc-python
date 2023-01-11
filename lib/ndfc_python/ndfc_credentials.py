@@ -24,14 +24,36 @@ NdfcLoadConfig() loads ndfc_python's settings, which includes the path to your
 ansible vault.  To configure this path, edit ndfc-python/lib/ndfc_python/ndfc_config.py
 and modify the config_file variable at the top of the file.
 '''
+import sys
+from inspect import stack
 from ansible import constants as C
 from ansible.cli import CLI
 from ansible.parsing.dataloader import DataLoader
+from ndfc_python.ndfc_config import NdfcLoadConfig
 
-from ndfc_python.ndfc_config import NdfcLoadConfig 
+OUR_VERSION = 101
 
-class NdfcCredentials(object):
+class NdfcCredentials:
+    """
+    Unencrypt NDFC and other credentials and provide to the user via properties
+    after asking for the ansible vault password.
+    """
     def __init__(self):
+        self.lib_version = OUR_VERSION
+        self._init_mandatory_keys()
+        self.cred_obj = NdfcLoadConfig()
+        self.load_credentials()
+
+    def log(self, *args):
+        """
+        simple logger
+        """
+        print(f"{stack()[1].function}(v{self.lib_version}): {' '.join(args)}")
+
+    def _init_mandatory_keys(self):
+        """
+        Initialize a set containing all mandatory keys
+        """
         self.mandatory_keys = set()
         self.mandatory_keys.add('ansible_user')
         self.mandatory_keys.add('ansible_password')
@@ -39,28 +61,31 @@ class NdfcCredentials(object):
         self.mandatory_keys.add('discover_username')
         self.mandatory_keys.add('discover_password')
 
-
-        self.c = NdfcLoadConfig()
-
-        self.load_credentials()
-
     def load_credentials(self):
+        """
+        Load user credentials from ansible vault.  This asked for the ansible
+        vault password.
+        """
         try:
             loader = DataLoader()
-            vault_secrets = CLI.setup_vault_secrets(loader=loader,
-                        vault_ids=C.DEFAULT_VAULT_IDENTITY_LIST)
+            vault_secrets = CLI.setup_vault_secrets(
+                loader=loader,
+                vault_ids=C.DEFAULT_VAULT_IDENTITY_LIST
+            )
             loader.set_vault_secrets(vault_secrets)
-            data = loader.load_from_file(self.c.config['ansible_vault'])
-        except e as Exception:
-            print('unable to load credentials in {}.'.format(self.c.config['ansible_vault']))
-            print('Exception was: {}'.format(e))
-            exit(1)
+            data = loader.load_from_file(self.cred_obj.config['ansible_vault'])
+        except Exception as general_exception:
+            self.log(
+                f"unable to load credentials in {self.cred_obj.config['ansible_vault']}.",
+                f"Exception detail: {general_exception}"
+            )
+            sys.exit(1)
 
-        for k in self.mandatory_keys:
-            if k not in data:
-                print('Exiting. ansible_vault is missing key {}'.format(k))
-                exit(1)
-        self.credentials = dict()
+        for key in self.mandatory_keys:
+            if key not in data:
+                self.log("Exiting. ansible_vault is missing key {key}")
+                sys.exit(1)
+        self.credentials = {}
         self.credentials['username'] = str(data['ansible_user'])
         self.credentials['password'] = str(data['ansible_password'])
         self.credentials['ndfc_ip'] = str(data['ndfc_ip'])
@@ -68,16 +93,31 @@ class NdfcCredentials(object):
         self.credentials['discover_password'] = str(data['discover_password'])
     @property
     def discover_username(self):
+        """
+        return current value of discover_username
+        """
         return self.credentials['discover_username']
     @property
     def discover_password(self):
+        """
+        return current value of discover_password
+        """
         return self.credentials['discover_password']
     @property
     def username(self):
+        """
+        return current value of username
+        """
         return self.credentials['username']
     @property
     def password(self):
+        """
+        return current value of password
+        """
         return self.credentials['password']
     @property
     def ndfc_ip(self):
+        """
+        return current value of ndfc_ip
+        """
         return self.credentials['ndfc_ip']
