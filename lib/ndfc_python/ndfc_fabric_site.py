@@ -4,10 +4,10 @@ Description: NdfcFabricSite creates NDFC site fabrics
 """
 import sys
 
-OUR_VERSION = 101
+OUR_VERSION = 102
 
 
-class NdfcFabricSite(object):
+class NdfcFabricSite:
     """
     Create site/child fabrics.
 
@@ -37,14 +37,23 @@ class NdfcFabricSite(object):
         self._init_nv_pairs()
 
     def _init_properties_set(self):
+        """
+        Initialize a set containing all properties
+        """
         self.properties_set = set()
         self.properties_set.add("fabric")
 
     def _init_properties_mandatory_set(self):
+        """
+        Initialize a set containing mandatory properties
+        """
         self.properties_mandatory_set = set()
         self.properties_mandatory_set.add("fabric")
 
     def _init_nv_pairs_default(self):
+        """
+        Initialize default values for nv pairs
+        """
         self._nv_pairs_default = {}
         self._nv_pairs_default["ANYCAST_RP_IP_RANGE"] = ""
         self._nv_pairs_default["DCI_SUBNET_RANGE"] = "10.33.0.0/16"
@@ -61,6 +70,9 @@ class NdfcFabricSite(object):
         ] = "Default_VRF_Extension_Universal"
 
     def _init_nv_pairs_set(self):
+        """
+        Initialize a set containing all nv pairs
+        """
         self._nv_pairs_set = set()
         self._nv_pairs_set.add("ANYCAST_RP_IP_RANGE")
         self._nv_pairs_set.add("BGP_AS")
@@ -74,15 +86,24 @@ class NdfcFabricSite(object):
         self._nv_pairs_set.add("vrf_extension_template")
 
     def _init_nv_pairs_mandatory_set(self):
+        """
+        Initialize a set containing mandatory nv pairs
+        """
         self.nv_pairs_mandatory_set = set()
         self.nv_pairs_mandatory_set = self._nv_pairs_set.difference(
             self._nv_pairs_default
         )
 
     def _init_properties_default(self):
+        """
+        Initialize default properties (currently there are no default properties)
+        """
         self.properties_default = {}
 
     def _init_properties(self):
+        """
+        Initialize all properties
+        """
         self.properties = {}
         for param in self.properties_set:
             if param in self.properties_default:
@@ -91,7 +112,9 @@ class NdfcFabricSite(object):
                 self.properties[param] = ""
 
     def _init_nv_pairs(self):
-        # All properties, except fabric, live here
+        """
+        All properties, except fabric, live in nv_pairs
+        """
         self._nv_pairs = {}
         for param in self._nv_pairs_set:
             if param in self._nv_pairs_default:
@@ -103,7 +126,6 @@ class NdfcFabricSite(object):
         """
         1. Align the properties to the expectations of NDFC
         """
-        pass
 
     def _final_verification(self):
         for param in self.properties_mandatory_set:
@@ -118,6 +140,9 @@ class NdfcFabricSite(object):
                 sys.exit(1)
 
     def create(self):
+        """
+        Create a fabric using Easy_Fabric template.
+        """
         self._final_verification()
         self._preprocess_properties()
 
