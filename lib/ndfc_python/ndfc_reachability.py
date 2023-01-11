@@ -1,6 +1,4 @@
-our_version = 100
-import json
-'''
+"""
 Test switch reachability (from NDFC controller perspective). The JSON payload constructed by this
 class is shown below.
 
@@ -35,9 +33,15 @@ Response is found in ndfc.response.text and has the following format:
             "statusReason":"manageable"
         }
     ]
-'''
-class NdfcReachability(object):
-    '''
+"""
+import json
+import sys
+
+OUR_VERSION = 102
+
+
+class NdfcReachability:
+    """
     Tests switch reachability (from NDFC controller perspective).
     Populates:
         self.result = result code from controller
@@ -53,44 +57,51 @@ class NdfcReachability(object):
     instance.reachability()
     print('response: {}'.format(instance.response))
 
-    '''
+    """
+
     def __init__(self, ndfc):
-        self.lib_version = our_version
+        self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
         self.ndfc = ndfc
 
         # post/get base headers
         self.headers = dict()
-        self.headers['Content-Type'] = 'application/json'
-
-        self.payload_set = set()
-        self.payload_set.add('cdpSecondTimeout')
-        self.payload_set.add('fabric')
-        self.payload_set.add('maxHops')
-        self.payload_set.add('password')
-        self.payload_set.add('preserveConfig')
-        self.payload_set.add('seedIP')
-        self.payload_set.add('snmpV3AuthProtocol')
-        self.payload_set.add('username')
-
-        self.payload_set_mandatory = set()
-        self.payload_set_mandatory.add('fabric')
-        self.payload_set_mandatory.add('seedIP')
-        self.payload_set_mandatory.add('password')
-
-        self.payload_default = dict()
-        self.payload_default['cdpSecondTimeout'] = 5
-        self.payload_default['maxHops'] = 0
-        self.payload_default['preserveConfig'] = True
-        self.payload_default['snmpV3AuthProtocol'] = 0
-        self.payload_default['username'] = 'admin'
+        self.headers["Content-Type"] = "application/json"
 
         self.response = None
         self.status_code = None
 
-        self.init_payload()
+        self._init_payload_set()
+        self._init_payload_set_mandatory()
+        self._init_payload_default()
+        self._init_payload()
 
-    def init_payload(self):
+    def _init_payload_set(self):
+        self.payload_set = set()
+        self.payload_set.add("cdpSecondTimeout")
+        self.payload_set.add("fabric")
+        self.payload_set.add("maxHops")
+        self.payload_set.add("password")
+        self.payload_set.add("preserveConfig")
+        self.payload_set.add("seedIP")
+        self.payload_set.add("snmpV3AuthProtocol")
+        self.payload_set.add("username")
+
+    def _init_payload_set_mandatory(self):
+        self.payload_set_mandatory = set()
+        self.payload_set_mandatory.add("fabric")
+        self.payload_set_mandatory.add("seedIP")
+        self.payload_set_mandatory.add("password")
+
+    def _init_payload_default(self):
+        self.payload_default = dict()
+        self.payload_default["cdpSecondTimeout"] = 5
+        self.payload_default["maxHops"] = 0
+        self.payload_default["preserveConfig"] = True
+        self.payload_default["snmpV3AuthProtocol"] = 0
+        self.payload_default["username"] = "admin"
+
+    def _init_payload(self):
         self.payload = dict()
         for p in self.payload_set:
             if p in self.payload_default:
@@ -98,32 +109,35 @@ class NdfcReachability(object):
             else:
                 self.payload[p] = ""
 
-    def preprocess_payload(self):
-        '''
-        1. Set a default value for any properties that the caller has not set and that NDFC provides a default for. 
+    def _preprocess_payload(self):
+        """
+        1. Set a default value for any properties that the caller has not set and that
+        NDFC provides a default for.
 
-        2. Copy top-level property values (that need it) into their respective template_config properties.
+        2. Copy top-level property values (that need it) into their respective
+        template_config properties.
 
         3. Any other fixup that may be required
-        '''
-        pass
+        """
 
-    def final_verification(self):
-        for p in self.payload_set_mandatory:
-            if self.payload[p] == "":
-                self.ndfc.log.error('exiting. call instance.{} before calling instance.create()'.format(p))
-                exit(1)
+    def _final_verification(self):
+        for param in self.payload_set_mandatory:
+            if self.payload[param] == "":
+                self.ndfc.log.error(
+                    f"exiting. call instance.{param} before calling instance.create()"
+                )
+                sys.exit(1)
 
     def reachability(self):
-        self.preprocess_payload()
-        self.final_verification()
+        self._preprocess_payload()
+        self._final_verification()
 
-        url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{}/inventory/test-reachability'.format(
-            self.ndfc.ip,
-            self.fabric)
+        url = (
+            f"{self.ndfc.url_control_fabrics}/{self.fabric}/inventory/test-reachability"
+        )
 
         headers = self.headers
-        headers['Authorization'] = self.ndfc.bearer_token
+        headers["Authorization"] = self.ndfc.bearer_token
 
         self.ndfc.post(url, headers, self.payload)
         self.status_code = self.ndfc.response.status_code
@@ -132,61 +146,69 @@ class NdfcReachability(object):
     # top_level properties
     @property
     def cdpSecondTimeout(self):
-        return self.payload['cdpSecondTimeout']
+        return self.payload["cdpSecondTimeout"]
+
     @cdpSecondTimeout.setter
-    def cdpSecondTimeout(self, x):
-        self.ndfc.verify_digits(x, 'cdpSecondTimeout')
-        self.payload['cdpSecondTimeout'] = x
+    def cdpSecondTimeout(self, param):
+        self.ndfc.verify_digits(param, "cdpSecondTimeout")
+        self.payload["cdpSecondTimeout"] = param
 
     @property
     def fabric(self):
-        return self.payload['fabric']
+        return self.payload["fabric"]
+
     @fabric.setter
-    def fabric(self, x):
-        self.payload['fabric'] = x
+    def fabric(self, param):
+        self.payload["fabric"] = param
 
     @property
     def maxHops(self):
-        return self.payload['maxHops']
+        return self.payload["maxHops"]
+
     @maxHops.setter
-    def maxHops(self, x):
-        self.ndfc.verify_digits(x, 'maxHops')
-        self.payload['maxHops'] = x
+    def maxHops(self, param):
+        self.ndfc.verify_digits(param, "maxHops")
+        self.payload["maxHops"] = param
 
     @property
     def password(self):
-        return self.payload['password']
+        return self.payload["password"]
+
     @password.setter
-    def password(self, x):
-        self.payload['password'] = x
+    def password(self, param):
+        self.payload["password"] = param
 
     @property
     def preserveConfig(self):
-        return self.template_config['preserveConfig']
+        return self.template_config["preserveConfig"]
+
     @preserveConfig.setter
-    def preserveConfig(self, x):
-        self.ndfc.verify_boolean(x)
-        self.template_config['preserveConfig'] = x
+    def preserveConfig(self, param):
+        self.ndfc.verify_boolean(param)
+        self.template_config["preserveConfig"] = param
 
     @property
     def seedIP(self):
-        return self.payload['seedIP']
+        return self.payload["seedIP"]
+
     @seedIP.setter
-    def seedIP(self, x):
-        self.ndfc.verify_ipv4_address(x, 'seedIP')
-        self.payload['seedIP'] = x
+    def seedIP(self, param):
+        self.ndfc.verify_ipv4_address(param, "seedIP")
+        self.payload["seedIP"] = param
 
     @property
     def snmpV3AuthProtocol(self):
-        return self.payload['snmpV3AuthProtocol']
+        return self.payload["snmpV3AuthProtocol"]
+
     @snmpV3AuthProtocol.setter
-    def snmpV3AuthProtocol(self, x):
-        self.ndfc.verify_digits(x, 'snmpV3AuthProtocol')
-        self.payload['snmpV3AuthProtocol'] = x
+    def snmpV3AuthProtocol(self, param):
+        self.ndfc.verify_digits(param, "snmpV3AuthProtocol")
+        self.payload["snmpV3AuthProtocol"] = param
 
     @property
     def username(self):
-        return self.payload['username']
+        return self.payload["username"]
+
     @username.setter
-    def username(self, x):
-        self.payload['username'] = x
+    def username(self, param):
+        self.payload["username"] = param
