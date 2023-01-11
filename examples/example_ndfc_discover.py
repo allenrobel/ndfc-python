@@ -15,7 +15,7 @@ log = Log('vrf_log', 'INFO', 'DEBUG')
 ndfc = NDFC(log)
 ndfc.username = nc.username
 ndfc.password = nc.password
-ndfc.ip = nc.ndfc_ip
+ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
 instance = NdfcDiscover(ndfc)

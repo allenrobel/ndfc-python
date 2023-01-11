@@ -8,10 +8,11 @@ log = Log('ndfc_log', 'INFO', 'DEBUG')
 
 nc = NdfcCredentials()
 
+
 ndfc = NDFC(log)
+ndfc.ip4 = nc.ndfc_ip
 ndfc.username = nc.username
 ndfc.password = nc.password
-ndfc.ip = nc.ndfc_ip
 ndfc.login()
 
 print('ndfc_token {}'.format(ndfc.auth_token))

@@ -137,7 +137,7 @@ class NdfcDiscover(object):
         self.final_verification()
 
         url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{}/inventory/test-reachability'.format(
-            self.ndfc.ip,
+            self.ndfc.ip4,
             self.fabric)
 
         headers = self.headers
@@ -155,7 +155,7 @@ class NdfcDiscover(object):
             exit(1)
 
         url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{}/inventory/discover'.format(
-            self.ndfc.ip,
+            self.ndfc.ip4,
             self.fabric)
 
         self.payload['switches'] = self.reachability_response

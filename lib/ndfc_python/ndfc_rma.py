@@ -104,7 +104,7 @@ class NdfcRma(object):
         Return True if fabric is present
         Else, return False
         '''
-        url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{}/vrfs'.format(self.ndfc.ip, self.fabric)
+        url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{}/vrfs'.format(self.ndfc.ip4, self.fabric)
 
         headers = self.headers
         headers['Authorization'] = self.ndfc.bearer_token
@@ -127,7 +127,7 @@ class NdfcRma(object):
         Return True if networkId is not present in the fabric
         Else, return False
         '''
-        url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{}/networks'.format(self.ndfc.ip, self.fabric)
+        url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{}/networks'.format(self.ndfc.ip4, self.fabric)
         headers = self.headers
         headers['Authorization'] = self.ndfc.bearer_token
 
@@ -144,7 +144,7 @@ class NdfcRma(object):
         Return True if networkId exists in the fabric.
         Else return False
         '''
-        url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{}/networks'.format(self.ndfc.ip, self.fabric)
+        url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{}/networks'.format(self.ndfc.ip4, self.fabric)
         headers = self.headers
         headers['Authorization'] = self.ndfc.bearer_token
 
@@ -177,7 +177,7 @@ class NdfcRma(object):
             ))
             exit(1)
 
-        url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{}/networks'.format(self.ndfc.ip, self.fabric)
+        url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{}/networks'.format(self.ndfc.ip4, self.fabric)
 
         headers = self.headers
         headers['Authorization'] = self.ndfc.bearer_token
@@ -205,7 +205,7 @@ class NdfcRma(object):
             ))
             exit(1)
 
-        url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{}/networks/{}'.format(self.ndfc.ip, self.fabric, self.networkName)
+        url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{}/networks/{}'.format(self.ndfc.ip4, self.fabric, self.networkName)
         self.ndfc.delete(url, headers)
 
     # top_level properties

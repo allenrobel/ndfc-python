@@ -1,128 +1,228 @@
+"""
+Name: ndfc.py
+Description: Methods to login to an NDFC controller and perform get, post, delete operations.
+
+Example usage:
+
+# Login to an NDFC controller
+from ndfc_python.log import Log
+from ndfc_python.ndfc import NDFC
+
+log = Log('example_log', 'INFO', 'DEBUG') # INFO to screen, DEBUG to file
+ndfc = NDFC(log)
+ndfc.username = "my_username"
+ndfc.password = "my_password"
+ndfc.ip4 = nc.ndfc_ip
+ndfc.login()
+"""
 import json
-import requests
 import sys
+import requests
 import urllib3
 from ndfc_python.common import Common
+
+OUR_VERSION = 101
+
+
 class NDFC(Common):
+    """
+    Methods to login to an NDFC controller and perform get, post, delete operations
+    """
+
     def __init__(self, log):
         super().__init__(log)
+        self.lib_version = OUR_VERSION
+
+        self.requests_timeout = 20
+        self.response = None
+        self.auth_token = None
+        self.bearer_token = None
 
         self.properties_set = set()
-        self.properties_set.add('username')
-        self.properties_set.add('password')
-        self.properties_set.add('ip')
+        self.properties_set.add("username")
+        self.properties_set.add("password")
+        self.properties_set.add("ip4")
         self.init_properties()
 
     def init_properties(self):
-        self.properties = dict()
-        for p in self.properties_set:
-            self.properties[p] = None
+        """
+        initialize all properties to None
+        """
+        self.properties = {}
+        for param in self.properties_set:
+            self.properties[param] = None
 
     def login(self):
-        for p in self.properties:
-            if self.properties[p] == None:
-                self.log.error('Exiting. Set property {} before calling login.'.format(p))
+        """
+        login to an NDFC controllerf
+        """
+        for key, value in self.properties.items():
+            if value is None:
+                self.log.error(f"Exit. Set property {key} before calling login.")
                 sys.exit(1)
         urllib3.disable_warnings()
-        payload = dict()
-        payload['userName'] = self.username
-        payload['userPasswd'] = self.password
-        payload['domain'] = 'DefaultAuth'
-        headers = dict()
-        headers['Content-Type'] = 'application/json'
-        headers['Connection'] = 'keep-alive'
+        payload = {}
+        payload["userName"] = self.username
+        payload["userPasswd"] = self.password
+        payload["domain"] = "DefaultAuth"
+        headers = {}
+        headers["Content-Type"] = "application/json"
+        headers["Connection"] = "keep-alive"
 
-        self.response = requests.post(self.url_login, headers=headers, data=json.dumps(payload), verify=False)
-        op = json.loads(self.response.text)
-        if 'jwttoken' not in op:
-            self.log.error('Exiting. jwttoken not in response. Perhaps you are using an incorrect password or username?  Response was: {}'.format(op))
+        self.response = requests.post(
+            self.url_login,
+            headers=headers,
+            data=json.dumps(payload),
+            timeout=self.requests_timeout,
+            verify=False,
+        )
+        resp = json.loads(self.response.text)
+        if "jwttoken" not in resp:
+            self.log.error(
+                f"Exit. Response missing jwttoken. Check password or username?  Response: {resp}"
+            )
             sys.exit(1)
-        self.auth_token = op["jwttoken"]
-        self.bearer_token = 'Bearer {}'.format(self.auth_token)
+        self.auth_token = resp["jwttoken"]
+        self.bearer_token = f"Bearer {self.auth_token}"
 
     def get(self, url, headers):
-        self.response = requests.get(url,
-                        verify=False,
-                        headers=headers)
+        """
+        Send a GET request to an NDFC controller
+        """
+        self.response = requests.get(
+            url, timeout=self.requests_timeout, verify=False, headers=headers
+        )
         if self.response.status_code == 200:
-            self.log.debug('GET succeeded {}'.format(url))
+            self.log.debug(f"GET succeeded {url}")
             return self.response.json()
-        else:
-            self.log.error('exiting. GET error response from NDFC controller during {}'.format(url))
-            self.log.error('response.status_code: {}'.format(self.response.status_code))
-            try:
-                self.log.info('response.reason: {}'.format(self.response.reason))
-                self.log.info('response.text: {}'.format(self.response.text))
-            except:
-                self.log.error('Unable to log response.reason or response.text from NDFC controller for {}'.format(url))
-            sys.exit(1)
+        self.log.error(f"Exit. GET error response from NDFC controller during {url}")
+        self.log.error(f"response.status_code: {self.response.status_code}")
+        try:
+            self.log.info(f"response.reason: {self.response.reason}")
+            self.log.info(f"response.text: {self.response.text}")
+        except Exception as general_exception:
+            self.log.error(
+                f"Unable to log response.reason or response.text from NDFC for {url}"
+            )
+            self.log.error(f"Exception detail: {general_exception}")
+        sys.exit(1)
+
     def post(self, url, headers, payload):
-        self.response = requests.post(url,
-                        data=json.dumps(payload),
-                        verify=False,
-                        headers=headers)
+        """
+        Send a POST request to an NDFC controller
+        """
+        self.response = requests.post(
+            url,
+            data=json.dumps(payload),
+            timeout=self.requests_timeout,
+            verify=False,
+            headers=headers,
+        )
         if self.response.status_code == 200:
-            self.log.info('POST succeeded {}'.format(url))
+            self.log.info(f"POST succeeded {url}")
             return
-        else:
-            self.log.error('exiting. POST error response from NDFC controller during {}'.format(url))
-            self.log.error('response.status_code: {}'.format(self.response.status_code))
-            try:
-                self.log.info('response.reason: {}'.format(self.response.reason))
-                self.log.info('response.text: {}'.format(self.response.text))
-            except:
-                self.log.error('Unable to log response.reason or response.text from NDFC controller for {}'.format(url))
-            sys.exit(1)
+        self.log.error(f"Exit. POST error response from NDFC controller during {url}")
+        self.log.error(f"response.status_code: {self.response.status_code}")
+        try:
+            self.log.info(f"response.reason: {self.response.reason}")
+            self.log.info(f"response.text: {self.response.text}")
+        except Exception as general_exception:
+            self.log.error(
+                f"Unable to log response.reason or response.text from NDFC for {url}"
+            )
+            self.log.error(f"Exception detail: {general_exception}")
+        sys.exit(1)
 
     def delete(self, url, headers):
-        self.response = requests.delete(url,
-                        verify=False,
-                        headers=headers)
+        """
+        Send a DELETE request to an NDFC controller
+        """
+        self.response = requests.delete(
+            url, timeout=self.requests_timeout, verify=False, headers=headers
+        )
         if self.response.status_code == 200:
-            self.log.info('DELETE succeeded {}'.format(url))
+            self.log.info(f"DELETE succeeded {url}")
             return
-        else:
-            self.log.error('exiting. DELETE error response from NDFC controller during {}'.format(url))
-            self.log.error('response.status_code: {}'.format(self.response.status_code))
-            try:
-                self.log.info('response.reason: {}'.format(self.response.reason))
-                self.log.info('response.text: {}'.format(self.response.text))
-            except:
-                self.log.error('Unable to log response.reason or response.text from NDFC controller for {}'.format(url))
-            sys.exit(1)
+        self.log.error(f"Exit. DELETE error response from NDFC controller during {url}")
+        self.log.error(f"response.status_code: {self.response.status_code}")
+        try:
+            self.log.info(f"response.reason: {self.response.reason}")
+            self.log.info(f"response.text: {self.response.text}")
+        except Exception as general_exception:
+            self.log.error(
+                f"Unable to log response.reason or response.text from NDFC for {url}"
+            )
+            self.log.error(f"Exception detail: {general_exception}")
+        sys.exit(1)
 
     @property
     def username(self):
-        return self.properties['username']
+        """
+        return the current username
+        """
+        return self.properties["username"]
+
     @username.setter
-    def username(self, x):
-        self.properties['username'] = x
+    def username(self, param):
+        self.properties["username"] = param
 
     @property
     def password(self):
-        return self.properties['password']
+        """
+        return the current password
+        """
+        return self.properties["password"]
+
     @password.setter
-    def password(self, x):
-        self.properties['password'] = x
+    def password(self, param):
+        self.properties["password"] = param
 
     @property
-    def ip(self):
-        return self.properties['ip']
-    @ip.setter
-    def ip(self, x):
-        self.properties['ip'] = x
+    def ip4(self):
+        """
+        return the current NDFC controller IP
+        """
+        return self.properties["ip4"]
+
+    @ip4.setter
+    def ip4(self, param):
+        self.properties["ip4"] = param
 
     @property
     def url_base(self):
-        if self.ip is None:
-            self.log.error("Exiting. Set instance.ip before calling NDFC() url properties.")
-        return f"https://{self.ip}"
+        """
+        Return the base URL for the NDFC controller
+        """
+        if self.ip4 is None:
+            self.log.error(
+                "Exit. Set instance.i4 before calling NDFC() url properties."
+            )
+        return f"https://{self.ip4}"
+
     @property
     def url_login(self):
+        """
+        Return the login URL for the NDFC controller
+        """
         return f"{self.url_base}/login"
+
     @property
     def url_api_v1(self):
+        """
+        Return the V1 API URL for the NDFC controller
+        """
         return f"{self.url_base}/appcenter/cisco/ndfc/api/v1"
+
+    @property
+    def url_control_fabrics(self):
+        """
+        Return the fabric control API URL for the NDFC controller
+        """
+        return f"{self.url_api_v1}/lan-fabric/rest/control/fabrics"
+
     @property
     def url_top_down_fabrics(self):
+        """
+        Return the top down fabric URL for the NDFC controller
+        """
         return f"{self.url_api_v1}/lan-fabric/rest/top-down/fabrics"
