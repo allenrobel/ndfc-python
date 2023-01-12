@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-our_version = 109
 """
 ==============
 Log() - log.py
@@ -13,7 +12,7 @@ Synopsis
 --------
 from ndfc_lib.log import Log
 
-# create a log instance which will log INFO messages to the console and 
+# create a log instance which will log INFO messages to the console and
 # DEBUG messages to a rotating logfile /tmp/my_logger_name.log
 log = Log('my_logger_name', 'INFO', 'DEBUG')
 
@@ -21,26 +20,26 @@ Notes
 -----
 1. Valid logging levels: CRITICAL, DEBUG, ERROR, INFO, WARNING
 """
-
-import os
+import sys
 import logging
 import logging.handlers
 
+OUR_VERSION = 111
 
-def Log(_name, _console_level="INFO", _file_level="DEBUG", _capture_warnings=True):
+def log(_name, _console_level="INFO", _file_level="DEBUG", _capture_warnings=True):
     """
     returns a logger instance i.e. an instance of <class 'logging.Logger'>
     """
     logging.captureWarnings(_capture_warnings)
     logger = Logger()
-    logger.logfile = "/tmp/{}.log".format(_name)
-    log = logger.new(_name)
+    logger.logfile = f"/tmp/{_name}.log"
+    log_obj = logger.new(_name)
     logger.file_loglevel = _file_level
     logger.console_loglevel = _console_level
-    return log
+    return log_obj
 
 
-class Logger(object):
+class Logger:
     """
     Synopsis
     --------
@@ -57,11 +56,29 @@ class Logger(object):
     """
 
     def __init__(self):
-        self.properties = dict()
+        self.lib_version = OUR_VERSION
+        self._init_properties()
+        self._init_valid_loglevels()
+        self._init_loglevel_map()
+
+        self._filehandler = None
+        self._stream_handler = None
+        self.formatter = None
+        self.log = None
+
+    def _init_properties(self):
+        """
+        Initialize all properties
+        """
+        self.properties = {}
         self.properties["logfile"] = "/tmp/logger.log"
         self.properties["file_loglevel"] = "DEBUG"
         self.properties["console_loglevel"] = "ERROR"
 
+    def _init_valid_loglevels(self):
+        """
+        Initialize a set containing valid logging level names
+        """
         self.valid_loglevels = set()
         self.valid_loglevels.add("DEBUG")
         self.valid_loglevels.add("INFO")
@@ -69,84 +86,89 @@ class Logger(object):
         self.valid_loglevels.add("ERROR")
         self.valid_loglevels.add("CRITICAL")
 
-        self.loglevel_map = dict()
+    def _init_loglevel_map(self):
+        """
+        Map log level names to their corresponding logging object properties
+        """
+        self.loglevel_map = {}
         self.loglevel_map["DEBUG"] = logging.DEBUG
         self.loglevel_map["INFO"] = logging.INFO
         self.loglevel_map["WARNING"] = logging.WARNING
         self.loglevel_map["ERROR"] = logging.ERROR
         self.loglevel_map["CRITICAL"] = logging.CRITICAL
 
-        self.log = None
-
     def new(self, _name):
+        """
+        Create a new log file
+        """
         self.log = logging.getLogger(_name)
         self.log.setLevel(logging.DEBUG)
-        self.fh = logging.handlers.RotatingFileHandler(
+        self._filehandler = logging.handlers.RotatingFileHandler(
             self.logfile, maxBytes=10000000, backupCount=3
         )
-        self.fh.setLevel(self.file_loglevel)
+        self._filehandler.setLevel(self.file_loglevel)
 
-        self.ch = logging.StreamHandler()
-        self.ch.setLevel(self.console_loglevel)
+        self._stream_handler = logging.StreamHandler()
+        self._stream_handler.setLevel(self.console_loglevel)
 
-        self.formatter = logging.Formatter(
-            "%(asctime)s %(levelname)s %(relativeCreated)d.%(lineno)d %(module)s.%(funcName)s %(message)s"
-        )
-        self.ch.setFormatter(self.formatter)
-        self.fh.setFormatter(self.formatter)
+        format_string = "%(asctime)s %(levelname)s %(relativeCreated)d.%(lineno)d"
+        format_string += "%(module)s.%(funcName)s %(message)s"
+        self.formatter = logging.Formatter(format_string)
+        self._stream_handler.setFormatter(self.formatter)
+        self._filehandler.setFormatter(self.formatter)
 
-        self.log.addHandler(self.ch)
-        self.log.addHandler(self.fh)
+        self.log.addHandler(self._stream_handler)
+        self.log.addHandler(self._filehandler)
         return self.log
 
     @property
-    def file_loglevel(self):
-        return self.properties["file_loglevel"]
-
-    @file_loglevel.setter
-    def file_loglevel(self, _x):
-        if _x.upper() not in self.valid_loglevels:
-            print(
-                "exiting. Logger().file_loglevel invalid: {}. Expected one of {}".format(
-                    _x, sorted(self.valid_loglevels)
-                )
-            )
-            exit(1)
-        if self.log == None:
-            print("exiting. Logger().file_loglevel. Call Logger().new() first.")
-            exit(1)
-        self.properties["file_loglevel"] = self.loglevel_map[_x.upper()]
-        self.fh.setLevel(self.properties["file_loglevel"])
-        self.log.debug("set file_loglevel to {}".format(_x))
-
-    @property
     def console_loglevel(self):
+        """
+        return the current console logging level
+        """
         return self.properties["console_loglevel"]
 
     @console_loglevel.setter
-    def console_loglevel(self, _x):
-        if _x.upper() not in self.valid_loglevels:
-            print(
-                "exiting. Logger().console_loglevel invalid: {}. Expected one of {}".format(
-                    _x, sorted(self.valid_loglevels)
-                )
-            )
-            exit(1)
-        if self.log == None:
+    def console_loglevel(self, param):
+        if param.upper() not in self.valid_loglevels:
+            print(f"exiting. Logger().console_loglevel invalid: {param}.")
+            print(f" Expected one of {self.valid_loglevels}")
+            sys.exit(1)
+        if self.log is None:
             print("exiting. Logger().console_loglevel. Call Logger().new() first.")
-            exit(1)
-        self.properties["console_loglevel"] = self.loglevel_map[_x.upper()]
-        self.ch.setLevel(self.properties["console_loglevel"])
-        self.log.debug("set console_loglevel to {}".format(_x))
+            sys.exit(1)
+        self.properties["console_loglevel"] = self.loglevel_map[param.upper()]
+        self._stream_handler.setLevel(self.properties["console_loglevel"])
+
+    @property
+    def file_loglevel(self):
+        """
+        return the current logging level
+        """
+        return self.properties["file_loglevel"]
+
+    @file_loglevel.setter
+    def file_loglevel(self, param):
+        if param.upper() not in self.valid_loglevels:
+            print(f"Exiting. Logger().file_loglevel invalid: {param}.")
+            print(f"Expected one of {sorted(self.valid_loglevels)}")
+            sys.exit(1)
+        if self.log is None:
+            print("exiting. Logger().file_loglevel. Call Logger().new() first.")
+            sys.exit(1)
+        self.properties["file_loglevel"] = self.loglevel_map[param.upper()]
+        self._filehandler.setLevel(self.properties["file_loglevel"])
 
     @property
     def logfile(self):
+        """
+        return the current log file
+        """
         return self.properties["logfile"]
 
     @logfile.setter
-    def logfile(self, _x):
-        if self.log != None:
-            print(
-                "Ignoring. Logger().logfile Logger().new() was already called.  Call Logger().logfile() prior to calling Logger().new()"
-            )
-        self.properties["logfile"] = _x
+    def logfile(self, param):
+        if self.log is not None:
+            print("Ignoring. Logger().logfile Logger().new() was already called.)")
+            print("Call Logger().logfile() prior to calling Logger().new(")
+        self.properties["logfile"] = param

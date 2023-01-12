@@ -3,15 +3,14 @@
 Name: example_ndfc_fabric_site.py
 Description: Create a site/child fabric using NdfcFabricSite()
 """
-from ndfc_python.log import Log
+from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
 from ndfc_python.ndfc_fabric_site import NdfcFabricSite
 from ndfc_python.ndfc_credentials import NdfcCredentials
 
 nc = NdfcCredentials()
 
-log = Log("vrf_log", "INFO", "DEBUG")
-ndfc = NDFC(log)
+ndfc = NDFC(log("ndfc_fabric_site_log", "INFO", "DEBUG"))
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip

@@ -9,9 +9,7 @@ from ndfc_python.ndfc_vrf import NdfcVrf
 from ndfc_python.ndfc_credentials import NdfcCredentials
 
 nc = NdfcCredentials()
-
-log = Log("ndfc_vrf_add_log", "INFO", "DEBUG")
-ndfc = NDFC(log)
+ndfc = NDFC(log("ndfc_vrf_add_log", "INFO", "DEBUG"))
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip

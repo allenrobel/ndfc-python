@@ -3,15 +3,14 @@
 Name: example_ndfc_network_create.py
 Description: Create an NDFC network
 """
-from ndfc_python.log import Log
+from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
 from ndfc_python.ndfc_network import NdfcNetwork
 from ndfc_python.ndfc_credentials import NdfcCredentials
 
 nc = NdfcCredentials()
 
-log = Log("ndfc_network_create_log", "INFO", "DEBUG")
-ndfc = NDFC(log)
+ndfc = NDFC(log("ndfc_network_create_log", "INFO", "DEBUG"))
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip
