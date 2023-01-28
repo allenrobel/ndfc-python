@@ -112,7 +112,7 @@ class Logger:
         self._stream_handler.setLevel(self.console_loglevel)
 
         format_string = "%(asctime)s %(levelname)s %(relativeCreated)d.%(lineno)d"
-        format_string += "%(module)s.%(funcName)s %(message)s"
+        format_string += " %(module)s.%(funcName)s %(message)s"
         self.formatter = logging.Formatter(format_string)
         self._stream_handler.setFormatter(self.formatter)
         self._filehandler.setFormatter(self.formatter)
