@@ -9,7 +9,6 @@ from ndfc_python.ndfc_network import NdfcNetwork
 from ndfc_python.ndfc_credentials import NdfcCredentials
 
 nc = NdfcCredentials()
-
 ndfc = NDFC(log("ndfc_network_delete_log", "INFO", "DEBUG"))
 ndfc.username = nc.username
 ndfc.password = nc.password

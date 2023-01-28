@@ -10,7 +10,6 @@ from ndfc_python.ndfc_reachability import NdfcReachability
 from ndfc_python.ndfc_credentials import NdfcCredentials
 
 nc = NdfcCredentials()
-
 ndfc = NDFC(log('ndfc_reachability_log', 'INFO', 'DEBUG'))
 ndfc.username = nc.username
 ndfc.password = nc.password
@@ -18,14 +17,15 @@ ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
 instance = NdfcReachability(ndfc)
-instance.seed_ip = '192.168.1.110'
+instance.seed_ip = '172.22.150.102'
 instance.fabric = 'f1'
+instance.max_hops = 1
 instance.cdp_second_timeout = 5
 instance.username = nc.discover_username
 instance.password = nc.discover_password
 instance.reachability()
 print(f"status_code {instance.status_code}")
-print(f"response {instance.response[0]}")
+print(f"response {instance.response}")
 print(f"sysName: {instance.response[0]['sysName']}")
 print(f"serialNumber: {instance.response[0]['serialNumber']}")
 
