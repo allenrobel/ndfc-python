@@ -90,7 +90,10 @@ class NDFC(Common):
         Send a GET request to an NDFC controller
         """
         self.response = requests.get(
-            url, timeout=self.requests_timeout, verify=False, headers=headers
+            url,
+            timeout=self.requests_timeout,
+            verify=False,
+            headers=headers
         )
         if self.response.status_code == 200:
             self.log.debug(f"GET succeeded {url}")
@@ -122,6 +125,32 @@ class NDFC(Common):
             self.log.info(f"POST succeeded {url}")
             return
         self.log.error(f"Exit. POST error response from NDFC controller during {url}")
+        self.log.error(f"response.status_code: {self.response.status_code}")
+        try:
+            self.log.info(f"response.reason: {self.response.reason}")
+            self.log.info(f"response.text: {self.response.text}")
+        except Exception as general_exception:
+            self.log.error(
+                f"Unable to log response.reason or response.text from NDFC for {url}"
+            )
+            self.log.error(f"Exception detail: {general_exception}")
+        sys.exit(1)
+
+    def put(self, url, headers, payload):
+        """
+        Send a PUT request to an NDFC controller
+        """
+        self.response = requests.put(
+            url,
+            data=json.dumps(payload),
+            timeout=self.requests_timeout,
+            verify=False,
+            headers=headers,
+        )
+        if self.response.status_code == 200:
+            self.log.info(f"PUT succeeded {url}")
+            return
+        self.log.error(f"Exit. PUT error response from NDFC controller during {url}")
         self.log.error(f"response.status_code: {self.response.status_code}")
         try:
             self.log.info(f"response.reason: {self.response.reason}")
@@ -226,3 +255,10 @@ class NDFC(Common):
         Return the top down fabric URL for the NDFC controller
         """
         return f"{self.url_api_v1}/lan-fabric/rest/top-down/fabrics"
+
+    @property
+    def url_control_policies_switches(self):
+        """
+        Return the fabric control API URL for the NDFC controller
+        """
+        return f"{self.url_api_v1}/lan-fabric/rest/control/policies/switches"
