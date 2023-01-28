@@ -313,7 +313,7 @@ class NdfcNetwork:
                 )
                 sys.exit(1)
 
-    def verify_vrf_exists_in_fabric(self):
+    def vrf_exists_in_fabric(self):
         """
         Return True if vrfName is present in the fabric
         Else, return False
@@ -335,9 +335,9 @@ class NdfcNetwork:
             return True
         return False
 
-    def verify_network_id_does_not_exist_in_fabric(self):
+    def network_id_exists_in_fabric(self):
         """
-        Return True if networkId is not present in the fabric
+        Return True if networkId is present in the fabric
         Else, return False
         """
         url = f"{self.ndfc.url_top_down_fabrics}/{self.fabric}/networks"
@@ -349,12 +349,12 @@ class NdfcNetwork:
             if "networkId" not in item_d:
                 continue
             if item_d["networkId"] == self.network_id:
-                return False
-        return True
+                return True
+        return False
 
-    def verify_network_name_exists_in_fabric(self):
+    def network_name_exists_in_fabric(self):
         """
-        Return True if networkId exists in the fabric.
+        Return True if networkName exists in the fabric.
         Else return False
         """
         url = f"{self.ndfc.url_top_down_fabrics}/{self.fabric}/networks"
@@ -377,16 +377,14 @@ class NdfcNetwork:
         self._preprocess_payload()
         self._final_verification()
 
-        result = self.verify_vrf_exists_in_fabric()
-        if result is False:
+        if self.vrf_exists_in_fabric() is False:
             self.log(
                 f"Exiting. vrf {self.vrf} does not exist in fabric {self.fabric}.",
                 "Create it before calling NdfcNetwork()",
             )
             sys.exit(1)
 
-        result = self.verify_network_id_does_not_exist_in_fabric()
-        if result is False:
+        if self.network_id_exists_in_fabric() is True:
             self.log(
                 f"Exiting. networkId {self.network_id} already exists in fabric {self.fabric}.",
                 "Delete it before calling NdfcNetwork.create()",
@@ -419,8 +417,7 @@ class NdfcNetwork:
         headers = self._headers
         headers["Authorization"] = self.ndfc.bearer_token
 
-        result = self.verify_network_name_exists_in_fabric()
-        if result is False:
+        if self.network_name_exists_in_fabric() is False:
             self.log(
                 f"Exiting. networkName {self.network_name} does not exist in fabric {self.fabric}."
             )
