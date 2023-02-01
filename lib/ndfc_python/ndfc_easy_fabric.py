@@ -1,20 +1,21 @@
 """
-Name: ndfc_fabric_site.py
-Description: NdfcFabricSite creates NDFC site fabrics
+Name: ndfc_easy_fabric.py
+Description: NdfcEasyFabric creates NDFC site fabrics using Easy_Fabric template
 """
 import sys
+from ndfc_python.ndfc_fabric import NdfcFabric
 
-OUR_VERSION = 102
+OUR_VERSION = 104
 
 
-class NdfcFabricSite:
+class NdfcEasyFabric(NdfcFabric):
     """
-    Create site/child fabrics.
+    Create site/child fabrics using Easy_Fabric template.
 
     Example create operation:
 
-    instance = NdfcFabricSite(ndfc)
-    instance.fabric = 'bang'
+    instance = NdfcEasyFabric(ndfc)
+    instance.fabric_name = 'bang'
     instance.bgp_as = 65011
     instance.replication_mode = 'Ingress'
     instance.create()
@@ -23,6 +24,7 @@ class NdfcFabricSite:
     """
 
     def __init__(self, ndfc):
+        super().__init__(ndfc)
         self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
         self.ndfc = ndfc
@@ -41,14 +43,14 @@ class NdfcFabricSite:
         Initialize a set containing all properties
         """
         self.properties_set = set()
-        self.properties_set.add("fabric")
+        self.properties_set.add("fabric_name")
 
     def _init_properties_mandatory_set(self):
         """
         Initialize a set containing mandatory properties
         """
         self.properties_mandatory_set = set()
-        self.properties_mandatory_set.add("fabric")
+        self.properties_mandatory_set.add("fabric_name")
 
     def _init_nv_pairs_default(self):
         """
@@ -146,25 +148,13 @@ class NdfcFabricSite:
         self._final_verification()
         self._preprocess_properties()
 
-        url = f"{self.ndfc.url_control_fabrics}/{self.fabric}/Easy_Fabric"
+        url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}/Easy_Fabric"
 
         headers = {}
         headers["Authorization"] = self.ndfc.bearer_token
         headers["Content-Type"] = "application/json"
 
         self.ndfc.post(url, headers, self._nv_pairs)
-
-    # top_level properties
-    @property
-    def fabric(self):
-        """
-        Return user-specified fabric name
-        """
-        return self.properties["fabric"]
-
-    @fabric.setter
-    def fabric(self, param):
-        self.properties["fabric"] = param
 
     # nvPairs
     @property
