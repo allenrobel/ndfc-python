@@ -3,7 +3,7 @@
 Name: example_ndfc_vrf_add.py
 Description: Add a vrf to a fabric
 """
-from ndfc_python.log import Log
+from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
 from ndfc_python.ndfc_vrf import NdfcVrf
 from ndfc_python.ndfc_credentials import NdfcCredentials
