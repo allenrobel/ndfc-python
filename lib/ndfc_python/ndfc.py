@@ -110,6 +110,37 @@ class NDFC(Common):
             self.log.error(f"Exception detail: {general_exception}")
         sys.exit(1)
 
+    def make_headers(self):
+        self.headers = {}
+        self.headers["Authorization"] = self.bearer_token
+        self.headers["Content-Type"] = "application/json"
+        return self.headers
+
+    def get(self, url, headers={}, params={}, verify=False):
+        """
+        Send a GET request to an NDFC controller
+        """
+        self.response = requests.get(
+            url,
+            params=params,
+            timeout=self.requests_timeout,
+            verify=verify,
+            headers=headers,
+        )
+        if self.response.status_code == 200:
+            self.log.info(f"GET succeeded {url}")
+            return
+        self.log.error(f"GET error response from NDFC controller during {url}")
+        self.log.error(f"response.status_code: {self.response.status_code}")
+        try:
+            self.log.info(f"response.reason: {self.response.reason}")
+            self.log.info(f"response.text: {self.response.text}")
+        except Exception as general_exception:
+            self.log.error(
+                f"Unable to log response.reason or response.text from NDFC for {url}"
+            )
+            self.log.error(f"Exception detail: {general_exception}")
+
     def post(self, url, headers, payload):
         """
         Send a POST request to an NDFC controller
@@ -124,7 +155,7 @@ class NDFC(Common):
         if self.response.status_code == 200:
             self.log.info(f"POST succeeded {url}")
             return
-        self.log.error(f"Exit. POST error response from NDFC controller during {url}")
+        self.log.error(f"POST error response from NDFC controller during {url}")
         self.log.error(f"response.status_code: {self.response.status_code}")
         try:
             self.log.info(f"response.reason: {self.response.reason}")
@@ -134,7 +165,6 @@ class NDFC(Common):
                 f"Unable to log response.reason or response.text from NDFC for {url}"
             )
             self.log.error(f"Exception detail: {general_exception}")
-        sys.exit(1)
 
     def put(self, url, headers, payload):
         """
@@ -150,7 +180,7 @@ class NDFC(Common):
         if self.response.status_code == 200:
             self.log.info(f"PUT succeeded {url}")
             return
-        self.log.error(f"Exit. PUT error response from NDFC controller during {url}")
+        self.log.error(f"PUT error response from NDFC controller during {url}")
         self.log.error(f"response.status_code: {self.response.status_code}")
         try:
             self.log.info(f"response.reason: {self.response.reason}")
@@ -160,7 +190,6 @@ class NDFC(Common):
                 f"Unable to log response.reason or response.text from NDFC for {url}"
             )
             self.log.error(f"Exception detail: {general_exception}")
-        sys.exit(1)
 
     def delete(self, url, headers):
         """
@@ -172,7 +201,7 @@ class NDFC(Common):
         if self.response.status_code == 200:
             self.log.info(f"DELETE succeeded {url}")
             return
-        self.log.error(f"Exit. DELETE error response from NDFC controller during {url}")
+        self.log.error(f"DELETE error response from NDFC controller during {url}")
         self.log.error(f"response.status_code: {self.response.status_code}")
         try:
             self.log.info(f"response.reason: {self.response.reason}")
@@ -182,7 +211,6 @@ class NDFC(Common):
                 f"Unable to log response.reason or response.text from NDFC for {url}"
             )
             self.log.error(f"Exception detail: {general_exception}")
-        sys.exit(1)
 
     @property
     def username(self):
