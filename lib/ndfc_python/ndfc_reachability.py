@@ -37,7 +37,7 @@ Response is found in ndfc.response.text and has the following format:
 import json
 import sys
 
-OUR_VERSION = 102
+OUR_VERSION = 103
 
 
 class NdfcReachability:
@@ -67,18 +67,10 @@ class NdfcReachability:
         self.response = None
         self.status_code = None
 
-        self._init_headers()
         self._init_payload_set()
         self._init_payload_set_mandatory()
         self._init_payload_default()
         self._init_payload()
-
-    def _init_headers(self):
-        """
-        Initialize headers used in POST/GET requests
-        """
-        self.headers = {}
-        self.headers["Content-Type"] = "application/json"
 
     def _init_payload_set(self):
         """
@@ -155,13 +147,10 @@ class NdfcReachability:
         self._final_verification()
 
         url = (
-            f"{self.ndfc.url_control_fabrics}/{self.fabric}/inventory/test-reachability"
+            f"{self.ndfc.url_control_fabrics}/{self.fabric_name}/inventory/test-reachability"
         )
 
-        headers = self.headers
-        headers["Authorization"] = self.ndfc.bearer_token
-
-        self.ndfc.post(url, headers, self.payload)
+        self.ndfc.post(url, self.ndfc.make_headers(), self.payload)
         self.status_code = self.ndfc.response.status_code
         self.response = json.loads(self.ndfc.response.text)
 
@@ -179,14 +168,14 @@ class NdfcReachability:
         self.payload["cdpSecondTimeout"] = param
 
     @property
-    def fabric(self):
+    def fabric_name(self):
         """
         return the current payload value of fabric
         """
         return self.payload["fabric"]
 
-    @fabric.setter
-    def fabric(self, param):
+    @fabric_name.setter
+    def fabric_name(self, param):
         self.payload["fabric"] = param
 
     @property

@@ -1,10 +1,12 @@
-our_version = 100
+import sys
 import json
+from time import sleep
+OUR_VERSION = 102
 '''
 Discover switch.
 REST: POST
 URL: https://10.195.225.167/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/2/inventory/discover
-PAYLOAD:  The JSON payload constructed by the NdfcReachability() class is shown below.
+PAYLOAD:  The JSON payload constructed by the NdfcDiscover() class is shown below.
 
     { "maxHops":"0",
     "seedIP":"172.22.150.104",
@@ -28,7 +30,7 @@ PAYLOAD:  The JSON payload constructed by the NdfcReachability() class is shown 
 
 
 
-Response from NdfcReachability() class is shown below.  Note, this can be used as the "switches" value in the NdfcDiscover() payload:
+Response from NdfcDiscover() class is shown below.  Note, this can be used as the "switches" value in the NdfcDiscover() payload:
 
     [
         {
@@ -53,26 +55,29 @@ Response from NdfcReachability() class is shown below.  Note, this can be used a
 '''
 class NdfcDiscover(object):
     '''
-    Tests switch reachability (from NDFC controller perspective).
+    Discover switches
     Populates:
         self.result = result code from controller
         self.response = See response in above docstring
 
     Example
 
-    instance = NdfcReachability(ndfc)
-    instance.seedIP = 'foo'
+    instance = NdfcDiscover(ndfc)
+    instance.seedIP = '10.1.1.1'
     instance.cdpSecondTimeout = 10
     instance.username = 'admin'
     instance.password = 'myPassword'
-    instance.reachability()
+    instance.discover()
     print('response: {}'.format(instance.response))
 
     '''
     def __init__(self, ndfc):
-        self.lib_version = our_version
+        self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
         self.ndfc = ndfc
+
+        # time to sleep after each request retry
+        self._retry_sleep_time = 10
 
         # post/get base headers
         self.headers = dict()
@@ -127,43 +132,67 @@ class NdfcDiscover(object):
         pass
 
     def final_verification(self):
-        for p in self.payload_set_mandatory:
-            if self.payload[p] == "":
-                self.ndfc.log.error('exiting. call instance.{} before calling instance.create()'.format(p))
-                exit(1)
+        for key in self.payload_set_mandatory:
+            if self.payload[key] == "":
+                self.ndfc.log.error(
+                    f"exiting. call instance.{key} before calling instance.create()"
+                )
+                sys.exit(1)
 
-    def discover(self):
-        self.preprocess_payload()
-        self.final_verification()
-
-        url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{}/inventory/test-reachability'.format(
-            self.ndfc.ip4,
-            self.fabric)
-
-        headers = self.headers
-        headers['Authorization'] = self.ndfc.bearer_token
-
-        self.ndfc.post(url, headers, self.payload)
+    def is_reachable(self):
+        url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}/inventory/test-reachability"
+        self.ndfc.post(url, self.ndfc.make_headers(), self.payload)
         self.reachability_status_code = self.ndfc.response.status_code
         self.reachability_response = json.loads(self.ndfc.response.text)
 
         if self.reachability_status_code != 200:
-            self.ndfc.log.error('exiting. Switch {} is not reachable. status_code: {}, response: {}'.format(
-                self.seedIP,
-                self.reachability_status_code,
-                self.reachability_response))
-            exit(1)
+            msg = f"Switch {self.seedIP} is not reachable."
+            msg += f" status_code: {self.reachability_status_code}"
+            msg += f" response: {self.reachability_response}"
+            self.ndfc.log.error(msg)
+            return False
+        return True
 
-        url = 'https://{}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{}/inventory/discover'.format(
-            self.ndfc.ip4,
-            self.fabric)
+    def discover(self):
+        self.preprocess_payload()
+        self.final_verification()
+        retries = 4
+        while self.is_reachable() is False and retries > 0:
+            sleep(self._retry_sleep_time)
+            retries -= 1
+        if self.is_reachable() is False:
+            self.ndfc.log.error(f"Exiting. {self.seedIP} not reachable after 5 retries")
+            sys.exit(1)
+
+        url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}/inventory/discover"
 
         self.payload['switches'] = self.reachability_response
         self.ndfc.log.info('self.payload {}'.format(self.payload))
 
-        self.ndfc.post(url, headers, self.payload)
+        self.ndfc.post(url, self.ndfc.make_headers(), self.payload)
         self.discover_status_code = self.ndfc.response.status_code
         self.discover_response = json.loads(self.ndfc.response.text)
+
+    def is_up(self):
+        url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}/inventory/switchesByFabric"
+        headers = self.ndfc.make_headers()
+        self.ndfc.get(url, headers)
+        response = json.loads(self.ndfc.response.text)
+        found = None
+        for item in response:
+            if "ipAddress" not in item:
+                continue
+            # The key 'manageable' is mispelled in the response
+            if "managable" not in item:
+                self.ndfc.log.error(f"skipping due to 'managable [sic]' not in response {item}")
+                continue
+            if item["ipAddress"] == self.seedIP:
+                found = item
+                break
+        if found is None:
+            self.ndfc.log.warning(f"{self.seedIP} not found. Returning False")
+            return False
+        return item["managable"]
 
     # top_level properties
     @property
@@ -175,10 +204,10 @@ class NdfcDiscover(object):
         self.payload['cdpSecondTimeout'] = x
 
     @property
-    def fabric(self):
+    def fabric_name(self):
         return self.payload['fabric']
-    @fabric.setter
-    def fabric(self, x):
+    @fabric_name.setter
+    def fabric_name(self, x):
         self.payload['fabric'] = x
 
     @property

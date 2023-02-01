@@ -17,15 +17,16 @@ ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
-instance = NdfcDiscover(ndfc)
-instance.fabric = "f1"
-instance.cdpSecondTimeout = 5
-instance.username = nc.discover_username
-instance.password = nc.discover_password
-instance.preserveConfig = False
-seedIps = ["172.22.150.110", "172.22.150.111"]
+discover = NdfcDiscover(ndfc)
+discover.fabric_name = "Easy_Fabric_EBGP_1"
+discover.cdpSecondTimeout = 5
+discover.maxHops = 0
+discover.username = nc.discover_username
+discover.password = nc.discover_password
+discover.preserveConfig = False
+seedIps = ["172.22.150.99"]
 for seedIp in seedIps:
-    instance.seedIP = seedIp
-    instance.discover()
-    print(f"discover_status_code {instance.discover_status_code}")
-    print(f"discover_response {instance.discover_response}")
+    discover.seedIP = seedIp
+    discover.discover()
+    print(f"discover_status_code {discover.discover_status_code}")
+    print(f"discover_response {discover.discover_response}")
