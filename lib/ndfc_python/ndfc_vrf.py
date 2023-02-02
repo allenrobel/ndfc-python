@@ -1,6 +1,6 @@
 """
 Name: ndfc_vrf.py
-Description: Create VRFs using NDFC REST
+Description: Create VRFs
 """
 import json
 import sys
@@ -9,7 +9,7 @@ OUR_VERSION = 101
 
 class NdfcVrf:
     """
-    Create VRFs using NDFC REST
+    Create VRFs
     """
 
     def __init__(self, ndfc):

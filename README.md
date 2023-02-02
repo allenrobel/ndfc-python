@@ -9,10 +9,16 @@ Below are the libraries currently implemented.
 Library          | Description
 ------------     | -----------
 common           | Common primitives used by all other libraries
+ndfc             | Methods to login to an NDFC controller and perform get, post, delete operations
 ndfc_config      | Loads the config file which all libraries reference
-ndfc_credentials | Reads the caller's Ansible Vault and provides the credentials therein to the other libraries
-ndfc_network     | Create, delete networks
-ndfc_vrf         | Create, delete VRFs
+ndfc_credentials | Read the caller's Ansible Vault and provides the credentials therein to the other libraries
+ndfc_discover         | Discover switch
+ndfc_easy_fabric_ebgp | Create a fabric using Easy_Fabric_eBGP template
+ndfc_easy_fabric      | Create a fabric using Easy_Fabric template
+ndfc_policy           | Create / delete policies
+ndfc_reachability     | Test for switch reachability (from NDFC perspective)
+ndfc_network          | Create, delete networks
+ndfc_vrf              | Create VRFs
 
 ### To clone this repo
 
