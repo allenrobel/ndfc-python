@@ -19,7 +19,7 @@ instance = NdfcPolicy(ndfc)
 instance.description = "TelemetryDst_EF policy"
 instance.entity_type = "SWITCH"
 instance.entity_name = "SWITCH"
-instance.ip_address = "172.22.150.99"
+instance.ip_address = "10.1.150.99"
 instance.priority = 500
 instance.serial_number = "FDO2443096H"
 instance.source = ""
@@ -28,7 +28,7 @@ instance.template_name = "TelemetryDst_EF"
 instance.template_content_type = "string"
 instance.nv_pairs = {
     "DSTGRP": "500",
-    "IPADDR": "172.22.150.244",
+    "IPADDR": "10.1.150.244",
     "PORT": "65535",
     "VRF": "management"
 }

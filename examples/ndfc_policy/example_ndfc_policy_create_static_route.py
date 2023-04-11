@@ -19,7 +19,7 @@ instance = NdfcPolicy(ndfc)
 instance.description = "Management VRF Default Route"
 instance.entity_type = "SWITCH"
 instance.entity_name = "SWITCH"
-instance.ip_address = "172.22.150.99"
+instance.ip_address = "10.1.150.99"
 instance.priority = 500
 instance.serial_number = "FDO2443096H"
 instance.source = ""
@@ -28,7 +28,7 @@ instance.template_name = "static_route"
 instance.template_content_type = "string"
 instance.nv_pairs = {
     "VRF_NAME": "management",
-    "ROUTES": "ip route 0.0.0.0/0 172.22.150.1"
+    "ROUTES": "ip route 0.0.0.0/0 10.1.150.1"
 }
 instance.create()
 instance.log(f"Response text: {instance.ndfc.response.text}")
