@@ -3,7 +3,7 @@ Test switch reachability (from NDFC controller perspective). The JSON payload co
 class is shown below.
 
     { "maxHops":"0",
-    "seedIP":"172.22.150.104",
+    "seedIP":"10.1.150.104",
     "cdpSecondTimeout":5,
     "snmpV3AuthProtocol":0,
     "username":"admin",
@@ -24,7 +24,7 @@ Response is found in ndfc.response.text and has the following format:
             "serialNumber":"FDO211218FV",
             "vdcMac":null,
             "vdcId":0,
-            "ipaddr":"172.22.150.105",
+            "ipaddr":"10.1.150.105",
             "platform":"N9K-C93180YC-EX",
             "version":"10.2(3)",
             "lastChange":null,

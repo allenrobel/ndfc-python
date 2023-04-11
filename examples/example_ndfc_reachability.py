@@ -17,7 +17,7 @@ ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
 instance = NdfcReachability(ndfc)
-instance.seed_ip = '172.22.150.102'
+instance.seed_ip = '10.1.1.1'
 instance.fabric_name = 'f1'
 instance.max_hops = 1
 instance.cdp_second_timeout = 5

@@ -9,7 +9,7 @@ URL: https://10.195.225.167/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/
 PAYLOAD:  The JSON payload constructed by the NdfcDiscover() class is shown below.
 
     { "maxHops":"0",
-    "seedIP":"172.22.150.104",
+    "seedIP":"10.1.150.104",
     "cdpSecondTimeout":5,
     "snmpV3AuthProtocol":0,
     "username":"admin",
@@ -19,13 +19,13 @@ PAYLOAD:  The JSON payload constructed by the NdfcDiscover() class is shown belo
 
 {
     "maxHops":"0",
-    "seedIP":"172.22.150.104",
+    "seedIP":"10.1.150.104",
     "cdpSecondTimeout":5,
     "snmpV3AuthProtocol":0,
     "username":"admin",
     "password":"myPassword",
     "preserveConfig":false,
-    "switches":[{"ipaddr":"172.22.150.104","sysName":"cvd-1313-leaf","deviceIndex":"cvd-1313-leaf(FDO211218HH)","platform":"N9K-C93180YC-EX","version":"10.2(3)","serialNumber":"FDO211218HH","vdcId":0,"vdcMac":null}]}
+    "switches":[{"ipaddr":"10.1.150.104","sysName":"cvd-1313-leaf","deviceIndex":"cvd-1313-leaf(FDO211218HH)","platform":"N9K-C93180YC-EX","version":"10.2(3)","serialNumber":"FDO211218HH","vdcId":0,"vdcMac":null}]}
 
 
 
@@ -43,7 +43,7 @@ Response from NdfcDiscover() class is shown below.  Note, this can be used as th
             "serialNumber":"FDO211218FV",
             "vdcMac":null,
             "vdcId":0,
-            "ipaddr":"172.22.150.105",
+            "ipaddr":"10.1.150.105",
             "platform":"N9K-C93180YC-EX",
             "version":"10.2(3)",
             "lastChange":null,

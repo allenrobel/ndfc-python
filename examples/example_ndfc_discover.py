@@ -18,13 +18,13 @@ ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
 discover = NdfcDiscover(ndfc)
-discover.fabric_name = "Easy_Fabric_EBGP_1"
+discover.fabric_name = "Easy_Fabric_1"
 discover.cdpSecondTimeout = 5
 discover.maxHops = 0
 discover.username = nc.discover_username
 discover.password = nc.discover_password
 discover.preserveConfig = False
-seedIps = ["172.22.150.99"]
+seedIps = ["10.1.1.1"]
 for seedIp in seedIps:
     discover.seedIP = seedIp
     discover.discover()

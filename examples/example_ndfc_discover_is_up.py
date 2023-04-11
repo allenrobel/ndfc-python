@@ -20,8 +20,8 @@ ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
 discover = NdfcDiscover(ndfc)
-discover.fabric_name = "Easy_Fabric_EBGP_1"
-discover.seedIP = "172.22.150.99"
+discover.fabric_name = "Easy_Fabric_1"
+discover.seedIP = "10.1.1.1"
 retries = 4
 up = False
 while up == False and retries > 0:
