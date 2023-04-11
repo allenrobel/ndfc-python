@@ -59,6 +59,7 @@ class NdfcEasyFabric(NdfcFabric):
         self._nv_pairs_default = {}
         self._nv_pairs_default["ANYCAST_RP_IP_RANGE"] = ""
         self._nv_pairs_default["DCI_SUBNET_RANGE"] = "10.33.0.0/16"
+        self._nv_pairs_default["ENABLE_PVLAN"] = False
         self._nv_pairs_default["FABRIC_MTU"] = "9216"
         self._nv_pairs_default["LOOPBACK0_IP_RANGE"] = "10.2.0.0/22"
         self._nv_pairs_default["LOOPBACK1_IP_RANGE"] = "10.3.0.0/22"
@@ -79,6 +80,7 @@ class NdfcEasyFabric(NdfcFabric):
         self._nv_pairs_set.add("ANYCAST_RP_IP_RANGE")
         self._nv_pairs_set.add("BGP_AS")
         self._nv_pairs_set.add("DCI_SUBNET_RANGE")
+        self._nv_pairs_set.add("ENABLE_PVLAN")
         self._nv_pairs_set.add("FABRIC_MTU")
         self._nv_pairs_set.add("LOOPBACK0_IP_RANGE")
         self._nv_pairs_set.add("LOOPBACK1_IP_RANGE")
@@ -192,6 +194,17 @@ class NdfcEasyFabric(NdfcFabric):
     def dci_subnet_range(self, param):
         self.ndfc.verify_ipv4_address_with_prefix(param)
         self._nv_pairs["DCI_SUBNET_RANGE"] = param
+
+    @property
+    def enable_pvlan(self):
+        """
+        return the current nv_pairs value of enable_pvlan
+        """
+        return self._nv_pairs["ENABLE_PVLAN"]
+
+    @enable_pvlan.setter
+    def enable_pvlan(self, param):
+        self._nv_pairs["ENABLE_PVLAN"] = param
 
     @property
     def fabric_mtu(self):

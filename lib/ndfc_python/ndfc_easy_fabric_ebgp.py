@@ -114,6 +114,7 @@ class NdfcEasyFabricEbgp(NdfcFabric):
         self._nv_pairs_default["ENABLE_NGOAM"] = "true"
         self._nv_pairs_default["ENABLE_NXAPI"] = "true"
         self._nv_pairs_default["ENABLE_NXAPI_HTTP"] = "true"
+        self._nv_pairs_default["ENABLE_PVLAN"] = "false"
         self._nv_pairs_default["ENABLE_TENANT_DHCP"] = "false"
         self._nv_pairs_default["ENABLE_TRM"] = "false"
         self._nv_pairs_default["ENABLE_VPC_PEER_LINK_NATIVE_VLAN"] = "false"
@@ -301,6 +302,7 @@ class NdfcEasyFabricEbgp(NdfcFabric):
         self._nv_pairs_set.add("ENABLE_NGOAM")
         self._nv_pairs_set.add("ENABLE_NXAPI")
         self._nv_pairs_set.add("ENABLE_NXAPI_HTTP")
+        self._nv_pairs_set.add("ENABLE_PVLAN")
         self._nv_pairs_set.add("ENABLE_TENANT_DHCP")
         self._nv_pairs_set.add("ENABLE_TRM")
         self._nv_pairs_set.add("ENABLE_VPC_PEER_LINK_NATIVE_VLAN")
@@ -524,6 +526,16 @@ class NdfcEasyFabricEbgp(NdfcFabric):
         self.ndfc.verify_ipv4_address_with_prefix(param)
         self._nv_pairs["DCI_SUBNET_RANGE"] = param
 
+    @property
+    def enable_pvlan(self):
+        """
+        return the current nv_pairs value of enable_pvlan
+        """
+        return self._nv_pairs["ENABLE_PVLAN"]
+
+    @enable_pvlan.setter
+    def enable_pvlan(self, param):
+        self._nv_pairs["ENABLE_PVLAN"] = param
 
     @property
     def fabric_mtu(self):
