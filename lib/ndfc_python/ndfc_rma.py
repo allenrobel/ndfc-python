@@ -199,7 +199,7 @@ class NdfcRma(object):
 
         result = self.verify_network_name_exists_in_fabric()
         if result == False:
-            self.ndfc.log.error('networName {} does not exist in fabric {}.'.format(
+            self.ndfc.log.error('networkName {} does not exist in fabric {}.'.format(
                 self.networkName,
                 self.fabric
             ))
