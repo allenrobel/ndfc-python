@@ -9,6 +9,6 @@ from ndfc_python.ndfc_credentials import NdfcCredentials
 
 nc = NdfcCredentials()
 
-print("username {nc.username}")
-print("password {nc.password}")
-print("ndfc_ip {nc.ndfc_ip}")
+print(f"username {nc.username}")
+print(f"password {nc.password}")
+print(f"ndfc_ip {nc.ndfc_ip}")
