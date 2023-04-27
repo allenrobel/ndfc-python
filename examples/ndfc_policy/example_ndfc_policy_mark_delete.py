@@ -23,8 +23,7 @@ url = (
     f"{ndfc.url_control_policies_switches}/{switch_serial}/{entity_type}/{entity_name}"
 )
 headers = {"Authorization": f"{ndfc.bearer_token}"}
-payload = {}
 
-response = ndfc.put(url, headers, payload)
+response = ndfc.put(url, headers, None)
 
 ndfc.log.info(ndfc.response.text)

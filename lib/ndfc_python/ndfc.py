@@ -26,7 +26,7 @@ OUR_VERSION = 102
 
 class NDFC(Common):
     """
-    Methods to login to an NDFC controller and perform get, post, delete operations
+    Methods to login to an NDFC controller and perform get, post, put, and delete operations
     """
 
     def __init__(self, log):
@@ -34,6 +34,7 @@ class NDFC(Common):
         self.lib_version = OUR_VERSION
 
         self.requests_timeout = 20
+        self.headers = {}
         self.response = None
         self.auth_token = None
         self.bearer_token = None
@@ -76,41 +77,59 @@ class NDFC(Common):
             timeout=self.requests_timeout,
             verify=False,
         )
-        resp = json.loads(self.response.text)
-        if "jwttoken" not in resp:
-            self.log.error(
-                f"Exit. Response missing jwttoken. Check password or username?  Response: {resp}"
+        response = json.loads(self.response.text)
+        if "jwttoken" not in response:
+            message = (
+                "Exiting. Response missing jwttoken in response. Check password or username?"
             )
+            self.log.error(message)
+            self._log_error(self.url_login, "POST")
             sys.exit(1)
-        self.auth_token = resp["jwttoken"]
+        self.auth_token = response["jwttoken"]
         self.bearer_token = f"Bearer {self.auth_token}"
 
-
     def make_headers(self):
+        """
+        return auth and content-type request headers expected by the NDFC controller
+        """
         self.headers = {}
         self.headers["Authorization"] = self.bearer_token
         self.headers["Content-Type"] = "application/json"
         return self.headers
 
-
     def _log_error(self, url, request_type):
-        self.log.error(f"{request_type} response from NDFC controller during {url}")
-        self.log.error(f"response.status_code: {self.response.status_code}")
+        """
+        Boilerplate error log to corral this in one place.
+        """
+        message = (
+            f"{request_type} response from NDFC controller during {url}"
+            f" response.status_code: {self.response.status_code}"
+        )
+        self.log.error(message)
         try:
-            self.log.error(f"response.reason: {self.response.reason}")
-            self.log.error(f"response.text: {self.response.text}")
-        except Exception as general_exception:
-            self.log.error(
-                f"Unable to log response.reason or response.text from NDFC for {url}"
+            message = (
+                f"response.reason: {self.response.reason}"
+                f" response.text: {self.response.text}"
             )
-            self.log.error(f"Exception detail: {general_exception}")
+            self.log.error(message)
+        except ValueError as exception:
+            message = f"Error while logging response for {url}. Exception detail {exception}"
+            self.log.error(message)
+        except AttributeError as exception:
+            message = f"Error while logging response for {url}. Exception detail {exception}"
+            self.log.error(message)
 
-
-    def get(self, url, headers={}, params={}, verify=False):
+    def get(self, url, headers=None, params=None, verify=False):
         """
-        Send a GET request to an NDFC controller
+        Send a GET request to an NDFC controller and set self.response
+        Return True if response.status_code == 200
+        Else return False
         """
-        request_type = 'GET'
+        if headers is None:
+            headers = {}
+        if params is None:
+            params = {}
+        request_type = "GET"
         self.response = requests.get(
             url,
             params=params,
@@ -120,15 +139,19 @@ class NDFC(Common):
         )
         if self.response.status_code == 200:
             self.log.info(f"{request_type} succeeded {url}")
-            return
+            return True
         self._log_error(url, request_type)
+        return False
 
-
-    def post(self, url, headers, payload):
+    def post(self, url, headers, payload=None):
         """
-        Send a POST request to an NDFC controller
+        Send a POST request to an NDFC controller and set self.response
+        Return True if response.status_code == 200
+        Else return False
         """
-        request_type = 'POST'
+        if payload is None:
+            payload: dict[str, str] = {}
+        request_type = "POST"
         self.response = requests.post(
             url,
             data=json.dumps(payload),
@@ -138,13 +161,15 @@ class NDFC(Common):
         )
         if self.response.status_code == 200:
             self.log.info(f"{request_type} succeeded {url}")
-            return
+            return True
         self._log_error(url, request_type)
-
+        return False
 
     def put(self, url, headers, payload):
         """
-        Send a PUT request to an NDFC controller
+        Send a PUT request to an NDFC controller and set self.response
+        Return True if response.status_code == 200
+        Else return False
         """
         request_type = "PUT"
         self.response = requests.put(
@@ -156,23 +181,25 @@ class NDFC(Common):
         )
         if self.response.status_code == 200:
             self.log.info(f"{request_type} succeeded {url}")
-            return
+            return True
         self._log_error(url, request_type)
-
+        return False
 
     def delete(self, url, headers):
         """
-        Send a DELETE request to an NDFC controller
+        Send a DELETE request to an NDFC controller and set self.response
+        Return True if response.status_code == 200
+        Else return False
         """
-        request_type = 'DELETE'
+        request_type = "DELETE"
         self.response = requests.delete(
             url, timeout=self.requests_timeout, verify=False, headers=headers
         )
         if self.response.status_code == 200:
             self.log.info(f"{request_type} succeeded {url}")
-            return
+            return True
         self._log_error(url, request_type)
-
+        return False
 
     @property
     def username(self):
@@ -185,7 +212,6 @@ class NDFC(Common):
     def username(self, param):
         self.properties["username"] = param
 
-
     @property
     def password(self):
         """
@@ -197,7 +223,6 @@ class NDFC(Common):
     def password(self, param):
         self.properties["password"] = param
 
-
     @property
     def ip4(self):
         """
@@ -208,7 +233,6 @@ class NDFC(Common):
     @ip4.setter
     def ip4(self, param):
         self.properties["ip4"] = param
-
 
     @property
     def url_base(self):
@@ -228,14 +252,12 @@ class NDFC(Common):
         """
         return f"{self.url_base}/login"
 
-
     @property
     def url_api_v1(self):
         """
         Return the V1 API URL for the NDFC controller
         """
         return f"{self.url_base}/appcenter/cisco/ndfc/api/v1"
-
 
     @property
     def url_control_fabrics(self):
@@ -244,14 +266,12 @@ class NDFC(Common):
         """
         return f"{self.url_api_v1}/lan-fabric/rest/control/fabrics"
 
-
     @property
     def url_top_down_fabrics(self):
         """
         Return the top down fabric URL for the NDFC controller
         """
         return f"{self.url_api_v1}/lan-fabric/rest/top-down/fabrics"
-
 
     @property
     def url_control_policies_switches(self):
