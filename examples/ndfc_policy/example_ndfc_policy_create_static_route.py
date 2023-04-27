@@ -28,7 +28,7 @@ instance.template_name = "static_route"
 instance.template_content_type = "string"
 instance.nv_pairs = {
     "VRF_NAME": "management",
-    "ROUTES": "ip route 0.0.0.0/0 10.1.150.1"
+    "ROUTES": "ip route 0.0.0.0/0 10.1.150.1",
 }
 instance.create()
 instance.log(f"Response text: {instance.ndfc.response.text}")

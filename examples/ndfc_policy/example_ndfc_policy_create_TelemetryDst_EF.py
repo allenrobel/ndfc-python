@@ -30,7 +30,7 @@ instance.nv_pairs = {
     "DSTGRP": "500",
     "IPADDR": "10.1.150.244",
     "PORT": "65535",
-    "VRF": "management"
+    "VRF": "management",
 }
 instance.create()
 instance.log(f"Response text: {instance.ndfc.response.text}")

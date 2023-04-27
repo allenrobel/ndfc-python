@@ -12,18 +12,18 @@ entity_type = "INTERFACE"
 entity_name = "loopback1"
 
 nc = NdfcCredentials()
-ndfc = NDFC(log('example_log', 'INFO', 'DEBUG'))
+ndfc = NDFC(log("example_log", "INFO", "DEBUG"))
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
 
-url = f"{ndfc.url_control_policies_switches}/{switch_serial}/{entity_type}/{entity_name}"
-headers = {
-  'Authorization': f"{ndfc.bearer_token}"
-}
-payload={}
+url = (
+    f"{ndfc.url_control_policies_switches}/{switch_serial}/{entity_type}/{entity_name}"
+)
+headers = {"Authorization": f"{ndfc.bearer_token}"}
+payload = {}
 
 response = ndfc.put(url, headers, payload)
 
