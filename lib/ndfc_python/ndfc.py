@@ -17,11 +17,12 @@ ndfc.login()
 """
 import json
 import sys
+
 import requests
 import urllib3
 from ndfc_python.common import Common
 
-OUR_VERSION = 102
+OUR_VERSION = 103
 
 
 class NDFC(Common):
@@ -79,9 +80,7 @@ class NDFC(Common):
         )
         response = json.loads(self.response.text)
         if "jwttoken" not in response:
-            message = (
-                "Exiting. Response missing jwttoken in response. Check password or username?"
-            )
+            message = "Exiting. Response missing jwttoken in response. Check password or username?"
             self.log.error(message)
             self._log_error(self.url_login, "POST")
             sys.exit(1)
@@ -113,10 +112,14 @@ class NDFC(Common):
             )
             self.log.error(message)
         except ValueError as exception:
-            message = f"Error while logging response for {url}. Exception detail {exception}"
+            message = (
+                f"Error while logging response for {url}. Exception detail {exception}"
+            )
             self.log.error(message)
         except AttributeError as exception:
-            message = f"Error while logging response for {url}. Exception detail {exception}"
+            message = (
+                f"Error while logging response for {url}. Exception detail {exception}"
+            )
             self.log.error(message)
 
     def get(self, url, headers=None, params=None, verify=False):
