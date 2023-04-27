@@ -6,8 +6,8 @@ Test for switch reachability (from NDFC perspective)
 """
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
-from ndfc_python.ndfc_reachability import NdfcReachability
 from ndfc_python.ndfc_credentials import NdfcCredentials
+from ndfc_python.ndfc_reachability import NdfcReachability
 
 nc = NdfcCredentials()
 ndfc = NDFC(log("ndfc_reachability_log", "INFO", "DEBUG"))
