@@ -16,4 +16,4 @@ ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.login()
 
-print("ndfc_token {ndfc.auth_token}")
+print(f"ndfc_token {ndfc.auth_token}")
