@@ -22,7 +22,7 @@ import requests
 import urllib3
 from ndfc_python.common import Common
 
-OUR_VERSION = 103
+OUR_VERSION = 104
 
 
 class NDFC(Common):
@@ -33,7 +33,7 @@ class NDFC(Common):
     def __init__(self, log):
         super().__init__(log)
         self.lib_version = OUR_VERSION
-
+        self.log = log
         self.requests_timeout = 20
         self.headers = {}
         self.response = None
@@ -133,18 +133,33 @@ class NDFC(Common):
         if params is None:
             params = {}
         request_type = "GET"
-        self.response = requests.get(
-            url,
-            params=params,
-            timeout=self.requests_timeout,
-            verify=verify,
-            headers=headers,
-        )
-        if self.response.status_code == 200:
-            self.log.info(f"{request_type} succeeded {url}")
-            return True
-        self._log_error(url, request_type)
-        return False
+        try:
+            self.response = requests.get(
+                url,
+                params=params,
+                timeout=self.requests_timeout,
+                verify=verify,
+                headers=headers,
+            )
+        except requests.ConnectTimeout as exception:
+            message = (
+                f"Exiting. Timed out connecting to {url}"
+                f" Exception detail: {exception}"
+            )
+            self.log.error(message)
+            sys.exit(1)
+        except requests.ConnectionError as exception:
+            message = (
+                f"Exiting. Unable to connect to {url}"
+                f" Exception detail: {exception}"
+            )
+            self.log.error(message)
+            sys.exit(1)
+        if self.response.status_code != 200:
+            self._log_error(url, request_type)
+            sys.exit(1)
+        self.log.info(f"{request_type} succeeded {url}")
+        return self.response.json()
 
     def post(self, url, headers, payload=None):
         """
@@ -155,18 +170,33 @@ class NDFC(Common):
         if payload is None:
             payload: dict[str, str] = {}
         request_type = "POST"
-        self.response = requests.post(
-            url,
-            data=json.dumps(payload),
-            timeout=self.requests_timeout,
-            verify=False,
-            headers=headers,
-        )
-        if self.response.status_code == 200:
-            self.log.info(f"{request_type} succeeded {url}")
-            return True
-        self._log_error(url, request_type)
-        return False
+        try:
+            self.response = requests.post(
+                url,
+                data=json.dumps(payload),
+                timeout=self.requests_timeout,
+                verify=False,
+                headers=headers,
+            )
+        except requests.ConnectTimeout as exception:
+            message = (
+                f"Exiting. Timed out connecting to {url}"
+                f" Exception detail: {exception}"
+            )
+            self.log.error(message)
+            sys.exit(1)
+        except requests.ConnectionError as exception:
+            message = (
+                f"Exiting. Unable to connect to {url}"
+                f" Exception detail: {exception}"
+            )
+            self.log.error(message)
+            sys.exit(1)
+        if self.response.status_code != 200:
+            self._log_error(url, request_type)
+            return False
+        self.log.info(f"{request_type} succeeded {url}")
+        return True
 
     def put(self, url, headers, payload):
         """
@@ -175,18 +205,33 @@ class NDFC(Common):
         Else return False
         """
         request_type = "PUT"
-        self.response = requests.put(
-            url,
-            data=json.dumps(payload),
-            timeout=self.requests_timeout,
-            verify=False,
-            headers=headers,
-        )
-        if self.response.status_code == 200:
-            self.log.info(f"{request_type} succeeded {url}")
-            return True
-        self._log_error(url, request_type)
-        return False
+        try:
+            self.response = requests.put(
+                url,
+                data=json.dumps(payload),
+                timeout=self.requests_timeout,
+                verify=False,
+                headers=headers,
+            )
+        except requests.ConnectTimeout as exception:
+            message = (
+                f"Exiting. Timed out connecting to {url}"
+                f" Exception detail: {exception}"
+            )
+            self.log.error(message)
+            sys.exit(1)
+        except requests.ConnectionError as exception:
+            message = (
+                f"Exiting. Unable to connect to {url}"
+                f" Exception detail: {exception}"
+            )
+            self.log.error(message)
+            sys.exit(1)
+        if self.response.status_code != 200:
+            self._log_error(url, request_type)
+            return False
+        self.log.info(f"{request_type} succeeded {url}")
+        return True
 
     def delete(self, url, headers):
         """
@@ -195,14 +240,29 @@ class NDFC(Common):
         Else return False
         """
         request_type = "DELETE"
-        self.response = requests.delete(
-            url, timeout=self.requests_timeout, verify=False, headers=headers
-        )
-        if self.response.status_code == 200:
-            self.log.info(f"{request_type} succeeded {url}")
-            return True
-        self._log_error(url, request_type)
-        return False
+        try:
+            self.response = requests.delete(
+                url, timeout=self.requests_timeout, verify=False, headers=headers
+            )
+        except requests.ConnectTimeout as exception:
+            message = (
+                f"Exiting. Timed out connecting to {url}"
+                f" Exception detail: {exception}"
+            )
+            self.log.error(message)
+            sys.exit(1)
+        except requests.ConnectionError as exception:
+            message = (
+                f"Exiting. Unable to connect to {url}"
+                f" Exception detail: {exception}"
+            )
+            self.log.error(message)
+            sys.exit(1)
+        if self.response.status_code != 200:
+            self._log_error(url, request_type)
+            return False
+        self.log.info(f"{request_type} succeeded {url}")
+        return True
 
     @property
     def username(self):
