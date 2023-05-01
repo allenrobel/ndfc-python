@@ -142,16 +142,12 @@ class NDFC(Common):
                 headers=headers,
             )
         except requests.ConnectTimeout as exception:
-            message = (
-                f"Exiting. Timed out connecting to {url}"
-                f" Exception detail: {exception}"
-            )
+            f"Exiting. Timed out connecting to {url} Exception detail: {exception}"
             self.log.error(message)
             sys.exit(1)
         except requests.ConnectionError as exception:
             message = (
-                f"Exiting. Unable to connect to {url}"
-                f" Exception detail: {exception}"
+                f"Exiting. Unable to connect to {url} Exception detail: {exception}"
             )
             self.log.error(message)
             sys.exit(1)
@@ -179,16 +175,12 @@ class NDFC(Common):
                 headers=headers,
             )
         except requests.ConnectTimeout as exception:
-            message = (
-                f"Exiting. Timed out connecting to {url}"
-                f" Exception detail: {exception}"
-            )
+            f"Exiting. Timed out connecting to {url} Exception detail: {exception}"
             self.log.error(message)
             sys.exit(1)
         except requests.ConnectionError as exception:
             message = (
-                f"Exiting. Unable to connect to {url}"
-                f" Exception detail: {exception}"
+                f"Exiting. Unable to connect to {url} Exception detail: {exception}"
             )
             self.log.error(message)
             sys.exit(1)
@@ -214,16 +206,12 @@ class NDFC(Common):
                 headers=headers,
             )
         except requests.ConnectTimeout as exception:
-            message = (
-                f"Exiting. Timed out connecting to {url}"
-                f" Exception detail: {exception}"
-            )
+            f"Exiting. Timed out connecting to {url} Exception detail: {exception}"
             self.log.error(message)
             sys.exit(1)
         except requests.ConnectionError as exception:
             message = (
-                f"Exiting. Unable to connect to {url}"
-                f" Exception detail: {exception}"
+                f"Exiting. Unable to connect to {url} Exception detail: {exception}"
             )
             self.log.error(message)
             sys.exit(1)
@@ -245,16 +233,12 @@ class NDFC(Common):
                 url, timeout=self.requests_timeout, verify=False, headers=headers
             )
         except requests.ConnectTimeout as exception:
-            message = (
-                f"Exiting. Timed out connecting to {url}"
-                f" Exception detail: {exception}"
-            )
+            f"Exiting. Timed out connecting to {url} Exception detail: {exception}"
             self.log.error(message)
             sys.exit(1)
         except requests.ConnectionError as exception:
             message = (
-                f"Exiting. Unable to connect to {url}"
-                f" Exception detail: {exception}"
+                f"Exiting. Unable to connect to {url} Exception detail: {exception}"
             )
             self.log.error(message)
             sys.exit(1)
