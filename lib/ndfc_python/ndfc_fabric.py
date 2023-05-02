@@ -4,15 +4,27 @@ Description: superclass inherited by the other fabric classes in this repo
 """
 import sys
 
-OUR_VERSION = 100
+OUR_VERSION = 101
 
 
 class NdfcFabric:
     """
-    superclass inherited by the other fabric classes in this repo
+    superclass inherited by the other fabric classes in this repo.
+
+    Requires one parameter; an instance of NDFC() (see ndfc.py in this directory)
 
     Example usage:
 
+    from ndfc_python.log import Log
+    from ndfc_python.ndfc import NDFC
+
+    log = Log('example_log', 'INFO', 'DEBUG') # INFO to screen, DEBUG to file
+    ndfc = NDFC()
+
+    class MyNewNdfcFabricType(NdfcFabric):
+        def __init__(self, ndfc):
+            super().__init__(ndfc)
+        etc...
 
     TODO: Need a delete() method
     """
@@ -51,6 +63,7 @@ class NdfcFabric:
         Initialize default values for nv pairs
         """
         self._nv_pairs_default = {}
+
     def _init_nv_pairs_set(self):
         """
         Initialize a set containing all nv pairs
@@ -111,7 +124,9 @@ class NdfcFabric:
         self._preprocess_properties()
         self._final_verification()
         if self.ndfc.bearer_token is None:
-            self.ndfc.log.error('exiting. Please call ndfc_instance.login() before calling confg_save()')
+            self.ndfc.log.error(
+                "exiting. Please call ndfc_instance.login() before calling confg_save()"
+            )
             sys.exit(1)
 
         url = f"{self.ndfc.url_control_fabrics}"
@@ -119,13 +134,19 @@ class NdfcFabric:
         self.properties["nvPairs"] = self._nv_pairs
         self.ndfc.post(url, self.ndfc.make_headers(), self.properties)
 
-
     def config_save(self):
+        """
+        Send validated POST request to the NDFC config-save endpoint.
+        """
         if self.fabric_name is None:
-            self.ndfc.log.error(f"exiting. Set instance.fabric_name before calling instance.config_save().")
+            self.ndfc.log.error(
+                "exiting. Set instance.fabric_name before calling instance.config_save()."
+            )
             sys.exit(1)
         if self.ndfc.bearer_token is None:
-            self.ndfc.log.error('exiting. Please call ndfc_instance.login() before calling confg_save()')
+            self.ndfc.log.error(
+                "exiting. Please call ndfc_instance.login() before calling confg_save()"
+            )
             sys.exit(1)
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}/config-save"
         self.ndfc.post(url, self.ndfc.make_headers(), {})
