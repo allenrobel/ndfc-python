@@ -37,7 +37,7 @@ Response is found in ndfc.response.text and has the following format:
 import json
 import sys
 
-OUR_VERSION = 103
+OUR_VERSION = 104
 
 
 class NdfcReachability:
@@ -146,9 +146,7 @@ class NdfcReachability:
         self._preprocess_payload()
         self._final_verification()
 
-        url = (
-            f"{self.ndfc.url_control_fabrics}/{self.fabric_name}/inventory/test-reachability"
-        )
+        url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}/inventory/test-reachability"
 
         self.ndfc.post(url, self.ndfc.make_headers(), self.payload)
         self.status_code = self.ndfc.response.status_code
