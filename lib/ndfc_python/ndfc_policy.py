@@ -17,11 +17,10 @@ All of the policies matching the serial_number will be deleted
 
 All the policy IDs in this list will be deleted.
 """
-from inspect import stack
-import json
 import sys
+from inspect import stack
 
-OUR_VERSION = 100
+OUR_VERSION = 101
 
 
 class NdfcPolicy:
@@ -82,6 +81,8 @@ class NdfcPolicy:
 
         self._policy_ids = []
 
+        self.delete_by_serial_entity_name_entity_type = set()
+
         self._init_payload_set()
         self._init_payload_set_mandatory()
         self._init_payload_default()
@@ -122,16 +123,15 @@ class NdfcPolicy:
         self._payload_default["source"] = ""
         self._payload_default["template_content_type"] = "string"
 
-
     def _init_payload(self):
         self.payload = {}
         for param in self._payload_set:
             if param in self._payload_default:
-                self.payload[self._payload_mapping_dict[param]] = self._payload_default[param]
+                self.payload[self._payload_mapping_dict[param]] = self._payload_default[
+                    param
+                ]
             else:
                 self.payload[self._payload_mapping_dict[param]] = None
-
-
 
     def _init_payload_mapping_dict(self):
         """
@@ -149,7 +149,6 @@ class NdfcPolicy:
         self._payload_mapping_dict["template_content_type"] = "templateContentType"
         self._payload_mapping_dict["template_name"] = "templateName"
 
-
     def _map_payload_param(self, param):
         """
         Because payload keys are camel case, and pylint does
@@ -165,7 +164,6 @@ class NdfcPolicy:
             return param
         return self._payload_mapping_dict[param]
 
-
     def _preprocess_request(self):
         """
         1. Set a default value for any properties that the caller
@@ -174,11 +172,9 @@ class NdfcPolicy:
         2. Any other fixup that may be required
         """
         # used in delete() as part of determination of delete request type
-        self.delete_by_serial_entity_name_entity_type = set()
         self.delete_by_serial_entity_name_entity_type.add(self.serial_number)
         self.delete_by_serial_entity_name_entity_type.add(self.entity_name)
         self.delete_by_serial_entity_name_entity_type.add(self.entity_type)
-
 
     def _final_verification(self):
         """
@@ -192,7 +188,6 @@ class NdfcPolicy:
                     "before calling instance.create()",
                 )
                 sys.exit(1)
-
 
     def create(self):
         """
@@ -209,7 +204,6 @@ class NdfcPolicy:
 
         self.ndfc.post(url, headers, self.payload)
 
-
     def delete(self):
         """
         Delete a policy
@@ -222,7 +216,8 @@ class NdfcPolicy:
         skip = False
         url = None
         if None not in self.delete_by_serial_entity_name_entity_type:
-            url = f"{self.ndfc.url_control_policies_switches}/{self.serial_number}/{self.entity_type}/{self.entity_name}"
+            url = f"{self.ndfc.url_control_policies_switches}/{self.serial_number}/"
+            url += f"{self.entity_type}/{self.entity_name}"
         elif self.serial_number is not None:
             url = f"{self.ndfc.url_control_policies_switches}/{self.serial_number}"
         elif len(self.policy_ids) != 0:
@@ -234,11 +229,11 @@ class NdfcPolicy:
             self.log(
                 "Warning: Skipping delete.",
                 "Insufficient information provided to build REST endpoint for delete operation.",
-                "To delete all policies associated with a switch serial number,",
-                "set at least serial_number.  To delete all policies matching serial number",
-                "entity type and entity name, set at least serial_number, entity_name, entity_type.",
-                "To delete one or more specific policies, set policy_ids to a python list",
-                "of policy IDs e.g. [POLICY-1173140, POLICY-1173150]"
+                " To delete all policies associated with a switch serial number,",
+                " set at least serial_number.  To delete all policies matching serial number",
+                " entity type and entity name, set at least serial_number, entity_name,",
+                " and entity_type. To delete one or more specific policies, set policy_ids to",
+                " a python list of policy IDs e.g. [POLICY-1173140, POLICY-1173150]",
             )
 
         if skip is False:
@@ -257,7 +252,6 @@ class NdfcPolicy:
     def description(self, param):
         self.payload["description"] = param
 
-
     @property
     def entity_name(self):
         """
@@ -268,7 +262,6 @@ class NdfcPolicy:
     @entity_name.setter
     def entity_name(self, param):
         self.payload["entityName"] = param
-
 
     @property
     def entity_type(self):
@@ -281,7 +274,6 @@ class NdfcPolicy:
     def entity_type(self, param):
         self.payload["entityType"] = param
 
-
     @property
     def ip_address(self):
         """
@@ -292,7 +284,6 @@ class NdfcPolicy:
     @ip_address.setter
     def ip_address(self, param):
         self.payload["ipAddress"] = param
-
 
     @property
     def nv_pairs(self):
@@ -308,7 +299,6 @@ class NdfcPolicy:
             sys.exit(1)
         self.payload["nvPairs"] = param
 
-
     @property
     def policy_ids(self):
         """
@@ -323,7 +313,6 @@ class NdfcPolicy:
             sys.exit(1)
         self._policy_ids = param
 
-
     @property
     def serial_number(self):
         """
@@ -334,7 +323,6 @@ class NdfcPolicy:
     @serial_number.setter
     def serial_number(self, param):
         self.payload["serialNumber"] = param
-
 
     @property
     def switch_name(self):
@@ -347,7 +335,6 @@ class NdfcPolicy:
     def switch_name(self, param):
         self.payload["switchName"] = param
 
-
     @property
     def template_content_type(self):
         """
@@ -358,7 +345,6 @@ class NdfcPolicy:
     @template_content_type.setter
     def template_content_type(self, param):
         self.payload["templateContentType"] = param
-
 
     @property
     def template_name(self):
@@ -371,7 +357,6 @@ class NdfcPolicy:
     def template_name(self, param):
         self.payload["templateName"] = param
 
-
     @property
     def priority(self):
         """
@@ -383,7 +368,6 @@ class NdfcPolicy:
     def priority(self, param):
         self.payload["priority"] = param
 
-
     @property
     def source(self):
         """
@@ -394,4 +378,3 @@ class NdfcPolicy:
     @source.setter
     def source(self, param):
         self.payload["source"] = param
-
