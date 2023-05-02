@@ -1,50 +1,54 @@
 """
 Create / delete networks  The JSON payload constructed by this class is shown below.
 
-network = {'displayName': 'MyNetwork_30000',
- 'fabric': 'My_VxLAN_Fabric',
- 'networkExtensionTemplate': 'Default_Network_Extension_Universal',
- 'networkId': '30000',
- 'networkName': 'MyNetwork_30000',
- 'networkTemplate': 'Default_Network_Universal',
- 'networkTemplateConfig': {'dhcpServerAddr1': '',
-                           'dhcpServerAddr2': '',
-                           'dhcpServerAddr3': '',
-                           'enableIR': False,
-                           'enableL3OnBorder': True,
-                           'gatewayIpAddress': '10.1.1.1/24',
-                           'gatewayIpV6Address': '',
-                           'intfDescription': '',
-                           'isLayer2Only': False,
-                           'loopbackId': '',
-                           'mcastGroup': '',
-                           'mtu': '9216',
-                           'networkName': 'MyNetwork_30000',
-                           'nveId': 1,
-                           'rtBothAuto': True,
-                           'secondaryGW1': '',
-                           'secondaryGW2': '',
-                           'secondaryGW3': '',
-                           'secondaryGW4': '',
-                           'segmentId': '30000',
-                           'suppressArp': True,
-                           'tag': '12345',
-                           'trmEnabled': False,
-                           'vlanId': '',
-                           'vlanName': '',
-                           'vrfDhcp': '',
-                           'vrfDhcp2': '',
-                           'vrfDhcp3': '',
-                           'vrfName': 'Customer-001'},
- 'serviceNetworkTemplate': None,
- 'source': None,
- 'vrf': 'Customer-001'}
+network = {
+    'displayName': 'MyNetwork_30000',
+    'fabric': 'My_VxLAN_Fabric',
+    'networkExtensionTemplate': 'Default_Network_Extension_Universal',
+    'networkId': '30000',
+    'networkName': 'MyNetwork_30000',
+    'networkTemplate': 'Default_Network_Universal',
+    'networkTemplateConfig': {
+        'dhcpServerAddr1': '',
+        'dhcpServerAddr2': '',
+        'dhcpServerAddr3': '',
+        'enableIR': False,
+        'enableL3OnBorder': True,
+        'gatewayIpAddress': '10.1.1.1/24',
+        'gatewayIpV6Address': '',
+        'intfDescription': '',
+        'isLayer2Only': False,
+        'loopbackId': '',
+        'mcastGroup': '',
+        'mtu': '9216',
+        'networkName': 'MyNetwork_30000',
+        'nveId': 1,
+        'rtBothAuto': True,
+        'secondaryGW1': '',
+        'secondaryGW2': '',
+        'secondaryGW3': '',
+        'secondaryGW4': '',
+        'segmentId': '30000',
+        'suppressArp': True,
+        'tag': '12345',
+        'trmEnabled': False,
+        'vlanId': '',
+        'vlanName': '',
+        'vrfDhcp': '',
+        'vrfDhcp2': '',
+        'vrfDhcp3': '',
+        'vrfName': 'Customer-001'
+    },
+    'serviceNetworkTemplate': None,
+    'source': None,
+    'vrf': 'Customer-001'
+}
 """
-from inspect import stack
 import json
 import sys
+from inspect import stack
 
-OUR_VERSION = 101
+OUR_VERSION = 102
 
 
 class NdfcNetwork:
