@@ -4,7 +4,8 @@ Description: Create VRFs
 """
 import json
 import sys
-OUR_VERSION = 101
+
+OUR_VERSION = 102
 
 
 class NdfcVrf:
@@ -16,6 +17,10 @@ class NdfcVrf:
         self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
         self.ndfc = ndfc
+
+        # post/get base headers
+        self._headers = {}
+        self._headers["Content-Type"] = "application/json"
 
         self._payload_set = set()
         self._payload_set.add("display_name")
@@ -127,20 +132,27 @@ class NdfcVrf:
 
     def _final_verification(self):
         """
-        verify all mandatory parameters are set
+        verify all mandatory parameters are set and that
+        self.vrf does not already exist in self.fabric
         """
         for param in self.mandatory_payload_set:
             if self.payload[param] == "":
                 self.ndfc.log.error(
-                    f"exiting. call instance.{param} before calling instance.post()"
+                    f"Exiting. call instance.{param} before calling instance.post()"
                 )
                 sys.exit(1)
         for param in self.mandatory_template_config_set:
             if self.template_config[param] == "":
                 self.ndfc.log.error(
-                    f"exiting. call instance.{param} before calling instance.post()"
+                    f"Exiting. call instance.{param} before calling instance.post()"
                 )
                 sys.exit(1)
+        if self.vrf_exists_in_fabric():
+            message = (
+                f"Exiting. VRF {self.vrf_name} already exists in fabric {self.fabric}"
+            )
+            self.ndfc.log.error(message)
+            sys.exit(1)
 
     def post(self):
         """
@@ -157,6 +169,28 @@ class NdfcVrf:
         self.payload["vrfTemplateConfig"] = json.dumps(self.template_config)
 
         self.ndfc.post(url, headers, self.payload)
+
+    def vrf_exists_in_fabric(self):
+        """
+        Return True if self.vrf exists in self.fabric.
+        Else, return False
+        """
+        url = f"{self.ndfc.url_top_down_fabrics}/{self.fabric}/vrfs"
+
+        self._headers["Authorization"] = self.ndfc.bearer_token
+
+        response = self.ndfc.get(url, self._headers)
+        for item_d in response:
+            if "fabric" not in item_d:
+                continue
+            if "vrfName" not in item_d:
+                continue
+            if item_d["fabric"] != self.fabric:
+                continue
+            if item_d["vrfName"] != self.vrf_name:
+                continue
+            return True
+        return False
 
     # top_level properties
     @property
@@ -391,7 +425,9 @@ class NdfcVrf:
 
     @max_ibgp_paths.setter
     def max_ibgp_paths(self, param):
-        self.ndfc.verify_max_bgp_paths(param, f"{self.class_name}.max_ibgp_paths.setter")
+        self.ndfc.verify_max_bgp_paths(
+            param, f"{self.class_name}.max_ibgp_paths.setter"
+        )
         self.template_config["maxIbgpPaths"] = param
 
     @property
