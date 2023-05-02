@@ -30,10 +30,9 @@ from inspect import stack
 from ansible.cli import CLI
 from ansible.errors import AnsibleFileNotFound, AnsibleParserError
 from ansible.parsing.dataloader import DataLoader
-
 from ndfc_python.ndfc_config import NdfcLoadConfig
 
-OUR_VERSION = 102
+OUR_VERSION = 103
 
 
 class NdfcCredentials:
