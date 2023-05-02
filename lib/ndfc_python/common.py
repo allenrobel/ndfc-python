@@ -190,23 +190,50 @@ class Common:
                 new_dict[key] = d[key]
         return new_dict
 
-    def verify_integer_range(
-        self,
-        x,
-        range_min,
-        range_max,
-        source_class="unspecified",
-        source_method="unspecified",
-    ):
+    def verify_integer_range(self, params):
         """
-        Exit with appropriate error if x is not within range_min and range_max inclusive.
+        Given dictionary params, with the following key / values:
+
+        params["value"] - The integer value to be tested.
+        params["min"] - The minimum range for params["value"]
+        params["max"] - The maximum range for params["value"]
+        params["source_class"] - Optional, the name of the caller class
+        params["source_method"] - Optional, the name of the caller method
+
+        Exit with appropriate error if params["value"] is not within
+        integer-range params["min"] and params["max"] inclusive.
 
         See also: is_within_integer_range() if you want to test a range without failing.
         """
-        expectation = f"[int() within range inclusive {range_min} - {range_max}]"
-        if self.is_within_integer_range(x, range_min, range_max):
+        if not isinstance(params, dict):
+            message = (
+                "Exiting. Expected params to be a python dict()."
+                f" Got type {type(params)} with value {params}."
+            )
+            self.log.error(message)
+            sys.exit(1)
+        mandatory_keys = ("value", "min", "max")
+        for key in mandatory_keys:
+            if key not in params:
+                message = f"Exiting. params is missing mandatory key {key}"
+                self.log.error(message)
+                sys.exit(1)
+        if "source_class" not in params:
+            params["source_class"] = "unspecified"
+        if "source_method" not in params:
+            params["source_method"] = "unspecified"
+        expectation = (
+            f"[int() within range inclusive: {params['min']} - {params['max']}]"
+        )
+        if self.is_within_integer_range(params["value"], params["min"], params["max"]):
             return
-        self.fail(source_class, source_method, x, source_method, expectation)
+        self.fail(
+            params["source_class"],
+            params["source_method"],
+            params["value"],
+            params["source_method"],
+            expectation,
+        )
 
     def fail(self, source_class, source_method, value, parameter, expectation):
         """
@@ -1052,88 +1079,104 @@ class Common:
         Return if x conforms to a valid NX-OS vlan ID
         Otherwise, exit with error.
         """
-        self.verify_integer_range(
-            x, self.min_vlan, self.max_vlan, self.class_name, parameter
-        )
+        params = {}
+        params["value"] = x
+        params["min"] = self.min_vlan
+        params["max"] = self.max_vlan
+        params["source_class"] = self.class_name
+        params["source_method"] = parameter
+        self.verify_integer_range(params)
 
     def verify_vrf_vlan_id(self, x, parameter="verify_vrf_vlan_id"):
         """
         Return if x is within an integer range.
         Otherwise, exit with error.
         """
-        self.verify_integer_range(
-            x,
-            self.min_vrf_vlan_id,
-            self.max_vrf_vlan_id,
-            self.class_name,
-            parameter,
-        )
+        params = {}
+        params["value"] = x
+        params["min"] = self.min_vrf_vlan_id
+        params["max"] = self.max_vrf_vlan_id
+        params["source_class"] = self.class_name
+        params["source_method"] = parameter
+        self.verify_integer_range(params)
 
     def verify_loopback_id(self, x, parameter="verify_loopback_id"):
         """
         Return if x conforms to a valid NX-OS loopback interface ID.
         Otherwise, exit with error.
         """
-        self.verify_integer_range(
-            x,
-            self.min_loopback_id,
-            self.max_loopback_id,
-            self.class_name,
-            parameter,
-        )
+        params = {}
+        params["value"] = x
+        params["min"] = self.min_loopback_id
+        params["max"] = self.max_loopback_id
+        params["source_class"] = self.class_name
+        params["source_method"] = parameter
+        self.verify_integer_range(params)
 
     def verify_max_bgp_paths(self, x, parameter="verify_max_bgp_paths"):
         """
         Return if x conforms to a valid NX-OS max-bgp-paths value.
         Otherwise, exit with error.
         """
-        self.verify_integer_range(
-            x,
-            self.min_max_bgp_paths,
-            self.max_max_bgp_paths,
-            self.class_name,
-            parameter,
-        )
+        params = {}
+        params["value"] = x
+        params["min"] = self.min_max_bgp_paths
+        params["max"] = self.max_max_bgp_paths
+        params["source_class"] = self.class_name
+        params["source_method"] = parameter
+        self.verify_integer_range(params)
 
     def verify_mtu(self, x, parameter="verify_mtu"):
         """
         Return if x conforms to a valid NX-OS MTU value,
         Otherwise, exit with error.
         """
-        self.verify_integer_range(
-            x, self.min_mtu, self.max_mtu, self.class_name, parameter
-        )
+        params = {}
+        params["value"] = x
+        params["min"] = self.min_mtu
+        params["max"] = self.max_mtu
+        params["source_class"] = self.class_name
+        params["source_method"] = parameter
+        self.verify_integer_range(params)
 
     def verify_nve_id(self, x, parameter="verify_nve_id"):
         """
         Return if x conforms to a valid NX-OS NVE ID.
         Otherwise, exit with error.
         """
-        self.verify_integer_range(
-            x, self.min_nve_id, self.max_nve_id, self.class_name, parameter
-        )
+        params = {}
+        params["value"] = x
+        params["min"] = self.min_nve_id
+        params["max"] = self.max_nve_id
+        params["source_class"] = self.class_name
+        params["source_method"] = parameter
+        self.verify_integer_range(params)
 
     def verify_routing_tag(self, x, parameter="verify_routing_tag"):
         """
         Return if x conforms to a valid NX-OS routing tag.
         Otherwise, exit with error.
         """
-        self.verify_integer_range(
-            x,
-            self.min_routing_tag,
-            self.max_routing_tag,
-            self.class_name,
-            parameter,
-        )
+        params = {}
+        params["value"] = x
+        params["min"] = self.min_routing_tag
+        params["max"] = self.max_routing_tag
+        params["source_class"] = self.class_name
+        params["source_method"] = parameter
+        self.verify_integer_range(params)
 
     def verify_vni(self, x, parameter="verify_vni"):
         """
         Return if x conforms to a valid NX-OS VNI.
         Otherwise, exit with error.
         """
-        self.verify_integer_range(
-            x, self.min_vni, self.max_vni, self.class_name, parameter
-        )
+        params = {}
+        params["value"] = x
+        params["min"] = self.min_vni
+        params["max"] = self.max_vni
+        params["source_class"] = self.class_name
+        params["source_method"] = parameter
+        self.verify_integer_range(params)
 
     def verify_vlan_list(self, x, parameter="verify_vlan_list"):
         """
@@ -1162,7 +1205,7 @@ class Common:
             if len(item_list) != 2:
                 self.fail(self.class_name, parameter, x, parameter, expectation)
             for item in item_list:
-                self.verify_vlan(item, expectation, parameter)
+                self.verify_vlan(item, parameter)
             if int(item_list[0]) >= int(item_list[1]):
                 self.fail(self.class_name, parameter, x, parameter, expectation)
 
