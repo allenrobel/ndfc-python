@@ -20,11 +20,12 @@ Notes
 -----
 1. Valid logging levels: CRITICAL, DEBUG, ERROR, INFO, WARNING
 """
-import sys
 import logging
 import logging.handlers
+import sys
 
-OUR_VERSION = 111
+OUR_VERSION = 112
+
 
 def log(_name, _console_level="INFO", _file_level="DEBUG", _capture_warnings=True):
     """
