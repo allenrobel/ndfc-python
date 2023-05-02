@@ -580,7 +580,6 @@ class Common:
             return True
         return False
 
-
     def is_vlan_interface(self, x):
         """
         Return true if x conforms to a vlan interface specification.
@@ -1220,8 +1219,8 @@ class Common:
             return item
         s = set()
         if isinstance(item, dict):
-            for k,v in item.items():
-                s.add((k,v))
+            for k, v in item.items():
+                s.add((k, v))
         elif isinstance(item, list):
             for element in item:
                 s.add(element)
