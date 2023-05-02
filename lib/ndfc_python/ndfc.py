@@ -142,7 +142,9 @@ class NDFC(Common):
                 headers=headers,
             )
         except requests.ConnectTimeout as exception:
-            f"Exiting. Timed out connecting to {url} Exception detail: {exception}"
+            message = (
+                f"Exiting. Timed out connecting to {url} Exception detail: {exception}"
+            )
             self.log.error(message)
             sys.exit(1)
         except requests.ConnectionError as exception:
@@ -175,7 +177,9 @@ class NDFC(Common):
                 headers=headers,
             )
         except requests.ConnectTimeout as exception:
-            f"Exiting. Timed out connecting to {url} Exception detail: {exception}"
+            message = (
+                f"Exiting. Timed out connecting to {url} Exception detail: {exception}"
+            )
             self.log.error(message)
             sys.exit(1)
         except requests.ConnectionError as exception:
@@ -206,7 +210,9 @@ class NDFC(Common):
                 headers=headers,
             )
         except requests.ConnectTimeout as exception:
-            f"Exiting. Timed out connecting to {url} Exception detail: {exception}"
+            message = (
+                f"Exiting. Timed out connecting to {url} Exception detail: {exception}"
+            )
             self.log.error(message)
             sys.exit(1)
         except requests.ConnectionError as exception:
@@ -233,7 +239,9 @@ class NDFC(Common):
                 url, timeout=self.requests_timeout, verify=False, headers=headers
             )
         except requests.ConnectTimeout as exception:
-            f"Exiting. Timed out connecting to {url} Exception detail: {exception}"
+            message = (
+                f"Exiting. Timed out connecting to {url} Exception detail: {exception}"
+            )
             self.log.error(message)
             sys.exit(1)
         except requests.ConnectionError as exception:
