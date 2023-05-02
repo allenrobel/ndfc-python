@@ -3,9 +3,10 @@ Name: ndfc_easy_fabric.py
 Description: NdfcEasyFabric creates NDFC site fabrics using Easy_Fabric template
 """
 import sys
+
 from ndfc_python.ndfc_fabric import NdfcFabric
 
-OUR_VERSION = 104
+OUR_VERSION = 105
 
 
 class NdfcEasyFabric(NdfcFabric):
