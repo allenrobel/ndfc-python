@@ -5,8 +5,8 @@ Description: Add a vrf to a fabric
 """
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
-from ndfc_python.ndfc_vrf import NdfcVrf
 from ndfc_python.ndfc_credentials import NdfcCredentials
+from ndfc_python.ndfc_vrf import NdfcVrf
 
 nc = NdfcCredentials()
 ndfc = NDFC(log("ndfc_vrf_add_log", "INFO", "DEBUG"))
@@ -20,5 +20,5 @@ instance.display_name = "foo_vrf"
 instance.fabric = "MSD"
 instance.vrf_id = 50055
 instance.vrf_name = "foo_vrf"
-instance.vrf_vlan_id = 2000
+instance.vrf_vlan_id = 2006
 instance.post()
