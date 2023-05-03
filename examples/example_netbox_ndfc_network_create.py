@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """
-Name: example_ndfc_network_create.py
-Description: Create an NDFC network
+Name: example_netbox_ndfc_network_create.py
+Description: Read networks from a Netbox instance, and create these in NDFC
+
+NOTES: You'll be asked for the Ansible Vault password twice.  Once for access
+to the NDFC controller and once for access to the Netbox instance.
 """
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
-from ndfc_python.ndfc_network import NdfcNetwork
 from ndfc_python.ndfc_credentials import NdfcCredentials
+from ndfc_python.ndfc_network import NdfcNetwork
 from netbox_tools.common import netbox
 
 nc = NdfcCredentials()
@@ -26,6 +29,15 @@ for vlan in netbox_vlans:
     ndfc_network.vlan_id = vlan.vid
     ndfc_network.vrf = "foo_vrf"
     if ndfc_network.network_id_exists_in_fabric() is True:
-        print(f"Skipping. network_id {ndfc_network.network_id} already exists.")
+        message = (
+            f"Skipping. network_id {ndfc_network.network_id} already exists"
+            f" in fabric {ndfc_network.fabric}"
+        )
+        ndfc.log.info(message)
         continue
+    message = (
+        f"Creating network {ndfc_network.vlan_id} ID {ndfc_network.network_id}"
+        f" in vrf {ndfc_network.vrf}, fabric {ndfc_network.fabric}"
+    )
+    ndfc.log.info(message)
     ndfc_network.create()
