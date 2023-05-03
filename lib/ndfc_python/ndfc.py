@@ -56,7 +56,7 @@ class NDFC(Common):
 
     def login(self):
         """
-        login to an NDFC controllerf
+        login to an NDFC controller
         """
         for key, value in self.properties.items():
             if value is None:
