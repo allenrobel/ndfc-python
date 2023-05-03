@@ -5,8 +5,8 @@ Description: Create a site/child fabric using NdfcFabricSite()
 """
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
-from ndfc_python.ndfc_easy_fabric_ebgp import NdfcEasyFabricEbgp
 from ndfc_python.ndfc_credentials import NdfcCredentials
+from ndfc_python.ndfc_easy_fabric_ebgp import NdfcEasyFabricEbgp
 
 nc = NdfcCredentials()
 
