@@ -5,10 +5,11 @@ Description:
 Check if switch is up and manageable
 """
 from time import sleep
+
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
-from ndfc_python.ndfc_discover import NdfcDiscover
 from ndfc_python.ndfc_credentials import NdfcCredentials
+from ndfc_python.ndfc_discover import NdfcDiscover
 from ndfc_python.ndfc_fabric import NdfcFabric
 
 nc = NdfcCredentials()
@@ -24,7 +25,7 @@ discover.fabric_name = "Easy_Fabric_1"
 discover.seedIP = "10.1.1.1"
 retries = 4
 up = False
-while up == False and retries > 0:
+while up is False and retries > 0:
     up = discover.is_up()
     retries -= 1
     if up is not True:
