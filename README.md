@@ -159,8 +159,6 @@ ndfc_ip 192.168.1.2
 
 When prompted, enter the password you used in response to the ansible-vault command in step 1 above.
 
-[ndfc_network]: https://github.com/allenrobel/ndfc-python/tree/master/lib/ndfc_network
-
 ## Code of Conduct
 
 This repository follows the Contributor Covenant [Code of Conduct](https://github.com/allenrobel/ndfc-roles/blob/master/CODE_OF_CONDUCT.md). Please read and familiarize yourself with this document.
