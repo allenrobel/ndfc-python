@@ -4,15 +4,6 @@ REST: POST
 URL: https://<ip>/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/2/inventory/discover
 PAYLOAD:  The JSON payload constructed by the NdfcDiscover() class is shown below.
 
-    { "maxHops":"0",
-    "seedIP":"10.1.150.104",
-    "cdpSecondTimeout":5,
-    "snmpV3AuthProtocol":0,
-    "username":"admin",
-    "password":"myPassword",
-    "preserveConfig":false   # or true
-    }
-
 {
     "maxHops":"0",
     "seedIP":"10.1.150.104",
@@ -66,7 +57,7 @@ import json
 import sys
 from time import sleep
 
-OUR_VERSION = 103
+OUR_VERSION = 104
 
 
 class NdfcDiscover:
