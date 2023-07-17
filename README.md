@@ -20,25 +20,25 @@ ndfc_reachability     | Test for switch reachability (from NDFC perspective)
 ndfc_network          | Create, delete networks
 ndfc_vrf              | Create VRFs
 
-### To clone this repo
+## To clone this repo
 
 ```bash
 git clone https://github.com/allenrobel/ndfc-python.git
 ```
 
-### Dependencies
+## Dependencies
 
-#### Ansible Python Libraries
+### Ansible Python Libraries
 
 The libraries and scripts in this repo require that the Ansible libraries be installed.  
 
-##### Example
+#### Example
 
 ```bash
 pip install ansible
 ```
 
-### Fabric Characteristics
+## Fabric Characteristics
 
 The characteristics of the child/site fabrics are as follows (see also the included PDF for a topology).
 
@@ -53,7 +53,7 @@ The characteristics of the child/site fabrics are as follows (see also the inclu
 
 Spines and Leafs can be added/removed by updating the Common Role Variables described below.
 
-### Config File
+## Config File
 
 To use these scripts and libraries, you'll need to update a common settings file located in ``./ndfc-python/lib/ndfc_python/config.yml``.  This points to the locaton of your Ansible Vault file (see below for how Ansible Vault is used).
 
@@ -64,7 +64,7 @@ There is one setting in this file (currently):
 ansible_vault: '/path/to/your/ansible/vault/file'
 ```
 
-### Vault
+## Ansible Vault
 
 Next, you'll need to edit your Ansible Vault file to add your NDFC username and password and the ip address of your ndfc controller.  We may also require the username and password for your switches in the future, so you might want to add this as well.
 
@@ -74,9 +74,9 @@ Next, you'll need to edit your Ansible Vault file to add your NDFC username and 
 
 It is recommended (but not mandatory) that you encrypt these passwords.  Below is one way to do this.
 
-#### Modify /path/to/your/ansible/vault/file
+### Modify /path/to/your/ansible/vault/file
 
-##### Edit ``ansible_password`` (password for NDFC controller) and ``device_password`` (password for NX-OS switches)
+#### Edit ``ansible_password`` (password for NDFC controller) and ``device_password`` (password for NX-OS switches)
 
 Add ``ansible_password`` and ``device_password`` in encrypted format (or non-encrypted, if you don't care about security).  These are the passwords you use to login to your DCNM/NDFC Controller, and NX-OS switches, respectively.
 
@@ -118,7 +118,7 @@ ansible_password: mySuperSecretNdfcPassword
 device_password: mySuperSecretNxosPassword
 ```
 
-##### Add usernames for NDFC Controller and switches
+#### Add usernames for NDFC Controller and switches
 
 Change ``ansible_user`` in the same file to the username associated with the above password that you're using on DCNM/NDFC.
 Change ``device_username`` in the same file to the username used to login to your NX-OS switches.
@@ -130,20 +130,22 @@ ansible_user: voldomort
 device_username: admin
 ```
 
-##### Add the ip address of your DCNM/NDFC Controller
+#### Add the ip address of your DCNM/NDFC Controller
 
 ```yaml
 ndfc_ip: 192.168.1.1
 ```
 
-##### Add this repo's library to your python path.  For example, in .bash_profile or .zprofile
+## Python Path
+
+Add this repo's library to your python path.  For example, in .bash_profile or .zprofile
 
 ```bash
 PYTHONPATH=${PYTHONPATH}:${HOME}/repos/ndfc-python/lib
 export PYTHONPATH
 ```
 
-##### To run the example scripts
+## To run the example scripts
 
 ```bash
 cd (py311) ~ % cd /top/level/directory/for/this/repo/examples
@@ -159,11 +161,11 @@ When prompted, enter the password you used in response to the ansible-vault comm
 
 [ndfc_network]: https://github.com/allenrobel/ndfc-python/tree/master/lib/ndfc_network
 
-### Code of Conduct
+## Code of Conduct
 
 This repository follows the Contributor Covenant [Code of Conduct](https://github.com/allenrobel/ndfc-roles/blob/master/CODE_OF_CONDUCT.md). Please read and familiarize yourself with this document.
 
-### Licensing
+## Licensing
 
 GNU General Public License v3.0 or later.
 
