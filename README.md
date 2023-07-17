@@ -6,12 +6,12 @@ The goal is to implement two identical child fabrics connected through a multisi
 
 Below are the libraries currently implemented.
 
-Library          | Description
-------------     | -----------
-common           | Common primitives used by all other libraries
-ndfc             | Methods to login to an NDFC controller and perform get, post, delete operations
-ndfc_config      | Loads the config file which all libraries reference
-ndfc_credentials | Read the caller's Ansible Vault and provides the credentials therein to the other libraries
+Library               | Description
+--------------------- | -----------
+common                | Common primitives used by all other libraries
+ndfc                  | Methods to login to an NDFC controller and perform get, post, delete operations
+ndfc_config           | Loads the config file which all libraries reference
+ndfc_credentials      | Read the caller's Ansible Vault and provides the credentials therein to the other libraries
 ndfc_discover         | Discover switch
 ndfc_easy_fabric_ebgp | Create a fabric using Easy_Fabric_eBGP template
 ndfc_easy_fabric      | Create a fabric using Easy_Fabric template
@@ -89,7 +89,7 @@ ansible-vault encrypt_string 'mySuperSecretNxosPassword' --name 'device_password
 echo "\n" >> /path/to/your/ansible/vault/file
 ```
 
-ansible-vault will prompt you for a vault password, which you'll use to decrypt these passwords (using ``ansible-playbook --ask-vault-pass``) when running the example playbooks.
+ansible-vault will prompt you for a vault password, which you'll use to decrypt these passwords when running the example scripts.
 
 Example:
 
@@ -99,7 +99,7 @@ New Vault password:
 Confirm New Vault password: 
 %
 % echo "\n" >> /path/to/your/ansible/vault/file
-% cat ./inventory/group_vars/ndfc
+% cat /path/to/your/ansible/vault/file
 ansible_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
           35313565343034623966323832303764633165386439663133323832383336366362663431366565
