@@ -83,8 +83,10 @@ Add ``ansible_password`` and ``device_password`` in encrypted format (or non-enc
 To add encrypted passwords for the NDFC controller and NX-OS devices, issue the following from this repo's top-level directory.
 
 ```bash
-ansible-vault encrypt_string 'mySuperSecretNdfcPassword' --name 'ansible_password' >> ./inventory/group_vars/ndfc
-ansible-vault encrypt_string 'mySuperSecretNxosPassword' --name 'device_password' >> ./inventory/group_vars/ndfc
+ansible-vault encrypt_string 'mySuperSecretNdfcPassword' --name 'ansible_password' >> /path/to/your/ansible/vault/file
+echo "\n" >> /path/to/your/ansible/vault/file
+ansible-vault encrypt_string 'mySuperSecretNxosPassword' --name 'device_password' >> /path/to/your/ansible/vault/file
+echo "\n" >> /path/to/your/ansible/vault/file
 ```
 
 ansible-vault will prompt you for a vault password, which you'll use to decrypt these passwords (using ``ansible-playbook --ask-vault-pass``) when running the example playbooks.
@@ -92,9 +94,11 @@ ansible-vault will prompt you for a vault password, which you'll use to decrypt 
 Example:
 
 ```bash
-% ansible-vault encrypt_string 'mySuperSecretNdfcPassword' --name 'ansible_password' >> ./inventory/group_vars/ndfc
+% ansible-vault encrypt_string 'mySuperSecretNdfcPassword' --name 'ansible_password' >> /path/to/your/ansible/vault/file
 New Vault password: 
 Confirm New Vault password: 
+%
+% echo "\n" >> /path/to/your/ansible/vault/file
 % cat ./inventory/group_vars/ndfc
 ansible_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
@@ -139,22 +143,19 @@ PYTHONPATH=${PYTHONPATH}:${HOME}/repos/ndfc-python/lib
 export PYTHONPATH
 ```
 
-##### To run a playbook if you encrypted your NDFC password
+##### To run the example scripts
 
 ```bash
-cd /top/level/directory/for/this/repo
-ansible-playbook example_ndfc_rest_fabric_create_f1.yml --ask-vault-pass -i inventory
+cd (py311) ~ % cd /top/level/directory/for/this/repo/examples
+(py311) examples % ./example_ndfc_credentials.py 
+Vault password: 
+username admin
+password FeFiFoFum
+ndfc_ip 192.168.1.2
+(py311) examples % 
 ```
 
 When prompted, enter the password you used in response to the ansible-vault command in step 1 above.
-
-##### Or, to run a playbook if you didn't encrypt the NDFC password
-
-```bash
-cd /top/level/directory/for/this/repo
-ansible-playbook example_ndfc_rest_fabric_create_f1.yml -i inventory
-```
-
 
 [ndfc_network]: https://github.com/allenrobel/ndfc-python/tree/master/lib/ndfc_network
 
