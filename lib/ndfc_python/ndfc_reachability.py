@@ -1,38 +1,42 @@
 """
-Test switch reachability (from NDFC controller perspective). The JSON payload constructed by this
-class is shown below.
+Name: ndfc_reachability.py
+Description: Test switch reachability (from NDFC controller perspective).
 
-    { "maxHops":"0",
+The JSON payload constructed by this class is shown below.
+
+{
+    "maxHops":"0",
     "seedIP":"10.1.150.104",
     "cdpSecondTimeout":5,
     "snmpV3AuthProtocol":0,
     "username":"admin",
     "password":"myPassword",
     "preserveConfig":false   # or true
+}
+
+In self.reachability(), self.response is populated with the contents of ndfc.response.text,
+and has the following format:
+
+[
+    {
+        "reachable":true,
+        "auth":true,
+        "known":false,
+        "valid":true,
+        "selectable":true,
+        "sysName":"cvd-1314-leaf",
+        "serialNumber":"FDO211218FV",
+        "vdcMac":null,
+        "vdcId":0,
+        "ipaddr":"10.1.150.105",
+        "platform":"N9K-C93180YC-EX",
+        "version":"10.2(3)",
+        "lastChange":null,
+        "hopCount":0,
+        "deviceIndex":"cvd-1314-leaf(FDO211218FV)",
+        "statusReason":"manageable"
     }
-
-Response is found in ndfc.response.text and has the following format:
-
-    [
-        {
-            "reachable":true,
-            "auth":true,
-            "known":false,
-            "valid":true,
-            "selectable":true,
-            "sysName":"cvd-1314-leaf",
-            "serialNumber":"FDO211218FV",
-            "vdcMac":null,
-            "vdcId":0,
-            "ipaddr":"10.1.150.105",
-            "platform":"N9K-C93180YC-EX",
-            "version":"10.2(3)",
-            "lastChange":null,
-            "hopCount":0,
-            "deviceIndex":"cvd-1314-leaf(FDO211218FV)",
-            "statusReason":"manageable"
-        }
-    ]
+]
 """
 import json
 import sys

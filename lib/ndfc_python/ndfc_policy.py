@@ -1,5 +1,6 @@
 """
-Create / delete policies  The JSON payload constructed by this class is shown below.
+Name: ndfc_policy.py
+Description: Create / delete policies  The JSON payload constructed by this class is shown below.
 
 TODO: Add JSON payload example
 

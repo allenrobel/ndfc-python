@@ -1,6 +1,6 @@
 """
 Name: ndfc_easy_fabric.py
-Description: NdfcEasyFabric creates NDFC site fabrics using Easy_Fabric template
+Description: Create fabric using the NDFC Easy_Fabric template
 """
 import sys
 

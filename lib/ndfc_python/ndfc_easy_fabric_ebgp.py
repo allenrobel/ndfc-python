@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 """
-Name: ndfc_fabric_site_easy_fabric_ebgp.py
-Description: Create NDFC site fabrics using Easy_Fabric_eBGP template
+Name: ndfc_easy_fabric_ebgp.py
+Description: Create fabric using the NDFC Easy_Fabric_eBGP template
 """
 import sys
 
 from ndfc_python.ndfc_fabric import NdfcFabric
 
-OUR_VERSION = 102
+OUR_VERSION = 103
 
 
 class NdfcEasyFabricEbgp(NdfcFabric):

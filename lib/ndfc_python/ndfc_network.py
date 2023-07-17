@@ -1,5 +1,6 @@
 """
-Create / delete networks  The JSON payload constructed by this class is shown below.
+Name: ndfc_network.py
+Description: Create / delete networks  The JSON payload constructed by this class is shown below.
 
 network = {
     'displayName': 'MyNetwork_30000',
@@ -48,7 +49,7 @@ import json
 import sys
 from inspect import stack
 
-OUR_VERSION = 102
+OUR_VERSION = 103
 
 
 class NdfcNetwork:
