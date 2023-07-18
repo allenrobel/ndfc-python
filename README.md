@@ -1,6 +1,6 @@
 # ndfc-python
 
-This repo is a work in progress that, when finished, will contain Python libraries and example scripts that, together, implement a basic Spine/Leaf VXLAN/EVPN fabric using Cisco's Nexus Dashboard Fabric Controller (NDFC).
+This repository is a work in progress that, when finished, will contain Python libraries and example scripts that, together, implement a basic Spine/Leaf VXLAN/EVPN fabric using Cisco's Nexus Dashboard Fabric Controller (NDFC).
 
 The goal is to implement two identical child fabrics connected through a multisite domain (MSD) fabric.
 
@@ -20,7 +20,7 @@ ndfc_reachability     | Test for switch reachability (from NDFC perspective)
 ndfc_network          | Create, delete networks
 ndfc_vrf              | Create VRFs
 
-## To clone this repo
+## To clone this repository
 
 ```bash
 git clone https://github.com/allenrobel/ndfc-python.git
@@ -80,7 +80,7 @@ It is recommended (but not mandatory) that you encrypt these passwords.  Below i
 
 Add ``ansible_password`` and ``device_password`` in encrypted format (or non-encrypted, if you don't care about security).  These are the passwords you use to login to your DCNM/NDFC Controller, and NX-OS switches, respectively.
 
-To add encrypted passwords for the NDFC controller and NX-OS devices, issue the following from this repo's top-level directory.
+To add encrypted passwords for the NDFC controller and NX-OS devices, issue the following from this repository's top-level directory.
 
 ```bash
 ansible-vault encrypt_string 'mySuperSecretNdfcPassword' --name 'ansible_password' >> /path/to/your/ansible/vault/file
@@ -138,7 +138,7 @@ ndfc_ip: 192.168.1.1
 
 ## Python Path
 
-Add this repo's library to your python path.  For example, in .bash_profile or .zprofile
+Add this repository's library to your python path.  For example, in .bash_profile or .zprofile
 
 ```bash
 PYTHONPATH=${PYTHONPATH}:${HOME}/repos/ndfc-python/lib
