@@ -21,8 +21,11 @@ instance.seed_ip = "10.1.1.1"
 instance.fabric_name = "f1"
 instance.max_hops = 1
 instance.cdp_second_timeout = 5
-instance.username = nc.discover_username
-instance.password = nc.discover_password
+# Note: NdfcReachability() populates username and password
+# from the passed ndfc instance.  But, you can override these
+# values with the following properties if need be.
+# instance.username = nc.discover_username
+# instance.password = nc.discover_password
 instance.reachability()
 print(f"status_code {instance.status_code}")
 print(f"response {instance.response}")

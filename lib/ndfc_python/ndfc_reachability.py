@@ -96,8 +96,9 @@ class NdfcReachability:
         """
         self.payload_set_mandatory = set()
         self.payload_set_mandatory.add("fabric")
-        self.payload_set_mandatory.add("seedIP")
         self.payload_set_mandatory.add("password")
+        self.payload_set_mandatory.add("seedIP")
+        self.payload_set_mandatory.add("username")
 
     def _init_payload_default(self):
         """
@@ -108,7 +109,8 @@ class NdfcReachability:
         self.payload_default["maxHops"] = 0
         self.payload_default["preserveConfig"] = True
         self.payload_default["snmpV3AuthProtocol"] = 0
-        self.payload_default["username"] = "admin"
+        self.payload_default["username"] = self.ndfc.username
+        self.payload_default["password"] = self.ndfc.password
 
     def _init_payload(self):
         """
