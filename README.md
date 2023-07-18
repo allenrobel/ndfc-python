@@ -30,7 +30,7 @@ git clone https://github.com/allenrobel/ndfc-python.git
 
 ### Ansible Python Libraries
 
-The libraries and scripts in this repo require that the Ansible libraries be installed.  
+The libraries and scripts in this repository require that the Ansible libraries be installed.  
 
 #### Example
 
