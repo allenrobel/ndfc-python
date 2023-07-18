@@ -1,10 +1,24 @@
 #!/usr/bin/env python3
 """
 Name: example_netbox_ndfc_network_create.py
-Description: Read networks from a Netbox instance, and create these in NDFC
+Description:
 
-NOTES: You'll be asked for the Ansible Vault password twice.  Once for access
-to the NDFC controller and once for access to the Netbox instance.
+Read networks from a Netbox instance, and create these in NDFC.  This is a
+proof-of-concept for one way to integrate NDFC and Netbox.
+
+Netbox info:
+
+https://docs.netbox.dev
+https://github.com/netbox-community/netbox
+
+NOTES: 
+
+1. This example depends on the netbox-tools library which can be found here:
+
+https://github.com/allenrobel/netbox-tools
+
+2. You'll be asked for the Ansible Vault password twice.  Once for access
+to the NDFC controller and once for access to your Netbox instance.
 """
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
