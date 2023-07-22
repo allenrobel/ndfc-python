@@ -4,10 +4,11 @@ Name: ndfc_easy_fabric_ebgp.py
 Description: Create fabric using the NDFC Easy_Fabric_eBGP template
 """
 import sys
+from ipaddress import AddressValueError
 
-from ndfc_python.ndfc_fabric import NdfcFabric
+from ndfc_python.ndfc_fabric import NdfcFabric, NdfcRequestError
 
-OUR_VERSION = 103
+OUR_VERSION = 105
 
 
 class NdfcEasyFabricEbgp(NdfcFabric):
@@ -66,11 +67,13 @@ class NdfcEasyFabricEbgp(NdfcFabric):
         self._nv_pairs_default["BOOTSTRAP_MULTISUBNET_INTERNAL"] = ""
         self._nv_pairs_default["BRFIELD_DEBUG_FLAG"] = "Disable"
         self._nv_pairs_default["CDP_ENABLE"] = "false"
-        self._nv_pairs_default["COPP_POLICY"] = "strict"  # dense, lenient, moderate
+        # dense, lenient, moderate, strict
+        self._nv_pairs_default["COPP_POLICY"] = "strict"
         self._nv_pairs_default["DCI_SUBNET_RANGE"] = "10.33.0.0/16"
         self._nv_pairs_default["DCI_SUBNET_TARGET_MASK"] = "30"
-        # These are intentionally mispelled ("DEAFULT_") since they are mispelled on the
-        # controller and the bug to correct the spelling is Closed
+        # These are intentionally mispelled ("DEAFULT_") since they are
+        # mispelled on the controller and the bug to correct the spelling
+        # is Closed
         self._nv_pairs_default[
             "DEAFULT_QUEUING_POLICY_CLOUDSCALE"
         ] = "queuing_policy_default_8q_cloudscale"
@@ -196,10 +199,12 @@ class NdfcEasyFabricEbgp(NdfcFabric):
         self._nv_pairs_default["VPC_DELAY_RESTORE"] = "150"
         self._nv_pairs_default["VPC_DOMAIN_ID_RANGE"] = "1-1000"
         self._nv_pairs_default["VPC_ENABLE_IPv6_ND_SYNC"] = "true"
-        self._nv_pairs_default["VPC_PEER_KEEP_ALIVE_OPTION"] = "management"  # loopback
+        # loopback, management
+        self._nv_pairs_default["VPC_PEER_KEEP_ALIVE_OPTION"] = "management"
         self._nv_pairs_default["VPC_PEER_LINK_PO"] = "500"
         self._nv_pairs_default["VPC_PEER_LINK_VLAN"] = "3600"
-        self._nv_pairs_default["VRF_LITE_AUTOCONFIG"] = ""  # "Manual"
+        # "Manual"
+        self._nv_pairs_default["VRF_LITE_AUTOCONFIG"] = ""
         self._nv_pairs_default["VRF_VLAN_RANGE"] = ""
         self._nv_pairs_default["abstract_anycast_rp"] = "anycast_rp"
         self._nv_pairs_default["abstract_bgp"] = "base_bgp"
@@ -207,10 +212,14 @@ class NdfcEasyFabricEbgp(NdfcFabric):
         self._nv_pairs_default[
             "abstract_extra_config_bootstrap"
         ] = "extra_config_bootstrap_11_1"
-        self._nv_pairs_default["abstract_extra_config_leaf"] = "extra_config_leaf"
-        self._nv_pairs_default["abstract_extra_config_spine"] = "extra_config_spine"
-        self._nv_pairs_default["abstract_feature_leaf"] = "base_feature_leaf_upg"
-        self._nv_pairs_default["abstract_feature_spine"] = "base_feature_spine_upg"
+        value = "extra_config_leaf"
+        self._nv_pairs_default["abstract_extra_config_leaf"] = value
+        value = "extra_config_spine"
+        self._nv_pairs_default["abstract_extra_config_spine"] = value
+        value = "base_feature_leaf_upg"
+        self._nv_pairs_default["abstract_feature_leaf"] = value
+        value = "base_feature_spine_upg"
+        self._nv_pairs_default["abstract_feature_spine"] = value
         self._nv_pairs_default[
             "abstract_loopback_interface"
         ] = "int_fabric_loopback_11_1"
@@ -219,16 +228,18 @@ class NdfcEasyFabricEbgp(NdfcFabric):
         self._nv_pairs_default["abstract_route_map"] = "route_map"
         self._nv_pairs_default["abstract_routed_host"] = "int_routed_host"
         self._nv_pairs_default["abstract_trunk_host"] = "int_trunk_host"
-        self._nv_pairs_default["abstract_vlan_interface"] = "int_fabric_vlan_11_1"
+        value = "int_fabric_vlan_11_1"
+        self._nv_pairs_default["abstract_vlan_interface"] = value
         self._nv_pairs_default["abstract_vpc_domain"] = "base_vpc_domain_11_1"
         self._nv_pairs_default["default_asn_template"] = "bgp_asn"
-        self._nv_pairs_default["default_network"] = ""  # Routed_Network_Universal
-        self._nv_pairs_default["default_vrf"] = ""  # "Default_VRF_Extension_Universal"
+        # Routed_Network_Universal
+        self._nv_pairs_default["default_network"] = ""
+        # "Default_VRF_Extension_Universal"
+        self._nv_pairs_default["default_vrf"] = ""
         self._nv_pairs_default["enableRealTimeBackup"] = ""
         self._nv_pairs_default["enableScheduledBackup"] = ""
-        self._nv_pairs_default[
-            "network_extension_template"
-        ] = ""  # Routed_Network_Universal
+        # Routed_Network_Universal
+        self._nv_pairs_default["network_extension_template"] = ""
         self._nv_pairs_default["scheduledTime"] = ""
         self._nv_pairs_default["temp_anycast_gateway"] = "anycast_gateway"
         self._nv_pairs_default["temp_vpc_domain_mgmt"] = "vpc_domain_mgmt"
@@ -444,23 +455,32 @@ class NdfcEasyFabricEbgp(NdfcFabric):
         """
         for param in self._nv_pairs_mandatory_set:
             if self._nv_pairs[param] == "":
-                msg = f"exiting. 2. call instance.{param.lower()} before calling instance.post()"
+                msg = f"exiting. 2. call instance.{param.lower()} before "
+                msg += "calling instance.post()"
                 self.ndfc.log.error(msg)
                 sys.exit(1)
 
     def create(self):
         """
         Create a fabric using Easy_Fabric_EBGP template.
+        TODO: Verify fabric does not exist before trying to create it
         """
         self._final_verification()
 
-        url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}/Easy_Fabric_eBGP"
+        url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
+        url += "/Easy_Fabric_eBGP"
 
         headers = {}
         headers["Authorization"] = self.ndfc.bearer_token
         headers["Content-Type"] = "application/json"
 
-        self.ndfc.post(url, headers, self._nv_pairs)
+        try:
+            self.ndfc.post(url, headers, self._nv_pairs)
+        except NdfcRequestError as err:
+            msg = f"error creating fabric {self.fabric_name}, "
+            msg += f"error detail {err}"
+            self.ndfc.log.error(msg)
+            sys.exit(1)
 
     # nvPairs
     @property
@@ -472,7 +492,11 @@ class NdfcEasyFabricEbgp(NdfcFabric):
 
     @anycast_rp_ip_range.setter
     def anycast_rp_ip_range(self, param):
-        self.ndfc.verify_ipv4_address_with_prefix(param)
+        try:
+            self.ndfc.verify_ipv4_address_with_prefix(param)
+        except AddressValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["ANYCAST_RP_IP_RANGE"] = param
 
     @property
@@ -496,7 +520,11 @@ class NdfcEasyFabricEbgp(NdfcFabric):
 
     @dci_subnet_range.setter
     def dci_subnet_range(self, param):
-        self.ndfc.verify_ipv4_address_with_prefix(param)
+        try:
+            self.ndfc.verify_ipv4_address_with_prefix(param)
+        except AddressValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["DCI_SUBNET_RANGE"] = param
 
     @property
@@ -541,7 +569,11 @@ class NdfcEasyFabricEbgp(NdfcFabric):
 
     @loopback0_ip_range.setter
     def loopback0_ip_range(self, param):
-        self.ndfc.verify_ipv4_address_with_prefix(param)
+        try:
+            self.ndfc.verify_ipv4_address_with_prefix(param)
+        except AddressValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["LOOPBACK0_IP_RANGE"] = param
 
     @property
@@ -553,7 +585,11 @@ class NdfcEasyFabricEbgp(NdfcFabric):
 
     @loopback1_ip_range.setter
     def loopback1_ip_range(self, param):
-        self.ndfc.verify_ipv4_address_with_prefix(param)
+        try:
+            self.ndfc.verify_ipv4_address_with_prefix(param)
+        except AddressValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["LOOPBACK1_IP_RANGE"] = param
 
     @property
@@ -577,5 +613,9 @@ class NdfcEasyFabricEbgp(NdfcFabric):
 
     @subnet_range.setter
     def subnet_range(self, param):
-        self.ndfc.verify_ipv4_address_with_prefix(param)
+        try:
+            self.ndfc.verify_ipv4_address_with_prefix(param)
+        except AddressValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["SUBNET_RANGE"] = param

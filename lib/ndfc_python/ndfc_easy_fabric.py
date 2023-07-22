@@ -3,10 +3,11 @@ Name: ndfc_easy_fabric.py
 Description: Create fabric using the NDFC Easy_Fabric template
 """
 import sys
+from ipaddress import AddressValueError
 
-from ndfc_python.ndfc_fabric import NdfcFabric
+from ndfc_python.ndfc_fabric import NdfcFabric, NdfcRequestError
 
-OUR_VERSION = 105
+OUR_VERSION = 108
 
 
 class NdfcEasyFabric(NdfcFabric):
@@ -93,6 +94,9 @@ class NdfcEasyFabric(NdfcFabric):
     def _init_nv_pairs_mandatory_set(self):
         """
         Initialize a set containing mandatory nv pairs
+
+        This is the difference between all nvPairs (_nv_pairs_set) and
+        default nvPairs (_nv_pairs_default)
         """
         self.nv_pairs_mandatory_set = set()
         self.nv_pairs_mandatory_set = self._nv_pairs_set.difference(
@@ -101,7 +105,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     def _init_properties_default(self):
         """
-        Initialize default properties (currently there are no default properties)
+        Initialize default properties (currently there are none)
         """
         self.properties_default = {}
 
@@ -135,18 +139,21 @@ class NdfcEasyFabric(NdfcFabric):
     def _final_verification(self):
         for param in self.properties_mandatory_set:
             if self.properties[param] == "":
-                msg = f"exiting. call instance.{param.lower()} before calling instance.post()"
+                msg = f"exiting. call instance.{param.lower()} "
+                msg += "before calling instance.post()"
                 self.ndfc.log.error(msg)
                 sys.exit(1)
         for param in self.nv_pairs_mandatory_set:
             if self._nv_pairs[param] == "":
-                msg = f"exiting. call instance.{param.lower()} before calling instance.post()"
+                msg = f"exiting. call instance.{param.lower()} "
+                msg += "before calling instance.post()"
                 self.ndfc.log.error(msg)
                 sys.exit(1)
 
     def create(self):
         """
         Create a fabric using Easy_Fabric template.
+        TODO: Verify fabric does not exist before trying to create it
         """
         self._final_verification()
         self._preprocess_properties()
@@ -157,7 +164,13 @@ class NdfcEasyFabric(NdfcFabric):
         headers["Authorization"] = self.ndfc.bearer_token
         headers["Content-Type"] = "application/json"
 
-        self.ndfc.post(url, headers, self._nv_pairs)
+        try:
+            self.ndfc.post(url, headers, self._nv_pairs)
+        except NdfcRequestError as err:
+            msg = f"error creating fabric {self.fabric_name}, "
+            msg += f"error detail {err}"
+            self.ndfc.log.error(msg)
+            sys.exit(1)
 
     # nvPairs
     @property
@@ -169,7 +182,11 @@ class NdfcEasyFabric(NdfcFabric):
 
     @anycast_rp_ip_range.setter
     def anycast_rp_ip_range(self, param):
-        self.ndfc.verify_ipv4_address_with_prefix(param)
+        try:
+            self.ndfc.verify_ipv4_address_with_prefix(param)
+        except AddressValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["ANYCAST_RP_IP_RANGE"] = param
 
     @property
@@ -181,7 +198,11 @@ class NdfcEasyFabric(NdfcFabric):
 
     @bgp_as.setter
     def bgp_as(self, param):
-        self.ndfc.verify_bgp_asn(param)
+        try:
+            self.ndfc.verify_bgp_asn(param)
+        except ValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["BGP_AS"] = param
 
     @property
@@ -193,7 +214,11 @@ class NdfcEasyFabric(NdfcFabric):
 
     @dci_subnet_range.setter
     def dci_subnet_range(self, param):
-        self.ndfc.verify_ipv4_address_with_prefix(param)
+        try:
+            self.ndfc.verify_ipv4_address_with_prefix(param)
+        except AddressValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["DCI_SUBNET_RANGE"] = param
 
     @property
@@ -227,7 +252,11 @@ class NdfcEasyFabric(NdfcFabric):
 
     @loopback0_ip_range.setter
     def loopback0_ip_range(self, param):
-        self.ndfc.verify_ipv4_address_with_prefix(param)
+        try:
+            self.ndfc.verify_ipv4_address_with_prefix(param)
+        except AddressValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["LOOPBACK0_IP_RANGE"] = param
 
     @property
@@ -239,7 +268,11 @@ class NdfcEasyFabric(NdfcFabric):
 
     @loopback1_ip_range.setter
     def loopback1_ip_range(self, param):
-        self.ndfc.verify_ipv4_address_with_prefix(param)
+        try:
+            self.ndfc.verify_ipv4_address_with_prefix(param)
+        except AddressValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["LOOPBACK1_IP_RANGE"] = param
 
     @property
@@ -263,5 +296,9 @@ class NdfcEasyFabric(NdfcFabric):
 
     @subnet_range.setter
     def subnet_range(self, param):
-        self.ndfc.verify_ipv4_address_with_prefix(param)
+        try:
+            self.ndfc.verify_ipv4_address_with_prefix(param)
+        except AddressValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["SUBNET_RANGE"] = param

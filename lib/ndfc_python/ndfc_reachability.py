@@ -14,8 +14,8 @@ The JSON payload constructed by this class is shown below.
     "preserveConfig":false   # or true
 }
 
-In self.reachability(), self.response is populated with the contents of ndfc.response.text,
-and has the following format:
+In self.reachability(), self.response is populated with the contents of
+ndfc.response.text, and has the following format:
 
 [
     {
@@ -40,8 +40,9 @@ and has the following format:
 """
 import json
 import sys
+from ipaddress import AddressValueError
 
-OUR_VERSION = 104
+OUR_VERSION = 105
 
 
 class NdfcReachability:
@@ -125,8 +126,8 @@ class NdfcReachability:
 
     def _preprocess_payload(self):
         """
-        1. Set a default value for any properties that the caller has not set and that
-        NDFC provides a default for.
+        1. Set a default value for any properties that the caller has not set
+        and that NDFC provides a default for.
 
         2. Copy top-level property values (that need it) into their respective
         template_config properties.
@@ -140,9 +141,9 @@ class NdfcReachability:
         """
         for param in self.payload_set_mandatory:
             if self.payload[param] == "":
-                self.ndfc.log.error(
-                    f"exiting. call instance.{param} before calling instance.create()"
-                )
+                msg = f"exiting. call instance.{param} before "
+                msg += "calling instance.create()"
+                self.ndfc.log.error(msg)
                 sys.exit(1)
 
     def reachability(self):
@@ -152,7 +153,8 @@ class NdfcReachability:
         self._preprocess_payload()
         self._final_verification()
 
-        url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}/inventory/test-reachability"
+        url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
+        url += "inventory/test-reachability"
 
         self.ndfc.post(url, self.ndfc.make_headers(), self.payload)
         self.status_code = self.ndfc.response.status_code
@@ -214,7 +216,12 @@ class NdfcReachability:
 
     @preserve_config.setter
     def preserve_config(self, param):
-        self.ndfc.verify_boolean(param)
+        try:
+            self.ndfc.verify_boolean(param)
+        except TypeError as err:
+            msg = f"exiting. {err}"
+            self.ndfc.log.error(msg)
+            sys.exit(1)
         self.payload["preserveConfig"] = param
 
     @property
@@ -226,7 +233,11 @@ class NdfcReachability:
 
     @seed_ip.setter
     def seed_ip(self, param):
-        self.ndfc.verify_ipv4_address(param, "seed_ip")
+        try:
+            self.ndfc.verify_ipv4_address(param)
+        except AddressValueError:
+            self.ndfc.log.error("Exiting.")
+            exit(1)
         self.payload["seedIP"] = param
 
     @property

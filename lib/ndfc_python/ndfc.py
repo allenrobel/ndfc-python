@@ -1,6 +1,9 @@
 """
 Name: ndfc.py
-Description: Methods to login to an NDFC controller and perform get, post, delete operations.
+Description:
+
+Methods to login to an NDFC controller and perform get, post,
+delete operations.
 
 Example usage:
 
@@ -20,14 +23,23 @@ import sys
 
 import requests
 import urllib3
+
 from ndfc_python.common import Common
 
 OUR_VERSION = 104
 
 
+class NdfcRequestError(Exception):
+    """
+    Use for any uncaught errors associated with NDFC REST API requests
+    See, for example, NDFC().delete()
+    """
+
+
 class NDFC(Common):
     """
-    Methods to login to an NDFC controller and perform get, post, put, and delete operations
+    Methods to login to an NDFC controller and perform get, post, put,
+    and delete operations
     """
 
     def __init__(self, log):
@@ -60,7 +72,8 @@ class NDFC(Common):
         """
         for key, value in self.properties.items():
             if value is None:
-                self.log.error(f"Exit. Set property {key} before calling login.")
+                msg = f"Exit. Set property {key} before calling login."
+                self.log.error(msg)
                 sys.exit(1)
         urllib3.disable_warnings()
         payload = {}
@@ -80,8 +93,9 @@ class NDFC(Common):
         )
         response = json.loads(self.response.text)
         if "jwttoken" not in response:
-            message = "Exiting. Response missing jwttoken in response. Check password or username?"
-            self.log.error(message)
+            msg = "Exiting. Response missing jwttoken in response. "
+            msg += "Check password or username?"
+            self.log.error(msg)
             self._log_error(self.url_login, "POST")
             sys.exit(1)
         self.auth_token = response["jwttoken"]
@@ -89,7 +103,7 @@ class NDFC(Common):
 
     def make_headers(self):
         """
-        return auth and content-type request headers expected by the NDFC controller
+        return auth and content-type request headers expected by the NDFC
         """
         self.headers = {}
         self.headers["Authorization"] = self.bearer_token
@@ -100,27 +114,23 @@ class NDFC(Common):
         """
         Boilerplate error log to corral this in one place.
         """
-        message = (
-            f"{request_type} response from NDFC controller during {url}"
-            f" response.status_code: {self.response.status_code}"
-        )
-        self.log.error(message)
+        msg = f"{request_type} response from NDFC controller during {url}"
+        msg += f" response.status_code: {self.response.status_code}"
+        self.log.error(msg)
         try:
-            message = (
+            msg = (
                 f"response.reason: {self.response.reason}"
                 f" response.text: {self.response.text}"
             )
-            self.log.error(message)
+            self.log.error(msg)
         except ValueError as exception:
-            message = (
-                f"Error while logging response for {url}. Exception detail {exception}"
-            )
-            self.log.error(message)
+            msg = f"Error while logging response for {url}. "
+            msg += f"Exception detail {exception}"
+            self.log.error(msg)
         except AttributeError as exception:
-            message = (
-                f"Error while logging response for {url}. Exception detail {exception}"
-            )
-            self.log.error(message)
+            msg = f"Error while logging response for {url}. "
+            msg += f"Exception detail {exception}"
+            self.log.error(msg)
 
     def get(self, url, headers=None, params=None, verify=False):
         """
@@ -142,28 +152,27 @@ class NDFC(Common):
                 headers=headers,
             )
         except requests.ConnectTimeout as exception:
-            message = (
-                f"Exiting. Timed out connecting to {url} Exception detail: {exception}"
-            )
-            self.log.error(message)
+            msg = f"Exiting. Timed out connecting to {url} "
+            msg += f"Exception detail: {exception}"
+            self.log.error(msg)
             sys.exit(1)
         except requests.ConnectionError as exception:
-            message = (
-                f"Exiting. Unable to connect to {url} Exception detail: {exception}"
-            )
-            self.log.error(message)
+            msg = f"Exiting. Unable to connect to {url} "
+            msg += f"Exception detail: {exception}"
+            self.log.error(msg)
             sys.exit(1)
         if self.response.status_code != 200:
-            self._log_error(url, request_type)
-            sys.exit(1)
-        self.log.info(f"{request_type} succeeded {url}")
+            msg = f"status {self.response.status_code} for {request_type} "
+            msg += f"url {url}"
+            raise NdfcRequestError(msg)
+        self.log.debug(f"{request_type} succeeded {url}")
         return self.response.json()
 
     def post(self, url, headers, payload=None):
         """
         Send a POST request to an NDFC controller and set self.response
-        Return True if response.status_code == 200
-        Else return False
+        raise NdfcRequestError if status_code is anything other than 200s
+        exit with error on any exceptions from requests.
         """
         if payload is None:
             payload: dict[str, str] = {}
@@ -177,28 +186,27 @@ class NDFC(Common):
                 headers=headers,
             )
         except requests.ConnectTimeout as exception:
-            message = (
-                f"Exiting. Timed out connecting to {url} Exception detail: {exception}"
-            )
-            self.log.error(message)
+            msg = f"Exiting. Timed out connecting to {url} "
+            msg += f"Exception detail: {exception}"
+            self.log.error(msg)
             sys.exit(1)
         except requests.ConnectionError as exception:
-            message = (
-                f"Exiting. Unable to connect to {url} Exception detail: {exception}"
-            )
-            self.log.error(message)
+            msg = f"Exiting. Unable to connect to {url} "
+            msg += f"Exception detail: {exception}"
+            self.log.error(msg)
             sys.exit(1)
         if self.response.status_code != 200:
-            self._log_error(url, request_type)
-            return False
-        self.log.info(f"{request_type} succeeded {url}")
+            msg = f"status_code {self.response.status_code} "
+            msg += f"for {request_type} url {url}"
+            raise NdfcRequestError(msg)
+        self.log.debug(f"{request_type} succeeded {url}")
         return True
 
-    def put(self, url, headers, payload):
+    def put(self, url, headers, payload=None):
         """
         Send a PUT request to an NDFC controller and set self.response
-        Return True if response.status_code == 200
-        Else return False
+        raise NdfcRequestError if anything other than 200 response is received
+        Exit on any requests connection errors
         """
         request_type = "PUT"
         try:
@@ -210,51 +218,54 @@ class NDFC(Common):
                 headers=headers,
             )
         except requests.ConnectTimeout as exception:
-            message = (
-                f"Exiting. Timed out connecting to {url} Exception detail: {exception}"
-            )
-            self.log.error(message)
+            msg = f"Exiting. Timed out connecting to {url} "
+            msg += f"Exception detail: {exception}"
+            self.log.error(msg)
             sys.exit(1)
         except requests.ConnectionError as exception:
-            message = (
-                f"Exiting. Unable to connect to {url} Exception detail: {exception}"
-            )
-            self.log.error(message)
+            msg = f"Exiting. Unable to connect to {url} "
+            msg += f"Exception detail: {exception}"
+            self.log.error(msg)
             sys.exit(1)
         if self.response.status_code != 200:
-            self._log_error(url, request_type)
-            return False
-        self.log.info(f"{request_type} succeeded {url}")
-        return True
+            msg = f"Status {self.response.status_code} during {request_type}"
+            raise NdfcRequestError(msg)
 
     def delete(self, url, headers):
         """
         Send a DELETE request to an NDFC controller and set self.response
-        Return True if response.status_code == 200
-        Else return False
+        raise NdfcRequestError if NDFC response code is anything other than 200
+        Exit on any caught error from the requests module.
         """
         request_type = "DELETE"
         try:
-            self.response = requests.delete(
-                url, timeout=self.requests_timeout, verify=False, headers=headers
-            )
+            params = {}
+            params["url"] = url
+            params["timeout"] = self.requests_timeout
+            params["verify"] = False
+            params["headers"] = headers
+            self.response = requests.delete(**params)
+        except requests.exceptions.InvalidSchema as exception:
+            msg = f"Exiting. error connecting to {url} "
+            msg += f"Exception detail: {exception}"
+            self.log.error(msg)
+            sys.exit(1)
         except requests.ConnectTimeout as exception:
-            message = (
-                f"Exiting. Timed out connecting to {url} Exception detail: {exception}"
-            )
-            self.log.error(message)
+            msg = f"Exiting. Timed out connecting to {url} "
+            msg += f"Exception detail: {exception}"
+            self.log.error(msg)
             sys.exit(1)
         except requests.ConnectionError as exception:
-            message = (
-                f"Exiting. Unable to connect to {url} Exception detail: {exception}"
-            )
-            self.log.error(message)
+            msg = f"Exiting. Unable to connect to {url} "
+            msg = f"Exception detail: {exception}"
+            self.log.error(msg)
             sys.exit(1)
         if self.response.status_code != 200:
             self._log_error(url, request_type)
-            return False
-        self.log.info(f"{request_type} succeeded {url}")
-        return True
+            msg = f"request response {self.response}"
+            raise NdfcRequestError(msg)
+        msg = f"{request_type} succeeded {url} response {self.response}"
+        self.log.debug(msg)
 
     @property
     def username(self):

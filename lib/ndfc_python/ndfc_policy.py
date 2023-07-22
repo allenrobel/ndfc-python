@@ -1,6 +1,8 @@
 """
 Name: ndfc_policy.py
-Description: Create / delete policies  The JSON payload constructed by this class is shown below.
+Description:
+
+Create / delete NDFC policies
 
 TODO: Add JSON payload example
 
@@ -21,7 +23,9 @@ All the policy IDs in this list will be deleted.
 import sys
 from inspect import stack
 
-OUR_VERSION = 101
+from ndfc_python.ndfc import NdfcRequestError
+
+OUR_VERSION = 103
 
 
 class NdfcPolicy:
@@ -94,9 +98,9 @@ class NdfcPolicy:
         """
         simple logger
         """
-        print(
-            f"{self.class_name}(v{self.lib_version}).{stack()[1].function}: {' '.join(args)}"
-        )
+        msg = f"{self.class_name}(v{self.lib_version}).{stack()[1].function}: "
+        msg += f"{' '.join(args)}"
+        self.ndfc.log.info(msg)
 
     def _init_payload_set(self):
         self._payload_set = set()
@@ -128,9 +132,8 @@ class NdfcPolicy:
         self.payload = {}
         for param in self._payload_set:
             if param in self._payload_default:
-                self.payload[self._payload_mapping_dict[param]] = self._payload_default[
-                    param
-                ]
+                self.payload[self._payload_mapping_dict[param]] = self._payload_default
+                [param]
             else:
                 self.payload[self._payload_mapping_dict[param]] = None
 
@@ -184,10 +187,10 @@ class NdfcPolicy:
         for param in self._payload_set_mandatory:
             mapped_param = self._payload_mapping_dict[param]
             if self.payload[mapped_param] == "":
-                self.log(
-                    f"Exiting. call instance.{self._map_payload_param(param)}",
-                    "before calling instance.create()",
-                )
+                msg = "Exiting. call "
+                msg += f"instance.{self._map_payload_param(param)} "
+                msg += "before calling instance.create()"
+                self.log(msg)
                 sys.exit(1)
 
     def create(self):
@@ -208,37 +211,49 @@ class NdfcPolicy:
     def delete(self):
         """
         Delete a policy
+
+        raise ValueError if the caller provided insufficient information to
+        generate the request.
+
+        raise NdfcRequestError if NDFC's response was anything other than 200
         """
         self._preprocess_request()
 
         headers = self._headers
         headers["Authorization"] = self.ndfc.bearer_token
 
-        skip = False
         url = None
         if None not in self.delete_by_serial_entity_name_entity_type:
-            url = f"{self.ndfc.url_control_policies_switches}/{self.serial_number}/"
+            url = f"{self.ndfc.url_control_policies_switches}"
+            url += f"/{self.serial_number}/"
             url += f"{self.entity_type}/{self.entity_name}"
         elif self.serial_number is not None:
-            url = f"{self.ndfc.url_control_policies_switches}/{self.serial_number}"
+            url = f"{self.ndfc.url_control_policies_switches}"
+            url += f"/{self.serial_number}"
         elif len(self.policy_ids) != 0:
             url = f"{self.ndfc.url_base}"
-            url += "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies"
+            url += "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control"
+            url += "/policies"
             url += f"/policyIds?policyIds={','.join(self.policy_ids)}"
         else:
-            skip = True
-            self.log(
-                "Warning: Skipping delete.",
-                "Insufficient information provided to build REST endpoint for delete operation.",
-                " To delete all policies associated with a switch serial number,",
-                " set at least serial_number.  To delete all policies matching serial number",
-                " entity type and entity name, set at least serial_number, entity_name,",
-                " and entity_type. To delete one or more specific policies, set policy_ids to",
-                " a python list of policy IDs e.g. [POLICY-1173140, POLICY-1173150]",
+            msg = (
+                "Skipping delete. ",
+                "Insufficient information provided to build REST endpoint ",
+                "for delete operation. To delete all policies associated ",
+                "with a switch serial number, set at least serial_number. ",
+                "To delete all policies matching serial number, entity type, ",
+                "and entity name, set at least serial_number, entity_name, ",
+                "and entity_type. To delete one or more specific policies, ",
+                "set policy_ids to a python list of policy IDs e.g. ",
+                "[POLICY-1173140, POLICY-1173150]",
             )
+            raise ValueError(msg)
 
-        if skip is False:
+        try:
             self.ndfc.delete(url, headers)
+        except NdfcRequestError as err:
+            msg = f"Failure response from NDFC. Detail: {err}"
+            raise NdfcRequestError(msg) from err
 
     # top_level payload properties
 

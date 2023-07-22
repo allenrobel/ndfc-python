@@ -4,14 +4,17 @@ Description: superclass inherited by the other fabric classes in this repo
 """
 import sys
 
-OUR_VERSION = 101
+from ndfc_python.ndfc import NdfcRequestError
+
+OUR_VERSION = 102
 
 
 class NdfcFabric:
     """
     superclass inherited by the other fabric classes in this repo.
 
-    Requires one parameter; an instance of NDFC() (see ndfc.py in this directory)
+    Requires one parameter; an instance of NDFC() (see ndfc.py
+    in this directory)
 
     Example usage:
 
@@ -34,12 +37,14 @@ class NdfcFabric:
         self.class_name = __class__.__name__
         self.ndfc = ndfc
 
+        self._init_properties_default()
         self._init_properties_set()
         self._init_properties_mandatory_set()
+
         self._init_nv_pairs_default()
         self._init_nv_pairs_set()
         self._init_nv_pairs_mandatory_set()
-        self._init_properties_default()
+
         self._init_properties()
         self._init_nv_pairs()
 
@@ -78,7 +83,7 @@ class NdfcFabric:
 
     def _init_properties_default(self):
         """
-        Initialize default properties (currently there are no default properties)
+        Initialize default properties
         """
         self.properties_default = {}
 
@@ -117,36 +122,55 @@ class NdfcFabric:
         Override this in subclasses
         """
 
+    def list_fabrics(self):
+        """
+        /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics
+        """
+        url = "self.ndfc.url_control_fabrics"
+        try:
+            self.ndfc.get(url, self.ndfc.make_headers())
+        except NdfcRequestError as err:
+            self.ndfc.log.error(f"error: {err}")
+            sys.exit(1)
+        self.ndfc.log.info(f"got response: {self.ndfc.response}")
+
     def create(self):
         """
         Create a fabric
+
+        raise ValueError if bearer_token is not provided
         """
         self._preprocess_properties()
         self._final_verification()
         if self.ndfc.bearer_token is None:
-            self.ndfc.log.error(
-                "exiting. Please call ndfc_instance.login() before calling confg_save()"
-            )
-            sys.exit(1)
+            msg = "exiting. Please call ndfc_instance.login() "
+            msg += "before calling confg_save()"
+            raise ValueError(msg)
 
         url = f"{self.ndfc.url_control_fabrics}"
 
         self.properties["nvPairs"] = self._nv_pairs
-        self.ndfc.post(url, self.ndfc.make_headers(), self.properties)
+        try:
+            self.ndfc.post(url, self.ndfc.make_headers(), self.properties)
+        except NdfcRequestError as err:
+            msg = f"error creating fabric {self.fabric_name} "
+            msg += f"error detail: {err}"
+            self.ndfc.log.error(f"exiting. {msg}")
+            sys.exit(1)
 
     def config_save(self):
         """
         Send validated POST request to the NDFC config-save endpoint.
         """
         if self.fabric_name is None:
-            self.ndfc.log.error(
-                "exiting. Set instance.fabric_name before calling instance.config_save()."
-            )
+            msg = "exiting. Set instance.fabric_name before calling "
+            msg += "instance.config_save()."
+            self.ndfc.log.error(msg)
             sys.exit(1)
         if self.ndfc.bearer_token is None:
-            self.ndfc.log.error(
-                "exiting. Please call ndfc_instance.login() before calling confg_save()"
-            )
+            msg = "exiting. Call ndfc_instance.login() before calling "
+            msg += "confg_save()"
+            self.ndfc.log.error(msg)
             sys.exit(1)
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}/config-save"
         self.ndfc.post(url, self.ndfc.make_headers(), {})

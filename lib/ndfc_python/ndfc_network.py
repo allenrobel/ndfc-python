@@ -1,6 +1,9 @@
 """
 Name: ndfc_network.py
-Description: Create / delete networks  The JSON payload constructed by this class is shown below.
+Description:
+
+Create / delete networks
+The JSON payload constructed by this class is shown below.
 
 network = {
     'displayName': 'MyNetwork_30000',
@@ -48,8 +51,9 @@ network = {
 import json
 import sys
 from inspect import stack
+from ipaddress import AddressValueError
 
-OUR_VERSION = 103
+OUR_VERSION = 105
 
 
 class NdfcNetwork:
@@ -98,11 +102,14 @@ class NdfcNetwork:
         """
         simple logger
         """
-        print(
-            f"{self.class_name}(v{self.lib_version}).{stack()[1].function}: {' '.join(args)}"
-        )
+        msg = f"{self.class_name}(v{self.lib_version}).{stack()[1].function}: "
+        msg += f"{' '.join(args)}"
+        print(msg)
 
     def _init_payload_set(self):
+        """
+        set of all payload keys
+        """
         self._payload_set = set()
         self._payload_set.add("displayName")
         self._payload_set.add("fabric")
@@ -115,12 +122,21 @@ class NdfcNetwork:
         self._payload_set.add("vrf")
 
     def _init_payload_set_mandatory(self):
+        """
+        set of all mandatory payload keys
+        """
         self._payload_set_mandatory = set()
         self._payload_set_mandatory.add("fabric")
         self._payload_set_mandatory.add("networkId")
         self._payload_set_mandatory.add("vrf")
 
     def _init_payload_default(self):
+        """
+        set of all default payload keys
+
+        These are keys for which the caller does not have to provide a value
+        unless they specifically want to change them.
+        """
         self._payload_default = {}
         self._payload_default[
             "networkExtensionTemplate"
@@ -128,6 +144,9 @@ class NdfcNetwork:
         self._payload_default["networkTemplate"] = "Default_Network_Universal"
 
     def _init_template_config_set(self):
+        """
+        set of all keys in the template Default_Network_Universal
+        """
         self._template_config_set = set()
         self._template_config_set.add("dhcpServerAddr1")
         self._template_config_set.add("dhcpServerAddr2")
@@ -160,6 +179,11 @@ class NdfcNetwork:
         self._template_config_set.add("vrfName")
 
     def _init_template_config_default(self):
+        """
+        set of keys in the template Default_Network_Universal
+        for which the caller does not need to provide a value
+        unless they want to change them.
+        """
         self._template_config_default = {}
         self._template_config_default["enableIR"] = True
         self._template_config_default["enableL3OnBorder"] = False
@@ -172,6 +196,9 @@ class NdfcNetwork:
         self._template_config_default["trmEnabled"] = False
 
     def _init_template_config_set_mandatory(self):
+        """
+        set of mandatory keys in the template Default_Network_Universal
+        """
         self._template_config_set_mandatory = set()
         self._template_config_set_mandatory.add("vlanId")
 
@@ -187,7 +214,9 @@ class NdfcNetwork:
         self.template_config = {}
         for param in self._template_config_set:
             if param in self._template_config_default:
-                self.template_config[param] = self._template_config_default[param]
+                # avoid flake8 linter line length error
+                value = self._template_config_default[param]
+                self.template_config[param] = value
             else:
                 self.template_config[param] = ""
 
@@ -240,16 +269,22 @@ class NdfcNetwork:
         see _map_template_config_param()
         """
         self._template_config_mapping_dict = {}
-        self._template_config_mapping_dict["dhcpServerAddr1"] = "dhcp_server_addr_1"
-        self._template_config_mapping_dict["dhcpServerAddr2"] = "dhcp_server_addr_2"
-        self._template_config_mapping_dict["dhcpServerAddr3"] = "dhcp_server_addr_3"
+        value = "dhcp_server_addr_1"
+        self._template_config_mapping_dict["dhcpServerAddr1"] = value
+        value = "dhcp_server_addr_2"
+        self._template_config_mapping_dict["dhcpServerAddr2"] = value
+        value = "dhcp_server_addr_3"
+        self._template_config_mapping_dict["dhcpServerAddr3"] = value
         self._template_config_mapping_dict["enableIR"] = "enable_ir"
-        self._template_config_mapping_dict["enableL3OnBorder"] = "enable_l3_on_border"
-        self._template_config_mapping_dict["gatewayIpAddress"] = "gateway_ip_address"
+        value = "enable_l3_on_border"
+        self._template_config_mapping_dict["enableL3OnBorder"] = value
+        value = "gateway_ip_address"
+        self._template_config_mapping_dict["gatewayIpAddress"] = value
         self._template_config_mapping_dict[
             "gatewayIpV6Address"
         ] = "gateway_ipv6_address"
-        self._template_config_mapping_dict["intfDescription"] = "intf_description"
+        value = "intf_description"
+        self._template_config_mapping_dict["intfDescription"] = value
         self._template_config_mapping_dict["isLayer2Only"] = "is_layer2_only"
         self._template_config_mapping_dict["loopbackId"] = "loopback_id"
         self._template_config_mapping_dict["mcastGroup"] = "mcast_group"
@@ -312,10 +347,9 @@ class NdfcNetwork:
                 sys.exit(1)
         for param in self._template_config_set_mandatory:
             if self.template_config[param] == "":
-                self.log(
-                    f"Exiting. call instance.{self._map_template_config_param(param)}",
-                    "before calling instance.create()",
-                )
+                msg = "Exiting. call "
+                msg += f"instance.{self._map_template_config_param(param)}"
+                msg += "before calling instance.create()"
                 sys.exit(1)
 
     def vrf_exists_in_fabric(self):
@@ -383,24 +417,24 @@ class NdfcNetwork:
         self._final_verification()
 
         if self.vrf_exists_in_fabric() is False:
-            self.log(
-                f"Exiting. vrf {self.vrf} does not exist in fabric {self.fabric}.",
-                "Create it before calling NdfcNetwork()",
-            )
+            msg = "Exiting. vrf {self.vrf} does not exist in fabric "
+            msg += f"{self.fabric}. Create it before calling NdfcNetwork()"
+            self.log(msg)
             sys.exit(1)
 
         if self.network_id_exists_in_fabric() is True:
-            self.log(
-                f"Exiting. networkId {self.network_id} already exists in fabric {self.fabric}.",
-                "Delete it before calling NdfcNetwork.create()",
-            )
+            msg = f"Exiting. networkId {self.network_id} already exists "
+            msg += f"in fabric {self.fabric}. Delete it before calling "
+            msg += "NdfcNetwork.create()"
+            self.log(msg)
             sys.exit(1)
 
         url = f"{self.ndfc.url_top_down_fabrics}/{self.fabric}/networks"
         headers = self._headers
         headers["Authorization"] = self.ndfc.bearer_token
 
-        self.payload["networkTemplateConfig"] = json.dumps(self.template_config)
+        value = json.dumps(self.template_config)
+        self.payload["networkTemplateConfig"] = value
 
         self.ndfc.post(url, headers, self.payload)
 
@@ -409,14 +443,14 @@ class NdfcNetwork:
         Delete a network
         """
         if self.network_name == "":
-            self.log(
-                "Exiting. Call instance.networkName before calling NdfcNetworks.delete()"
-            )
+            msg = "Exiting. Call instance.networkName before calling "
+            msg += "NdfcNetworks.delete()"
+            self.log(msg)
             sys.exit(1)
         if self.fabric == "":
-            self.log(
-                "Exiting. Call instance.fabric before calling NdfcNetworks.delete()"
-            )
+            msg = "Exiting. Call instance.fabric before calling "
+            msg += "NdfcNetworks.delete()"
+            self.log(msg)
             sys.exit(1)
 
         headers = self._headers
@@ -574,7 +608,12 @@ class NdfcNetwork:
 
     @enable_ir.setter
     def enable_ir(self, param):
-        self.ndfc.verify_boolean(param)
+        try:
+            self.ndfc.verify_boolean(param)
+        except TypeError as err:
+            msg = f"exiting. {err}"
+            self.ndfc.log.error(msg)
+            sys.exit(1)
         self.template_config["enableIR"] = param
 
     @property
@@ -586,7 +625,12 @@ class NdfcNetwork:
 
     @enable_l3_on_border.setter
     def enable_l3_on_border(self, param):
-        self.ndfc.verify_boolean(param)
+        try:
+            self.ndfc.verify_boolean(param)
+        except TypeError as err:
+            msg = f"exiting. {err}"
+            self.ndfc.log.error(msg)
+            sys.exit(1)
         self.template_config["enableL3OnBorder"] = param
 
     @property
@@ -598,7 +642,11 @@ class NdfcNetwork:
 
     @gateway_ip_address.setter
     def gateway_ip_address(self, param):
-        self.ndfc.verify_ipv4_address_with_prefix(param)
+        try:
+            self.ndfc.verify_ipv4_address_with_prefix(param)
+        except AddressValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self.template_config["gatewayIpAddress"] = param
 
     @property
@@ -610,7 +658,11 @@ class NdfcNetwork:
 
     @gateway_ipv6_address.setter
     def gateway_ipv6_address(self, param):
-        self.ndfc.verify_ipv6_address_with_prefix(param)
+        try:
+            self.ndfc.verify_ipv6_address_with_prefix(param)
+        except AddressValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self.template_config["gatewayIpV6Address"] = param
 
     @property
@@ -633,7 +685,12 @@ class NdfcNetwork:
 
     @is_layer2_only.setter
     def is_layer2_only(self, param):
-        self.ndfc.verify_boolean(param)
+        try:
+            self.ndfc.verify_boolean(param)
+        except TypeError as err:
+            msg = f"exiting. {err}"
+            self.ndfc.log.error(msg)
+            sys.exit(1)
         self.template_config["isLayer2Only"] = param
 
     @property
@@ -699,7 +756,12 @@ class NdfcNetwork:
 
     @rt_both_auto.setter
     def rt_both_auto(self, param):
-        self.ndfc.verify_boolean(param)
+        try:
+            self.ndfc.verify_boolean(param)
+        except TypeError as err:
+            msg = f"exiting. {err}"
+            self.ndfc.log.error(msg)
+            sys.exit(1)
         self.template_config["rtBothAuto"] = param
 
     @property
@@ -711,7 +773,11 @@ class NdfcNetwork:
 
     @secondary_gw_1.setter
     def secondary_gw_1(self, param):
-        self.ndfc.verify_ipv4_address_with_prefix(param)
+        try:
+            self.ndfc.verify_ipv4_address_with_prefix(param)
+        except AddressValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self.template_config["secondaryGW1"] = param
 
     @property
@@ -723,7 +789,11 @@ class NdfcNetwork:
 
     @secondary_gw_2.setter
     def secondary_gw_2(self, param):
-        self.ndfc.verify_ipv4_address_with_prefix(param)
+        try:
+            self.ndfc.verify_ipv4_address_with_prefix(param)
+        except AddressValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self.template_config["secondaryGW2"] = param
 
     @property
@@ -735,7 +805,11 @@ class NdfcNetwork:
 
     @secondary_gw_3.setter
     def secondary_gw_3(self, param):
-        self.ndfc.verify_ipv4_address_with_prefix(param)
+        try:
+            self.ndfc.verify_ipv4_address_with_prefix(param)
+        except AddressValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self.template_config["secondaryGW3"] = param
 
     @property
@@ -747,7 +821,11 @@ class NdfcNetwork:
 
     @secondary_gw_4.setter
     def secondary_gw_4(self, param):
-        self.ndfc.verify_ipv4_address_with_prefix(param)
+        try:
+            self.ndfc.verify_ipv4_address_with_prefix(param)
+        except AddressValueError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
         self.template_config["secondaryGW4"] = param
 
     @property
@@ -771,7 +849,12 @@ class NdfcNetwork:
 
     @suppress_arp.setter
     def suppress_arp(self, param):
-        self.ndfc.verify_boolean(param)
+        try:
+            self.ndfc.verify_boolean(param)
+        except TypeError as err:
+            msg = f"exiting. {err}"
+            self.ndfc.log.error(msg)
+            sys.exit(1)
         self.template_config["suppressArp"] = param
 
     @property
@@ -795,7 +878,12 @@ class NdfcNetwork:
 
     @trm_enabled.setter
     def trm_enabled(self, param):
-        self.ndfc.verify_boolean(param)
+        try:
+            self.ndfc.verify_boolean(param)
+        except TypeError as err:
+            msg = f"exiting. {err}"
+            self.ndfc.log.error(msg)
+            sys.exit(1)
         self.template_config["trmEnabled"] = param
 
     @property

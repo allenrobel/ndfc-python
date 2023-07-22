@@ -4,6 +4,7 @@ Description:
 
 Discover switch
 """
+import sys
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
 from ndfc_python.ndfc_credentials import NdfcCredentials
@@ -17,16 +18,20 @@ ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
-discover = NdfcDiscover(ndfc)
-discover.fabric_name = "Easy_Fabric_1"
-discover.cdpSecondTimeout = 5
-discover.maxHops = 0
-discover.username = nc.discover_username
-discover.password = nc.discover_password
-discover.preserveConfig = False
-seedIps = ["10.1.1.1"]
+instance = NdfcDiscover(ndfc)
+instance.fabric_name = "ext1"
+instance.cdp_second_timeout = 5
+instance.max_hops = 0
+instance.discover_username = nc.discover_username
+instance.discover_password = nc.discover_password
+instance.preserve_config = True
+seedIps = ["172.22.150.102"]
 for seedIp in seedIps:
-    discover.seedIP = seedIp
-    discover.discover()
-    print(f"discover_status_code {discover.discover_status_code}")
-    print(f"discover_response {discover.discover_response}")
+    instance.seed_ip = seedIp
+    try:
+        instance.discover()
+    except ValueError as err:
+        ndfc.log.error(f"exiting. {err}")
+        sys.exit(1)
+    print(f"discover_status_code {instance.discover_status_code}")
+    print(f"discover_response {instance.discover_response}")
