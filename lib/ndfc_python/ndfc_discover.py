@@ -332,7 +332,8 @@ class NdfcDiscover:
         """
         if not isinstance(self._reachability_response, list):
             msg = "expected self._reachability_response to be a list. "
-            msg += f"got {type({self._reachability_response}).__name__} instead."
+            msg += f"got {type({self._reachability_response}).__name__} "
+            msg += "instead."
             raise TypeError(msg)
         for item in self._reachability_response:
             for key in self._reachability_response_keys:

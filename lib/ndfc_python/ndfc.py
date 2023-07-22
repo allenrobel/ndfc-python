@@ -23,7 +23,6 @@ import sys
 
 import requests
 import urllib3
-
 from ndfc_python.common import Common
 
 OUR_VERSION = 104

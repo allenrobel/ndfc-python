@@ -457,12 +457,13 @@ class NdfcNetwork:
         headers["Authorization"] = self.ndfc.bearer_token
 
         if self.network_name_exists_in_fabric() is False:
-            self.log(
-                f"Exiting. networkName {self.network_name} does not exist in fabric {self.fabric}."
-            )
+            msg = f"Exiting. networkName {self.network_name} "
+            msg += f"does not exist in fabric {self.fabric}."
+            self.log(msg)
             sys.exit(1)
 
-        url = f"{self.ndfc.url_top_down_fabrics}/{self.fabric}/networks/{self.network_name}"
+        url = f"{self.ndfc.url_top_down_fabrics}/{self.fabric}"
+        url += f"/networks/{self.network_name}"
         self.ndfc.delete(url, headers)
 
     # top_level properties

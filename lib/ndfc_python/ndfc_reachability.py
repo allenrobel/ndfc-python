@@ -237,7 +237,7 @@ class NdfcReachability:
             self.ndfc.verify_ipv4_address(param)
         except AddressValueError:
             self.ndfc.log.error("Exiting.")
-            exit(1)
+            sys.exit(1)
         self.payload["seedIP"] = param
 
     @property
