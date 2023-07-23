@@ -24,10 +24,10 @@ import logging
 import logging.handlers
 import sys
 
-OUR_VERSION = 112
+OUR_VERSION = 113
 
 
-def log(_name, _console_level="INFO", _file_level="DEBUG", _capture_warnings=True):
+def log(_name, _console="INFO", _file="DEBUG", _capture_warnings=True):
     """
     returns a logger instance i.e. an instance of <class 'logging.Logger'>
     """
@@ -35,8 +35,8 @@ def log(_name, _console_level="INFO", _file_level="DEBUG", _capture_warnings=Tru
     logger = Logger()
     logger.logfile = f"/tmp/{_name}.log"
     log_obj = logger.new(_name)
-    logger.file_loglevel = _file_level
-    logger.console_loglevel = _console_level
+    logger.file_loglevel = _file
+    logger.console_loglevel = _console
     return log_obj
 
 
@@ -112,8 +112,9 @@ class Logger:
         self._stream_handler = logging.StreamHandler()
         self._stream_handler.setLevel(self.console_loglevel)
 
-        format_string = "%(asctime)s %(levelname)s %(relativeCreated)d.%(lineno)d"
-        format_string += " %(module)s.%(funcName)s %(message)s"
+        format_string = "%(asctime)s %(levelname)s "
+        format_string += "%(relativeCreated)d.%(lineno)d "
+        format_string += "%(module)s.%(funcName)s %(message)s"
         self.formatter = logging.Formatter(format_string)
         self._stream_handler.setFormatter(self.formatter)
         self._filehandler.setFormatter(self.formatter)
@@ -136,7 +137,9 @@ class Logger:
             print(f" Expected one of {self.valid_loglevels}")
             sys.exit(1)
         if self.log is None:
-            print("exiting. Logger().console_loglevel. Call Logger().new() first.")
+            msg = "exiting. Logger().console_loglevel. "
+            msg += "Call Logger().new() first."
+            print(msg)
             sys.exit(1)
         self.properties["console_loglevel"] = self.loglevel_map[param.upper()]
         self._stream_handler.setLevel(self.properties["console_loglevel"])
@@ -155,7 +158,8 @@ class Logger:
             print(f"Expected one of {sorted(self.valid_loglevels)}")
             sys.exit(1)
         if self.log is None:
-            print("exiting. Logger().file_loglevel. Call Logger().new() first.")
+            msg = "exiting. Logger().file_loglevel. Call Logger().new() first."
+            print(msg)
             sys.exit(1)
         self.properties["file_loglevel"] = self.loglevel_map[param.upper()]
         self._filehandler.setLevel(self.properties["file_loglevel"])
@@ -170,6 +174,8 @@ class Logger:
     @logfile.setter
     def logfile(self, param):
         if self.log is not None:
-            print("Ignoring. Logger().logfile Logger().new() was already called.)")
+            msg = "Ignoring. Logger().logfile Logger().new() was "
+            msg += "already called.)"
+            print(msg)
             print("Call Logger().logfile() prior to calling Logger().new(")
         self.properties["logfile"] = param
