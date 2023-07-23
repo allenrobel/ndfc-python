@@ -132,7 +132,8 @@ class NdfcPolicy:
         self.payload = {}
         for param in self._payload_set:
             if param in self._payload_default:
-                self.payload[self._payload_mapping_dict[param]] = self._payload_default
+                value = self._payload_default
+                self.payload[self._payload_mapping_dict[param]] = value
                 [param]
             else:
                 self.payload[self._payload_mapping_dict[param]] = None
@@ -150,7 +151,8 @@ class NdfcPolicy:
         self._payload_mapping_dict["serial_number"] = "serialNumber"
         self._payload_mapping_dict["source"] = "source"
         self._payload_mapping_dict["switch_name"] = "switchName"
-        self._payload_mapping_dict["template_content_type"] = "templateContentType"
+        value = "templateContentType"
+        self._payload_mapping_dict["template_content_type"] = value
         self._payload_mapping_dict["template_name"] = "templateName"
 
     def _map_payload_param(self, param):
