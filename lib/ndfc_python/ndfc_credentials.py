@@ -7,6 +7,8 @@ Read the caller's Ansible vault and expose the following keys via properties:
 ansible_user - via property username
 ansible_password - via property password
 ndfc_ip - via property ndfc_ip
+discover_username - via property discover_username, the switch username
+discover_password - via property discover_password, the switch password
 
 Dependencies:
 
@@ -20,9 +22,10 @@ pip install ansible
 
 In this repo at lib/ndfc_python/ndfc_config.py
 
-NdfcLoadConfig() loads ndfc_python's settings, which includes the path to your
-ansible vault.  To configure this path, edit ndfc-python/lib/ndfc_python/ndfc_config.py
-and modify the config_file variable at the top of the file.
+NdfcLoadConfig() loads ndfc_python's settings, which includes the path
+to your ansible vault.  To configure this path, edit
+ndfc-python/lib/ndfc_python/ndfc_config.py and modify the config_file variable
+at the top of the file.
 """
 import sys
 from inspect import stack
@@ -30,6 +33,7 @@ from inspect import stack
 from ansible.cli import CLI
 from ansible.errors import AnsibleFileNotFound, AnsibleParserError
 from ansible.parsing.dataloader import DataLoader
+
 from ndfc_python.ndfc_config import NdfcLoadConfig
 
 OUR_VERSION = 103
@@ -71,8 +75,8 @@ class NdfcCredentials:
         """
         try:
             loader = DataLoader()
-            vault_secrets = CLI.setup_vault_secrets(loader=loader, vault_ids=None)
-            loader.set_vault_secrets(vault_secrets)
+            secrets = CLI.setup_vault_secrets(loader=loader, vault_ids=None)
+            loader.set_vault_secrets(secrets)
             data = loader.load_from_file(self.cred_obj.config["ansible_vault"])
         except AnsibleFileNotFound as exception:
             self.log(
