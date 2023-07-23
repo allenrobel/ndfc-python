@@ -132,9 +132,8 @@ class NdfcPolicy:
         self.payload = {}
         for param in self._payload_set:
             if param in self._payload_default:
-                value = self._payload_default
+                value = self._payload_default[param]
                 self.payload[self._payload_mapping_dict[param]] = value
-                [param]
             else:
                 self.payload[self._payload_mapping_dict[param]] = None
 
