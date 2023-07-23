@@ -658,18 +658,16 @@ class Common:
         msg = f"expected boolean, got {param}"
         raise TypeError(msg)
 
-    def verify_vlan(self, param):
+    def verify_property_integer_range(self, params):
         """
-        raise ValueError if param is not a valid NDFC vlan ID
+        avoid linter code-duplication error across the
+        various verify_*() methods that verify integer
+        ranges.
         """
-        params = {}
-        params["value"] = param
-        params["min"] = self.min_vlan
-        params["max"] = self.max_vlan
         try:
             self.verify_integer_range(params)
         except ValueError as err:
-            msg = f"vlan id {param} is out of range {err}"
+            msg = f"{params['item']} {params['value']} is out of range {err}"
             self.log.error(msg)
             raise
         except TypeError as err:
@@ -680,6 +678,17 @@ class Common:
             msg = f"exiting {err}"
             self.log.error(msg)
             sys.exit(1)
+
+    def verify_vlan(self, param):
+        """
+        raise ValueError if param is not a valid NDFC vlan ID
+        """
+        params = {}
+        params["value"] = param
+        params["min"] = self.min_vlan
+        params["max"] = self.max_vlan
+        params["item"] = "vlan_id"
+        self.verify_property_integer_range(params)
 
     def verify_vrf_vlan_id(self, param):
         """
@@ -689,20 +698,8 @@ class Common:
         params["value"] = param
         params["min"] = self.min_vrf_vlan_id
         params["max"] = self.max_vrf_vlan_id
-        try:
-            self.verify_integer_range(params)
-        except ValueError as err:
-            msg = f"vrf_vlan_id {param} is out of range {err}"
-            self.log.error(msg)
-            raise
-        except TypeError as err:
-            msg = f"exiting {err}"
-            self.log.error(msg)
-            sys.exit(1)
-        except KeyError as err:
-            msg = f"exiting {err}"
-            self.log.error(msg)
-            sys.exit(1)
+        params["item"] = "vrf_vlan_id"
+        self.verify_property_integer_range(params)
 
     def verify_loopback_id(self, param):
         """
@@ -712,20 +709,8 @@ class Common:
         params["value"] = param
         params["min"] = self.min_loopback_id
         params["max"] = self.max_loopback_id
-        try:
-            self.verify_integer_range(params)
-        except ValueError as err:
-            msg = f"loopback_id {param} is out of range {err}"
-            self.log.error(msg)
-            raise
-        except TypeError as err:
-            msg = f"exiting {err}"
-            self.log.error(msg)
-            sys.exit(1)
-        except KeyError as err:
-            msg = f"exiting {err}"
-            self.log.error(msg)
-            sys.exit(1)
+        params["item"] = "loopback_id"
+        self.verify_property_integer_range(params)
 
     def verify_max_bgp_paths(self, param):
         """
@@ -736,19 +721,8 @@ class Common:
         params["value"] = param
         params["min"] = self.min_max_bgp_paths
         params["max"] = self.max_max_bgp_paths
-        try:
-            self.verify_integer_range(params)
-        except ValueError as err:
-            msg = f"max_bgp_paths {param} is out of range {err}"
-            raise ValueError(msg) from err
-        except TypeError as err:
-            msg = f"exiting {err}"
-            self.log.error(msg)
-            sys.exit(1)
-        except KeyError as err:
-            msg = f"exiting {err}"
-            self.log.error(msg)
-            sys.exit(1)
+        params["item"] = "max_bgp_paths"
+        self.verify_property_integer_range(params)
 
     def verify_mtu(self, param):
         """
@@ -758,20 +732,8 @@ class Common:
         params["value"] = param
         params["min"] = self.min_mtu
         params["max"] = self.max_mtu
-        try:
-            self.verify_integer_range(params)
-        except ValueError as err:
-            msg = f"mtu {param} is out of range {err}"
-            self.log.error(msg)
-            raise
-        except TypeError as err:
-            msg = f"exiting {err}"
-            self.log.error(msg)
-            sys.exit(1)
-        except KeyError as err:
-            msg = f"exiting {err}"
-            self.log.error(msg)
-            sys.exit(1)
+        params["item"] = "mtu"
+        self.verify_property_integer_range(params)
 
     def verify_nve_id(self, param):
         """
@@ -781,20 +743,8 @@ class Common:
         params["value"] = param
         params["min"] = self.min_nve_id
         params["max"] = self.max_nve_id
-        try:
-            self.verify_integer_range(params)
-        except ValueError as err:
-            msg = f"nve_id {param} is out of range {err}"
-            self.log.error(msg)
-            raise
-        except TypeError as err:
-            msg = f"exiting {err}"
-            self.log.error(msg)
-            sys.exit(1)
-        except KeyError as err:
-            msg = f"exiting {err}"
-            self.log.error(msg)
-            sys.exit(1)
+        params["item"] = "nve_id"
+        self.verify_property_integer_range(params)
 
     def verify_routing_tag(self, param):
         """
@@ -804,20 +754,8 @@ class Common:
         params["value"] = param
         params["min"] = self.min_routing_tag
         params["max"] = self.max_routing_tag
-        try:
-            self.verify_integer_range(params)
-        except ValueError as err:
-            msg = f"routing_tag {param} is out of range {err}"
-            self.log.error(msg)
-            raise
-        except TypeError as err:
-            msg = f"exiting {err}"
-            self.log.error(msg)
-            sys.exit(1)
-        except KeyError as err:
-            msg = f"exiting {err}"
-            self.log.error(msg)
-            sys.exit(1)
+        params["item"] = "routing_tag"
+        self.verify_property_integer_range(params)
 
     def verify_vni(self, param):
         """
@@ -827,20 +765,8 @@ class Common:
         params["value"] = param
         params["min"] = self.min_vni
         params["max"] = self.max_vni
-        try:
-            self.verify_integer_range(params)
-        except ValueError as err:
-            msg = f"vni {param} is out of range {err}"
-            self.log.error(msg)
-            raise
-        except TypeError as err:
-            msg = f"exiting {err}"
-            self.log.error(msg)
-            sys.exit(1)
-        except KeyError as err:
-            msg = f"exiting {err}"
-            self.log.error(msg)
-            sys.exit(1)
+        params["item"] = "vni"
+        self.verify_property_integer_range(params)
 
     def strip_netmask(self, param):
         """
