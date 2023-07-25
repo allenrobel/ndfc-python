@@ -362,8 +362,8 @@ class NdfcDiscover:
         Return True if self.seed_ip is reachable, per NDFC's test-reachability
         endpoint.
         Return False if self.seed_ip is not reachable
-        raise TypeError if reachability_response is not a list()
-        raise KeyError if any items in reachability_response are missing keys
+        Exit with error if reachability_response is not a list()
+        Exit with error if any items in reachability_response are missing keys
         """
         self._final_verification()
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
