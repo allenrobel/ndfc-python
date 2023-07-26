@@ -48,20 +48,26 @@ class NdfcFabric:
         self._init_properties()
         self._init_nv_pairs()
 
+    def _init_properties_default(self):
+        """
+        Initialize default properties
+        """
+        self._properties_default = {}
+
     def _init_properties_set(self):
         """
         Initialize a set containing all properties
         """
-        self.properties_set = set()
-        self.properties_set.add("fabricName")
-        self.properties_set.add("templateName")
+        self._properties_set = set()
+        self._properties_set.add("fabricName")
+        self._properties_set.add("templateName")
 
     def _init_properties_mandatory_set(self):
         """
         Initialize a set containing mandatory properties
         """
-        self.properties_mandatory_set = set()
-        self.properties_mandatory_set.add("fabricName")
+        self._properties_mandatory_set = set()
+        self._properties_mandatory_set.add("fabricName")
 
     def _init_nv_pairs_default(self):
         """
@@ -81,22 +87,16 @@ class NdfcFabric:
         """
         self._nv_pairs_mandatory_set = set()
 
-    def _init_properties_default(self):
-        """
-        Initialize default properties
-        """
-        self.properties_default = {}
-
     def _init_properties(self):
         """
         Initialize all properties
         """
-        self.properties = {}
-        for param in self.properties_set:
-            if param in self.properties_default:
-                self.properties[param] = self.properties_default[param]
+        self._properties = {}
+        for param in self._properties_set:
+            if param in self._properties_default:
+                self._properties[param] = self._properties_default[param]
             else:
-                self.properties[param] = ""
+                self._properties[param] = ""
 
     def _init_nv_pairs(self):
         """
@@ -149,9 +149,9 @@ class NdfcFabric:
 
         url = f"{self.ndfc.url_control_fabrics}"
 
-        self.properties["nvPairs"] = self._nv_pairs
+        self._properties["nvPairs"] = self._nv_pairs
         try:
-            self.ndfc.post(url, self.ndfc.make_headers(), self.properties)
+            self.ndfc.post(url, self.ndfc.make_headers(), self._properties)
         except NdfcRequestError as err:
             msg = f"error creating fabric {self.fabric_name} "
             msg += f"error detail: {err}"
@@ -182,8 +182,8 @@ class NdfcFabric:
         """
         return the current fabric_name
         """
-        return self.properties["fabric_name"]
+        return self._properties["fabric_name"]
 
     @fabric_name.setter
     def fabric_name(self, param):
-        self.properties["fabric_name"] = param
+        self._properties["fabric_name"] = param

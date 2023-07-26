@@ -44,15 +44,15 @@ class NdfcEasyFabric(NdfcFabric):
         """
         Initialize a set containing all properties
         """
-        self.properties_set = set()
-        self.properties_set.add("fabric_name")
+        self._properties_set = set()
+        self._properties_set.add("fabric_name")
 
     def _init_properties_mandatory_set(self):
         """
         Initialize a set containing mandatory properties
         """
-        self.properties_mandatory_set = set()
-        self.properties_mandatory_set.add("fabric_name")
+        self._properties_mandatory_set = set()
+        self._properties_mandatory_set.add("fabric_name")
 
     def _init_nv_pairs_default(self):
         """
@@ -98,8 +98,8 @@ class NdfcEasyFabric(NdfcFabric):
         This is the difference between all nvPairs (_nv_pairs_set) and
         default nvPairs (_nv_pairs_default)
         """
-        self.nv_pairs_mandatory_set = set()
-        self.nv_pairs_mandatory_set = self._nv_pairs_set.difference(
+        self._nv_pairs_mandatory_set = set()
+        self._nv_pairs_mandatory_set = self._nv_pairs_set.difference(
             self._nv_pairs_default
         )
 
@@ -107,18 +107,18 @@ class NdfcEasyFabric(NdfcFabric):
         """
         Initialize default properties (currently there are none)
         """
-        self.properties_default = {}
+        self._properties_default = {}
 
     def _init_properties(self):
         """
         Initialize all properties
         """
-        self.properties = {}
-        for param in self.properties_set:
-            if param in self.properties_default:
-                self.properties[param] = self.properties_default[param]
+        self._properties = {}
+        for param in self._properties_set:
+            if param in self._properties_default:
+                self._properties[param] = self._properties_default[param]
             else:
-                self.properties[param] = ""
+                self._properties[param] = ""
 
     def _init_nv_pairs(self):
         """
@@ -137,13 +137,13 @@ class NdfcEasyFabric(NdfcFabric):
         """
 
     def _final_verification(self):
-        for param in self.properties_mandatory_set:
-            if self.properties[param] == "":
+        for param in self._properties_mandatory_set:
+            if self._properties[param] == "":
                 msg = f"exiting. call instance.{param.lower()} "
                 msg += "before calling instance.post()"
                 self.ndfc.log.error(msg)
                 sys.exit(1)
-        for param in self.nv_pairs_mandatory_set:
+        for param in self._nv_pairs_mandatory_set:
             if self._nv_pairs[param] == "":
                 msg = f"exiting. call instance.{param.lower()} "
                 msg += "before calling instance.post()"
