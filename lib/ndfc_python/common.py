@@ -485,12 +485,14 @@ class Common:
             msg += f"1-4294967295 | 1-65535[.0-65535], got {asn}"
             raise ValueError(msg)
 
-    def verify_bgp_password_key_type(self, param):
+    def verify_bgp_password_key_type(self, param, caller=""):
         """
         raise ValueError if bgp_password_key_type is not what NDFC expects.
+        caller is optional.  Use if you want your error message to include
+        that information.
         """
         if param not in self.valid_bgp_password_key_type:
-            msg = "bgp_password_key_type must match one of "
+            msg = f"{caller} must match one of "
             msg += f"{self.valid_bgp_password_key_type}"
             raise ValueError(msg)
 
