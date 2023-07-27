@@ -665,13 +665,19 @@ class Common:
         avoid linter code-duplication error across the
         various verify_*() methods that verify integer
         ranges.
+
+        Log an error and exit if any errors encountered.
+
+        params["value"] - The integer value to be tested.
+        params["min"] - The minimum range for params["value"]
+        params["max"] - The maximum range for params["value"]
         """
         try:
             self.verify_integer_range(params)
         except ValueError as err:
             msg = f"{params['item']} {params['value']} is out of range {err}"
             self.log.error(msg)
-            raise
+            sys.exit(1)
         except TypeError as err:
             msg = f"exiting {err}"
             self.log.error(msg)
