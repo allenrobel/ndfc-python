@@ -370,6 +370,8 @@ class Common:
         Also, NDFC expects a smaller prefix than the host prefix (/32),
         so we check for that too.
         """
+        if not isinstance(param, str):
+            return False
         if "/" not in param:
             return False
         try:
@@ -387,6 +389,8 @@ class Common:
         form address/Y
         Return False otherwise
         """
+        if not isinstance(param, str):
+            return False
         if "/" not in param:
             return False
         try:
@@ -421,6 +425,8 @@ class Common:
         Also, NDFC expects a smaller prefix than the host prefix (/128),
         so we check for that too.
         """
+        if not isinstance(param, str):
+            return False
         if "/" not in param:
             return False
         try:
