@@ -9,7 +9,7 @@ import ipaddress
 import re
 import sys
 
-OUR_VERSION = 116
+OUR_VERSION = 117
 
 
 class NdfcBgpPasswordKeytypeError(Exception):
@@ -145,6 +145,88 @@ class Common:
             return False
         return True
 
+    @staticmethod
+    def verify_hypenated_range(params):
+        """
+        Given a string with format "X-Y" where:
+            X is convertable to integer, e.g. "1", "1532"
+            Y is convertable to integer
+        Verify the following:
+            int(X) >= params["min"]
+            int(Y) <= params["max"]
+            int(X) < int(Y)
+        raise KeyError if params does not contain all expected keys
+        raise ValueError if any of the above verifications fail
+        raise ValueError if params["value"] is not of format "digits-digits"
+        raise TypeError if params["min"] or params["max"] are not type int
+
+        Example params:
+
+        params = {
+            "caller": "my_function",
+            "value": "15-26000",
+            "min": 1,
+            "max": 28740
+        }
+        """
+        if not isinstance(params, dict):
+            msg = f"expected dict, got type {type(params).__name__} "
+            msg += f"with value {params}"
+            raise TypeError(msg)
+        if "caller" in params:
+            _caller = params["caller"]
+        else:
+            _caller = "unspecified_caller"
+        mandatory_keys = {"value", "min", "max"}
+        if not mandatory_keys.issubset(params):
+            msg = f"{_caller}, missing expected key. "
+            msg += f"expected {mandatory_keys}, got {params.keys()}"
+            raise KeyError(msg)
+        if not isinstance(params["max"], int):
+            msg = f"{_caller}, expected type int for max, got {params['max']}."
+            raise TypeError(msg)
+        if not isinstance(params["min"], int):
+            msg = f"{_caller}, expected type int for min, got {params['min']}."
+            raise TypeError(msg)
+        _match = re.search(r"^(\d+)-(\d+)$", params["value"])
+        if not _match:
+            msg = f"{_caller}, expected string with format X-Y, where X "
+            msg += f"and Y are digits.  Got {params['value']}"
+            raise ValueError(msg)
+        try:
+            _lower = int(_match.group(1))
+            _upper = int(_match.group(2))
+        except ValueError as err:
+            msg = f"{_caller}, hyphenated range values not convertable "
+            msg += "to int().  expected integer-integer, got "
+            raise ValueError(msg) from err
+        if not _lower >= params["min"]:
+            msg = f"{_caller}, expected X-Y, where X >= {params['min']}. "
+            msg += f"got X {_lower}"
+            raise ValueError(msg)
+        if not _upper <= params["max"]:
+            msg = f"{_caller}, expected X-Y, where Y <= {params['max']}. "
+            msg += f"got Y {_upper}"
+            raise ValueError(msg)
+        if _lower >= _upper:
+            msg = f"{_caller}, expected X-Y, X < Y. "
+            msg += f"got X {_lower}, Y {_upper}"
+            raise ValueError(msg)
+
+    @staticmethod
+    def is_integer_even(param):
+        """
+        Return True if param is even
+        Return False otherwise
+        raise TypeError if param is not an integer
+        """
+        if not isinstance(param, int):
+            msg = f"expected integer, got {param}"
+            raise TypeError(msg)
+        if param % 2 == 0:
+            return True
+        return False
+
     def is_mac_address_format_a(self, param):
         """
         Return True if param is a mac address with format: xxxx.xxxx.xxxx
@@ -189,7 +271,8 @@ class Common:
             return True
         return False
 
-    def is_ipv4_address(self, param):
+    @staticmethod
+    def is_ipv4_address(param):
         """
         Return True if param is an IPv4 address
         Return False otherwise
@@ -226,7 +309,8 @@ class Common:
             return False
         return True
 
-    def is_ipv4_multicast_address(self, param):
+    @staticmethod
+    def is_ipv4_multicast_address(param):
         """
         Return True if param is an IPv4 multicast address
         Return False otherwise
@@ -239,7 +323,8 @@ class Common:
             return False
         return False
 
-    def is_ipv4_multicast_range(self, param):
+    @staticmethod
+    def is_ipv4_multicast_range(param):
         """
         Return True if param is an IPv4 multicast range
         Return False otherwise
@@ -257,7 +342,8 @@ class Common:
             return False
         return False
 
-    def is_ipv4_address_with_prefix(self, param):
+    @staticmethod
+    def is_ipv4_address_with_prefix(param):
         """
         Return True if x is an IPv4 address with prefix of the form address/Y
         Return False otherwise
@@ -272,7 +358,30 @@ class Common:
             return False
         return True
 
-    def is_ipv6_address_with_prefix(self, param):
+    @staticmethod
+    def is_ipv4_network_range(param):
+        """
+        Check if param is a valid network range (per NDFC's expectations).
+
+        NDFC expects a "/" in address ranges, whereas ipaddress considers
+        e.g. 10.0.0.0 to be a valid network i.e. 10.0.0.0/32.  Hence,
+        we make an additional check for "/" in param.
+
+        Also, NDFC expects a smaller prefix than the host prefix (/32),
+        so we check for that too.
+        """
+        if "/" not in param:
+            return False
+        try:
+            value = ipaddress.IPv4Network(param)
+        except ipaddress.AddressValueError:
+            return False
+        if "/32" in str(value):
+            return False
+        return True
+
+    @staticmethod
+    def is_ipv6_address_with_prefix(param):
         """
         Return True if param is an IPv6 address with prefix of the
         form address/Y
@@ -288,7 +397,8 @@ class Common:
             return False
         return True
 
-    def is_ipv6_address(self, param):
+    @staticmethod
+    def is_ipv6_address(param):
         """
         Return True if x is an IPv6 address
         Return False otherwise
@@ -299,7 +409,30 @@ class Common:
             return False
         return True
 
-    def is_ipv4_network(self, param):
+    @staticmethod
+    def is_ipv6_network_range(param):
+        """
+        Check if param is a valid network range (per NDFC's expectations).
+
+        NDFC expects a "/" in address ranges, whereas ipaddress considers
+        e.g. 2001::0 to be a valid network i.e. 2001::0/128.  Hence,
+        we make an additional check for "/" in param.
+
+        Also, NDFC expects a smaller prefix than the host prefix (/128),
+        so we check for that too.
+        """
+        if "/" not in param:
+            return False
+        try:
+            value = ipaddress.IPv6Network(param)
+        except ipaddress.AddressValueError:
+            return False
+        if "/128" in str(value):
+            return False
+        return True
+
+    @staticmethod
+    def is_ipv4_network(param):
         """
         Return True if x is an IPv4 network
         Return False otherwise
@@ -312,7 +445,8 @@ class Common:
             return False
         return True
 
-    def is_ipv6_network(self, param):
+    @staticmethod
+    def is_ipv6_network(param):
         """
         Return True if x is an IPv6 network
         Return False otherwise
@@ -325,7 +459,8 @@ class Common:
             return False
         return True
 
-    def is_ipv4_interface(self, param):
+    @staticmethod
+    def is_ipv4_interface(param):
         """
         Return True if x is an IPv4 interface
         Return False otherwise
@@ -338,7 +473,8 @@ class Common:
             return False
         return True
 
-    def is_ipv6_interface(self, param):
+    @staticmethod
+    def is_ipv6_interface(param):
         """
         Return True if param is an IPv6 interface
         Return False otherwise
@@ -359,7 +495,8 @@ class Common:
             return False
         return True
 
-    def is_list(self, param):
+    @staticmethod
+    def is_list(param):
         """
         verify param is a python list()
         """
@@ -405,7 +542,8 @@ class Common:
             return True
         return False
 
-    def is_auto(self, param):
+    @staticmethod
+    def is_auto(param):
         """
         Return True if param == "auto"
         Return False otherwise
@@ -414,7 +552,8 @@ class Common:
             return True
         return False
 
-    def is_default(self, param):
+    @staticmethod
+    def is_default(param):
         """
         Return True if param == "default"
         Return False otherwise
@@ -495,6 +634,34 @@ class Common:
             msg = f"{caller} must match one of "
             msg += f"{self.valid_bgp_password_key_type}"
             raise ValueError(msg)
+
+    def verify_property_disable_enable(self, param, caller=""):
+        """
+        avoid linter code-duplication error across the
+        property setters whose valid values are "Disable"
+        and "Enable"
+        caller is optional.  Use if you want your error message to include
+        that information.
+
+        Log an error and exit on any errors.
+        """
+        try:
+            self.verify_disable_enable(param)
+        except ValueError as err:
+            msg = f"{caller} exiting. {err}"
+            self.log.error(msg)
+            sys.exit(1)
+
+    @staticmethod
+    def verify_disable_enable(param):
+        """
+        raise ValueError if param is not one of "Disable" or "Enable"
+        """
+        _valid = ["Disable", "Enable"]
+        if param in _valid:
+            return
+        msg = f"expected one of {_valid}, got {param}"
+        raise ValueError(msg)
 
     def verify_digits(self, param):
         """
@@ -581,6 +748,26 @@ class Common:
             return
         msg = "expected ipv6 address with prefix e.g. 2001:aaaa::1/64, "
         msg += f"got {param}"
+        raise ipaddress.AddressValueError(msg)
+
+    def verify_ipv4_network_range(self, param):
+        """
+        raise ipaddress.AddressValueError if param is not an IPv4 network range
+        """
+        if self.is_ipv4_network_range(param):
+            return
+        msg = "expected ipv4 network range e.g. 10.1.0.0/X, "
+        msg += f" where X <= 31. got {param}"
+        raise ipaddress.AddressValueError(msg)
+
+    def verify_ipv6_network_range(self, param):
+        """
+        raise ipaddress.AddressValueError if param is not an IPv6 network range
+        """
+        if self.is_ipv6_network_range(param):
+            return
+        msg = "expected ipv6 network range e.g. 2001::0/X, "
+        msg += f" where X <= 127. got {param}"
         raise ipaddress.AddressValueError(msg)
 
     def verify_list(self, param):
