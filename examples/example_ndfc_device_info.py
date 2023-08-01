@@ -34,4 +34,3 @@ for ipv4 in ["172.22.150.102", "172.22.150.103"]:
     print(f"   release: {instance.release}")
     print(f"   status: {instance.status}")
     print(f"   oper_status: {instance.oper_status}")
-

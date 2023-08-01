@@ -360,7 +360,7 @@ class NdfcDeviceInfo:
 
     def _init_properties(self):
         """
-        Initialize all read-write properties 
+        Initialize all read-write properties
         """
         self._properties = {}
         for key in self._property_set:
@@ -415,12 +415,14 @@ class NdfcDeviceInfo:
 
         If unsuccessful, exit with error
         """
-        url = self.ndfc.url_control_fabrics
         try:
-            self._raw_fabric_info = self.ndfc.get(url, self.ndfc.make_headers())
+            self._raw_fabric_info = self.ndfc.get(
+                self.ndfc.url_control_fabrics, self.ndfc.make_headers()
+            )
         except NdfcRequestError as err:
             msg = "exiting. unable to populate fabric "
-            msg += f"information via url {url}. exception detail: {err}"
+            msg += f"information via url {self.ndfc.url_control_fabrics}. "
+            msg += f"exception detail: {err}"
             self.ndfc.log.error(msg)
             sys.exit(1)
 
