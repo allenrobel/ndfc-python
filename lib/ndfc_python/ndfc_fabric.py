@@ -253,6 +253,16 @@ class NdfcFabric:
             if "fabricName" in item:
                 self.fabric_names.add(item["fabricName"])
 
+    def fabric_exists(self, fabric_name):
+        """
+        Return True if fabric_name exists on the NDFC
+        Return False otherwise
+        """
+        self._get_fabric_info()
+        if fabric_name in self.fabric_names:
+            return True
+        return False
+
     def create(self):
         """
         Create a fabric

@@ -812,8 +812,7 @@ class NdfcEasyFabric(NdfcFabric):
         self._final_verification()
         self._preprocess_properties()
 
-        self._get_fabric_info()
-        if self.fabric_name in self.fabric_names:
+        if self.fabric_exists(self.fabric_name):
             msg = f"exiting. fabric {self.fabric_name} already exists "
             msg += f"on the NDFC at {self.ndfc.url_base}.  Existing "
             msg += f"fabrics: {', '.join(sorted(self.fabric_names))}"
