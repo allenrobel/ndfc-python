@@ -17,12 +17,14 @@ ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
 instance = NdfcEasyFabric(ndfc)
-instance.fabric_name = "mst_fabric"
+instance.fabric_name = "IPv6_EasyFabric"
 instance.bgp_as = 65001
-instance.stp_root_option = "mst"
-instance.mst_instance_range = ["0-10", "12-14", "16"]
-instance.subnet_range = "10.20.0.0/16"
-instance.dci_subnet_range = "10.22.0.0/16"
-instance.loopback0_ip_range = "10.23.0.0/16"
-instance.loopback1_ip_range = "10.24.0.0/16"
+instance.underlay_is_v6 = True
+# all of the following are mandatory when underlay_is_v6 is set to True
+instance.anycast_lb_id = 123
+instance.router_id_range = "10.1.1.0/24"
+instance.loopback0_ipv6_range = "fd00::a02:0/119"
+instance.loopback1_ipv6_range = "fd00::a03:0/118"
+instance.v6_subnet_range = "fd00::a04:0/112"
+instance.v6_subnet_target_mask = 126
 instance.create()

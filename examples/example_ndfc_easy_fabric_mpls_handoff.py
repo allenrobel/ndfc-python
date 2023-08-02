@@ -17,10 +17,11 @@ ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
 instance = NdfcEasyFabric(ndfc)
-instance.fabric_name = "mst_fabric"
+instance.fabric_name = "easy2"
 instance.bgp_as = 65001
-instance.stp_root_option = "mst"
-instance.mst_instance_range = ["0-10", "12-14", "16"]
+instance.mpls_handoff = True
+instance.mpls_lb_id = 101
+instance.mpls_loopback_ip_range = "10.100.1.0/25"
 instance.subnet_range = "10.20.0.0/16"
 instance.dci_subnet_range = "10.22.0.0/16"
 instance.loopback0_ip_range = "10.23.0.0/16"

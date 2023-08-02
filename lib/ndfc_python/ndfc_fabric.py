@@ -37,9 +37,18 @@ class NdfcFabric:
         self.class_name = __class__.__name__
         self.ndfc = ndfc
 
+        # These initialize the property names and values
+        # Note, these are NOT NDFC parameter names. See
+        # _init_ndfc_params_* for those
         self._init_properties_default()
         self._init_properties_set()
         self._init_properties_mandatory_set()
+
+        self._init_ndfc_params_default()
+        self._init_ndfc_params_set()
+        self._init_ndfc_params_mandatory_set()
+        # order is important.  This needs to go last
+        self._init_ndfc_params()
 
         self._init_nv_pairs_default()
         self._init_nv_pairs_set()
@@ -47,6 +56,25 @@ class NdfcFabric:
 
         self._init_properties()
         self._init_nv_pairs()
+
+        # dictionary, keyed on property name, containing
+        # valid values for properties whose values are a
+        # list of specific choices.
+        self.valid = {}
+        self.valid["dhcp_ipv6_enable"] = { "DHCPv4" }
+        self.valid["fabric_interface_type"] = { "p2p", "unnumbered" }
+        self.valid["link_state_routing"] = { "is-is", "ospf"}
+        self.valid["macsec_algorithm"] = { "AES_128_CMAC", "AES_256_CMAC" }
+        self.valid["macsec_cipher_suite"] = {
+            "GCM-AES-XPN-256",
+            "GCM-AES-128",
+            "GCM-AES-256",
+            "GCM-AES-XPN-128"
+        }
+        self.valid["rp_count"] = { 2, 4}
+        self.valid["rr_count"] = { 2, 4}
+        self.valid["rp_mode"] = { "asm", "bidir" }
+        self.valid["stp_root_option"] = { "mst", "rpvst+", "unmanaged" }
 
     def _init_properties_default(self):
         """
@@ -69,11 +97,43 @@ class NdfcFabric:
         self._properties_mandatory_set = set()
         self._properties_mandatory_set.add("fabricName")
 
+
+    def _init_ndfc_params_default(self):
+        """
+        Initialize default properties
+        """
+        self._ndfc_params_default = {}
+
+    def _init_ndfc_params_set(self):
+        """
+        Initialize a set containing all properties
+        """
+        self._ndfc_params_set = set()
+        self._ndfc_params_set.add("fabricName")
+        self._ndfc_params_set.add("templateName")
+
+    def _init_ndfc_params_mandatory_set(self):
+        """
+        Initialize a set containing mandatory properties
+        """
+        self._ndfc_params_mandatory_set = set()
+        self._ndfc_params_mandatory_set.add("fabricName")
+
+
     def _init_nv_pairs_default(self):
         """
-        Initialize default values for nv pairs
+        Initialize a dictionary containing default values for nv pairs
         """
         self._nv_pairs_default = {}
+ 
+    def _init_ndfc_params(self):
+        """
+        This is used to build the payload in self.create()
+        and also verified in self._final_verification()
+        """
+        self._ndfc_params = self._ndfc_params_default
+        for item in self._ndfc_params_mandatory_set:
+            self._ndfc_params[item] = ""
 
     def _init_nv_pairs_set(self):
         """
@@ -121,6 +181,48 @@ class NdfcFabric:
         Any final verifications go here
         Override this in subclasses
         """
+
+    def verify_boolean(self, param, caller=""):
+        """
+        If param is boolean, return.
+        Else, exit with error message including caller.
+        """
+        try:
+            self.ndfc.verify_boolean(param)
+        except TypeError as err:
+            msg = f"exiting. {caller}, not expected type. {err}"
+            self.ndfc.log.error(msg)
+            sys.exit(1)
+
+    def verify_rp_count(self, param, caller=""):
+        if param in self.valid["rp_count"]:
+            return
+        msg = f"exiting. {caller}, expected an integer with value in: "
+        msg += f"{self.valid['rp_count']}. Got {param}"
+        raise ValueError(msg)
+
+
+    def verify_rp_mode(self, param, caller=""):
+        if param in self.valid["rp_mode"]:
+            return
+        msg = f"exiting. {caller}, expected string with value in: "
+        msg += f"{self.valid['rp_mode']}. Got {param}"
+        raise ValueError(msg)
+
+
+    def verify_rr_count(self, param, caller=""):
+        if param in self.valid["rr_count"]:
+            return
+        msg = f"exiting. {caller}, expected an integer with value in: "
+        msg += f"{self.valid['rr_count']}. Got {param}"
+        raise ValueError(msg)
+
+    def verify_stp_root_option(self, param, caller=""):
+        if param in self.valid["stp_root_option"]:
+            return
+        msg = f"exiting. {caller}, expected string with value in: "
+        msg += f"{self.valid['stp_root_option']}. Got {param}"
+        raise ValueError(msg)
 
     def list_fabrics(self):
         """
