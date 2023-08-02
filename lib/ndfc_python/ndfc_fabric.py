@@ -6,7 +6,7 @@ import sys
 
 from ndfc_python.ndfc import NdfcRequestError
 
-OUR_VERSION = 102
+OUR_VERSION = 103
 
 
 class NdfcFabric:
@@ -36,7 +36,10 @@ class NdfcFabric:
         self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
         self.ndfc = ndfc
-
+        # See self._get_fabric_info()
+        self.fabric_info = {}
+        # See self._get_fabric_info()
+        self.fabric_names = set()
         # These initialize the property names and values
         # Note, these are NOT NDFC parameter names. See
         # _init_ndfc_params_* for those
@@ -232,17 +235,23 @@ class NdfcFabric:
         msg += f"{self.valid['stp_root_option']}. Got {param}"
         raise ValueError(msg)
 
-    def list_fabrics(self):
+    def _get_fabric_info(self):
         """
-        /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics
+        populate self.fabric_info with information about all fabrics on
+        the NDFC
+
+        populate set self.fabric_names with the names of
+        all fabrics on the NDFC
         """
-        url = "self.ndfc.url_control_fabrics"
+        url = self.ndfc.url_control_fabrics
         try:
-            self.ndfc.get(url, self.ndfc.make_headers())
+            self.fabric_info = self.ndfc.get(url, self.ndfc.make_headers())
         except NdfcRequestError as err:
             self.ndfc.log.error(f"error: {err}")
             sys.exit(1)
-        self.ndfc.log.info(f"got response: {self.ndfc.response}")
+        for item in self.fabric_info:
+            if "fabricName" in item:
+                self.fabric_names.add(item["fabricName"])
 
     def create(self):
         """
