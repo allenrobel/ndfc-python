@@ -61,20 +61,20 @@ class NdfcFabric:
         # valid values for properties whose values are a
         # list of specific choices.
         self.valid = {}
-        self.valid["dhcp_ipv6_enable"] = { "DHCPv4" }
-        self.valid["fabric_interface_type"] = { "p2p", "unnumbered" }
-        self.valid["link_state_routing"] = { "is-is", "ospf"}
-        self.valid["macsec_algorithm"] = { "AES_128_CMAC", "AES_256_CMAC" }
+        self.valid["dhcp_ipv6_enable"] = {"DHCPv4"}
+        self.valid["fabric_interface_type"] = {"p2p", "unnumbered"}
+        self.valid["link_state_routing"] = {"is-is", "ospf"}
+        self.valid["macsec_algorithm"] = {"AES_128_CMAC", "AES_256_CMAC"}
         self.valid["macsec_cipher_suite"] = {
             "GCM-AES-XPN-256",
             "GCM-AES-128",
             "GCM-AES-256",
-            "GCM-AES-XPN-128"
+            "GCM-AES-XPN-128",
         }
-        self.valid["rp_count"] = { 2, 4}
-        self.valid["rr_count"] = { 2, 4}
-        self.valid["rp_mode"] = { "asm", "bidir" }
-        self.valid["stp_root_option"] = { "mst", "rpvst+", "unmanaged" }
+        self.valid["rp_count"] = {2, 4}
+        self.valid["rr_count"] = {2, 4}
+        self.valid["rp_mode"] = {"asm", "bidir"}
+        self.valid["stp_root_option"] = {"mst", "rpvst+", "unmanaged"}
 
     def _init_properties_default(self):
         """
@@ -97,7 +97,6 @@ class NdfcFabric:
         self._properties_mandatory_set = set()
         self._properties_mandatory_set.add("fabricName")
 
-
     def _init_ndfc_params_default(self):
         """
         Initialize default properties
@@ -119,13 +118,12 @@ class NdfcFabric:
         self._ndfc_params_mandatory_set = set()
         self._ndfc_params_mandatory_set.add("fabricName")
 
-
     def _init_nv_pairs_default(self):
         """
         Initialize a dictionary containing default values for nv pairs
         """
         self._nv_pairs_default = {}
- 
+
     def _init_ndfc_params(self):
         """
         This is used to build the payload in self.create()
@@ -195,22 +193,29 @@ class NdfcFabric:
             sys.exit(1)
 
     def verify_rp_count(self, param, caller=""):
+        """
+        verify rp_count conforms to NDFC's expectations
+        """
         if param in self.valid["rp_count"]:
             return
         msg = f"exiting. {caller}, expected an integer with value in: "
         msg += f"{self.valid['rp_count']}. Got {param}"
         raise ValueError(msg)
 
-
     def verify_rp_mode(self, param, caller=""):
+        """
+        verify rp_mode conforms to NDFC's expectations
+        """
         if param in self.valid["rp_mode"]:
             return
         msg = f"exiting. {caller}, expected string with value in: "
         msg += f"{self.valid['rp_mode']}. Got {param}"
         raise ValueError(msg)
 
-
     def verify_rr_count(self, param, caller=""):
+        """
+        verify rr_count conforms to NDFC's expectations
+        """
         if param in self.valid["rr_count"]:
             return
         msg = f"exiting. {caller}, expected an integer with value in: "
@@ -218,6 +223,9 @@ class NdfcFabric:
         raise ValueError(msg)
 
     def verify_stp_root_option(self, param, caller=""):
+        """
+        verify stp_root_option conforms to NDFC's expectations
+        """
         if param in self.valid["stp_root_option"]:
             return
         msg = f"exiting. {caller}, expected string with value in: "

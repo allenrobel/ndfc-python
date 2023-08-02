@@ -43,13 +43,18 @@ class NdfcEasyFabric(NdfcFabric):
         self._properties_default["fabricTechnologyFriendly"] = "VXLAN Fabric"
         self._properties_default["fabricType"] = "Switch_Fabric"
         self._properties_default["fabricTypeFriendly"] = "Switch Fabric"
-        self._properties_default["networkExtensionTemplate"] = "Default_Network_Extension_Universal"
-        self._properties_default["networkTemplate"] = "Default_Network_Universal"
+        self._properties_default[
+            "networkExtensionTemplate"
+        ] = "Default_Network_Extension_Universal"
+        value = "Default_Network_Universal"
+        self._properties_default["networkTemplate"] = value
         self._properties_default["provisionMode"] = "DCNMTopDown"
         self._properties_default["replicationMode"] = "Multicast"
         self._properties_default["siteId"] = ""
         self._properties_default["templateName"] = "Easy_Fabric"
-        self._properties_default["vrfExtensionTemplate"] = "Default_VRF_Extension_Universal"
+        self._properties_default[
+            "vrfExtensionTemplate"
+        ] = "Default_VRF_Extension_Universal"
         self._properties_default["vrfTemplate"] = "Default_VRF_Universal"
 
     def _init_properties_set(self):
@@ -119,13 +124,18 @@ class NdfcEasyFabric(NdfcFabric):
         self._ndfc_params_default["fabricTechnologyFriendly"] = "VXLAN Fabric"
         self._ndfc_params_default["fabricType"] = "Switch_Fabric"
         self._ndfc_params_default["fabricTypeFriendly"] = "Switch Fabric"
-        self._ndfc_params_default["networkExtensionTemplate"] = "Default_Network_Extension_Universal"
-        self._ndfc_params_default["networkTemplate"] = "Default_Network_Universal"
+        self._ndfc_params_default[
+            "networkExtensionTemplate"
+        ] = "Default_Network_Extension_Universal"
+        value = "Default_Network_Universal"
+        self._ndfc_params_default["networkTemplate"] = value
         self._ndfc_params_default["provisionMode"] = "DCNMTopDown"
         self._ndfc_params_default["replicationMode"] = "Multicast"
         self._ndfc_params_default["siteId"] = ""
         self._ndfc_params_default["templateName"] = "Easy_Fabric"
-        self._ndfc_params_default["vrfExtensionTemplate"] = "Default_VRF_Extension_Universal"
+        self._ndfc_params_default[
+            "vrfExtensionTemplate"
+        ] = "Default_VRF_Extension_Universal"
         self._ndfc_params_default["vrfTemplate"] = "Default_VRF_Universal"
 
     def _init_ndfc_params(self):
@@ -211,8 +221,11 @@ class NdfcEasyFabric(NdfcFabric):
         self._nv_pairs_default["BOOTSTRAP_MULTISUBNET"] = ""
         self._nv_pairs_default["BOOTSTRAP_MULTISUBNET_INTERNAL"] = ""
         self._nv_pairs_default["BRFIELD_DEBUG_FLAG"] = "Disable"
-        self._nv_pairs_default["BROWNFIELD_NETWORK_NAME_FORMAT"] = "Auto_Net_VNI$$VNI$$_VLAN$$VLAN_ID$$"
-        self._nv_pairs_default["BROWNFIELD_SKIP_OVERLAY_NETWORK_ATTACHMENTS"] = False
+        self._nv_pairs_default[
+            "BROWNFIELD_NETWORK_NAME_FORMAT"
+        ] = "Auto_Net_VNI$$VNI$$_VLAN$$VLAN_ID$$"
+        key = "BROWNFIELD_SKIP_OVERLAY_NETWORK_ATTACHMENTS"
+        self._nv_pairs_default[key] = False
         self._nv_pairs_default["CDP_ENABLE"] = False
         self._nv_pairs_default["COPP_POLICY"] = "strict"
         self._nv_pairs_default["DCI_SUBNET_RANGE"] = "10.33.0.0/16"
@@ -387,38 +400,55 @@ class NdfcEasyFabric(NdfcFabric):
         self._nv_pairs_default["VRF_VLAN_RANGE"] = "2000-2299"
         self._nv_pairs_default["abstract_anycast_rp"] = "anycast_rp"
         self._nv_pairs_default["abstract_bgp"] = "base_bgp"
-        self._nv_pairs_default["abstract_bgp_neighbor"] = "evpn_bgp_rr_neighbor"
+        value = "evpn_bgp_rr_neighbor"
+        self._nv_pairs_default["abstract_bgp_neighbor"] = value
         self._nv_pairs_default["abstract_bgp_rr"] = "evpn_bgp_rr"
         self._nv_pairs_default["abstract_dhcp"] = "base_dhcp"
-        self._nv_pairs_default["abstract_extra_config_bootstrap"] = "extra_config_bootstrap_11_1"
-        self._nv_pairs_default["abstract_extra_config_leaf"] = "extra_config_leaf"
-        self._nv_pairs_default["abstract_extra_config_spine"] = "extra_config_spine"
-        self._nv_pairs_default["abstract_extra_config_tor"] = "extra_config_tor"
-        self._nv_pairs_default["abstract_feature_leaf"] = "base_feature_leaf_upg"
-        self._nv_pairs_default["abstract_feature_spine"] = "base_feature_spine_upg"
+        self._nv_pairs_default[
+            "abstract_extra_config_bootstrap"
+        ] = "extra_config_bootstrap_11_1"
+        value = "extra_config_leaf"
+        self._nv_pairs_default["abstract_extra_config_leaf"] = value
+        value = "extra_config_spine"
+        self._nv_pairs_default["abstract_extra_config_spine"] = value
+        value = "extra_config_tor"
+        self._nv_pairs_default["abstract_extra_config_tor"] = value
+        value = "base_feature_leaf_upg"
+        self._nv_pairs_default["abstract_feature_leaf"] = value
+        value = "base_feature_spine_upg"
+        self._nv_pairs_default["abstract_feature_spine"] = value
         self._nv_pairs_default["abstract_isis"] = "base_isis_level2"
         self._nv_pairs_default["abstract_isis_interface"] = "isis_interface"
-        self._nv_pairs_default["abstract_loopback_interface"] = "int_fabric_loopback_11_1"
+        self._nv_pairs_default[
+            "abstract_loopback_interface"
+        ] = "int_fabric_loopback_11_1"
         self._nv_pairs_default["abstract_multicast"] = "base_multicast_11_1"
         self._nv_pairs_default["abstract_ospf"] = "base_ospf"
-        self._nv_pairs_default["abstract_ospf_interface"] = "ospf_interface_11_1"
+        value = "ospf_interface_11_1"
+        self._nv_pairs_default["abstract_ospf_interface"] = value
         self._nv_pairs_default["abstract_pim_interface"] = "pim_interface"
         self._nv_pairs_default["abstract_route_map"] = "route_map"
         self._nv_pairs_default["abstract_routed_host"] = "int_routed_host"
         self._nv_pairs_default["abstract_trunk_host"] = "int_trunk_host"
-        self._nv_pairs_default["abstract_vlan_interface"] = "int_fabric_vlan_11_1"
+        value = "int_fabric_vlan_11_1"
+        self._nv_pairs_default["abstract_vlan_interface"] = value
         self._nv_pairs_default["abstract_vpc_domain"] = "base_vpc_domain_11_1"
-        self._nv_pairs_default["default_network"] = "Default_Network_Universal"
+        value = "Default_Network_Universal"
+        self._nv_pairs_default["default_network"] = value
         self._nv_pairs_default["default_pvlan_sec_network"] = ""
         self._nv_pairs_default["default_vrf"] = "Default_VRF_Universal"
         self._nv_pairs_default["enableRealTimeBackup"] = ""
         self._nv_pairs_default["enableScheduledBackup"] = ""
-        self._nv_pairs_default["network_extension_template"] = "Default_Network_Extension_Universal"
+        self._nv_pairs_default[
+            "network_extension_template"
+        ] = "Default_Network_Extension_Universal"
         self._nv_pairs_default["scheduledTime"] = ""
         self._nv_pairs_default["temp_anycast_gateway"] = "anycast_gateway"
         self._nv_pairs_default["temp_vpc_domain_mgmt"] = "vpc_domain_mgmt"
         self._nv_pairs_default["temp_vpc_peer_link"] = "int_vpc_peer_link_po"
-        self._nv_pairs_default["vrf_extension_template"] = "Default_VRF_Extension_Universal"
+        self._nv_pairs_default[
+            "vrf_extension_template"
+        ] = "Default_VRF_Extension_Universal"
 
     def _init_nv_pairs_set(self):
         """
@@ -715,8 +745,9 @@ class NdfcEasyFabric(NdfcFabric):
     def _final_verification(self):
         for param in self._ndfc_params_mandatory_set:
             if self._ndfc_params[param] == "":
-                msg = f"exiting. missing mandatory NDFC parameter {param}. call "
-                msg += f"instance.{self._ndfc_param_to_property_map[param]} "
+                msg = f"exiting. missing mandatory NDFC parameter {param}. "
+                msg += "call instance."
+                msg += f"{self._ndfc_param_to_property_map[param]} "
                 msg += "before calling instance.create()"
                 self.ndfc.log.error(msg)
                 sys.exit(1)
@@ -732,7 +763,7 @@ class NdfcEasyFabric(NdfcFabric):
         #        link_state_routing == "is-is"
         # TODO: if link_state_routing == "is-is", the following are mandatory
         #       isis_level
-        # TODO: if isis_auth_enable True, the following are mandatory 
+        # TODO: if isis_auth_enable True, the following are mandatory
         #       isis_auth_keychain_name
         #       isis_auth_key
         #       isis_auth_keychain_key_id
@@ -747,11 +778,13 @@ class NdfcEasyFabric(NdfcFabric):
         #       v6_subnet_range
         #       v6_subnet_target_mask
 
-        if (self.fabric_vpc_domain_id != ""
-            and self.enable_fabric_vpc_domain_id is False):
+        if (
+            self.fabric_vpc_domain_id != ""
+            and self.enable_fabric_vpc_domain_id is False
+        ):
             msg = "exiting. invalid combination. enable_fabric_vpc_domain_id "
             msg += "must be set to True if fabric_vpc_domain_id is set. "
-            msg += f"Got enable_fabric_vpc_domain_id "
+            msg += "Got enable_fabric_vpc_domain_id "
             msg += f"{self.enable_fabric_vpc_domain_id}, fabric_vpc_domain_id "
             msg += f"{self.fabric_vpc_domain_id}"
             self.ndfc.log.error(msg)
@@ -759,11 +792,13 @@ class NdfcEasyFabric(NdfcFabric):
 
         # We should never hit this case, since fabric_vpc_domain_id will throw
         # an error if the user calls it with a non-integer value.
-        if (not isinstance(self.fabric_vpc_domain_id, int)
-            and self.enable_fabric_vpc_domain_id is True):
+        if (
+            not isinstance(self.fabric_vpc_domain_id, int)
+            and self.enable_fabric_vpc_domain_id is True
+        ):
             msg = "exiting. invalid combination. enable_fabric_vpc_domain_id "
             msg += "must be set to False if fabric_vpc_domain_id is not set. "
-            msg += f"Got enable_fabric_vpc_domain_id "
+            msg += "Got enable_fabric_vpc_domain_id "
             msg += f"{self.enable_fabric_vpc_domain_id}, fabric_vpc_domain_id "
             msg += f"{self.fabric_vpc_domain_id}"
             self.ndfc.log.error(msg)
@@ -794,10 +829,10 @@ class NdfcEasyFabric(NdfcFabric):
             self.ndfc.log.error(msg)
             sys.exit(1)
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     # properties that appear in both self._ndfc_params and
     # self._nv_pairs need to be updated in both places
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     @property
     def bgp_as(self):
         """
@@ -949,9 +984,9 @@ class NdfcEasyFabric(NdfcFabric):
         msg = f"exiting. expected one of {_valid}, got {param}"
         self.ndfc.log.error(msg)
 
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     # nvPairs
-    #------------------------------------------------------------
+    # ------------------------------------------------------------
     @property
     def aaa_remote_ip_enabled(self):
         """
@@ -1044,7 +1079,8 @@ class NdfcEasyFabric(NdfcFabric):
     def anycast_gw_mac(self, param):
         if self.ndfc.is_mac_address_format_a(param):
             self._nv_pairs["ANYCAST_GW_MAC"] = param
-        msg = f"exiting. {param}, anycast_bgw_advertise_pip, unexpected value. "
+        msg = f"exiting. {param}, anycast_bgw_advertise_pip, "
+        msg += "unexpected value. "
         msg += "expected mac address with format xxxx.xxxx.xxxx"
         self.ndfc.log.error(msg)
         sys.exit(1)
@@ -1053,7 +1089,7 @@ class NdfcEasyFabric(NdfcFabric):
     def anycast_lb_id(self):
         """
         Used for vPC Peering in VXLANv6 Fabrics
-        
+
         Valid values: integer in range 0-1023
         Default value: ""
 
@@ -1066,12 +1102,11 @@ class NdfcEasyFabric(NdfcFabric):
 
     @anycast_lb_id.setter
     def anycast_lb_id(self, param):
-        params = {
-            "item": "anycast_lb_id",
-            "value": param,
-            "min": 0,
-            "max": 1023
-        }
+        params = {}
+        params["item"] = "anycast_lb_id"
+        params["value"] = param
+        params["min"] = 0
+        params["max"] = 1023
         self.ndfc.verify_property_integer_range(params)
         self._nv_pairs["ANYCAST_LB_ID"] = param
 
@@ -1202,7 +1237,6 @@ class NdfcEasyFabric(NdfcFabric):
     def bfd_isis_enable(self, param):
         self.verify_boolean(param, "bfd_ibgp_enable")
         self._nv_pairs["BFD_ISIS_ENABLE"] = param
-          
 
     @property
     def bfd_ospf_enable(self):
@@ -1215,7 +1249,6 @@ class NdfcEasyFabric(NdfcFabric):
     def bfd_ospf_enable(self, param):
         self.verify_boolean(param, "bfd_ibgp_enable")
         self._nv_pairs["BFD_OSPF_ENABLE"] = param
-          
 
     @property
     def bfd_pim_enable(self):
@@ -1471,7 +1504,7 @@ class NdfcEasyFabric(NdfcFabric):
             "item": "dci_subnet_target_mask",
             "value": param,
             "min": 30,
-            "max": 31
+            "max": 31,
         }
         self.ndfc.verify_property_integer_range(params)
         self._nv_pairs["DCI_SUBNET_TARGET_MASK"] = param
@@ -1632,13 +1665,13 @@ class NdfcEasyFabric(NdfcFabric):
             convention of using the actual nvPair key name.
         """
         return self._nv_pairs["DHCP_IPV6_ENABLE"]
-    
+
     @dhcp_ipv6_enable.setter
     def dhcp_ipv6_enable(self, param):
         if param in self.valid["dhcp_ipv6_enable"]:
             self._nv_pairs["DHCP_IPV6_ENABLE"] = param
             return
-        msg = f"exiting. expected one of "
+        msg = "exiting. expected one of "
         msg += f"{self.valid['dhcp_ipv6_enable']}, got {param}"
         self.ndfc.log.error(msg)
         sys.exit(1)
@@ -1743,7 +1776,6 @@ class NdfcEasyFabric(NdfcFabric):
     def enable_agent(self, param):
         self.verify_boolean(param, "enable_agent")
         self._nv_pairs["ENABLE_AGENT"] = param
-          
 
     @property
     def enable_default_queuing_policy(self):
@@ -1759,7 +1791,6 @@ class NdfcEasyFabric(NdfcFabric):
     def enable_default_queuing_policy(self, param):
         self.verify_boolean(param, "enable_default_queuing_policy")
         self._nv_pairs["ENABLE_DEFAULT_QUEUING_POLICY"] = param
-          
 
     @property
     def enable_evpn(self):
@@ -1775,7 +1806,6 @@ class NdfcEasyFabric(NdfcFabric):
     def enable_evpn(self, param):
         self.verify_boolean(param, "enable_evpn")
         self._nv_pairs["ENABLE_EVPN"] = param
-          
 
     @property
     def enable_fabric_vpc_domain_id(self):
@@ -1791,7 +1821,7 @@ class NdfcEasyFabric(NdfcFabric):
     def enable_fabric_vpc_domain_id(self, param):
         self.verify_boolean(param, "enable_fabric_vpc_domain_id")
         self._nv_pairs["ENABLE_FABRIC_VPC_DOMAIN_ID"] = param
-          
+
     @property
     def enable_fabric_vpc_domain_id_prev(self):
         """
@@ -1819,7 +1849,6 @@ class NdfcEasyFabric(NdfcFabric):
     def enable_macsec(self, param):
         self.verify_boolean(param, "enable_macsec")
         self._nv_pairs["ENABLE_MACSEC"] = param
-          
 
     @property
     def enable_netflow(self):
@@ -1835,7 +1864,6 @@ class NdfcEasyFabric(NdfcFabric):
     def enable_netflow(self, param):
         self.verify_boolean(param, "enable_netflow")
         self._nv_pairs["ENABLE_NETFLOW"] = param
-          
 
     @property
     def enable_netflow_prev(self):
@@ -1849,7 +1877,6 @@ class NdfcEasyFabric(NdfcFabric):
     @enable_netflow_prev.setter
     def enable_netflow_prev(self, param):
         self._nv_pairs["ENABLE_NETFLOW_PREV"] = param
-          
 
     @property
     def enable_ngoam(self):
@@ -1865,7 +1892,6 @@ class NdfcEasyFabric(NdfcFabric):
     def enable_ngoam(self, param):
         self.verify_boolean(param, "enable_ngoam")
         self._nv_pairs["ENABLE_NGOAM"] = param
-          
 
     @property
     def enable_nxapi(self):
@@ -1881,7 +1907,6 @@ class NdfcEasyFabric(NdfcFabric):
     def enable_nxapi(self, param):
         self.verify_boolean(param, "enable_nxapi")
         self._nv_pairs["ENABLE_NXAPI"] = param
-          
 
     @property
     def enable_nxapi_http(self):
@@ -1897,7 +1922,6 @@ class NdfcEasyFabric(NdfcFabric):
     def enable_nxapi_http(self, param):
         self.verify_boolean(param, "enable_nxapi_http")
         self._nv_pairs["ENABLE_NXAPI_HTTP"] = param
-          
 
     @property
     def enable_pbr(self):
@@ -1913,7 +1937,6 @@ class NdfcEasyFabric(NdfcFabric):
     def enable_pbr(self, param):
         self.verify_boolean(param, "enable_pbr")
         self._nv_pairs["ENABLE_PBR"] = param
-          
 
     @property
     def enable_pvlan(self):
@@ -1929,7 +1952,6 @@ class NdfcEasyFabric(NdfcFabric):
     def enable_pvlan(self, param):
         self.verify_boolean(param, "enable_pvlan")
         self._nv_pairs["ENABLE_PVLAN"] = param
-          
 
     @property
     def enable_pvlan_prev(self):
@@ -1943,7 +1965,6 @@ class NdfcEasyFabric(NdfcFabric):
     @enable_pvlan_prev.setter
     def enable_pvlan_prev(self, param):
         self._nv_pairs["ENABLE_PVLAN_PREV"] = param
-          
 
     @property
     def enable_tenant_dhcp(self):
@@ -1959,7 +1980,6 @@ class NdfcEasyFabric(NdfcFabric):
     def enable_tenant_dhcp(self, param):
         self.verify_boolean(param, "enable_tenant_dhcp")
         self._nv_pairs["ENABLE_TENANT_DHCP"] = param
-          
 
     @property
     def enable_trm(self):
@@ -1970,7 +1990,7 @@ class NdfcEasyFabric(NdfcFabric):
         Default value: False
 
         NDFC GUI label: Enable Tenant Routed Multicast (TRM)
-        NDFC GUI tab: Replication        
+        NDFC GUI tab: Replication
         """
         return self._nv_pairs["ENABLE_TRM"]
 
@@ -1978,7 +1998,6 @@ class NdfcEasyFabric(NdfcFabric):
     def enable_trm(self, param):
         self.verify_boolean(param, "enable_trm")
         self._nv_pairs["ENABLE_TRM"] = param
-          
 
     @property
     def enable_vpc_peer_link_native_vlan(self):
@@ -1995,7 +2014,6 @@ class NdfcEasyFabric(NdfcFabric):
         self.verify_boolean(param, "enable_vpc_peer_link_native_vlan")
         self._nv_pairs["ENABLE_VPC_PEER_LINK_NATIVE_VLAN"] = param
 
-
     @property
     def extra_conf_intra_links(self):
         """
@@ -2011,7 +2029,6 @@ class NdfcEasyFabric(NdfcFabric):
     @extra_conf_intra_links.setter
     def extra_conf_intra_links(self, param):
         self._nv_pairs["EXTRA_CONF_INTRA_LINKS"] = param
-          
 
     @property
     def extra_conf_leaf(self):
@@ -2029,7 +2046,6 @@ class NdfcEasyFabric(NdfcFabric):
     @extra_conf_leaf.setter
     def extra_conf_leaf(self, param):
         self._nv_pairs["EXTRA_CONF_LEAF"] = param
-          
 
     @property
     def extra_conf_spine(self):
@@ -2047,7 +2063,6 @@ class NdfcEasyFabric(NdfcFabric):
     @extra_conf_spine.setter
     def extra_conf_spine(self, param):
         self._nv_pairs["EXTRA_CONF_SPINE"] = param
-          
 
     @property
     def extra_conf_tor(self):
@@ -2085,7 +2100,7 @@ class NdfcEasyFabric(NdfcFabric):
         if param in self.valid["fabric_interface_type"]:
             self._nv_pairs["FABRIC_INTERFACE_TYPE"] = param
             return
-        msg = f"exiting. expected one of "
+        msg = "exiting. expected one of "
         msg += f"{self.valid['fabric_interface_type']}, got {param}"
         self.ndfc.log.error(msg)
         sys.exit(1)
@@ -2105,12 +2120,11 @@ class NdfcEasyFabric(NdfcFabric):
 
     @fabric_mtu.setter
     def fabric_mtu(self, param):
-        params = {
-            "item": "fabric_mtu",
-            "value": param,
-            "min": 576,
-            "max": 9216
-        }
+        params = {}
+        params["item"] = "fabric_mtu"
+        params["value"] = param
+        params["min"] = 576
+        params["max"] = 9216
         self.ndfc.verify_property_integer_range(params)
         try:
             if self.ndfc.is_integer_even(param):
@@ -2120,7 +2134,6 @@ class NdfcEasyFabric(NdfcFabric):
             msg = f"exiting {err}"
             self.ndfc.log.error(msg)
             sys.exit(1)
-
 
     @property
     def fabric_mtu_prev(self):
@@ -2134,7 +2147,6 @@ class NdfcEasyFabric(NdfcFabric):
     @fabric_mtu_prev.setter
     def fabric_mtu_prev(self, param):
         self._nv_pairs["FABRIC_MTU_PREV"] = param
-
 
     @property
     def fabric_vpc_domain_id(self):
@@ -2156,15 +2168,13 @@ class NdfcEasyFabric(NdfcFabric):
 
     @fabric_vpc_domain_id.setter
     def fabric_vpc_domain_id(self, param):
-        params = {
-            "item": "fabric_vpc_domain_id",
-            "value": param,
-            "min": 1,
-            "max": 1000
-        }
+        params = {}
+        params["item"] = "fabric_vpc_domain_id"
+        params["value"] = param
+        params["min"] = 1
+        params["max"] = 1000
         self.ndfc.verify_property_integer_range(params)
         self._nv_pairs["FABRIC_VPC_DOMAIN_ID"] = param
-          
 
     @property
     def fabric_vpc_domain_id_prev(self):
@@ -2221,7 +2231,6 @@ class NdfcEasyFabric(NdfcFabric):
     def fabric_vpc_qos_policy_name(self, param):
         self._nv_pairs["FABRIC_VPC_QOS_POLICY_NAME"] = param
 
-
     @property
     def feature_ptp(self):
         """
@@ -2239,7 +2248,6 @@ class NdfcEasyFabric(NdfcFabric):
     def feature_ptp(self, param):
         self.verify_boolean(param, "fabric_vpc_qos")
         self._nv_pairs["FEATURE_PTP"] = param
-          
 
     @property
     def feature_ptp_internal(self):
@@ -2253,7 +2261,6 @@ class NdfcEasyFabric(NdfcFabric):
     @feature_ptp_internal.setter
     def feature_ptp_internal(self, param):
         self._nv_pairs["FEATURE_PTP_INTERNAL"] = param
-
 
     @property
     def ff(self):
@@ -2300,12 +2307,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     @hd_time.setter
     def hd_time(self, param):
-        params = {
-            "item": "hd_time",
-            "value": param,
-            "min": 1,
-            "max": 1500
-        }
+        params = {"item": "hd_time", "value": param, "min": 1, "max": 1500}
         self.ndfc.verify_property_integer_range(params)
         self._nv_pairs["HD_TIME"] = param
 
@@ -2327,21 +2329,20 @@ class NdfcEasyFabric(NdfcFabric):
         self.verify_boolean(param, "host_intf_admin_state")
         self._nv_pairs["HOST_INTF_ADMIN_STATE"] = param
 
-
     @property
     def ibgp_peer_template(self):
         """
         Speficies the config used for RR and spines with border or
         border gateway role. This field should begin with ' template peer'
         or ' template peer-session'. This must have 2 leading spaces.
-        
+
         Note! All configs should strictly match show run output, with
         respect to case and newlines. Any mismatches will yield unexpected
         diffs during deploy.
 
         NDFC GUI label: iBGP Peer-Template Config
         NDFC GUI tab: Protocols
-        
+
         Input validation is not performed.
         """
         return self._nv_pairs["IBGP_PEER_TEMPLATE"]
@@ -2349,7 +2350,6 @@ class NdfcEasyFabric(NdfcFabric):
     @ibgp_peer_template.setter
     def ibgp_peer_template(self, param):
         self._nv_pairs["IBGP_PEER_TEMPLATE"] = param
-          
 
     @property
     def ibgp_peer_template_leaf(self):
@@ -2362,7 +2362,7 @@ class NdfcEasyFabric(NdfcFabric):
         border or border gateway roles). This field should begin with
         ' template peer' or ' template peer-session'. This must have 2 leading
         spaces.
-        
+
         Note! All configs should strictly match 'show run' output, with respect
         to case and newlines. Any mismatches will yield unexpected diffs during
         deploy.
@@ -2378,7 +2378,6 @@ class NdfcEasyFabric(NdfcFabric):
     @ibgp_peer_template_leaf.setter
     def ibgp_peer_template_leaf(self, param):
         self._nv_pairs["IBGP_PEER_TEMPLATE_LEAF"] = param
-          
 
     @property
     def inband_dhcp_servers(self):
@@ -2407,14 +2406,14 @@ class NdfcEasyFabric(NdfcFabric):
             sys.exit(1)
         if len(param) > 3:
             msg = f"exiting. exceeded maximum of 3 addresses, got {param}"
-            self.log.ndfc.error(msg)
+            self.ndfc.log.error(msg)
             sys.exit(1)
         for item in param:
             try:
                 self.ndfc.verify_ipv4_address(item)
             except AddressValueError as err:
                 msg = "exiting. Expected python list of <= 3 ipv4 addresses "
-                msg += f"got {param}"
+                msg += f"got {param}. Detail: {err}"
                 self.ndfc.log.error(msg)
                 sys.exit(1)
         self._nv_pairs["INBAND_DHCP_SERVERS"] = ",".join(param)
@@ -2437,7 +2436,6 @@ class NdfcEasyFabric(NdfcFabric):
     def inband_mgmt(self, param):
         self.verify_boolean(param, "inband_mgmt")
         self._nv_pairs["INBAND_MGMT"] = param
-          
 
     @property
     def inband_mgmt_prev(self):
@@ -2451,7 +2449,6 @@ class NdfcEasyFabric(NdfcFabric):
     @inband_mgmt_prev.setter
     def inband_mgmt_prev(self, param):
         self._nv_pairs["INBAND_MGMT_PREV"] = param
-
 
     @property
     def isis_auth_enable(self):
@@ -2476,7 +2473,6 @@ class NdfcEasyFabric(NdfcFabric):
         self.verify_boolean(param, "isis_auth_enable")
         self._nv_pairs["ISIS_AUTH_ENABLE"] = param
 
-
     @property
     def isis_auth_key(self):
         """
@@ -2496,7 +2492,6 @@ class NdfcEasyFabric(NdfcFabric):
     @isis_auth_key.setter
     def isis_auth_key(self, param):
         self._nv_pairs["ISIS_AUTH_KEY"] = param
-          
 
     @property
     def isis_auth_keychain_key_id(self):
@@ -2519,11 +2514,11 @@ class NdfcEasyFabric(NdfcFabric):
             "item": "isis_auth_keychain_key_id",
             "value": param,
             "min": 0,
-            "max": 65535
+            "max": 65535,
         }
         self.ndfc.verify_property_integer_range(params)
         self._nv_pairs["ISIS_AUTH_KEYCHAIN_KEY_ID"] = param
-          
+
     @property
     def isis_auth_keychain_name(self):
         """
@@ -2539,7 +2534,6 @@ class NdfcEasyFabric(NdfcFabric):
     @isis_auth_keychain_name.setter
     def isis_auth_keychain_name(self, param):
         self._nv_pairs["ISIS_AUTH_KEYCHAIN_NAME"] = param
-          
 
     @property
     def isis_level(self):
@@ -2559,7 +2553,7 @@ class NdfcEasyFabric(NdfcFabric):
     @isis_level.setter
     def isis_level(self, param):
         self._nv_pairs["ISIS_LEVEL"] = param
-          
+
     @property
     def isis_overload_elapse_time(self):
         """
@@ -2582,17 +2576,16 @@ class NdfcEasyFabric(NdfcFabric):
             "item": "isis_overload_elapse_time",
             "value": param,
             "min": 5,
-            "max": 86400
+            "max": 86400,
         }
         self.ndfc.verify_property_integer_range(params)
         self._nv_pairs["ISIS_OVERLOAD_ELAPSE_TIME"] = param
-          
 
     @property
     def isis_overload_enable(self):
         """
         Enable (True) or disable (False) the IS-IS Overload Bit
-        
+
         When enabled, set the overload bit for isis_overload_elapse_time
         after a reload
 
@@ -2606,7 +2599,6 @@ class NdfcEasyFabric(NdfcFabric):
     def isis_overload_enable(self, param):
         self.verify_boolean(param, "isis_overload_enable")
         self._nv_pairs["ISIS_OVERLOAD_ENABLE"] = param
-          
 
     @property
     def isis_p2p_enable(self):
@@ -2627,7 +2619,6 @@ class NdfcEasyFabric(NdfcFabric):
     def isis_p2p_enable(self, param):
         self.verify_boolean(param, "isis_p2p_enable")
         self._nv_pairs["ISIS_P2P_ENABLE"] = param
-          
 
     @property
     def l2_host_intf_mtu(self):
@@ -2645,12 +2636,11 @@ class NdfcEasyFabric(NdfcFabric):
 
     @l2_host_intf_mtu.setter
     def l2_host_intf_mtu(self, param):
-        params = {
-            "item": "l2_host_intf_mtu",
-            "value": param,
-            "min": 1500,
-            "max": 9216
-        }
+        params = {}
+        params["item"] = "l2_host_intf_mtu"
+        params["value"] = param
+        params["min"] = 1500
+        params["max"] = 9216
         self.ndfc.verify_property_integer_range(params)
         try:
             if self.ndfc.is_integer_even(param):
@@ -2660,7 +2650,6 @@ class NdfcEasyFabric(NdfcFabric):
             msg = f"exiting {err}"
             self.ndfc.log.error(msg)
             sys.exit(1)
-        
 
     @property
     def l2_host_intf_mtu_prev(self):
@@ -2674,7 +2663,6 @@ class NdfcEasyFabric(NdfcFabric):
     @l2_host_intf_mtu_prev.setter
     def l2_host_intf_mtu_prev(self, param):
         self._nv_pairs["L2_HOST_INTF_MTU_PREV"] = param
-
 
     @property
     def l2_segment_id_range(self):
@@ -2700,7 +2688,7 @@ class NdfcEasyFabric(NdfcFabric):
             "value": param,
             "min": 1,
             "max": 16777214,
-            "caller": "l2_segment_id_range"
+            "caller": "l2_segment_id_range",
         }
         try:
             self.ndfc.verify_hypenated_range(params)
@@ -2708,7 +2696,6 @@ class NdfcEasyFabric(NdfcFabric):
             self.ndfc.log.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["L2_SEGMENT_ID_RANGE"] = param
-
 
     @property
     def l3vni_mcast_group(self):
@@ -2731,7 +2718,6 @@ class NdfcEasyFabric(NdfcFabric):
             self.ndfc.log.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["L3VNI_MCAST_GROUP"] = param
-
 
     @property
     def l3_partition_id_range(self):
@@ -2758,7 +2744,7 @@ class NdfcEasyFabric(NdfcFabric):
             "value": param,
             "min": 1,
             "max": 16777214,
-            "caller": "l3_partition_id_range"
+            "caller": "l3_partition_id_range",
         }
         try:
             self.ndfc.verify_hypenated_range(params)
@@ -2766,7 +2752,6 @@ class NdfcEasyFabric(NdfcFabric):
             self.ndfc.log.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["L3_PARTITION_ID_RANGE"] = param
-
 
     @property
     def link_state_routing(self):
@@ -2792,7 +2777,6 @@ class NdfcEasyFabric(NdfcFabric):
         msg += f"got {param}"
         self.ndfc.log.error(msg)
         sys.exit(1)
-
 
     @property
     def link_state_routing_tag(self):
@@ -2834,7 +2818,6 @@ class NdfcEasyFabric(NdfcFabric):
     def link_state_routing_tag_prev(self, param):
         self._nv_pairs["LINK_STATE_ROUTING_TAG_PREV"] = param
 
-
     @property
     def loopback0_ipv6_range(self):
         """
@@ -2855,7 +2838,6 @@ class NdfcEasyFabric(NdfcFabric):
             self.ndfc.log.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["LOOPBACK0_IPV6_RANGE"] = param
-          
 
     @property
     def loopback0_ip_range(self):
@@ -3018,7 +3000,6 @@ class NdfcEasyFabric(NdfcFabric):
     def macsec_fallback_key_string(self, param):
         self._nv_pairs["MACSEC_FALLBACK_KEY_STRING"] = param
 
-
     @property
     def macsec_key_string(self):
         """
@@ -3041,7 +3022,6 @@ class NdfcEasyFabric(NdfcFabric):
     def macsec_key_string(self, param):
         self._nv_pairs["MACSEC_KEY_STRING"] = param
 
-
     @property
     def macsec_report_timer(self):
         """
@@ -3061,15 +3041,13 @@ class NdfcEasyFabric(NdfcFabric):
 
     @macsec_report_timer.setter
     def macsec_report_timer(self, param):
-        params = {
-            "item": "macsec_report_timer",
-            "value": param,
-            "min": 5,
-            "max": 60
-        }
+        params = {}
+        params["item"] = "macsec_report_timer"
+        params["value"] = param
+        params["min"] = 5
+        params["max"] = 60
         self.ndfc.verify_property_integer_range(params)
         self._nv_pairs["MACSEC_REPORT_TIMER"] = param
-
 
     @property
     def mgmt_gw(self):
@@ -3091,7 +3069,6 @@ class NdfcEasyFabric(NdfcFabric):
         self.ndfc.verify_ipv4_address(param)
         self._nv_pairs["MGMT_GW"] = param
 
-
     @property
     def mgmt_gw_internal(self):
         """
@@ -3104,7 +3081,6 @@ class NdfcEasyFabric(NdfcFabric):
     @mgmt_gw_internal.setter
     def mgmt_gw_internal(self, param):
         self._nv_pairs["MGMT_GW_INTERNAL"] = param
-          
 
     @property
     def mgmt_prefix(self):
@@ -3124,15 +3100,9 @@ class NdfcEasyFabric(NdfcFabric):
 
     @mgmt_prefix.setter
     def mgmt_prefix(self, param):
-        params = {
-            "item": "mgmt_prefix",
-            "value": param,
-            "min": 8,
-            "max": 30
-        }
+        params = {"item": "mgmt_prefix", "value": param, "min": 8, "max": 30}
         self.ndfc.verify_property_integer_range(params)
         self._nv_pairs["MGMT_PREFIX"] = param
-          
 
     @property
     def mgmt_prefix_internal(self):
@@ -3144,7 +3114,6 @@ class NdfcEasyFabric(NdfcFabric):
     @mgmt_prefix_internal.setter
     def mgmt_prefix_internal(self, param):
         self._nv_pairs["MGMT_PREFIX_INTERNAL"] = param
-
 
     @property
     def mgmt_v6prefix(self):
@@ -3165,7 +3134,6 @@ class NdfcEasyFabric(NdfcFabric):
     @mgmt_v6prefix.setter
     def mgmt_v6prefix(self, param):
         self._nv_pairs["MGMT_V6PREFIX"] = param
-          
 
     @property
     def mgmt_v6prefix_internal(self):
@@ -3177,7 +3145,6 @@ class NdfcEasyFabric(NdfcFabric):
     @mgmt_v6prefix_internal.setter
     def mgmt_v6prefix_internal(self, param):
         self._nv_pairs["MGMT_V6PREFIX_INTERNAL"] = param
-
 
     @property
     def mpls_handoff(self):
@@ -3197,7 +3164,6 @@ class NdfcEasyFabric(NdfcFabric):
         self.verify_boolean(param, "mpls_handoff")
         self._nv_pairs["MPLS_HANDOFF"] = param
 
-
     @property
     def mpls_lb_id(self):
         """
@@ -3215,15 +3181,9 @@ class NdfcEasyFabric(NdfcFabric):
 
     @mpls_lb_id.setter
     def mpls_lb_id(self, param):
-        params = {
-            "item": "mpls_lb_id",
-            "value": param,
-            "min": 0,
-            "max": 1023
-        }
+        params = {"item": "mpls_lb_id", "value": param, "min": 0, "max": 1023}
         self.ndfc.verify_property_integer_range(params)
         self._nv_pairs["MPLS_LB_ID"] = param
-          
 
     @property
     def mpls_loopback_ip_range(self):
@@ -3250,7 +3210,6 @@ class NdfcEasyFabric(NdfcFabric):
             sys.exit(1)
         self._nv_pairs["MPLS_LOOPBACK_IP_RANGE"] = param
 
-
     @property
     def mso_connectivity_deployed(self):
         """
@@ -3265,7 +3224,6 @@ class NdfcEasyFabric(NdfcFabric):
     def mso_connectivity_deployed(self, param):
         self._nv_pairs["MSO_CONNECTIVITY_DEPLOYED"] = param
 
-
     @property
     def mso_controler_id(self):
         """
@@ -3279,7 +3237,6 @@ class NdfcEasyFabric(NdfcFabric):
     @mso_controler_id.setter
     def mso_controler_id(self, param):
         self._nv_pairs["MSO_CONTROLER_ID"] = param
-          
 
     @property
     def mso_site_group_name(self):
@@ -3294,7 +3251,6 @@ class NdfcEasyFabric(NdfcFabric):
     @mso_site_group_name.setter
     def mso_site_group_name(self, param):
         self._nv_pairs["MSO_SITE_GROUP_NAME"] = param
-          
 
     @property
     def mso_site_id(self):
@@ -3310,12 +3266,11 @@ class NdfcEasyFabric(NdfcFabric):
     def mso_site_id(self, param):
         self._nv_pairs["MSO_SITE_ID"] = param
 
-
     @property
     def mst_instance_range(self):
         """
         MST instance range
-        
+
         Valid value: Python list of integer ranges, within 0-4094
 
         Example: ["0-3", "5", "7-9", 4050-4094]
@@ -3345,7 +3300,7 @@ class NdfcEasyFabric(NdfcFabric):
                     "value": mst_range,
                     "min": 0,
                     "max": 4094,
-                    "caller": "mst_instance_range"
+                    "caller": "mst_instance_range",
                 }
                 try:
                     self.ndfc.verify_hypenated_range(mst_params)
@@ -3355,7 +3310,7 @@ class NdfcEasyFabric(NdfcFabric):
             else:
                 try:
                     mst_range = int(mst_range)
-                except:
+                except (ValueError, TypeError):
                     msg = f"exiting. {mst_range} not convertible to int()"
                     self.ndfc.log.error(msg)
                     sys.exit(1)
@@ -3363,11 +3318,10 @@ class NdfcEasyFabric(NdfcFabric):
                     "item": "mst_instance_range",
                     "value": int(mst_range),
                     "min": 0,
-                    "max": 4094
+                    "max": 4094,
                 }
                 self.ndfc.verify_property_integer_range(params)
         self._nv_pairs["MST_INSTANCE_RANGE"] = ",".join(param)
-
 
     @property
     def phantom_rp_lb_id1(self):
@@ -3390,15 +3344,13 @@ class NdfcEasyFabric(NdfcFabric):
 
     @phantom_rp_lb_id1.setter
     def phantom_rp_lb_id1(self, param):
-        params = {
-            "item": "phantom_rp_lb_id1",
-            "value": param,
-            "min": 0,
-            "max": 1023
-        }
+        params = {}
+        params["item"] = "phantom_rp_lb_id1"
+        params["value"] = param
+        params["min"] = 0
+        params["max"] = 1023
         self.ndfc.verify_property_integer_range(params)
         self._nv_pairs["PHANTOM_RP_LB_ID1"] = param
-
 
     @property
     def phantom_rp_lb_id2(self):
@@ -3421,15 +3373,13 @@ class NdfcEasyFabric(NdfcFabric):
 
     @phantom_rp_lb_id2.setter
     def phantom_rp_lb_id2(self, param):
-        params = {
-            "item": "phantom_rp_lb_id2",
-            "value": param,
-            "min": 0,
-            "max": 1023
-        }
+        params = {}
+        params["item"] = "phantom_rp_lb_id2"
+        params["value"] = param
+        params["min"] = 0
+        params["max"] = 1023
         self.ndfc.verify_property_integer_range(params)
         self._nv_pairs["PHANTOM_RP_LB_ID2"] = param
-
 
     @property
     def phantom_rp_lb_id3(self):
@@ -3452,15 +3402,13 @@ class NdfcEasyFabric(NdfcFabric):
 
     @phantom_rp_lb_id3.setter
     def phantom_rp_lb_id3(self, param):
-        params = {
-            "item": "phantom_rp_lb_id3",
-            "value": param,
-            "min": 0,
-            "max": 1023
-        }
+        params = {}
+        params["item"] = "phantom_rp_lb_id3"
+        params["value"] = param
+        params["min"] = 0
+        params["max"] = 1023
         self.ndfc.verify_property_integer_range(params)
         self._nv_pairs["PHANTOM_RP_LB_ID3"] = param
-
 
     @property
     def phantom_rp_lb_id4(self):
@@ -3483,15 +3431,13 @@ class NdfcEasyFabric(NdfcFabric):
 
     @phantom_rp_lb_id4.setter
     def phantom_rp_lb_id4(self, param):
-        params = {
-            "item": "phantom_rp_lb_id4",
-            "value": param,
-            "min": 0,
-            "max": 1023
-        }
+        params = {}
+        params["item"] = "phantom_rp_lb_id4"
+        params["value"] = param
+        params["min"] = 0
+        params["max"] = 1023
         self.ndfc.verify_property_integer_range(params)
         self._nv_pairs["PHANTOM_RP_LB_ID4"] = param
-
 
     @property
     def router_id_range(self):
@@ -3514,7 +3460,6 @@ class NdfcEasyFabric(NdfcFabric):
             sys.exit(1)
         self._nv_pairs["ROUTER_ID_RANGE"] = param
 
-
     @property
     def route_map_sequence_number_range(self):
         """
@@ -3536,7 +3481,7 @@ class NdfcEasyFabric(NdfcFabric):
             "value": param,
             "min": 1,
             "max": 65534,
-            "caller": "route_map_sequence_number_range"
+            "caller": "route_map_sequence_number_range",
         }
         try:
             self.ndfc.verify_hypenated_range(params)
@@ -3544,7 +3489,6 @@ class NdfcEasyFabric(NdfcFabric):
             self.ndfc.log.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["ROUTE_MAP_SEQUENCE_NUMBER_RANGE"] = param
-
 
     @property
     def rp_count(self):
@@ -3558,7 +3502,7 @@ class NdfcEasyFabric(NdfcFabric):
         NDFC GUI tab: Replication
 
         NOTES:
-        
+
         1. rp_count is not valid unless replication_mode is set to Multicast
         """
         return self._nv_pairs["RP_COUNT"]
@@ -3572,16 +3516,13 @@ class NdfcEasyFabric(NdfcFabric):
             sys.exit(1)
         self._nv_pairs["RP_COUNT"] = param
 
-
-
-
     @property
     def rp_lb_id(self):
         """
         Used for vPC Peering in VXLANv6 Fabrics
-        
+
         Valid value: integer in range 0-1023
-        
+
         NDFC GUI label: Underlay Anycast Loopback Id
         NDFC GUI tab: Protocols
         """
@@ -3589,12 +3530,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     @rp_lb_id.setter
     def rp_lb_id(self, param):
-        params = {
-            "item": "rp_lb_id",
-            "value": param,
-            "min": 0,
-            "max": 1023
-        }
+        params = {"item": "rp_lb_id", "value": param, "min": 0, "max": 1023}
         self.ndfc.verify_property_integer_range(params)
         self._nv_pairs["RP_LB_ID"] = param
 
@@ -3622,7 +3558,6 @@ class NdfcEasyFabric(NdfcFabric):
             self.ndfc.log.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["RP_MODE"] = param
-          
 
     @property
     def rr_count(self):
@@ -3645,19 +3580,15 @@ class NdfcEasyFabric(NdfcFabric):
             sys.exit(1)
         self._nv_pairs["RR_COUNT"] = param
 
-
-
-
-
-
     # site_id
-    # For EVPN Multi-Site Support (Min:1, Max: 281474976710655). Defaults to Fabric ASN
+    # For EVPN Multi-Site Support (Min:1, Max: 281474976710655).
+    # Defaults to Fabric ASN
 
     @property
     def stp_root_option(self):
         """
         Protocol to use for the Spanning Tree root bridge
-        
+
         Valid value: string. One of "rpvst+", "mst", "unmanaged"
 
             rpvst+ : Rapid Per-VLAN Spanning Tree
@@ -3679,7 +3610,6 @@ class NdfcEasyFabric(NdfcFabric):
             self.ndfc.log.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["STP_ROOT_OPTION"] = param
-
 
     @property
     def subnet_range(self):
@@ -3728,7 +3658,6 @@ class NdfcEasyFabric(NdfcFabric):
     def v6_subnet_range(self, param):
         self._nv_pairs["V6_SUBNET_RANGE"] = param
 
-
     @property
     def v6_subnet_target_mask(self):
         """
@@ -3739,5 +3668,3 @@ class NdfcEasyFabric(NdfcFabric):
     @v6_subnet_target_mask.setter
     def v6_subnet_target_mask(self, param):
         self._nv_pairs["V6_SUBNET_TARGET_MASK"] = param
-
-
