@@ -807,7 +807,6 @@ class NdfcEasyFabric(NdfcFabric):
     def create(self):
         """
         Create a fabric using Easy_Fabric template.
-        TODO: Verify fabric does not exist before trying to create it
         """
         self._final_verification()
         self._preprocess_properties()
@@ -859,6 +858,31 @@ class NdfcEasyFabric(NdfcFabric):
             sys.exit(1)
         self._ndfc_params["asn"] = param
         self._nv_pairs["BGP_AS"] = param
+
+    @property
+    def default_vrf(self):
+        """
+        Default Overlay VRF Template For Leafs
+
+        Alias of vrf_template
+
+        Valid values: "Default_VRF_Universal", "VRF_Classic"
+        Default value: Default_VRF_Universal
+
+        NDFC GUI label: VRF Template
+        NDFC GUI tab: Advanced
+        """
+        return self._nv_pairs["default_vrf"]
+
+    @default_vrf.setter
+    def default_vrf(self, param):
+        _valid = ["Default_VRF_Universal", "VRF_Classic"]
+        if param in _valid:
+            self._ndfc_params["vrfTemplate"] = param
+            self._nv_pairs["default_vrf"] = param
+            return
+        msg = f"exiting. expected one of {_valid}, got {param}"
+        self.ndfc.log.error(msg)
 
     @property
     def fabric_name(self):
@@ -972,6 +996,8 @@ class NdfcEasyFabric(NdfcFabric):
     def vrf_template(self):
         """
         Default Overlay VRF Template For Leafs
+
+        Alias of default_vrf
 
         Valid values: "Default_VRF_Universal", "VRF_Classic"
         Default value: Default_VRF_Universal
@@ -1517,6 +1543,28 @@ class NdfcEasyFabric(NdfcFabric):
         self._nv_pairs["DCI_SUBNET_TARGET_MASK"] = param
 
     @property
+    def default_network(self):
+        """
+        return the current nv_pairs value of default_network
+        """
+        return self._nv_pairs["default_network"]
+
+    @default_network.setter
+    def default_network(self, param):
+        self._nv_pairs["default_network"] = param
+
+    @property
+    def default_pvlan_sec_network(self):
+        """
+        return the current nv_pairs value of default_pvlan_sec_network
+        """
+        return self._nv_pairs["default_pvlan_sec_network"]
+
+    @default_pvlan_sec_network.setter
+    def default_pvlan_sec_network(self, param):
+        self._nv_pairs["default_pvlan_sec_network"] = param
+
+    @property
     def default_queuing_policy_cloudscale(self):
         """
         return the current nv_pairs value of default_queuing_policy_cloudscale
@@ -1573,6 +1621,8 @@ class NdfcEasyFabric(NdfcFabric):
     def default_queuing_policy_r_series(self, param):
         self._nv_pairs["DEAFULT_QUEUING_POLICY_R_SERIES"] = param
 
+    # default_vrf (see under TODO: add section name here)
+
     @property
     def default_vrf_redis_bgp_rmap(self):
         """
@@ -1610,6 +1660,9 @@ class NdfcEasyFabric(NdfcFabric):
 
         Valid values: boolean
         Default value: False
+
+        NDFC GUI label: Enable Local DHCP Server
+        NDFC GUI tab: Bootstrap
         """
         return self._nv_pairs["DHCP_ENABLE"]
 
@@ -2777,6 +2830,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     @link_state_routing.setter
     def link_state_routing(self, param):
+        # TODO: move link_state_routing validation to ndfc_fabric.py
         if param in self.valid["link_state_routing"]:
             self._nv_pairs["LINK_STATE_ROUTING"] = param
             return
@@ -2802,6 +2856,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     @link_state_routing_tag.setter
     def link_state_routing_tag(self, param):
+        # TODO: move link_state_routing_tag validation to ndfc_fabric.py
         if not isinstance(param, str):
             msg = f"exiting. expected str(), got {param}"
             self.ndfc.log.error(msg)
@@ -2926,6 +2981,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     @macsec_algorithm.setter
     def macsec_algorithm(self, param):
+        # TODO: move macsec_algorithm validation to ndfc_fabric.py
         if param in self.valid["macsec_algorithm"]:
             self._nv_pairs["MACSEC_ALGORITHM"] = param
         msg = f"exiting. expected one of {self.valid['macsec_algorithm']}, "
@@ -2954,6 +3010,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     @macsec_cipher_suite.setter
     def macsec_cipher_suite(self, param):
+        # TODO: move macsec_cipher_suite validation to ndfc_fabric.py
         if param in self.valid["macsec_cipher_suite"]:
             self._nv_pairs["MACSEC_CIPHER_SUITE"] = param
         msg = f"exiting. expected one of {self.valid['macsec_cipher_suite']}, "
@@ -2978,6 +3035,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     @macsec_fallback_algorithm.setter
     def macsec_fallback_algorithm(self, param):
+        # TODO: move macsec_fallback_algorithm validation to ndfc_fabric.py
         if param in self.valid["macsec_algorithm"]:
             self._nv_pairs["MACSEC_FALLBACK_ALGORITHM"] = param
         msg = f"exiting. expected one of {self.valid['macsec_algorithm']}, "
@@ -3133,13 +3191,13 @@ class NdfcEasyFabric(NdfcFabric):
         Valid values: Unknown
         Default value: 64 (if underlay_is_v6 is set to True)
 
-        This property is not currently represented in the NDFC GUI.
-        As such
+        This property is not currently represented in the NDFC GUI?
         """
         return self._nv_pairs["MGMT_V6PREFIX"]
 
     @mgmt_v6prefix.setter
     def mgmt_v6prefix(self, param):
+        # TODO: Add validation
         self._nv_pairs["MGMT_V6PREFIX"] = param
 
     @property
@@ -3223,12 +3281,12 @@ class NdfcEasyFabric(NdfcFabric):
         return the current nv_pairs value of mso_connectivity_deployed
 
         Input not currently validated.
-        TODO: Needs work
         """
         return self._nv_pairs["MSO_CONNECTIVITY_DEPLOYED"]
 
     @mso_connectivity_deployed.setter
     def mso_connectivity_deployed(self, param):
+        # TODO: Add validation
         self._nv_pairs["MSO_CONNECTIVITY_DEPLOYED"] = param
 
     @property
@@ -3237,12 +3295,12 @@ class NdfcEasyFabric(NdfcFabric):
         return the current nv_pairs value of [sic] mso_controler_id
 
         Input not currently validated.
-        TODO: Needs work
         """
         return self._nv_pairs["MSO_CONTROLER_ID"]
 
     @mso_controler_id.setter
     def mso_controler_id(self, param):
+        # TODO: Add validation
         self._nv_pairs["MSO_CONTROLER_ID"] = param
 
     @property
@@ -3265,12 +3323,12 @@ class NdfcEasyFabric(NdfcFabric):
         return the current nv_pairs value of mso_site_id
 
         Input not currently validated.
-        TODO: Needs work
         """
         return self._nv_pairs["MSO_SITE_ID"]
 
     @mso_site_id.setter
     def mso_site_id(self, param):
+        # TODO: Add validation
         self._nv_pairs["MSO_SITE_ID"] = param
 
     @property
@@ -3587,9 +3645,61 @@ class NdfcEasyFabric(NdfcFabric):
             sys.exit(1)
         self._nv_pairs["RR_COUNT"] = param
 
+    @property
+    def seed_switch_core_interfaces(self):
+        """
+        Core-facing Interface list on Seed Switch
+
+        Used for fabrics where bootstrap_enable and inband_mgmt are
+        set to True (enabled).
+
+        Valid values: a string. range of NX-OS style interface names
+        Example: "Eth1/1-5,Eth1/7,Eth2/1-5,Eth2/7"
+
+        NDFC GUI label: Seed Switch Fabric Interfaces
+        NDFC GUI tab: Bootstrap
+
+        See also:
+        - spine_switch_core_interfaces
+
+        NOTES:
+        1. No input validation is done by this property
+        """
+        return self._nv_pairs["SEED_SWITCH_CORE_INTERFACES"]
+
+    @seed_switch_core_interfaces.setter
+    def seed_switch_core_interfaces(self, param):
+        self._nv_pairs["SEED_SWITCH_CORE_INTERFACES"] = param
+
     # site_id
     # For EVPN Multi-Site Support (Min:1, Max: 281474976710655).
     # Defaults to Fabric ASN
+
+    @property
+    def spine_switch_core_interfaces(self):
+        """
+        Spine Switch Fabric Interfaces
+
+        Used for fabrics where bootstrap_enable and inband_mgmt are
+        set to True (enabled).
+
+        Valid values: a string. range of NX-OS style interface names
+        Example: "Eth1/1-5,Eth1/7,Eth2/1-5,Eth2/7"
+
+        NDFC GUI label: Seed Switch Fabric Interfaces
+        NDFC GUI tab: Bootstrap
+
+        See also:
+        - seed_switch_core_interfaces
+
+        NOTES:
+        1. No input validation is done by this property
+        """
+        return self._nv_pairs["SPINE_SWITCH_CORE_INTERFACES"]
+
+    @spine_switch_core_interfaces.setter
+    def spine_switch_core_interfaces(self, param):
+        self._nv_pairs["SPINE_SWITCH_CORE_INTERFACES"] = param
 
     @property
     def stp_root_option(self):
@@ -3926,6 +4036,111 @@ class NdfcEasyFabric(NdfcFabric):
         self._nv_pairs["UNDERLAY_IS_V6"] = param
 
     @property
+    def unnum_bootstrap_lb_id(self):
+        """
+        return the current nv_pairs value of unnum_bootstrap_lb_id
+
+        Valid values: integer in range 0-1023
+        Default value: ""
+
+        NDFC GUI label: Bootstrap Seed Switch Loopback Interface ID
+        NDFC GUI tab: Bootstrap
+
+        NOTES:
+        1. bootstrap_enable must be set to True
+        2. dhcp_enable must be set to True
+        3. dhcp_end must be set
+        4. dhcp_start must be set
+        5. fabric_interface_type must be set to "unnumbered"
+        6. unnum_dhcp_end must be set
+        7. unnum_dhcp_start must be set
+        """
+        return self._nv_pairs["UNNUM_BOOTSTRAP_LB_ID"]
+
+    @unnum_bootstrap_lb_id.setter
+    def unnum_bootstrap_lb_id(self, param):
+        params = {}
+        params["item"] = "unnum_bootstrap_lb_id"
+        params["value"] = param
+        params["min"] = 0
+        params["max"] = 1023
+        self.ndfc.verify_property_integer_range(params)
+        self._nv_pairs["UNNUM_BOOTSTRAP_LB_ID"] = param
+
+    @property
+    def unnum_dhcp_end(self):
+        """
+        Must be a subset of IGP/BGP Loopback Prefix Pool
+
+        NDFC GUI label: Switch Loopback DHCP Scope End Address
+        NDFC GUI tab: Bootstrap
+        """
+        return self._nv_pairs["UNNUM_DHCP_END"]
+
+    @unnum_dhcp_end.setter
+    def unnum_dhcp_end(self, param):
+        # TODO: Add validation
+        self._nv_pairs["UNNUM_DHCP_END"] = param
+
+    @property
+    def unnum_dhcp_end_internal(self):
+        """
+        return the current nv_pairs value of unnum_dhcp_end_internal
+        """
+        return self._nv_pairs["UNNUM_DHCP_END_INTERNAL"]
+
+    @unnum_dhcp_end_internal.setter
+    def unnum_dhcp_end_internal(self, param):
+        self._nv_pairs["UNNUM_DHCP_END_INTERNAL"] = param
+
+    @property
+    def unnum_dhcp_start(self):
+        """
+        Must be a subset of IGP/BGP Loopback Prefix Pool
+
+        NDFC GUI label: Switch Loopback DHCP Scope Start Address
+        NDFC GUI tab: Bootstrap
+        """
+        return self._nv_pairs["UNNUM_DHCP_START"]
+
+    @unnum_dhcp_start.setter
+    def unnum_dhcp_start(self, param):
+        # TODO: Add validation
+        self._nv_pairs["UNNUM_DHCP_START"] = param
+
+    @property
+    def unnum_dhcp_start_internal(self):
+        """
+        return the current nv_pairs value of unnum_dhcp_start_internal
+        """
+        return self._nv_pairs["UNNUM_DHCP_START_INTERNAL"]
+
+    @unnum_dhcp_start_internal.setter
+    def unnum_dhcp_start_internal(self, param):
+        self._nv_pairs["UNNUM_DHCP_START_INTERNAL"] = param
+
+    @property
+    def use_link_local(self):
+        """
+        Enable (True) or disable (False) link-local IPv6 addresses
+        for Spine-Leaf interfaces.  If set to False, Spine-Leaf
+        interfaces will use IPv6 global addresses.
+
+        Valid value: boolean
+        Default value: False
+
+        NDFC GUI label: Enable IPv6 Link-Local Address
+        NDFC GUI tab: General Parameters
+
+        """
+        return self._nv_pairs["USE_LINK_LOCAL"]
+
+    @use_link_local.setter
+    def use_link_local(self, param):
+        self.verify_boolean(param, "use_link_local")
+        self._nv_pairs["USE_LINK_LOCAL"] = param
+
+    @property
     def v6_subnet_range(self):
         """
         IPv6 Address range to assign Numbered and Peer Link SVI IPs
@@ -3959,4 +4174,125 @@ class NdfcEasyFabric(NdfcFabric):
 
     @v6_subnet_target_mask.setter
     def v6_subnet_target_mask(self, param):
+        # TODO: Add validation
         self._nv_pairs["V6_SUBNET_TARGET_MASK"] = param
+
+    @property
+    def vpc_auto_recovery_time(self):
+        """
+        return the current nv_pairs value of vpc_auto_recovery_time
+        """
+        return self._nv_pairs["VPC_AUTO_RECOVERY_TIME"]
+
+    @vpc_auto_recovery_time.setter
+    def vpc_auto_recovery_time(self, param):
+        # TODO: Add validation
+        self._nv_pairs["VPC_AUTO_RECOVERY_TIME"] = param
+
+    @property
+    def vpc_delay_restore(self):
+        """
+        return the current nv_pairs value of vpc_delay_restore
+        """
+        return self._nv_pairs["VPC_DELAY_RESTORE"]
+
+    @vpc_delay_restore.setter
+    def vpc_delay_restore(self, param):
+        # TODO: Add validation
+        self._nv_pairs["VPC_DELAY_RESTORE"] = param
+
+    @property
+    def vpc_delay_restore_time(self):
+        """
+        return the current nv_pairs value of vpc_delay_restore_time
+        """
+        return self._nv_pairs["VPC_DELAY_RESTORE_TIME"]
+
+    @vpc_delay_restore_time.setter
+    def vpc_delay_restore_time(self, param):
+        # TODO: Add validation
+        self._nv_pairs["VPC_DELAY_RESTORE_TIME"] = param
+
+    @property
+    def vpc_domain_id_range(self):
+        """
+        return the current nv_pairs value of vpc_domain_id_range
+        """
+        return self._nv_pairs["VPC_DOMAIN_ID_RANGE"]
+
+    @vpc_domain_id_range.setter
+    def vpc_domain_id_range(self, param):
+        # TODO: Add validation
+        self._nv_pairs["VPC_DOMAIN_ID_RANGE"] = param
+
+    @property
+    def vpc_enable_ipv6_nd_sync(self):
+        """
+        return the current nv_pairs value of vpc_enable_ipv6_nd_sync
+        """
+        return self._nv_pairs["VPC_ENABLE_IPv6_ND_SYNC"]
+
+    @vpc_enable_ipv6_nd_sync.setter
+    def vpc_enable_ipv6_nd_sync(self, param):
+        # TODO: Add validation
+        self._nv_pairs["VPC_ENABLE_IPv6_ND_SYNC"] = param
+
+    @property
+    def vpc_peer_keep_alive_option(self):
+        """
+        return the current nv_pairs value of vpc_peer_keep_alive_option
+        """
+        return self._nv_pairs["VPC_PEER_KEEP_ALIVE_OPTION"]
+
+    @vpc_peer_keep_alive_option.setter
+    def vpc_peer_keep_alive_option(self, param):
+        # TODO: Add validation
+        self._nv_pairs["VPC_PEER_KEEP_ALIVE_OPTION"] = param
+
+    @property
+    def vpc_peer_link_po(self):
+        """
+        return the current nv_pairs value of vpc_peer_link_po
+        """
+        return self._nv_pairs["VPC_PEER_LINK_PO"]
+
+    @vpc_peer_link_po.setter
+    def vpc_peer_link_po(self, param):
+        # TODO: Add validation
+        self._nv_pairs["VPC_PEER_LINK_PO"] = param
+
+    @property
+    def vpc_peer_link_vlan(self):
+        """
+        return the current nv_pairs value of vpc_peer_link_vlan
+        """
+        return self._nv_pairs["VPC_PEER_LINK_VLAN"]
+
+    @vpc_peer_link_vlan.setter
+    def vpc_peer_link_vlan(self, param):
+        # TODO: Add validation
+        self._nv_pairs["VPC_PEER_LINK_VLAN"] = param
+
+    @property
+    def vrf_lite_autoconfig(self):
+        """
+        return the current nv_pairs value of vrf_lite_autoconfig
+        """
+        return self._nv_pairs["VRF_LITE_AUTOCONFIG"]
+
+    @vrf_lite_autoconfig.setter
+    def vrf_lite_autoconfig(self, param):
+        # TODO: Add validation
+        self._nv_pairs["VRF_LITE_AUTOCONFIG"] = param
+
+    @property
+    def vrf_vlan_range(self):
+        """
+        return the current nv_pairs value of vrf_vlan_range
+        """
+        return self._nv_pairs["VRF_VLAN_RANGE"]
+
+    @vrf_vlan_range.setter
+    def vrf_vlan_range(self, param):
+        # TODO: Add validation
+        self._nv_pairs["VRF_VLAN_RANGE"] = param
