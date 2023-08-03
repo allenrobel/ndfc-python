@@ -5,8 +5,8 @@ Description: Delete an NDFC network
 """
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
-from ndfc_python.ndfc_network import NdfcNetwork
 from ndfc_python.ndfc_credentials import NdfcCredentials
+from ndfc_python.ndfc_network import NdfcNetwork
 
 nc = NdfcCredentials()
 ndfc = NDFC(log("ndfc_network_delete_log", "INFO", "DEBUG"))
