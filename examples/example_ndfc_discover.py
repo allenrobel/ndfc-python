@@ -5,6 +5,7 @@ Description:
 Discover switch
 """
 import sys
+
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
 from ndfc_python.ndfc_credentials import NdfcCredentials

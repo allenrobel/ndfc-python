@@ -4,8 +4,8 @@ Description:
 
 Check if switch is up and manageable.  If so, call config_save on the fabric.
 """
-from time import sleep
 import sys
+from time import sleep
 
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
