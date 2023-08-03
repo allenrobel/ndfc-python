@@ -3619,25 +3619,296 @@ class NdfcEasyFabric(NdfcFabric):
         self._nv_pairs["STP_ROOT_OPTION"] = param
 
     @property
+    def stp_vlan_range(self):
+        """
+        Vlan range when stp_root_option is set to "rpvst+"
+
+        Valid value: Python list of integer ranges, within 1-3967
+
+        Examples:
+            ["0-3", "5", "7-9", 3965-3967]
+            ["10"]
+        Default: ["1-3967"]
+
+        NDFC GUI label: Spanning Tree VLAN Range
+        NDFC GUI tab: Advanced
+        """
+        return self._nv_pairs["STP_VLAN_RANGE"]
+
+    @stp_vlan_range.setter
+    def stp_vlan_range(self, param):
+        if not isinstance(param, list):
+            msg = f"exiting. expected python list. Got {param}"
+            self.ndfc.log.error(msg)
+            sys.exit(1)
+        for stp_range in param:
+            if not isinstance(stp_range, str):
+                msg = f"exiting. expected python list of str(). Got {param}"
+                self.ndfc.log.error(msg)
+                sys.exit(1)
+            if "-" in stp_range:
+                stp_params = {
+                    "value": stp_range,
+                    "min": 0,
+                    "max": 3967,
+                    "caller": "stp_vlan_range",
+                }
+                try:
+                    self.ndfc.verify_hypenated_range(stp_params)
+                except (ValueError, TypeError, KeyError) as err:
+                    self.ndfc.log.error(f"exiting. {err}")
+                    sys.exit(1)
+            else:
+                try:
+                    stp_range = int(stp_range)
+                except (ValueError, TypeError):
+                    msg = f"exiting. {stp_range} not convertible to int()"
+                    self.ndfc.log.error(msg)
+                    sys.exit(1)
+                params = {
+                    "item": "stp_vlan_range",
+                    "value": int(stp_range),
+                    "min": 0,
+                    "max": 3967,
+                }
+                self.ndfc.verify_property_integer_range(params)
+        self._nv_pairs["STP_VLAN_RANGE"] = ",".join(param)
+
+    @property
+    def strict_cc_mode(self):
+        """
+        Enable (True) or disable (False) bi-directional compliance checks to
+        flag additional configs in the running config that are not in the
+        intent/expected config
+
+        Valid values: boolean
+        Default value: False
+
+        NDFC GUI label: Enable Strict Config Compliance
+        NDFC GUI tab: Advanced
+        """
+        return self._nv_pairs["STRICT_CC_MODE"]
+
+    @strict_cc_mode.setter
+    def strict_cc_mode(self, param):
+        self.verify_boolean(param, "strict_cc_mode")
+        self._nv_pairs["STRICT_CC_MODE"] = param
+
+    @property
+    def subinterface_range(self):
+        """
+        Per Border Dot1q Range For VRF Lite Connectivity
+
+        Valid value: hypenated string (X-Y) where:
+        X >= 2
+        Y <= 4093
+
+        Default value: "2-511"
+        Example: "2-4093"
+
+        NDFC GUI label: Subinterface Dot1q Range
+        NDFC GUI tab: Resources
+        """
+        return self._nv_pairs["SUBINTERFACE_RANGE"]
+
+    @subinterface_range.setter
+    def subinterface_range(self, param):
+        params = {
+            "value": param,
+            "min": 2,
+            "max": 4093,
+            "caller": "subinterface_range",
+        }
+        try:
+            self.ndfc.verify_hypenated_range(params)
+        except (ValueError, TypeError, KeyError) as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
+        self._nv_pairs["SUBINTERFACE_RANGE"] = param
+
+    @property
     def subnet_range(self):
         """
-        return the current nv_pairs value of subnet_range
+        Address range from which to assign Numbered and Peer Link SVI IPs
+
+        Valid value:    IPv4 network range, specified as X.X.X.X/Y
+                        Where Y <= 31
+        Default value: 10.33.0.0/16
+
+        Example: 10.1.0.0/16
+
+        NDFC GUI label: Underlay Subnet IP Range
+        NDFC GUI tab: Resources
         """
         return self._nv_pairs["SUBNET_RANGE"]
 
     @subnet_range.setter
     def subnet_range(self, param):
         try:
-            self.ndfc.verify_ipv4_address_with_prefix(param)
+            self.ndfc.verify_ipv4_network_range(param)
         except AddressValueError as err:
             self.ndfc.log.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["SUBNET_RANGE"] = param
 
     @property
+    def subnet_target_mask(self):
+        """
+        Mask for Underlay Subnet IP Range
+
+        Valid value: integer in range 30-31
+        Default value: 30
+
+        NDFC GUI label: Underlay Subnet IP Mask
+        NDFC GUI tab: General Parameters
+        """
+        return self._nv_pairs["SUBNET_TARGET_MASK"]
+
+    @subnet_target_mask.setter
+    def subnet_target_mask(self, param):
+        params = {}
+        params["item"] = "subnet_target_mask"
+        params["value"] = param
+        params["min"] = 30
+        params["max"] = 31
+        self.ndfc.verify_property_integer_range(params)
+        self._nv_pairs["SUBNET_TARGET_MASK"] = param
+
+    @property
+    def syslog_server_ip_list(self):
+        """
+        Python list of IP Unicast Addresses(v4/v6)
+
+        Valid value: Python list containing IPv4/IPv6 addresses
+        Default Value: ""
+
+        Examples:
+            ["10.1.1.1", "2001::1"]
+
+        NDFC GUI label: Syslog Server IPs
+        NDFC GUI tab: Manageability
+
+        If syslog_server_ip_list is set, the following must also be set:
+        - syslog_server_vrf
+        - syslog_sev
+        """
+        return self._nv_pairs["SYSLOG_SERVER_IP_LIST"]
+
+    @syslog_server_ip_list.setter
+    def syslog_server_ip_list(self, param):
+        try:
+            self.ndfc.verify_list(param)
+        except TypeError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
+        for item in param:
+            if self.ndfc.is_ipv4_unicast_address(item):
+                continue
+            if self.ndfc.is_ipv6_unicast_address(item):
+                continue
+            msg = "exiting. expected a python list of IPv4 and IPv6 unicast "
+            msg += f"addresses. Got {param}"
+            self.ndfc.log.error(msg)
+            sys.exit(1)
+        self._nv_pairs["SYSLOG_SERVER_IP_LIST"] = ",".join(param)
+
+    @property
+    def syslog_server_vrf(self):
+        """
+        Python list of VRF names
+
+        Valid value: Python list containing vrf names
+        Default Value: ""
+
+        Examples:
+            ["management", "foo"]
+
+        NDFC GUI label: Syslog Server VRFs
+        NDFC GUI tab: Manageability
+
+        NOTES:
+        1.  If the list contains a single VRF name, this VRF will apply to
+            all syslog servers in syslog_server_ip_list.
+        2.  If the list contains more than one VRF name, the length of the
+            list must equal the length of syslog_server_ip_list.  Each VRF
+            will apply to the corresponding entry in syslog_server_ip_list.
+        """
+        return self._nv_pairs["SYSLOG_SERVER_VRF"]
+
+    @syslog_server_vrf.setter
+    def syslog_server_vrf(self, param):
+        try:
+            self.ndfc.verify_list(param)
+        except TypeError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
+        self._nv_pairs["SYSLOG_SERVER_VRF"] = ",".join(param)
+
+    @property
+    def syslog_sev(self):
+        """
+        Python list of Syslog severity values, one per Syslog server
+        listed in syslog_server_ip_list.
+
+        Valid value: Python list containing integers within range 0-7
+        Default Value: ""
+
+        Examples:
+            [1,5]
+
+        NDFC GUI label: Syslog Server Severity
+        NDFC GUI tab: Manageability
+
+        NOTES:
+        1.  The list must contain the same number of elements as
+            syslog_server_ip_list.  Each severity level will apply
+            to the corresponding entry in syslog_server_ip_list.
+        """
+        return self._nv_pairs["SYSLOG_SEV"]
+
+    @syslog_sev.setter
+    def syslog_sev(self, param):
+        try:
+            self.ndfc.verify_list(param)
+        except TypeError as err:
+            self.ndfc.log.error(f"exiting. {err}")
+            sys.exit(1)
+        for item in param:
+            if not isinstance(item, int):
+                msg = f"exiting. expected list of integers. got {param}"
+                self.ndfc.log.error(msg)
+                sys.exit(1)
+        self._nv_pairs["SYSLOG_SEV"] = ",".join([str(x) for x in param])
+
+    @property
+    def tcam_allocation(self):
+        """
+        Enable (True) or disable (False) automatic generation of TCAM
+        commands for VxLAN and vPC Fabric Peering
+
+        Valid values: boolean
+        Default value: True
+
+        NDFC GUI label: Enable TCAM Allocation
+        NDFC GUI tab: Advanced
+        """
+        return self._nv_pairs["TCAM_ALLOCATION"]
+
+    @tcam_allocation.setter
+    def tcam_allocation(self, param):
+        self.verify_boolean(param, "tcam_allocation")
+        self._nv_pairs["TCAM_ALLOCATION"] = param
+
+    @property
     def underlay_is_v6(self):
         """
         return the current nv_pairs value of underlay_is_v6
+
+        Valid values: boolean
+        Default value: False
+
+        NDFC GUI label: Enable IPv6 Underlay
+        NDFC GUI tab: General Parameters
 
         If underlay_is_v6 is set to True, the following must also be set:
         -   anycast_lb_id
@@ -3657,12 +3928,26 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def v6_subnet_range(self):
         """
-        return the current nv_pairs value of v6_subnet_range
+        IPv6 Address range to assign Numbered and Peer Link SVI IPs
+
+        Valid values: An IPv6 network range specified as ADDR/MASK
+
+        Where: MASK <= 127
+
+        Example: "fd00::a04:0/112"
+
+        NDFC GUI label: Underlay Subnet IPv6 Range
+        NDFC GUI tab: Resources
         """
         return self._nv_pairs["V6_SUBNET_RANGE"]
 
     @v6_subnet_range.setter
     def v6_subnet_range(self, param):
+        try:
+            self.ndfc.verify_ipv6_network_range(param)
+        except AddressValueError as err:
+            msg = f"exiting. {err}"
+            self.ndfc.log.error(msg)
         self._nv_pairs["V6_SUBNET_RANGE"] = param
 
     @property
