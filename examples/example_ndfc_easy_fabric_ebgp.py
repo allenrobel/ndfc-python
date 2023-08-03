@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Name: example_ndfc_fabric_site_easy_fabric_ebgp.py
-Description: Create a site/child fabric using NdfcFabricSite()
+Description: Create an eBGP-based fabric
 """
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC

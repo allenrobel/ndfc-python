@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
-Name: example_ndfc_easy_fabric.py
-Description: Create a fabric using NdfcEasyFabric()
+Name: example_ndfc_easy_fabric_multicast_bidir.py
+Description:
+Create a fabric using multicast replication and configured
+with four multicast bidir rendevous points
 """
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC

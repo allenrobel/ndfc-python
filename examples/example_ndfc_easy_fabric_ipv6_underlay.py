@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Name: example_ndfc_easy_fabric.py
-Description: Create a fabric using NdfcEasyFabric()
+Name: example_ndfc_easy_fabric_ipv6_underlay.py
+Description: Create a fabric configured with an IPv6 underlay
 """
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC

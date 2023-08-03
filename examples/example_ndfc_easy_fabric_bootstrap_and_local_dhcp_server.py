@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Name: example_ndfc_easy_fabric_bootstrap_and_local_dhcp_server.py
-Description: Create a fabric using NdfcEasyFabric()
+Description:
+Create a fabric configured with DHCP server and with bootstrap enabled
 """
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
