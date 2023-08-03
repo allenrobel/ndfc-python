@@ -20,6 +20,7 @@ instance = NdfcEasyFabric(ndfc)
 instance.fabric_name = "IPv6_EasyFabric"
 instance.bgp_as = 65001
 instance.underlay_is_v6 = True
+instance.use_link_local = False
 # all of the following are mandatory when underlay_is_v6 is set to True
 instance.anycast_lb_id = 123
 instance.router_id_range = "10.1.1.0/24"
