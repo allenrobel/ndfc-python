@@ -9,7 +9,7 @@ import ipaddress
 import re
 import sys
 
-OUR_VERSION = 117
+OUR_VERSION = 118
 
 
 class NdfcBgpPasswordKeytypeError(Exception):
@@ -111,7 +111,7 @@ class Common:
         if not isinstance(params, dict):
             msg = (
                 "expected params to be a python dict()."
-                f" got type {type(params)} with value {params}."
+                f" got type {type(params)}, value {params}."
             )
             raise TypeError(msg)
         mandatory_keys = ("value", "min", "max")
@@ -125,7 +125,7 @@ class Common:
         _max = params["max"]
         if self.is_within_integer_range(_value, _min, _max):
             return
-        msg = f"value {params['value']} not within range "
+        msg = f"{params['value']} not within range "
         msg += f"{params['min']}-{params['max']}"
         raise ValueError(msg)
 
@@ -188,7 +188,13 @@ class Common:
         if not isinstance(params["min"], int):
             msg = f"{_caller}, expected type int for min, got {params['min']}."
             raise TypeError(msg)
-        _match = re.search(r"^(\d+)-(\d+)$", params["value"])
+        try:
+            _match = re.search(r"^(\d+)-(\d+)$", params["value"])
+        except (TypeError) as err:
+            msg = f"expected string with format X-Y. Got {params['value']} "
+            msg += f"(type {type(params['value']).__name__}). "
+            msg += f"Error detail: {err}"
+            raise ValueError(msg) from err
         if not _match:
             msg = f"{_caller}, expected string with format X-Y, where X "
             msg += f"and Y are digits.  Got {params['value']}"
@@ -410,6 +416,32 @@ class Common:
         try:
             ipaddress.IPv6Address(param)
         except ipaddress.AddressValueError:
+            return False
+        return True
+
+    def is_ipv6_unicast_address(self, param):
+        """
+        Return True if param is an IPv4 unicast address without
+        prefixlen/mask e.g. 2001::1
+        Return False otherwise
+        """
+        if not self.is_ipv6_address(param):
+            return False
+        _addr = ipaddress.IPv6Address(param)
+        bad_type = ""
+        if _addr.is_multicast:
+            bad_type = "is_multicast"
+        elif _addr.is_loopback:
+            bad_type = "is_loopback"
+        elif _addr.is_reserved:
+            bad_type = "is_reserved"
+        elif _addr.is_unspecified:
+            bad_type = "is_unspecified"
+        elif _addr.is_link_local:
+            bad_type = "is_link_local"
+        elif re.search(r"\/", param):
+            bad_type = "is_subnet"
+        if bad_type != "":
             return False
         return True
 
@@ -868,7 +900,8 @@ class Common:
         try:
             self.verify_integer_range(params)
         except ValueError as err:
-            msg = f"{params['item']} {params['value']} is out of range {err}"
+            msg = f"{params['item']} {params['value']} is out of range. "
+            msg += f"Error detail: {err}"
             self.log.error(msg)
             sys.exit(1)
         except TypeError as err:
