@@ -17,6 +17,7 @@ ndfc_discover         | Discover device
 ndfc_easy_fabric_ebgp | Create a fabric using Easy_Fabric_eBGP template
 ndfc_easy_fabric      | Create a fabric using Easy_Fabric template
 ndfc_network          | Create, delete networks
+ndfc_msd_fabric       | Create a multisite domain fabric
 ndfc_policy           | Create / delete policies
 ndfc_reachability     | Test for device reachability (from NDFC perspective)
 ndfc_vrf              | Create VRFs
