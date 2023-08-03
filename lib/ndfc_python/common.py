@@ -190,7 +190,7 @@ class Common:
             raise TypeError(msg)
         try:
             _match = re.search(r"^(\d+)-(\d+)$", params["value"])
-        except (TypeError) as err:
+        except TypeError as err:
             msg = f"expected string with format X-Y. Got {params['value']} "
             msg += f"(type {type(params['value']).__name__}). "
             msg += f"Error detail: {err}"
