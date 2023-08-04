@@ -9,14 +9,7 @@ import ipaddress
 import re
 import sys
 
-OUR_VERSION = 118
-
-
-class NdfcBgpPasswordKeytypeError(Exception):
-    """
-    raise for errors related to NDFC bgp password key types
-    see e.g. Common().verify_bgp_password_key_type()
-    """
+OUR_VERSION = 119
 
 
 class Common:
