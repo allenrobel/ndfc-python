@@ -10,6 +10,7 @@ from ndfc_python.ndfc_network import NdfcNetwork
 
 logger = log("ndfc_network_create_log", "INFO", "DEBUG")
 nc = NdfcCredentials()
+
 ndfc = NDFC()
 ndfc.logger = logger
 ndfc.username = nc.username
@@ -21,10 +22,10 @@ instance = NdfcNetwork()
 instance.logger = logger
 instance.ndfc = ndfc
 instance.fabric = "easy"
-instance.network_name = "MyNet_30005"
+instance.network_name = "MyNet"
 instance.enable_ir = True
 instance.gateway_ip_address = "10.1.1.1/24"
 instance.network_id = 30005
 instance.vlan_id = 3005
-instance.vrf = "foo"
+instance.vrf = "MyVrf"
 instance.create()

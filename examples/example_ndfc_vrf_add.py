@@ -21,9 +21,9 @@ ndfc.login()
 instance = NdfcVrf()
 instance.logger = logger
 instance.ndfc = ndfc
-instance.display_name = "foo_vrf"
+instance.display_name = "MyVrf"
 instance.fabric = "easy"
 instance.vrf_id = 50055
-instance.vrf_name = "foo_vrf"
+instance.vrf_name = "MyVrf"
 instance.vrf_vlan_id = 2006
 instance.post()
