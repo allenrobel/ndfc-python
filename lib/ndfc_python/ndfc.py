@@ -24,9 +24,8 @@ import sys
 
 import requests
 import urllib3
-from ndfc_python.validations import Validations
 
-OUR_VERSION = 105
+OUR_VERSION = 106
 
 
 class NdfcRequestError(Exception):
