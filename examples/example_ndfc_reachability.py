@@ -23,11 +23,15 @@ instance.logger = logger
 instance.ndfc = ndfc
 instance.seed_ip = "172.22.150.113"
 instance.fabric_name = "easy"
-# for EasyFabric, if overlay_mode is "config-profile"
-# it's recommended that preserve_config is set to False
+
+# For EasyFabric, if overlay_mode is "config-profile" (the default),
+# it's recommended that preserve_config be set to False.  If it's
+# desired to preserve the config, then set overlay_mode to "cli"
+# and set preserve_config to True.
+# instance.overlay_mode = "cli"
 instance.preserve_config = False
+
 instance.max_hops = 0
-#instance.cdp_second_timeout = 5
 instance.username = nc.discover_username
 instance.password = nc.discover_password
 instance.reachability()
