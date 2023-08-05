@@ -8,7 +8,8 @@ and print the parameters and values contained therein.
 
 Usage:
 
-Edit the config_file variable at the top of ndfc-python/lib/ndfc_python/ndfc_config.py
+Edit the config_file variable at the top of
+ndfc-python/lib/ndfc_python/ndfc_config.py
 to point to your Ansible vault file
 """
 
