@@ -36,7 +36,7 @@ instance.syslog_server_vrf = ["management", "myVrf"]
 # number of elements as syslog_server_ip_list. Severity levels range
 # from 0 to 7.  Below, we assign severity level 7 to server 10.1.1.1,
 # and severity level 0 to 2001::1
-instance.syslog_sev = [7,0]
+instance.syslog_sev = [7, 0]
 instance.dci_subnet_range = "10.22.0.0/16"
 instance.loopback0_ip_range = "10.23.0.0/16"
 instance.loopback1_ip_range = "10.24.0.0/16"
