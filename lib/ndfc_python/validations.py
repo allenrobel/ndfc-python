@@ -7,9 +7,10 @@ Validation methods and constants for libraries in this repository
 """
 import ipaddress
 import re
-import sys
 
-OUR_VERSION = 118
+from ndfc_python.ndfc import NDFC  # _verify_ndfc()
+
+OUR_VERSION = 119
 
 
 class Validations:
@@ -111,7 +112,6 @@ class Validations:
         self._valid["replication_mode"] = set()
         self._valid["replication_mode"].add("Ingress")
         self._valid["replication_mode"].add("Multicast")
-
 
     def is_within_integer_range(self, param, range_min, range_max):
         """
@@ -629,7 +629,7 @@ class Validations:
                 msg = "expected asplain (number) or asdot (x.y) "
                 msg += f"asn notation, got {asn}"
                 raise ValueError(msg) from err
-            verify_asn_asplain(asn)
+            _verify_asn_asplain(asn)
         elif len(str(asn).split(".")) == 2:
             (high_order, low_order) = str(asn).split(".")
             try:
@@ -639,8 +639,8 @@ class Validations:
                 msg = "asdot asn format (x.y), x and y must be numbers, "
                 msg += f"got {asn}"
                 raise ValueError(msg) from err
-            verify_asn_high_order(high_order)
-            verify_asn_low_order(low_order)
+            _verify_asn_high_order(high_order)
+            _verify_asn_low_order(low_order)
         else:
             msg = "invalid asn format, expected "
             msg += f"1-4294967295 | 1-65535[.0-65535], got {asn}"
@@ -743,6 +743,21 @@ class Validations:
         if re.match("^[0-9]+$", param):
             msg = f"fabric_name cannot contain ONLY numbers, got {param}"
             raise ValueError(msg)
+
+    def _verify_ndfc(self, param):
+        """
+        raise AttributeError if param is None or ""
+        raise TypeError if param is not an NDFC() instance
+        """
+        if param is None or param == "":
+            msg = "exiting. instance.ndfc is not set.  "
+            msg += "Call instance.ndfc = <ndfc instance> to interact with "
+            msg += "your NDFC."
+            raise AttributeError(msg)
+        if not isinstance(param, NDFC):
+            msg = "exiting. expected instance of NDFC. "
+            msg += f"got {type(param).__name__}"
+            raise TypeError(msg)
 
     def _verify_ipv4_address(self, param):
         """
@@ -902,7 +917,7 @@ class Validations:
         """
         if param in self._valid["macsec_algorithm"]:
             return
-        msg = f"expected one of "
+        msg = "expected one of "
         msg += f"{self._valid['macsec_algorithm']}, got {param}"
         raise ValueError(msg)
 
@@ -919,7 +934,7 @@ class Validations:
         """
         raise ValueError if param is not a valid NDFC replication mode
         """
-        if param in self._valid_replication_mode:
+        if param in self._valid["replication_mode"]:
             return
         msg = "not a valid replication mode, "
         msg += f"expected one of {','.join(self._valid['replication_mode'])} "
@@ -942,7 +957,7 @@ class Validations:
         raise ValueError if string length validation fails
         """
         if not isinstance(params, dict):
-            msg = f"expected params to be dict, got params with type "
+            msg = "expected params to be dict, got params with type "
             msg += f"{type(params).__name__}, value {params}"
             raise TypeError(msg)
         mandatory_keys = ["string", "length"]
@@ -952,12 +967,12 @@ class Validations:
                 msg += f"expected keys: {','.join(mandatory_keys)}"
                 raise KeyError(msg)
         if not isinstance(params["string"], str):
-            msg = f"expected str() type for param string. "
+            msg = "expected str() type for param string. "
             msg += f"got type {type(params['string']).__name__} with "
             msg += f"value {params['string']}"
             raise TypeError(msg)
         if not isinstance(params["length"], int):
-            msg = f"expected int() type for param length. "
+            msg = "expected int() type for param length. "
             msg += f"got type {type(params['length']).__name__} with "
             msg += f"value {params['length']}"
             raise TypeError(msg)
@@ -1073,7 +1088,7 @@ class Validations:
         """
         if param in self._valid["stp_root_option"]:
             return
-        msg = f"expected string with value in: "
+        msg = "expected string with value in: "
         msg += f"{self._valid['stp_root_option']}. Got {param}"
         raise ValueError(msg)
 
