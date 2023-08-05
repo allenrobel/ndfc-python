@@ -11,7 +11,7 @@ Netbox info:
 https://docs.netbox.dev
 https://github.com/netbox-community/netbox
 
-NOTES: 
+NOTES:
 
 1. This example depends on the netbox-tools library which can be found here:
 
@@ -21,13 +21,16 @@ https://github.com/allenrobel/netbox-tools
 to the NDFC controller and once for access to your Netbox instance.
 """
 from ndfc_python.log import log
+from ndfc_python.ndfc import NDFC
 from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_network import NdfcNetwork
-from ndfc_python.ndfc_new import NDFC
 from netbox_tools.common import netbox
 
+logger = log("netbox_ndfc_network_create_log", "INFO", "DEBUG")
 nc = NdfcCredentials()
-ndfc = NDFC(log("ndfc_network_create_log", "INFO", "DEBUG"))
+
+ndfc = NDFC()
+ndfc.logger = logger
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip
@@ -37,21 +40,20 @@ netbox_obj = netbox()
 netbox_vlans = netbox_obj.ipam.vlans.all()
 
 for vlan in netbox_vlans:
-    ndfc_network = NdfcNetwork(ndfc)
-    ndfc_network.fabric = "MSD"
-    ndfc_network.network_id = vlan.vid + 10000
-    ndfc_network.vlan_id = vlan.vid
-    ndfc_network.vrf = "foo_vrf"
-    if ndfc_network.network_id_exists_in_fabric() is True:
-        message = (
-            f"Skipping. network_id {ndfc_network.network_id} already exists"
-            f" in fabric {ndfc_network.fabric}"
-        )
-        ndfc.log.info(message)
+    instance = NdfcNetwork()
+    instance.logger = logger
+    instance.ndfc = ndfc
+    instance.fabric = "easy"
+    instance.network_id = vlan.vid + 10000
+    instance.vlan_id = vlan.vid
+    instance.vrf = "MyVrf"
+    if instance.network_id_exists_in_fabric() is True:
+        msg = f"Skipping. network_id {instance.network_id} already exists"
+        msg += f" in fabric {instance.fabric}"
+        instance.logger.info(msg)
         continue
-    message = (
-        f"Creating network {ndfc_network.vlan_id} ID {ndfc_network.network_id}"
-        f" in vrf {ndfc_network.vrf}, fabric {ndfc_network.fabric}"
-    )
-    ndfc.log.info(message)
-    ndfc_network.create()
+    msg = f"Creating network {instance.vlan_id} ID "
+    msg += f"{instance.network_id} in vrf {instance.vrf},"
+    msg += f"fabric {instance.fabric}"
+    instance.logger.info(msg)
+    instance.create()
