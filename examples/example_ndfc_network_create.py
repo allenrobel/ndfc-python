@@ -8,16 +8,23 @@ from ndfc_python.ndfc import NDFC
 from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_network import NdfcNetwork
 
+logger = log("ndfc_network_create_log", "INFO", "DEBUG")
 nc = NdfcCredentials()
-ndfc = NDFC(log("ndfc_network_create_log", "INFO", "DEBUG"))
+ndfc = NDFC()
+ndfc.logger = logger
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
-instance = NdfcNetwork(ndfc)
-instance.fabric = "MSD"
+instance = NdfcNetwork()
+instance.logger = logger
+instance.ndfc = ndfc
+instance.fabric = "easy"
+instance.network_name = "MyNet_30005"
+instance.enable_ir = True
+instance.gateway_ip_address = "10.1.1.1/24"
 instance.network_id = 30005
 instance.vlan_id = 3005
-instance.vrf = "foo_vrf"
+instance.vrf = "foo"
 instance.create()

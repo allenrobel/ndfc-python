@@ -14,7 +14,9 @@ ENTITY_TYPE = "INTERFACE"
 ENTITY_NAME = "loopback1"
 
 nc = NdfcCredentials()
-ndfc = NDFC(log("ndfc_policy_mark_delete", "INFO", "DEBUG"))
+logger = log("ndfc_policy_create_log", "INFO", "DEBUG")
+ndfc = NDFC()
+ndfc.logger = logger
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip

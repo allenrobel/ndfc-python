@@ -21,11 +21,12 @@ All of the policies matching the serial_number will be deleted
 All the policy IDs in this list will be deleted.
 """
 import sys
-from inspect import stack
 
+from ndfc_python.log import log
 from ndfc_python.ndfc import NdfcRequestError
+from ndfc_python.validations import Validations
 
-OUR_VERSION = 103
+OUR_VERSION = 104
 
 
 class NdfcPolicy:
@@ -75,10 +76,17 @@ class NdfcPolicy:
 
     """
 
-    def __init__(self, ndfc):
+    def __init__(self):
         self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
-        self.ndfc = ndfc
+
+        self.validations = Validations()
+
+        # properties not passed to NDFC
+        # order is important for these three
+        self._internal_properties = {}
+        self._init_default_logger()
+        self._init_internal_properties()
 
         # post/get base headers
         self._headers = {}
@@ -94,13 +102,15 @@ class NdfcPolicy:
         self._init_payload_mapping_dict()
         self._init_payload()
 
-    def log(self, *args):
+    def _init_default_logger(self):
         """
-        simple logger
+        This logger will be active if the user hasn't set self.logger 
         """
-        msg = f"{self.class_name}(v{self.lib_version}).{stack()[1].function}: "
-        msg += f"{' '.join(args)}"
-        self.ndfc.log.info(msg)
+        self.logger = log('ndfc_policy_log')
+
+    def _init_internal_properties(self):
+        self._internal_properties["logger"] = self.logger
+        self._internal_properties["ndfc"] = None
 
     def _init_payload_set(self):
         self._payload_set = set()
@@ -165,7 +175,7 @@ class NdfcPolicy:
         payload property.
         """
         if param not in self._payload_mapping_dict:
-            self.log("WARNING: param {} not in _payload_mapping_dict")
+            self.logger.error("WARNING: param {} not in _payload_mapping_dict")
             return param
         return self._payload_mapping_dict[param]
 
@@ -188,10 +198,10 @@ class NdfcPolicy:
         for param in self._payload_set_mandatory:
             mapped_param = self._payload_mapping_dict[param]
             if self.payload[mapped_param] == "":
-                msg = "Exiting. call "
+                msg = "exiting. call "
                 msg += f"instance.{self._map_payload_param(param)} "
                 msg += "before calling instance.create()"
-                self.log(msg)
+                self.logger.error(msg)
                 sys.exit(1)
 
     def create(self):
@@ -256,6 +266,30 @@ class NdfcPolicy:
             msg = f"Failure response from NDFC. Detail: {err}"
             raise NdfcRequestError(msg) from err
 
+
+    # properties that are not passed to NDFC
+    @property
+    def logger(self):
+        """
+        return/set the current logger instance
+        """
+        return self._internal_properties["logger"]
+
+    @logger.setter
+    def logger(self, param):
+        self._internal_properties["logger"] = param
+
+    @property
+    def ndfc(self):
+        """
+        return/set the current ndfc instance
+        """
+        return self._internal_properties["ndfc"]
+
+    @ndfc.setter
+    def ndfc(self, param):
+        self._internal_properties["ndfc"] = param
+
     # top_level payload properties
 
     @property
@@ -312,7 +346,7 @@ class NdfcPolicy:
     @nv_pairs.setter
     def nv_pairs(self, param):
         if not isinstance(param, dict):
-            self.log(f"Exiting. Expected dict(), got {param}")
+            self.logger.error(f"exiting. expected dict(), got {param}")
             sys.exit(1)
         self.payload["nvPairs"] = param
 
@@ -326,7 +360,7 @@ class NdfcPolicy:
     @policy_ids.setter
     def policy_ids(self, param):
         if not isinstance(param, list):
-            self.log(f"Exiting. Expected list(), got {param}")
+            self.logger.error(f"exiting. expected list(), got {param}")
             sys.exit(1)
         self._policy_ids = param
 

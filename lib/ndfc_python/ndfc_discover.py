@@ -64,7 +64,10 @@ from ipaddress import AddressValueError
 from re import sub
 from time import sleep
 
-OUR_VERSION = 105
+from ndfc_python.log import log
+from ndfc_python.validations import Validations
+
+OUR_VERSION = 106
 
 
 class NdfcDiscover:
@@ -97,7 +100,7 @@ class NdfcDiscover:
     try:
         instance.discover()
     except ValueError as err:
-        ndfc.log.error(f"exiting. {err}")
+        instance.logger.error(f"exiting. {err}")
         sys.exit(1)
     print(f"response: {instance.response}")
 
@@ -110,7 +113,7 @@ class NdfcDiscover:
     try:
         up = discover.is_up()
     except ValueError as err:
-        ndfc.log.error(f"exiting. {err}")
+        instance.logger.error(f"exiting. {err}")
         sys.exit(1)
     if up is True:
         result = "up"
@@ -119,10 +122,16 @@ class NdfcDiscover:
     print(f"seed_ip {instance.seed_ip} is {result}")
     """
 
-    def __init__(self, ndfc):
+    def __init__(self):
         self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
-        self.ndfc = ndfc
+
+        self.validations = Validations()
+        # ordering of the next three items matters
+        # properties not passed to NDFC
+        self._internal_properties = {}
+        self._init_default_logger()
+        self._init_internal_properties()
 
         # time to sleep after each request retry
         self._retry_sleep_time = 10
@@ -152,8 +161,6 @@ class NdfcDiscover:
         # populated in self._populate_fabric_type() from within
         # self._final_verification()
         self._fabric_type = None
-        self._populate_raw_fabric_info()
-        self._populate_existing_fabric_names()
 
         self._reachability_response_keys = [
             "auth",
@@ -173,6 +180,23 @@ class NdfcDiscover:
             "vdcId",
             "version",
         ]
+
+    def verify_ndfc_is_set(self):
+        if self.ndfc is None:
+            msg = "exiting. instance.ndfc is not set.  "
+            msg += "Call instance.ndfc = <ndfc instance> to interact with "
+            msg += "your NDFC."
+            raise AttributeError(msg)
+
+    def _init_default_logger(self):
+        """
+        This logger will be active if the user hasn't set self.logger 
+        """
+        self.logger = log('ndfc_discover_log')
+
+    def _init_internal_properties(self):
+        self._internal_properties["logger"] = self.logger
+        self._internal_properties["ndfc"] = None
 
     def _init_payload_set(self):
         """
@@ -286,12 +310,20 @@ class NdfcDiscover:
         1. Verify all mandatory parameters have been set
         2. Populate vars and structures needed by self.discover()
         """
+        try:
+            self.verify_ndfc_is_set()
+        except AttributeError as err:
+            self.logger.error(err)
+            sys.exit(1)
+
         for key in self.payload_set_mandatory:
             if self.payload[key] == "":
                 msg = f"exiting. call instance.{self._payload_map[key]} "
                 msg += "before calling instance.create()"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
+        self._populate_raw_fabric_info()
+        self._populate_existing_fabric_names()
         try:
             self._verify_fabric_exists()
         except ValueError as err:
@@ -376,22 +408,27 @@ class NdfcDiscover:
             self._verify_reachability_response()
         except TypeError as err:
             msg = f"cannot continue. unexpected reachability response. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         except KeyError as err:
             msg = f"cannot continue. unexpected reachability response. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
         if self._reachability_status_code != 200:
             msg = f"Switch {self.seed_ip} is not reachable."
             msg += f" status_code: {self._reachability_status_code}"
             msg += f" response: {self._reachability_response}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             return False
         return True
 
     def _populate_raw_fabric_info(self):
+        try:
+            self.verify_ndfc_is_set()
+        except AttributeError as err:
+            self.logger.error(err)
+            sys.exit(1)
         url = self.ndfc.url_control_fabrics
         self.raw_fabric_info = self.ndfc.get(url, self.ndfc.make_headers())
 
@@ -449,20 +486,20 @@ class NdfcDiscover:
         if self.is_reachable() is False:
             msg = f"exiting, {self.seed_ip} not reachable "
             msg += f"after {retries} retries"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
         if self.is_managed() is True:
             msg = f"exiting, {self.seed_ip} is already managed in fabric "
             msg += f"{self.fabric_name}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
         url += "/inventory/discover"
 
         self.payload["switches"] = self._reachability_response
-        self.ndfc.log.info(f"self.payload {self.payload}")
+        self.logger.info(f"self.payload {self.payload}")
 
         self.ndfc.post(url, self.ndfc.make_headers(), self.payload)
         self.discover_status_code = self.ndfc.response.status_code
@@ -495,7 +532,7 @@ class NdfcDiscover:
             if "managable" not in item:
                 msg = "Skipping. 'managable' [sic] key not found in response "
                 msg += f"{item}"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 continue
             if item["ipAddress"] == self.seed_ip:
                 our_switch = item
@@ -505,6 +542,29 @@ class NdfcDiscover:
             msg += "on the NDFC."
             raise ValueError(msg)
         return our_switch["managable"]
+
+    # properties that are not passed to NDFC
+    @property
+    def logger(self):
+        """
+        return/set the current logger instance
+        """
+        return self._internal_properties["logger"]
+
+    @logger.setter
+    def logger(self, param):
+        self._internal_properties["logger"] = param
+
+    @property
+    def ndfc(self):
+        """
+        return/set the current ndfc instance
+        """
+        return self._internal_properties["ndfc"]
+
+    @ndfc.setter
+    def ndfc(self, param):
+        self._internal_properties["ndfc"] = param
 
     # top_level properties
     @property
@@ -517,10 +577,10 @@ class NdfcDiscover:
     @cdp_second_timeout.setter
     def cdp_second_timeout(self, param):
         try:
-            self.ndfc.verify_digits(param)
+            self.validations._verify_digits(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
         self.payload["cdpSecondTimeout"] = param
 
     @property
@@ -547,10 +607,10 @@ class NdfcDiscover:
     @max_hops.setter
     def max_hops(self, param):
         try:
-            self.ndfc.verify_digits(param)
+            self.validations._verify_digits(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
         self.payload["maxHops"] = param
 
     @property
@@ -575,10 +635,10 @@ class NdfcDiscover:
     @preserve_config.setter
     def preserve_config(self, param):
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.payload["preserveConfig"] = param
 
@@ -592,9 +652,9 @@ class NdfcDiscover:
     @seed_ip.setter
     def seed_ip(self, param):
         try:
-            self.ndfc.verify_ipv4_address(param)
+            self.validations._verify_ipv4_address(param)
         except AddressValueError:
-            self.ndfc.log.error("Exiting.")
+            self.logger.error("Exiting.")
             sys.exit(1)
         self.payload["seedIP"] = param
 
@@ -608,10 +668,10 @@ class NdfcDiscover:
     @snmp_v3_auth_protocol.setter
     def snmp_v3_auth_protocol(self, param):
         try:
-            self.ndfc.verify_digits(param)
+            self.validations._verify_digits(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
         self.payload["snmpV3AuthProtocol"] = param
 
     @property

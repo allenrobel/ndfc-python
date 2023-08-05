@@ -16,17 +16,13 @@ NOTES:
 """
 import sys
 from ipaddress import AddressValueError
-from re import match, sub
+from re import sub
 
 from ndfc_python.ndfc_fabric import NdfcFabric, NdfcRequestError
 
-OUR_VERSION = 100
+# from ndfc_python.validations import Validations
 
-
-class NdfcMsdFabricError(Exception):
-    """
-    General exceptions originating within NdfcMsdFabric
-    """
+OUR_VERSION = 101
 
 
 class NdfcMsdFabric(NdfcFabric):
@@ -35,7 +31,20 @@ class NdfcMsdFabric(NdfcFabric):
 
     Example create operation:
 
-    instance = NdfcMsdFabric(ndfc)
+    from ndfc_python.log import log
+    from ndfc_python.ndfc import NDFC
+    from ndfc_python.ndfc_fabric import NdfcFabric
+
+    logger = log('example_log', 'INFO', 'DEBUG')
+    ndfc = NDFC()
+    ndfc.log = logger
+    ndfc.username = "admin"
+    ndfc.password = "mypassword"
+    ndfc.login()
+
+    instance = NdfcMsdFabric()
+    instance.logger = logger
+    instance.ndfc = ndfc
     instance.fabric_name = 'MSD'
     instance.bgp_as = 65535
     instance.create()
@@ -43,34 +52,16 @@ class NdfcMsdFabric(NdfcFabric):
     TODO: Need a delete() method
     """
 
-    def __init__(self, ndfc):
-        super().__init__(ndfc)
+    def __init__(self):
+        super().__init__()
         self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
-        self.ndfc = ndfc
-        self._ndfc_fabric_name_length = 64
 
-        # order is important
-        self._init_properties_default()
-        self._init_properties_set()
-        self._init_properties_mandatory_set()
-
-        # order is important
-        self._init_nv_pairs_default()
-        self._init_nv_pairs_set()
-        self._init_nv_pairs_mandatory_set()
-
-        self._init_properties()
-        self._init_nv_pairs()
         self._init_property_map()
-
-        self._valid_border_gwy_connections = set()
-        self._valid_border_gwy_connections.add("Manual")
-        self._valid_border_gwy_connections.add("Direct_To_BGWS")
-        self._valid_border_gwy_connections.add("Centralized_To_Route_Server")
 
     def _init_properties_default(self):
         """
+        Override NdfcFabric._init_properties_default()
         Initialize default top-level properties
         """
         self._properties_default = {}
@@ -78,6 +69,7 @@ class NdfcMsdFabric(NdfcFabric):
 
     def _init_properties_set(self):
         """
+        Override NdfcFabric._init_properties_set()
         Initialize a set containing all properties
         """
         self._properties_set = set(self._properties_default.keys())
@@ -85,12 +77,26 @@ class NdfcMsdFabric(NdfcFabric):
 
     def _init_properties_mandatory_set(self):
         """
+        Override NdfcFabric._init_properties_mandatory_set()
         Initialize a set containing mandatory properties
         """
         self._properties_mandatory_set = self._properties_set
 
+    def _init_properties(self):
+        """
+        Override NdfcFabric._init_properties()
+        Initialize all top-level properties
+        """
+        self._properties = {}
+        for param in self._properties_set:
+            if param in self._properties_default:
+                self._properties[param] = self._properties_default[param]
+            else:
+                self._properties[param] = ""
+
     def _init_nv_pairs_default(self):
         """
+        Override NdfcFabric._init_nv_pairs_default()
         Initialize default values for nv pairs
 
         These are NDFC's default values. It's quite likely you'll want to
@@ -154,6 +160,7 @@ class NdfcMsdFabric(NdfcFabric):
 
     def _init_nv_pairs_set(self):
         """
+        Override NdfcFabric._init_nv_pairs_set()
         Initialize a set containing ALL nvPair key names
         """
         self._nv_pairs_set = set(self._nv_pairs_default.keys())
@@ -161,6 +168,7 @@ class NdfcMsdFabric(NdfcFabric):
 
     def _init_nv_pairs_mandatory_set(self):
         """
+        Override NdfcFabric._init_nv_pairs_mandatory_set()
         Initialize a set containing mandatory nvPairs.
         This is the difference between all nvPairs and default nvPairs
         """
@@ -169,16 +177,17 @@ class NdfcMsdFabric(NdfcFabric):
             self._nv_pairs_default
         )
 
-    def _init_properties(self):
+    def _init_nv_pairs(self):
         """
-        Initialize all top-level properties
+        Initialize all nv_pairs
+        Override NdfcFabric._init_nv_pairs()
         """
-        self._properties = {}
-        for param in self._properties_set:
-            if param in self._properties_default:
-                self._properties[param] = self._properties_default[param]
+        self._nv_pairs = {}
+        for param in self._nv_pairs_set:
+            if param in self._nv_pairs_default:
+                self._nv_pairs[param] = self._nv_pairs_default[param]
             else:
-                self._properties[param] = ""
+                self._nv_pairs[param] = ""
 
     def _init_property_map(self):
         """
@@ -203,97 +212,36 @@ class NdfcMsdFabric(NdfcFabric):
         # fix any corner-cases
         self._property_map["FF"] = "ff"
 
-    def _init_nv_pairs(self):
-        """
-        Initialize all nv_pairs
-        """
-        self._nv_pairs = {}
-        for param in self._nv_pairs_set:
-            if param in self._nv_pairs_default:
-                self._nv_pairs[param] = self._nv_pairs_default[param]
-            else:
-                self._nv_pairs[param] = ""
-
     def _preprocess_properties(self):
         """
         1. Align the properties to the expectations of NDFC
         """
 
-    def _verify_fabric_name(self, param):
-        """
-        If param is not a string, raise TypeError
-        If param does not conform to NDFC's constraints on fabric_name,
-        raise NdfcMsdFabricError
-
-        Else, return.
-
-        NDFC's constraints are:
-
-        1. alphanumeric (a-z, A-Z, 0-9), underscore(_) and hyphen(-) accepted
-        2. numbers alone, not accepted
-        3. max length is 64 characters
-
-        TODO: Move this to a common library
-        """
-        if not isinstance(param, str):
-            raise TypeError(f"expected str. got {type(param).__name__}")
-        if len(param) > self._ndfc_fabric_name_length:
-            msg = f"fabric_name must be <= 64 characters, got {param} "
-            raise NdfcMsdFabricError(msg)
-        if not match("^[a-zA-Z0-9_-]+$", param):
-            msg = "fabric_name must contain only upper/lowercase letters, "
-            msg += f"numbers, hyphen, and underscore, got {param} "
-            raise NdfcMsdFabricError(msg)
-        if match("^[0-9]+$", param):
-            msg = f"fabric_name cannot contain ONLY numbers, got {param}"
-            raise NdfcMsdFabricError(msg)
-
-    @staticmethod
-    def _verify_list_lengths_are_equal(list_a, list_b):
-        """
-        if lists are not of equal length, raise NdfcMsdFabricError
-        if list_a or list_b are not python lists, raise TypeError
-        """
-        if not isinstance(list_a, list):
-            raise TypeError(f"not a list. {list_a}")
-        if not isinstance(list_b, list):
-            raise TypeError(f"not a list. {list_b}")
-        if len(list_a) != len(list_b):
-            msg = "lists must be of equal length, got lengths "
-            msg += f"{len(list_a)} and {len(list_b)} for lists "
-            msg += f"{list_a} and {list_b}"
-            raise NdfcMsdFabricError(msg)
-
-    @staticmethod
-    def _verify_property_has_value(param, value):
-        """
-        If value of param is "" or None, raise NdfcMsdFabricError
-        """
-        if value == "" or value is None:
-            msg = f"missing value for mandatory property {param}"
-            raise NdfcMsdFabricError(msg)
-
     def _final_verification(self):
         for param in self._properties_mandatory_set:
             try:
-                self._verify_property_has_value(param, self._properties[param])
-            except NdfcMsdFabricError:
+                self.validations._verify_property_has_value(
+                    param, self._properties[param]
+                )
+            except ValueError:
                 msg = f"exiting. call instance.{self._property_map[param]} "
                 msg += "before calling instance.post()"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
         for param in self._nv_pairs_mandatory_set:
             if param not in self._nv_pairs:
                 msg = f"exiting. call instance.{self._property_map[param]} "
                 msg += "before calling instance.post()"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
             try:
-                self._verify_property_has_value(param, self._nv_pairs[param])
-            except NdfcMsdFabricError:
+                self.validations._verify_property_has_value(
+                    param, self._nv_pairs[param]
+                )
+            except ValueError:
                 msg = f"exiting. call instance.{self._property_map[param]} "
                 msg += "before calling instance.post()"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
 
         # hack for black linter vs flake8 linter
@@ -303,31 +251,31 @@ class NdfcMsdFabric(NdfcFabric):
             # type, RP_SERVER_IP BGP_RP_ASN are both mandatory
             for param in ["RP_SERVER_IP", "BGP_RP_ASN"]:
                 try:
-                    nv_param = self._nv_pairs[param]
-                    self._verify_property_has_value(param, nv_param)
-                except NdfcMsdFabricError as err:
+                    nvp = self._nv_pairs[param]
+                    self.validations._verify_property_has_value(param, nvp)
+                except ValueError as err:
                     msg = "exiting, "
                     msg += "border_gwy_connections is set to "
                     msg += "Centralized_To_Route_Server which requires that "
                     msg += "both rp_server_ip and bgp_rp_asn be set, "
                     msg += f"exception detail: {err}"
-                    self.ndfc.log.error(msg)
+                    self.logger.error(msg)
                     sys.exit(1)
             # RP_SERVER_IP and BGP_RP_ASN lists must be equal length
             try:
                 nv_param = self._nv_pairs["BGP_RP_ASN"]
-                self._verify_list_lengths_are_equal(
+                self.validations._verify_list_lengths_are_equal(
                     self._nv_pairs["RP_SERVER_IP"], nv_param
                 )
             except TypeError as err:
                 msg = "rp_server_ip and bgp_rp_asn must be python lists. "
                 msg += f"exception detail: {err}"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
-            except NdfcMsdFabricError as err:
+            except ValueError as err:
                 msg = "rp_server_ip and bgp_rp_asn lists must be the "
                 msg += f"same length, error detail {err}"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
             # NDFC expects bgp_rp_asn and rp_server_ip to be comma-separated
             # string lists
@@ -341,10 +289,16 @@ class NdfcMsdFabric(NdfcFabric):
     def create(self):
         """
         Create the MSD fabric
-        TODO: Verify fabric does not exist before trying to create it
         """
         self._final_verification()
         self._preprocess_properties()
+
+        if self.fabric_exists(self.fabric_name):
+            msg = f"exiting. fabric {self.fabric_name} already exists "
+            msg += f"on the NDFC at {self.ndfc.url_base}.  Existing "
+            msg += f"fabrics: {', '.join(sorted(self.fabric_names))}"
+            self.logger.error(msg)
+            sys.exit(1)
 
         url = f"{self.ndfc.url_control_fabrics}"
 
@@ -361,54 +315,8 @@ class NdfcMsdFabric(NdfcFabric):
         except NdfcRequestError as err:
             msg = f"error creating fabric {self.fabric_name}, "
             msg += f"error detail {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
-
-    def _verify_border_gwy_connections(self, param):
-        """
-        If param matches a valid border gateway connection type, return
-        Else, raise NdfcMsdFabricError
-        """
-        if param in self._valid_border_gwy_connections:
-            return
-        connections = ",".join(self._valid_border_gwy_connections)
-        msg = "_verify_border_gwy_connections: "
-        msg += f"Invalid value for border_gwy_connections ({param}). "
-        msg += f"Expected one of [{connections}]"
-        raise NdfcMsdFabricError(msg)
-
-    def _verify_bgp_rp_asn(self, param):
-        """
-        If param meets NDFC's expectations for a BGP ASN, return.
-        Else, exit.
-        """
-        try:
-            for asn in param:
-                self.ndfc.verify_bgp_asn(asn)
-        except TypeError:
-            msg = f"expected python list, got {type(param).__name__} ({param})"
-            self.ndfc.log.error(msg)
-            sys.exit(1)
-        except ValueError as err:
-            self.ndfc.log.error(err)
-            sys.exit(1)
-
-    def _verify_rp_server_ip(self, param):
-        """
-        If param is a python list of valid ipv4 addresses, return.
-        Else, exit.
-        """
-        if not isinstance(param, list):
-            msg = "_verify_rp_server_ip: Exiting. Expected python list() "
-            msg += f"Got {param}"
-            self.ndfc.log.error(msg)
-            sys.exit(1)
-        for item in param:
-            try:
-                self.ndfc.verify_ipv4_address(item)
-            except AddressValueError:
-                self.ndfc.log.error("Exiting.")
-                sys.exit(1)
 
     # Payload top-level properties
     @property
@@ -431,14 +339,10 @@ class NdfcMsdFabric(NdfcFabric):
         the values for both below.
         """
         try:
-            self._verify_fabric_name(param)
-        except TypeError as err:
+            self.validations._verify_fabric_name(param)
+        except (TypeError, ValueError) as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
-            sys.exit(1)
-        except NdfcMsdFabricError as err:
-            msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self._properties["fabricName"] = param
         self._nv_pairs["FABRIC_NAME"] = param
@@ -560,7 +464,12 @@ class NdfcMsdFabric(NdfcFabric):
 
     @bgp_rp_asn.setter
     def bgp_rp_asn(self, param):
-        self._verify_bgp_rp_asn(param)
+        try:
+            self.validations._verify_bgp_rp_asn_list(param)
+        except (ValueError, TypeError) as err:
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
+            sys.exit(1)
         self._nv_pairs["BGP_RP_ASN"] = param
 
     @property
@@ -600,9 +509,10 @@ class NdfcMsdFabric(NdfcFabric):
     @border_gwy_connections.setter
     def border_gwy_connections(self, param):
         try:
-            self._verify_border_gwy_connections(param)
-        except NdfcMsdFabricError:
-            self.ndfc.log.error("exiting")
+            self.validations._verify_border_gwy_connections(param)
+        except ValueError as err:
+            self.logger.error(f"exiting {err}")
+            sys.exit(1)
         self._nv_pairs["BORDER_GWY_CONNECTIONS"] = param
 
     @property
@@ -963,7 +873,11 @@ class NdfcMsdFabric(NdfcFabric):
 
     @rp_server_ip.setter
     def rp_server_ip(self, param):
-        self._verify_rp_server_ip(param)
+        try:
+            self.validations._verify_rp_server_ip_list(param)
+        except (AddressValueError, TypeError) as err:
+            self.logger.error(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["RP_SERVER_IP"] = param
 
     @property

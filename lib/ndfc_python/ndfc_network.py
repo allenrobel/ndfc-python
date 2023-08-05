@@ -53,7 +53,10 @@ import sys
 from inspect import stack
 from ipaddress import AddressValueError
 
-OUR_VERSION = 105
+from ndfc_python.log import log
+from ndfc_python.validations import Validations
+
+OUR_VERSION = 106
 
 
 class NdfcNetwork:
@@ -78,10 +81,17 @@ class NdfcNetwork:
 
     """
 
-    def __init__(self, ndfc):
+    def __init__(self):
         self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
-        self.ndfc = ndfc
+
+        self.validations = Validations()
+
+        # properties not passed to NDFC
+        # order is important for these three
+        self._internal_properties = {}
+        self._init_default_logger()
+        self._init_internal_properties()
 
         # post/get base headers
         self._headers = {}
@@ -98,13 +108,15 @@ class NdfcNetwork:
         self._init_payload_mapping_dict()
         self._init_template_config_mapping_dict()
 
-    def log(self, *args):
+    def _init_default_logger(self):
         """
-        simple logger
+        This logger will be active if the user hasn't set self.logger 
         """
-        msg = f"{self.class_name}(v{self.lib_version}).{stack()[1].function}: "
-        msg += f"{' '.join(args)}"
-        print(msg)
+        self.logger = log('ndfc_network_log')
+
+    def _init_internal_properties(self):
+        self._internal_properties["logger"] = self.logger
+        self._internal_properties["ndfc"] = None
 
     def _init_payload_set(self):
         """
@@ -220,6 +232,14 @@ class NdfcNetwork:
             else:
                 self.template_config[param] = ""
 
+    def _verify_ndfc_is_set(self):
+        if self.ndfc is None:
+            msg = "exiting. instance.ndfc is not set.  "
+            msg += "Call instance.ndfc = <ndfc instance> to interact with "
+            msg += "your NDFC."
+            self.logger.error(msg)
+            sys.exit(1)
+
     def _preprocess_payload(self):
         """
         1. Set a default value for any properties that the caller
@@ -233,7 +253,7 @@ class NdfcNetwork:
         # if source is null, NDFC complains if it's present
         if self.source == "":
             self.payload.pop("source", None)
-            self.ndfc.log.debug(
+            self.logger.debug(
                 "deleted null source key from payload to avoid ndfc complaints"
             )
         if self.network_name == "":
@@ -315,7 +335,8 @@ class NdfcNetwork:
         payload property.
         """
         if param not in self._payload_mapping_dict:
-            self.log("WARNING: param {} not in _payload_mapping_dict")
+            msg = f"WARNING: param {param} not in _payload_mapping_dict"
+            self.logger.warning(msg)
             return param
         return self._payload_mapping_dict[param]
 
@@ -330,7 +351,9 @@ class NdfcNetwork:
         template_config property.
         """
         if param not in self._template_config_mapping_dict:
-            self.log("WARNING: param {} not in _template_config_mapping_dict")
+            msg = f"WARNING: param {param} not in "
+            msg += "_template_config_mapping_dict"
+            self.logger.warning(msg)
             return param
         return self._template_config_mapping_dict[param]
 
@@ -340,16 +363,17 @@ class NdfcNetwork:
         """
         for param in self._payload_set_mandatory:
             if self.payload[param] == "":
-                self.log(
-                    f"Exiting. call instance.{self._map_payload_param(param)}",
-                    "before calling instance.create()",
-                )
+                msg = "exiting. call instance."
+                msg += f"{self._map_payload_param(param)} "
+                msg += "before calling instance.create()"
+                self.logger.error(msg)
                 sys.exit(1)
         for param in self._template_config_set_mandatory:
             if self.template_config[param] == "":
                 msg = "Exiting. call "
                 msg += f"instance.{self._map_template_config_param(param)}"
                 msg += "before calling instance.create()"
+                self.logger.error(msg)
                 sys.exit(1)
 
     def vrf_exists_in_fabric(self):
@@ -417,16 +441,16 @@ class NdfcNetwork:
         self._final_verification()
 
         if self.vrf_exists_in_fabric() is False:
-            msg = "Exiting. vrf {self.vrf} does not exist in fabric "
+            msg = f"Exiting. vrf {self.vrf} does not exist in fabric "
             msg += f"{self.fabric}. Create it before calling NdfcNetwork()"
-            self.log(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
         if self.network_id_exists_in_fabric() is True:
             msg = f"Exiting. networkId {self.network_id} already exists "
             msg += f"in fabric {self.fabric}. Delete it before calling "
             msg += "NdfcNetwork.create()"
-            self.log(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
         url = f"{self.ndfc.url_top_down_fabrics}/{self.fabric}/networks"
@@ -445,12 +469,12 @@ class NdfcNetwork:
         if self.network_name == "":
             msg = "Exiting. Call instance.networkName before calling "
             msg += "NdfcNetworks.delete()"
-            self.log(msg)
+            self.logger.error(msg)
             sys.exit(1)
         if self.fabric == "":
             msg = "Exiting. Call instance.fabric before calling "
             msg += "NdfcNetworks.delete()"
-            self.log(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
         headers = self._headers
@@ -459,12 +483,35 @@ class NdfcNetwork:
         if self.network_name_exists_in_fabric() is False:
             msg = f"Exiting. networkName {self.network_name} "
             msg += f"does not exist in fabric {self.fabric}."
-            self.log(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
         url = f"{self.ndfc.url_top_down_fabrics}/{self.fabric}"
         url += f"/networks/{self.network_name}"
         self.ndfc.delete(url, headers)
+
+    # properties that are not passed to NDFC
+    @property
+    def logger(self):
+        """
+        return/set the current logger instance
+        """
+        return self._internal_properties["logger"]
+
+    @logger.setter
+    def logger(self, param):
+        self._internal_properties["logger"] = param
+
+    @property
+    def ndfc(self):
+        """
+        return/set the current ndfc instance
+        """
+        return self._internal_properties["ndfc"]
+
+    @ndfc.setter
+    def ndfc(self, param):
+        self._internal_properties["ndfc"] = param
 
     # top_level properties
     @property
@@ -610,10 +657,10 @@ class NdfcNetwork:
     @enable_ir.setter
     def enable_ir(self, param):
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["enableIR"] = param
 
@@ -627,10 +674,10 @@ class NdfcNetwork:
     @enable_l3_on_border.setter
     def enable_l3_on_border(self, param):
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["enableL3OnBorder"] = param
 
@@ -644,9 +691,9 @@ class NdfcNetwork:
     @gateway_ip_address.setter
     def gateway_ip_address(self, param):
         try:
-            self.ndfc.verify_ipv4_address_with_prefix(param)
+            self.validations._verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self.template_config["gatewayIpAddress"] = param
 
@@ -660,9 +707,9 @@ class NdfcNetwork:
     @gateway_ipv6_address.setter
     def gateway_ipv6_address(self, param):
         try:
-            self.ndfc.verify_ipv6_address_with_prefix(param)
+            self.validations._verify_ipv6_address_with_prefix(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self.template_config["gatewayIpV6Address"] = param
 
@@ -687,10 +734,10 @@ class NdfcNetwork:
     @is_layer2_only.setter
     def is_layer2_only(self, param):
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["isLayer2Only"] = param
 
@@ -703,7 +750,7 @@ class NdfcNetwork:
 
     @loopback_id.setter
     def loopback_id(self, param):
-        self.ndfc.verify_loopback_id(param)
+        self.validations._verify_loopback_id(param)
         self.template_config["loopbackId"] = param
 
     @property
@@ -715,7 +762,7 @@ class NdfcNetwork:
 
     @mcast_group.setter
     def mcast_group(self, param):
-        self.ndfc.verify_ipv4_multicast_address(
+        self.validations._verify_ipv4_multicast_address(
             param, f"{self.class_name}.mcast_group.setter"
         )
         self.template_config["mcastGroup"] = param
@@ -729,7 +776,7 @@ class NdfcNetwork:
 
     @mtu.setter
     def mtu(self, param):
-        self.ndfc.verify_mtu(param, f"{self.class_name}.mtu.setter")
+        self.validations._verify_mtu(param, f"{self.class_name}.mtu.setter")
         self.template_config["mtu"] = param
 
     # networkName (see property for self.payload['networkName])
@@ -745,7 +792,7 @@ class NdfcNetwork:
 
     @nve_id.setter
     def nve_id(self, param):
-        self.ndfc.verify_nve_id(param, f"{self.class_name}.nve_id.setter")
+        self.validations._verify_nve_id(param, f"{self.class_name}.nve_id.setter")
         self.template_config["nveId"] = param
 
     @property
@@ -758,10 +805,10 @@ class NdfcNetwork:
     @rt_both_auto.setter
     def rt_both_auto(self, param):
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["rtBothAuto"] = param
 
@@ -775,9 +822,9 @@ class NdfcNetwork:
     @secondary_gw_1.setter
     def secondary_gw_1(self, param):
         try:
-            self.ndfc.verify_ipv4_address_with_prefix(param)
+            self.validations._verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self.template_config["secondaryGW1"] = param
 
@@ -791,9 +838,9 @@ class NdfcNetwork:
     @secondary_gw_2.setter
     def secondary_gw_2(self, param):
         try:
-            self.ndfc.verify_ipv4_address_with_prefix(param)
+            self.validations._verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self.template_config["secondaryGW2"] = param
 
@@ -807,9 +854,9 @@ class NdfcNetwork:
     @secondary_gw_3.setter
     def secondary_gw_3(self, param):
         try:
-            self.ndfc.verify_ipv4_address_with_prefix(param)
+            self.validations._verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self.template_config["secondaryGW3"] = param
 
@@ -823,9 +870,9 @@ class NdfcNetwork:
     @secondary_gw_4.setter
     def secondary_gw_4(self, param):
         try:
-            self.ndfc.verify_ipv4_address_with_prefix(param)
+            self.validations._verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self.template_config["secondaryGW4"] = param
 
@@ -838,7 +885,7 @@ class NdfcNetwork:
 
     @segment_id.setter
     def segment_id(self, param):
-        self.ndfc.verify_vni(param)
+        self.validations._verify_vni(param)
         self.template_config["segmentId"] = param
 
     @property
@@ -851,10 +898,10 @@ class NdfcNetwork:
     @suppress_arp.setter
     def suppress_arp(self, param):
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["suppressArp"] = param
 
@@ -867,7 +914,7 @@ class NdfcNetwork:
 
     @tag.setter
     def tag(self, param):
-        self.ndfc.verify_routing_tag(param)
+        self.validations._verify_routing_tag(param)
         self.template_config["tag"] = param
 
     @property
@@ -880,10 +927,10 @@ class NdfcNetwork:
     @trm_enabled.setter
     def trm_enabled(self, param):
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["trmEnabled"] = param
 
@@ -896,7 +943,7 @@ class NdfcNetwork:
 
     @vlan_id.setter
     def vlan_id(self, param):
-        self.ndfc.verify_vlan(param)
+        self.validations._verify_vlan(param)
         self.template_config["vlanId"] = param
 
     @property

@@ -41,13 +41,17 @@ from ndfc_python.ndfc_easy_fabric import NdfcEasyFabric
 
 nc = NdfcCredentials()
 
-ndfc = NDFC(log("ndfc_easy_fabric_log", "INFO", "DEBUG"))
+logger = log("ndfc_easy_fabric_log", "INFO", "DEBUG")
+ndfc = NDFC()
+ndfc.logger = logger
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
-instance = NdfcEasyFabric(ndfc)
+instance = NdfcEasyFabric()
+instance.ndfc = ndfc
+instance.logger = logger
 instance.fabric_name = "unnumbered_fabric"
 instance.bgp_as = 65001
 instance.fabric_interface_type = "unnumbered"

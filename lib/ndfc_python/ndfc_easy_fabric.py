@@ -8,16 +8,29 @@ from re import sub
 
 from ndfc_python.ndfc_fabric import NdfcFabric, NdfcRequestError
 
-OUR_VERSION = 108
+OUR_VERSION = 109
 
 
 class NdfcEasyFabric(NdfcFabric):
     """
-    Create site/child fabrics using Easy_Fabric template.
+    Create fabrics using the NDFC Easy_Fabric template.
 
     Example create operation:
 
-    instance = NdfcEasyFabric(ndfc)
+    from ndfc_python.log import log
+    from ndfc_python.ndfc import NDFC
+    from ndfc_python.ndfc_fabric import NdfcFabric
+
+    logger = log('example_log', 'INFO', 'DEBUG')
+    ndfc = NDFC()
+    ndfc.log = logger
+    ndfc.username = "admin"
+    ndfc.password = "mypassword"
+    ndfc.login()
+
+    instance = NdfcEasyFabric()
+    instance.ndfc = ndfc
+    instance.logger = logger
     instance.fabric_name = 'bang'
     instance.bgp_as = 65011
     instance.replication_mode = 'Ingress'
@@ -26,8 +39,8 @@ class NdfcEasyFabric(NdfcFabric):
     TODO: Need a delete() method
     """
 
-    def __init__(self, ndfc):
-        super().__init__(ndfc)
+    def __init__(self):
+        super().__init__()
         self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
 
@@ -749,14 +762,14 @@ class NdfcEasyFabric(NdfcFabric):
                 msg += "call instance."
                 msg += f"{self._ndfc_param_to_property_map[param]} "
                 msg += "before calling instance.create()"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
         for param in self._nv_pairs_mandatory_set:
             if self._nv_pairs[param] == "":
                 msg = f"exiting. missing mandatory nvPair {param}. "
                 msg += f"Call instance.{param.lower()} "
                 msg += "before calling instance.post()"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
 
         # TODO: if isis_auth_enable == True, the following needs to be set
@@ -787,7 +800,7 @@ class NdfcEasyFabric(NdfcFabric):
             msg += "Got enable_fabric_vpc_domain_id "
             msg += f"{self.enable_fabric_vpc_domain_id}, fabric_vpc_domain_id "
             msg += f"{self.fabric_vpc_domain_id}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
         # We should never hit this case, since fabric_vpc_domain_id will throw
@@ -801,7 +814,7 @@ class NdfcEasyFabric(NdfcFabric):
             msg += "Got enable_fabric_vpc_domain_id "
             msg += f"{self.enable_fabric_vpc_domain_id}, fabric_vpc_domain_id "
             msg += f"{self.fabric_vpc_domain_id}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
     def create(self):
@@ -815,7 +828,7 @@ class NdfcEasyFabric(NdfcFabric):
             msg = f"exiting. fabric {self.fabric_name} already exists "
             msg += f"on the NDFC at {self.ndfc.url_base}.  Existing "
             msg += f"fabrics: {', '.join(sorted(self.fabric_names))}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
         url = f"{self.ndfc.url_control_fabrics}"
@@ -832,7 +845,7 @@ class NdfcEasyFabric(NdfcFabric):
         except NdfcRequestError as err:
             msg = f"error creating fabric {self.fabric_name}, "
             msg += f"error detail {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
     # ------------------------------------------------------------
@@ -852,9 +865,9 @@ class NdfcEasyFabric(NdfcFabric):
     @bgp_as.setter
     def bgp_as(self, param):
         try:
-            self.ndfc.verify_bgp_asn(param)
+            self.validations._verify_bgp_asn(param)
         except ValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._ndfc_params["asn"] = param
         self._nv_pairs["BGP_AS"] = param
@@ -882,7 +895,7 @@ class NdfcEasyFabric(NdfcFabric):
             self._nv_pairs["default_vrf"] = param
             return
         msg = f"exiting. expected one of {_valid}, got {param}"
-        self.ndfc.log.error(msg)
+        self.logger.error(msg)
 
     @property
     def fabric_name(self):
@@ -989,7 +1002,7 @@ class NdfcEasyFabric(NdfcFabric):
             self._nv_pairs["vrf_extension_template"] = param
             return
         msg = f"exiting. expected one of {_valid}, got {param}"
-        self.ndfc.log.error(msg)
+        self.logger.error(msg)
         sys.exit(1)
 
     @property
@@ -1015,7 +1028,7 @@ class NdfcEasyFabric(NdfcFabric):
             self._nv_pairs["default_vrf"] = param
             return
         msg = f"exiting. expected one of {_valid}, got {param}"
-        self.ndfc.log.error(msg)
+        self.logger.error(msg)
 
     # ------------------------------------------------------------
     # nvPairs
@@ -1110,12 +1123,12 @@ class NdfcEasyFabric(NdfcFabric):
 
     @anycast_gw_mac.setter
     def anycast_gw_mac(self, param):
-        if self.ndfc.is_mac_address_format_a(param):
+        if self.validations.is_mac_address_format_a(param):
             self._nv_pairs["ANYCAST_GW_MAC"] = param
         msg = f"exiting. {param}, anycast_bgw_advertise_pip, "
         msg += "unexpected value. "
         msg += "expected mac address with format xxxx.xxxx.xxxx"
-        self.ndfc.log.error(msg)
+        self.logger.error(msg)
         sys.exit(1)
 
     @property
@@ -1140,7 +1153,11 @@ class NdfcEasyFabric(NdfcFabric):
         params["value"] = param
         params["min"] = 0
         params["max"] = 1023
-        self.ndfc.verify_property_integer_range(params)
+        try:
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["ANYCAST_LB_ID"] = param
 
     @property
@@ -1157,9 +1174,9 @@ class NdfcEasyFabric(NdfcFabric):
     @anycast_rp_ip_range.setter
     def anycast_rp_ip_range(self, param):
         try:
-            self.ndfc.verify_ipv4_address_with_prefix(param)
+            self.validations._verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["ANYCAST_RP_IP_RANGE"] = param
 
@@ -1344,9 +1361,9 @@ class NdfcEasyFabric(NdfcFabric):
     @bgp_auth_key_type.setter
     def bgp_auth_key_type(self, param):
         try:
-            self.ndfc.verify_bgp_password_key_type(param, "bgp_auth_key_type")
+            self.validations._verify_bgp_password_key_type(param, "bgp_auth_key_type")
         except ValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["BGP_AUTH_KEY_TYPE"] = param
 
@@ -1439,7 +1456,11 @@ class NdfcEasyFabric(NdfcFabric):
 
     @brfield_debug_flag.setter
     def brfield_debug_flag(self, param):
-        self.ndfc.verify_property_disable_enable(param, "brfield_debug_flag")
+        try:
+            self.validations._verify_disable_enable(param, "brfield_debug_flag")
+        except ValueError as err:
+            self.logger.error(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["BRFIELD_DEBUG_FLAG"] = param
 
     @property
@@ -1503,7 +1524,7 @@ class NdfcEasyFabric(NdfcFabric):
             return
         msg = f"exiting. copp_policy, expected one of {valid} "
         msg += f"got {param}"
-        self.ndfc.log.error(msg)
+        self.logger.error(msg)
         sys.exit(1)
 
     @property
@@ -1516,9 +1537,9 @@ class NdfcEasyFabric(NdfcFabric):
     @dci_subnet_range.setter
     def dci_subnet_range(self, param):
         try:
-            self.ndfc.verify_ipv4_address_with_prefix(param)
+            self.validations._verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.log.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["DCI_SUBNET_RANGE"] = param
 
@@ -1539,7 +1560,11 @@ class NdfcEasyFabric(NdfcFabric):
             "min": 30,
             "max": 31,
         }
-        self.ndfc.verify_property_integer_range(params)
+        try:
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["DCI_SUBNET_TARGET_MASK"] = param
 
     @property
@@ -1684,10 +1709,10 @@ class NdfcEasyFabric(NdfcFabric):
     @dhcp_end.setter
     def dhcp_end(self, param):
         try:
-            self.ndfc.verify_ipv4_address(param)
+            self.validations._verify_ipv4_address(param)
         except AddressValueError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self._nv_pairs["DHCP_END"] = param
 
@@ -1733,7 +1758,7 @@ class NdfcEasyFabric(NdfcFabric):
             return
         msg = "exiting. expected one of "
         msg += f"{self.valid['dhcp_ipv6_enable']}, got {param}"
-        self.ndfc.log.error(msg)
+        self.logger.error(msg)
         sys.exit(1)
 
     @property
@@ -1757,10 +1782,10 @@ class NdfcEasyFabric(NdfcFabric):
     @dhcp_start.setter
     def dhcp_start(self, param):
         try:
-            self.ndfc.verify_ipv4_address(param)
+            self.validations._verify_ipv4_address(param)
         except AddressValueError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self._nv_pairs["DHCP_START"] = param
 
@@ -2162,7 +2187,7 @@ class NdfcEasyFabric(NdfcFabric):
             return
         msg = "exiting. expected one of "
         msg += f"{self.valid['fabric_interface_type']}, got {param}"
-        self.ndfc.log.error(msg)
+        self.logger.error(msg)
         sys.exit(1)
 
     @property
@@ -2185,14 +2210,18 @@ class NdfcEasyFabric(NdfcFabric):
         params["value"] = param
         params["min"] = 576
         params["max"] = 9216
-        self.ndfc.verify_property_integer_range(params)
         try:
-            if self.ndfc.is_integer_even(param):
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
+        try:
+            if self.validations.is_integer_even(param):
                 self._nv_pairs["FABRIC_MTU"] = param
                 return
         except TypeError as err:
             msg = f"exiting {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
     @property
@@ -2233,7 +2262,11 @@ class NdfcEasyFabric(NdfcFabric):
         params["value"] = param
         params["min"] = 1
         params["max"] = 1000
-        self.ndfc.verify_property_integer_range(params)
+        try:
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["FABRIC_VPC_DOMAIN_ID"] = param
 
     @property
@@ -2349,7 +2382,11 @@ class NdfcEasyFabric(NdfcFabric):
 
     @grfield_debug_flag.setter
     def grfield_debug_flag(self, param):
-        self.ndfc.verify_property_disable_enable(param, "grfield_debug_flag")
+        try:
+            caller = "grfield_debug_flag"
+            self.validations._verify_disable_enable(param, caller)
+        except ValueError as err:
+            self.logger(f"exiting. {err}")
         self._nv_pairs["GRFIELD_DEBUG_FLAG"] = param
 
     @property
@@ -2368,7 +2405,11 @@ class NdfcEasyFabric(NdfcFabric):
     @hd_time.setter
     def hd_time(self, param):
         params = {"item": "hd_time", "value": param, "min": 1, "max": 1500}
-        self.ndfc.verify_property_integer_range(params)
+        try:
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["HD_TIME"] = param
 
     @property
@@ -2460,21 +2501,21 @@ class NdfcEasyFabric(NdfcFabric):
     @inband_dhcp_servers.setter
     def inband_dhcp_servers(self, param):
         try:
-            self.ndfc.verify_list(param)
+            self.validations._verify_list(param)
         except TypeError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         if len(param) > 3:
             msg = f"exiting. exceeded maximum of 3 addresses, got {param}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         for item in param:
             try:
-                self.ndfc.verify_ipv4_address(item)
+                self.validations._verify_ipv4_address(item)
             except AddressValueError as err:
                 msg = "exiting. Expected python list of <= 3 ipv4 addresses "
                 msg += f"got {param}. Detail: {err}"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
         self._nv_pairs["INBAND_DHCP_SERVERS"] = ",".join(param)
 
@@ -2576,7 +2617,11 @@ class NdfcEasyFabric(NdfcFabric):
             "min": 0,
             "max": 65535,
         }
-        self.ndfc.verify_property_integer_range(params)
+        try:
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["ISIS_AUTH_KEYCHAIN_KEY_ID"] = param
 
     @property
@@ -2638,7 +2683,11 @@ class NdfcEasyFabric(NdfcFabric):
             "min": 5,
             "max": 86400,
         }
-        self.ndfc.verify_property_integer_range(params)
+        try:
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["ISIS_OVERLOAD_ELAPSE_TIME"] = param
 
     @property
@@ -2701,14 +2750,18 @@ class NdfcEasyFabric(NdfcFabric):
         params["value"] = param
         params["min"] = 1500
         params["max"] = 9216
-        self.ndfc.verify_property_integer_range(params)
         try:
-            if self.ndfc.is_integer_even(param):
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
+        try:
+            if self.validations.is_integer_even(param):
                 self._nv_pairs["L2_HOST_INTF_MTU"] = param
                 return
         except TypeError as err:
             msg = f"exiting {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
     @property
@@ -2751,9 +2804,9 @@ class NdfcEasyFabric(NdfcFabric):
             "caller": "l2_segment_id_range",
         }
         try:
-            self.ndfc.verify_hypenated_range(params)
+            self.validations._verify_hypenated_range(params)
         except (ValueError, TypeError, KeyError) as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["L2_SEGMENT_ID_RANGE"] = param
 
@@ -2773,9 +2826,9 @@ class NdfcEasyFabric(NdfcFabric):
     @l3vni_mcast_group.setter
     def l3vni_mcast_group(self, param):
         try:
-            self.ndfc.verify_ipv4_multicast_address(param)
+            self.validations._verify_ipv4_multicast_address(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["L3VNI_MCAST_GROUP"] = param
 
@@ -2807,9 +2860,9 @@ class NdfcEasyFabric(NdfcFabric):
             "caller": "l3_partition_id_range",
         }
         try:
-            self.ndfc.verify_hypenated_range(params)
+            self.validations._verify_hypenated_range(params)
         except (ValueError, TypeError, KeyError) as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["L3_PARTITION_ID_RANGE"] = param
 
@@ -2836,7 +2889,7 @@ class NdfcEasyFabric(NdfcFabric):
             return
         msg = f"exiting. expected one of {self.valid['link_state_routing']}, "
         msg += f"got {param}"
-        self.ndfc.log.error(msg)
+        self.logger.error(msg)
         sys.exit(1)
 
     @property
@@ -2856,14 +2909,15 @@ class NdfcEasyFabric(NdfcFabric):
 
     @link_state_routing_tag.setter
     def link_state_routing_tag(self, param):
-        # TODO: move link_state_routing_tag validation to ndfc_fabric.py
-        if not isinstance(param, str):
-            msg = f"exiting. expected str(), got {param}"
-            self.ndfc.log.error(msg)
-            sys.exit(1)
-        if len(param) > 20:
-            msg = f"exiting. expected <= 20 characters, got {param}"
-            self.ndfc.log.error(msg)
+        try:
+            params = {
+                "string": param,
+                "length": 20
+            }
+            self.validations._verify_string_length(params)
+        except (ValueError, TypeError, KeyError) as err:
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self._nv_pairs["LINK_STATE_ROUTING_TAG"] = param
 
@@ -2895,9 +2949,9 @@ class NdfcEasyFabric(NdfcFabric):
     @loopback0_ipv6_range.setter
     def loopback0_ipv6_range(self, param):
         try:
-            self.ndfc.verify_ipv6_network_range(param)
+            self.validations._verify_ipv6_network_range(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["LOOPBACK0_IPV6_RANGE"] = param
 
@@ -2916,9 +2970,9 @@ class NdfcEasyFabric(NdfcFabric):
     @loopback0_ip_range.setter
     def loopback0_ip_range(self, param):
         try:
-            self.ndfc.verify_ipv4_network_range(param)
+            self.validations._verify_ipv4_network_range(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["LOOPBACK0_IP_RANGE"] = param
 
@@ -2937,9 +2991,9 @@ class NdfcEasyFabric(NdfcFabric):
     @loopback1_ipv6_range.setter
     def loopback1_ipv6_range(self, param):
         try:
-            self.ndfc.verify_ipv6_network_range(param)
+            self.validations._verify_ipv6_network_range(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["LOOPBACK1_IPV6_RANGE"] = param
 
@@ -2958,9 +3012,9 @@ class NdfcEasyFabric(NdfcFabric):
     @loopback1_ip_range.setter
     def loopback1_ip_range(self, param):
         try:
-            self.ndfc.verify_ipv4_network_range(param)
+            self.validations._verify_ipv4_network_range(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["LOOPBACK1_IP_RANGE"] = param
 
@@ -2981,13 +3035,13 @@ class NdfcEasyFabric(NdfcFabric):
 
     @macsec_algorithm.setter
     def macsec_algorithm(self, param):
-        # TODO: move macsec_algorithm validation to ndfc_fabric.py
-        if param in self.valid["macsec_algorithm"]:
-            self._nv_pairs["MACSEC_ALGORITHM"] = param
-        msg = f"exiting. expected one of {self.valid['macsec_algorithm']}, "
-        msg += f"got {param}"
-        self.ndfc.log.error(msg)
-        sys.exit(1)
+        try:
+            self.validations._verify_macsec_algorithm(param)
+        except ValueError as err:
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
+            sys.exit(1)
+        self._nv_pairs["MACSEC_ALGORITHM"] = param
 
     @property
     def macsec_cipher_suite(self):
@@ -3015,7 +3069,7 @@ class NdfcEasyFabric(NdfcFabric):
             self._nv_pairs["MACSEC_CIPHER_SUITE"] = param
         msg = f"exiting. expected one of {self.valid['macsec_cipher_suite']}, "
         msg += f"got {param}"
-        self.ndfc.log.error(msg)
+        self.logger.error(msg)
         sys.exit(1)
 
     @property
@@ -3040,7 +3094,7 @@ class NdfcEasyFabric(NdfcFabric):
             self._nv_pairs["MACSEC_FALLBACK_ALGORITHM"] = param
         msg = f"exiting. expected one of {self.valid['macsec_algorithm']}, "
         msg += f"got {param}"
-        self.ndfc.log.error(msg)
+        self.logger.error(msg)
         sys.exit(1)
 
     @property
@@ -3111,7 +3165,11 @@ class NdfcEasyFabric(NdfcFabric):
         params["value"] = param
         params["min"] = 5
         params["max"] = 60
-        self.ndfc.verify_property_integer_range(params)
+        try:
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["MACSEC_REPORT_TIMER"] = param
 
     @property
@@ -3131,7 +3189,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     @mgmt_gw.setter
     def mgmt_gw(self, param):
-        self.ndfc.verify_ipv4_address(param)
+        self.validations._verify_ipv4_address(param)
         self._nv_pairs["MGMT_GW"] = param
 
     @property
@@ -3166,7 +3224,11 @@ class NdfcEasyFabric(NdfcFabric):
     @mgmt_prefix.setter
     def mgmt_prefix(self, param):
         params = {"item": "mgmt_prefix", "value": param, "min": 8, "max": 30}
-        self.ndfc.verify_property_integer_range(params)
+        try:
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["MGMT_PREFIX"] = param
 
     @property
@@ -3247,7 +3309,11 @@ class NdfcEasyFabric(NdfcFabric):
     @mpls_lb_id.setter
     def mpls_lb_id(self, param):
         params = {"item": "mpls_lb_id", "value": param, "min": 0, "max": 1023}
-        self.ndfc.verify_property_integer_range(params)
+        try:
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["MPLS_LB_ID"] = param
 
     @property
@@ -3269,9 +3335,9 @@ class NdfcEasyFabric(NdfcFabric):
     @mpls_loopback_ip_range.setter
     def mpls_loopback_ip_range(self, param):
         try:
-            self.ndfc.verify_ipv4_network_range(param)
+            self.validations._verify_ipv4_network_range(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["MPLS_LOOPBACK_IP_RANGE"] = param
 
@@ -3353,12 +3419,12 @@ class NdfcEasyFabric(NdfcFabric):
     def mst_instance_range(self, param):
         if not isinstance(param, list):
             msg = f"exiting. expected python list. Got {param}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         for mst_range in param:
             if not isinstance(mst_range, str):
                 msg = f"exiting. expected python list of str(). Got {param}"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
             if "-" in mst_range:
                 mst_params = {
@@ -3368,16 +3434,16 @@ class NdfcEasyFabric(NdfcFabric):
                     "caller": "mst_instance_range",
                 }
                 try:
-                    self.ndfc.verify_hypenated_range(mst_params)
+                    self.validations._verify_hypenated_range(mst_params)
                 except (ValueError, TypeError, KeyError) as err:
-                    self.ndfc.log.error(f"exiting. {err}")
+                    self.logger.error(f"exiting. {err}")
                     sys.exit(1)
             else:
                 try:
                     mst_range = int(mst_range)
                 except (ValueError, TypeError):
                     msg = f"exiting. {mst_range} not convertible to int()"
-                    self.ndfc.log.error(msg)
+                    self.logger.error(msg)
                     sys.exit(1)
                 params = {
                     "item": "mst_instance_range",
@@ -3385,7 +3451,11 @@ class NdfcEasyFabric(NdfcFabric):
                     "min": 0,
                     "max": 4094,
                 }
-                self.ndfc.verify_property_integer_range(params)
+                try:
+                    self.validations._verify_integer_range(params)
+                except (KeyError, TypeError, ValueError) as err:
+                    self.logger(f"exiting. {err}")
+                    sys.exit(1)
         self._nv_pairs["MST_INSTANCE_RANGE"] = ",".join(param)
 
     @property
@@ -3414,7 +3484,11 @@ class NdfcEasyFabric(NdfcFabric):
         params["value"] = param
         params["min"] = 0
         params["max"] = 1023
-        self.ndfc.verify_property_integer_range(params)
+        try:
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["PHANTOM_RP_LB_ID1"] = param
 
     @property
@@ -3443,7 +3517,11 @@ class NdfcEasyFabric(NdfcFabric):
         params["value"] = param
         params["min"] = 0
         params["max"] = 1023
-        self.ndfc.verify_property_integer_range(params)
+        try:
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["PHANTOM_RP_LB_ID2"] = param
 
     @property
@@ -3472,7 +3550,11 @@ class NdfcEasyFabric(NdfcFabric):
         params["value"] = param
         params["min"] = 0
         params["max"] = 1023
-        self.ndfc.verify_property_integer_range(params)
+        try:
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["PHANTOM_RP_LB_ID3"] = param
 
     @property
@@ -3501,7 +3583,11 @@ class NdfcEasyFabric(NdfcFabric):
         params["value"] = param
         params["min"] = 0
         params["max"] = 1023
-        self.ndfc.verify_property_integer_range(params)
+        try:
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["PHANTOM_RP_LB_ID4"] = param
 
     @property
@@ -3519,9 +3605,9 @@ class NdfcEasyFabric(NdfcFabric):
     @router_id_range.setter
     def router_id_range(self, param):
         try:
-            self.ndfc.verify_ipv4_network_range(param)
+            self.validations._verify_ipv4_network_range(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["ROUTER_ID_RANGE"] = param
 
@@ -3549,9 +3635,9 @@ class NdfcEasyFabric(NdfcFabric):
             "caller": "route_map_sequence_number_range",
         }
         try:
-            self.ndfc.verify_hypenated_range(params)
+            self.validations._verify_hypenated_range(params)
         except (ValueError, TypeError, KeyError) as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["ROUTE_MAP_SEQUENCE_NUMBER_RANGE"] = param
 
@@ -3575,9 +3661,9 @@ class NdfcEasyFabric(NdfcFabric):
     @rp_count.setter
     def rp_count(self, param):
         try:
-            self.verify_rp_count(param, "rp_count")
+            self.validations._verify_rp_count(param)
         except ValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["RP_COUNT"] = param
 
@@ -3596,7 +3682,11 @@ class NdfcEasyFabric(NdfcFabric):
     @rp_lb_id.setter
     def rp_lb_id(self, param):
         params = {"item": "rp_lb_id", "value": param, "min": 0, "max": 1023}
-        self.ndfc.verify_property_integer_range(params)
+        try:
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["RP_LB_ID"] = param
 
     @property
@@ -3618,9 +3708,9 @@ class NdfcEasyFabric(NdfcFabric):
     @rp_mode.setter
     def rp_mode(self, param):
         try:
-            self.verify_rp_mode(param, "rp_mode")
+            self.validations._verify_rp_mode(param)
         except ValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["RP_MODE"] = param
 
@@ -3639,9 +3729,9 @@ class NdfcEasyFabric(NdfcFabric):
     @rr_count.setter
     def rr_count(self, param):
         try:
-            self.verify_rr_count(param, "rr_count")
+            self.validations._verify_rr_count(param)
         except ValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["RR_COUNT"] = param
 
@@ -3724,7 +3814,7 @@ class NdfcEasyFabric(NdfcFabric):
         try:
             self.verify_stp_root_option(param, "stp_root_option")
         except ValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["STP_ROOT_OPTION"] = param
 
@@ -3749,12 +3839,12 @@ class NdfcEasyFabric(NdfcFabric):
     def stp_vlan_range(self, param):
         if not isinstance(param, list):
             msg = f"exiting. expected python list. Got {param}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         for stp_range in param:
             if not isinstance(stp_range, str):
                 msg = f"exiting. expected python list of str(). Got {param}"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
             if "-" in stp_range:
                 stp_params = {
@@ -3764,16 +3854,16 @@ class NdfcEasyFabric(NdfcFabric):
                     "caller": "stp_vlan_range",
                 }
                 try:
-                    self.ndfc.verify_hypenated_range(stp_params)
+                    self.validations._verify_hypenated_range(stp_params)
                 except (ValueError, TypeError, KeyError) as err:
-                    self.ndfc.log.error(f"exiting. {err}")
+                    self.logger.error(f"exiting. {err}")
                     sys.exit(1)
             else:
                 try:
                     stp_range = int(stp_range)
                 except (ValueError, TypeError):
                     msg = f"exiting. {stp_range} not convertible to int()"
-                    self.ndfc.log.error(msg)
+                    self.logger.error(msg)
                     sys.exit(1)
                 params = {
                     "item": "stp_vlan_range",
@@ -3781,7 +3871,11 @@ class NdfcEasyFabric(NdfcFabric):
                     "min": 0,
                     "max": 3967,
                 }
-                self.ndfc.verify_property_integer_range(params)
+                try:
+                    self.validations._verify_integer_range(params)
+                except (KeyError, TypeError, ValueError) as err:
+                    self.logger(f"exiting. {err}")
+                    sys.exit(1)
         self._nv_pairs["STP_VLAN_RANGE"] = ",".join(param)
 
     @property
@@ -3830,9 +3924,9 @@ class NdfcEasyFabric(NdfcFabric):
             "caller": "subinterface_range",
         }
         try:
-            self.ndfc.verify_hypenated_range(params)
+            self.validations._verify_hypenated_range(params)
         except (ValueError, TypeError, KeyError) as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["SUBINTERFACE_RANGE"] = param
 
@@ -3855,9 +3949,9 @@ class NdfcEasyFabric(NdfcFabric):
     @subnet_range.setter
     def subnet_range(self, param):
         try:
-            self.ndfc.verify_ipv4_network_range(param)
+            self.validations._verify_ipv4_network_range(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["SUBNET_RANGE"] = param
 
@@ -3881,7 +3975,11 @@ class NdfcEasyFabric(NdfcFabric):
         params["value"] = param
         params["min"] = 30
         params["max"] = 31
-        self.ndfc.verify_property_integer_range(params)
+        try:
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["SUBNET_TARGET_MASK"] = param
 
     @property
@@ -3907,18 +4005,18 @@ class NdfcEasyFabric(NdfcFabric):
     @syslog_server_ip_list.setter
     def syslog_server_ip_list(self, param):
         try:
-            self.ndfc.verify_list(param)
+            self.validations._verify_list(param)
         except TypeError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         for item in param:
-            if self.ndfc.is_ipv4_unicast_address(item):
+            if self.validations.is_ipv4_unicast_address(item):
                 continue
-            if self.ndfc.is_ipv6_unicast_address(item):
+            if self.validations.is_ipv6_unicast_address(item):
                 continue
             msg = "exiting. expected a python list of IPv4 and IPv6 unicast "
             msg += f"addresses. Got {param}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self._nv_pairs["SYSLOG_SERVER_IP_LIST"] = ",".join(param)
 
@@ -3948,9 +4046,9 @@ class NdfcEasyFabric(NdfcFabric):
     @syslog_server_vrf.setter
     def syslog_server_vrf(self, param):
         try:
-            self.ndfc.verify_list(param)
+            self.validations._verify_list(param)
         except TypeError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._nv_pairs["SYSLOG_SERVER_VRF"] = ",".join(param)
 
@@ -3979,14 +4077,14 @@ class NdfcEasyFabric(NdfcFabric):
     @syslog_sev.setter
     def syslog_sev(self, param):
         try:
-            self.ndfc.verify_list(param)
+            self.validations._verify_list(param)
         except TypeError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         for item in param:
             if not isinstance(item, int):
                 msg = f"exiting. expected list of integers. got {param}"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
         self._nv_pairs["SYSLOG_SEV"] = ",".join([str(x) for x in param])
 
@@ -4064,7 +4162,11 @@ class NdfcEasyFabric(NdfcFabric):
         params["value"] = param
         params["min"] = 0
         params["max"] = 1023
-        self.ndfc.verify_property_integer_range(params)
+        try:
+            self.validations._verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["UNNUM_BOOTSTRAP_LB_ID"] = param
 
     @property
@@ -4159,10 +4261,10 @@ class NdfcEasyFabric(NdfcFabric):
     @v6_subnet_range.setter
     def v6_subnet_range(self, param):
         try:
-            self.ndfc.verify_ipv6_network_range(param)
+            self.validations._verify_ipv6_network_range(param)
         except AddressValueError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
         self._nv_pairs["V6_SUBNET_RANGE"] = param
 
     @property

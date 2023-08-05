@@ -13,13 +13,17 @@ from ndfc_python.ndfc_device_info import NdfcDeviceInfo
 
 nc = NdfcCredentials()
 
-ndfc = NDFC(log("ndfc_discover_log", "INFO", "DEBUG"))
+logger = log("ndfc_device_info", "INFO", "DEBUG")
+ndfc = NDFC()
+ndfc.logger = logger
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
-instance = NdfcDeviceInfo(ndfc)
+instance = NdfcDeviceInfo()
+instance.ndfc = ndfc
+instance.logger = logger
 instance.fabric_name = "easy"
 for ipv4 in ["172.22.150.102", "172.22.150.103"]:
     instance.ip_address = ipv4

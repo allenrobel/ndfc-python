@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Name: ndfc_easy_fabric_ebgp.py
 Description: Create fabric using the NDFC Easy_Fabric_eBGP template
@@ -20,6 +19,7 @@ class NdfcEasyFabricEbgp(NdfcFabric):
     instance = NdfcEasyFabricEbgp(ndfc)
     instance.fabric_name = 'easy_fabric_ebgp_1'
     instance.bgp_as = 65011
+    instance.replication_mode = 'Ingress'
     instance.create()
 
     TODO: Need a delete() method

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Name: example_ndfc_fabric_site_easy_fabric_ebgp.py
+Name: example_ndfc_easy_fabric_ebgp.py
 Description: Create an eBGP-based fabric
 """
 from ndfc_python.log import log
@@ -9,8 +9,9 @@ from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_easy_fabric_ebgp import NdfcEasyFabricEbgp
 
 nc = NdfcCredentials()
-
-ndfc = NDFC(log("ndfc_easy_fabric_ebgp_log", "INFO", "DEBUG"))
+logger = log("ndfc_easy_fabric_ebgp_log", "INFO", "DEBUG")
+ndfc = NDFC()
+ndfc.logger = logger
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip

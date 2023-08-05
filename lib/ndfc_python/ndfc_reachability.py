@@ -42,7 +42,11 @@ import json
 import sys
 from ipaddress import AddressValueError
 
-OUR_VERSION = 105
+from ndfc_python.log import log
+from ndfc_python.ndfc import NdfcRequestError
+from ndfc_python.validations import Validations
+
+OUR_VERSION = 106
 
 
 class NdfcReachability:
@@ -54,7 +58,9 @@ class NdfcReachability:
 
     Example
 
-    instance = NdfcReachability(ndfc)
+    instance = NdfcReachability()
+    instance.logger = logger
+    instance.ndfc = ndfc
     instance.seed_ip = 'foo'
     instance.cdp_second_timeout = 10
     instance.username = 'admin'
@@ -64,10 +70,17 @@ class NdfcReachability:
 
     """
 
-    def __init__(self, ndfc):
+    def __init__(self):
         self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
-        self.ndfc = ndfc
+
+        self.validations = Validations()
+
+        # properties not passed to NDFC
+        # order is important for these three
+        self._internal_properties = {}
+        self._init_default_logger()
+        self._init_internal_properties()
 
         self.response = None
         self.status_code = None
@@ -76,6 +89,16 @@ class NdfcReachability:
         self._init_payload_set_mandatory()
         self._init_payload_default()
         self._init_payload()
+
+    def _init_internal_properties(self):
+        self._internal_properties["logger"] = self.logger
+        self._internal_properties["ndfc"] = None
+
+    def _init_default_logger(self):
+        """
+        This logger will be active if the user hasn't set self.logger 
+        """
+        self.logger = log('ndfc_policy_log')
 
     def _init_payload_set(self):
         """
@@ -110,8 +133,8 @@ class NdfcReachability:
         self.payload_default["maxHops"] = 0
         self.payload_default["preserveConfig"] = True
         self.payload_default["snmpV3AuthProtocol"] = 0
-        self.payload_default["username"] = self.ndfc.username
-        self.payload_default["password"] = self.ndfc.password
+        self.payload_default["username"] = ""
+        self.payload_default["password"] = ""
 
     def _init_payload(self):
         """
@@ -139,11 +162,13 @@ class NdfcReachability:
         """
         verify all mandatory parameters are set
         """
+        # TODO: If fabric is EasyFabric, and preserve_config is True
+        # need to throw an error and exit here.
         for param in self.payload_set_mandatory:
             if self.payload[param] == "":
                 msg = f"exiting. call instance.{param} before "
                 msg += "calling instance.create()"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
 
     def reachability(self):
@@ -156,9 +181,38 @@ class NdfcReachability:
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
         url += "inventory/test-reachability"
 
-        self.ndfc.post(url, self.ndfc.make_headers(), self.payload)
+        print(f'get payload: {self.payload}')
+        try:
+            self.ndfc.post(url, self.ndfc.make_headers(), self.payload)
+        except NdfcRequestError as err:
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
+            sys.exit(1)
         self.status_code = self.ndfc.response.status_code
         self.response = json.loads(self.ndfc.response.text)
+
+    # properties that are not passed to NDFC
+    @property
+    def logger(self):
+        """
+        return/set the current logger instance
+        """
+        return self._internal_properties["logger"]
+
+    @logger.setter
+    def logger(self, param):
+        self._internal_properties["logger"] = param
+
+    @property
+    def ndfc(self):
+        """
+        return/set the current ndfc instance
+        """
+        return self._internal_properties["ndfc"]
+
+    @ndfc.setter
+    def ndfc(self, param):
+        self._internal_properties["ndfc"] = param
 
     # top_level properties
     @property
@@ -170,7 +224,11 @@ class NdfcReachability:
 
     @cdp_second_timeout.setter
     def cdp_second_timeout(self, param):
-        self.ndfc.verify_digits(param, "cdp_second_timeout")
+        try:
+            self.validations._verify_digits(param)
+        except ValueError as err:
+            self.logger.error(f"exiting. {err}")
+            sys.exit(1)
         self.payload["cdpSecondTimeout"] = param
 
     @property
@@ -193,7 +251,11 @@ class NdfcReachability:
 
     @max_hops.setter
     def max_hops(self, param):
-        self.ndfc.verify_digits(param, "max_hops")
+        try:
+            self.validations._verify_digits(param)
+        except ValueError as err:
+            self.logger.error(f"exiting. {err}")
+            sys.exit(1)
         self.payload["maxHops"] = param
 
     @property
@@ -217,10 +279,10 @@ class NdfcReachability:
     @preserve_config.setter
     def preserve_config(self, param):
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.payload["preserveConfig"] = param
 
@@ -234,9 +296,9 @@ class NdfcReachability:
     @seed_ip.setter
     def seed_ip(self, param):
         try:
-            self.ndfc.verify_ipv4_address(param)
-        except AddressValueError:
-            self.ndfc.log.error("Exiting.")
+            self.validations._verify_ipv4_address(param)
+        except AddressValueError as err:
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self.payload["seedIP"] = param
 
@@ -249,7 +311,11 @@ class NdfcReachability:
 
     @snmp_v3_auth_protocol.setter
     def snmp_v3_auth_protocol(self, param):
-        self.ndfc.verify_digits(param, "snmp_v3_auth_protocol")
+        try:
+            self.validations._verify_digits(param)
+        except ValueError as err:
+            self.logger.error(f"exiting. {err}")
+            sys.exit(1)
         self.payload["snmpV3AuthProtocol"] = param
 
     @property

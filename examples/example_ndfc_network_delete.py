@@ -4,7 +4,7 @@ Name: example_ndfc_network_delete.py
 Description: Delete an NDFC network
 """
 from ndfc_python.log import log
-from ndfc_python.ndfc import NDFC
+from ndfc_python.ndfc_new import NDFC
 from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_network import NdfcNetwork
 

@@ -10,15 +10,19 @@ from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_easy_fabric import NdfcEasyFabric
 
 nc = NdfcCredentials()
+logger = log("ndfc_easy_fabric_log", "INFO", "DEBUG")
 
-ndfc = NDFC(log("ndfc_easy_fabric_log", "INFO", "DEBUG"))
+ndfc = NDFC()
+ndfc.logger = logger
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
-instance = NdfcEasyFabric(ndfc)
-instance.fabric_name = "Easy"
+instance = NdfcEasyFabric()
+instance.ndfc = ndfc
+instance.logger = logger
+instance.fabric_name = "easy_bootstrap"
 instance.bgp_as = 65001
 instance.bootstrap_enable = True
 instance.dhcp_enable = True

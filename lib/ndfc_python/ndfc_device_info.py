@@ -6,9 +6,11 @@ import json
 import sys
 from ipaddress import AddressValueError
 
+from ndfc_python.log import log
 from ndfc_python.ndfc import NdfcRequestError
+from ndfc_python.validations import Validations
 
-OUR_VERSION = 100
+OUR_VERSION = 101
 
 
 class NdfcDeviceInfo:
@@ -51,15 +53,19 @@ class NdfcDeviceInfo:
     from ndfc_python.ndfc_credentials import NdfcCredentials
     from ndfc_python.ndfc_device_info import NdfcDeviceInfo
 
+    logger = log("ndfc_device_info_log", "INFO", "DEBUG")
     nc = NdfcCredentials()
 
-    ndfc = NDFC(log("ndfc_device_info_log", "INFO", "DEBUG"))
+    ndfc = NDFC()
+    ndfc.logger = logger
     ndfc.username = nc.username
     ndfc.password = nc.password
     ndfc.ip4 = nc.ndfc_ip
     ndfc.login()
 
-    instance = NdfcDeviceInfo(ndfc)
+    instance = NdfcDeviceInfo()
+    instance.ndfc = ndfc
+    instance.logger = logger
     instance.fabric_name = "easy"
     instance.ip_address = "172.22.150.103"
     instance.refresh()
@@ -192,10 +198,16 @@ class NdfcDeviceInfo:
     ]
     """
 
-    def __init__(self, ndfc):
+    def __init__(self):
         self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
-        self.ndfc = ndfc
+
+        self.validations = Validations()
+
+        # order is important with these three
+        self._internal_properties = {}
+        self._init_default_logger()
+        self._init_internal_properties()
 
         # get base headers
         self.headers = {}
@@ -219,8 +231,6 @@ class NdfcDeviceInfo:
         # populated in self._populate_fabric_type() from within
         # self._final_verification()
         self._fabric_type = None
-        self._populate_raw_fabric_info()
-        self._populate_existing_fabric_names()
 
         # populated in self._populate_device_info()
         self._device_info = {}
@@ -340,6 +350,23 @@ class NdfcDeviceInfo:
             "operStatus",
         }
 
+    def verify_ndfc_is_set(self):
+        if self.ndfc is None:
+            msg = "exiting. instance.ndfc is not set.  "
+            msg += "Call instance.ndfc = <ndfc instance> to interact with "
+            msg += "your NDFC."
+            raise AttributeError(msg)
+
+    def _init_default_logger(self):
+        """
+        This logger will be active if the user hasn't set self.logger 
+        """
+        self.logger = log('ndfc_device_info_log')
+
+    def _init_internal_properties(self):
+        self._internal_properties["logger"] = self.logger
+        self._internal_properties["ndfc"] = None
+
     def _init_property_set(self):
         """
         Initialize a set containing all public read-write
@@ -373,12 +400,19 @@ class NdfcDeviceInfo:
         1. Verify all mandatory parameters have been set
         2. Populate vars and structures needed by self.refresh()
         """
+        try:
+            self.verify_ndfc_is_set()
+        except AttributeError as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         for key in self._property_mandatory_set:
             if self._properties[key] is None:
                 msg = f"exiting. call instance.{key} "
                 msg += "before calling instance.refresh()"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
+        self._populate_raw_fabric_info()
+        self._populate_existing_fabric_names()
         try:
             self._verify_fabric_exists()
         except ValueError as err:
@@ -415,6 +449,7 @@ class NdfcDeviceInfo:
 
         If unsuccessful, exit with error
         """
+        self.verify_ndfc_is_set()
         try:
             self._raw_fabric_info = self.ndfc.get(
                 self.ndfc.url_control_fabrics, self.ndfc.make_headers()
@@ -423,7 +458,7 @@ class NdfcDeviceInfo:
             msg = "exiting. unable to populate fabric "
             msg += f"information via url {self.ndfc.url_control_fabrics}. "
             msg += f"exception detail: {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
     def _populate_existing_fabric_names(self):
@@ -482,7 +517,7 @@ class NdfcDeviceInfo:
             self._final_verification()
         except ValueError as err:
             msg = f"final verification failed. detail: {err}"
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
 
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
@@ -494,13 +529,13 @@ class NdfcDeviceInfo:
         if self._status_code != 200:
             msg = f"exiting. got non-200 status code {self._status_code} "
             msg += f"for url {url}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
         try:
             self._verify_inventory_switches_by_fabric(self._response)
         except (TypeError, KeyError) as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            self.logger.error(f"exiting. {err}")
             sys.exit(1)
         self._switches_by_fabric = self._response
 
@@ -508,8 +543,31 @@ class NdfcDeviceInfo:
             self._populate_device_info()
         except ValueError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
+
+    # properties that are not passed to NDFC
+    @property
+    def logger(self):
+        """
+        return/set the current logger instance
+        """
+        return self._internal_properties["logger"]
+
+    @logger.setter
+    def logger(self, param):
+        self._internal_properties["logger"] = param
+
+    @property
+    def ndfc(self):
+        """
+        return/set the current ndfc instance
+        """
+        return self._internal_properties["ndfc"]
+
+    @ndfc.setter
+    def ndfc(self, param):
+        self._internal_properties["ndfc"] = param
 
     # Public read-write properties
     @property
@@ -533,9 +591,9 @@ class NdfcDeviceInfo:
     @ip_address.setter
     def ip_address(self, param):
         try:
-            self.ndfc.verify_ipv4_address(param)
+            self.validations._verify_ipv4_address(param)
         except AddressValueError:
-            self.ndfc.log.error("Exiting.")
+            self.logger.error("Exiting.")
             sys.exit(1)
         self._properties["ip_address"] = param
 

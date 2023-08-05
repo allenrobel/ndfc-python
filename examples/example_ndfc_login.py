@@ -10,8 +10,11 @@ from ndfc_python.ndfc import NDFC
 from ndfc_python.ndfc_credentials import NdfcCredentials
 
 nc = NdfcCredentials()
-ndfc = NDFC(log("ndfc_login_log", "INFO", "DEBUG"))
+logger = log("ndfc_login_log", "INFO", "DEBUG")
+
+ndfc = NDFC()
 ndfc.ip4 = nc.ndfc_ip
+ndfc.logger = logger
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.login()

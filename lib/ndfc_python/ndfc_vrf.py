@@ -6,7 +6,10 @@ import json
 import sys
 from ipaddress import AddressValueError
 
-OUR_VERSION = 103
+from ndfc_python.log import log
+from ndfc_python.validations import Validations
+
+OUR_VERSION = 104
 
 
 class NdfcVrf:
@@ -14,10 +17,17 @@ class NdfcVrf:
     Create VRFs
     """
 
-    def __init__(self, ndfc):
+    def __init__(self):
         self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
-        self.ndfc = ndfc
+
+        self.validations = Validations()
+
+        # properties not passed to NDFC
+        # order is important for these three
+        self._internal_properties = {}
+        self._init_default_logger()
+        self._init_internal_properties()
 
         # post/get base headers
         self._headers = {}
@@ -96,6 +106,24 @@ class NdfcVrf:
         self._init_payload()
         self._init_vrf_template_config()
 
+    def _init_default_logger(self):
+        """
+        This logger will be active if the user hasn't set self.logger 
+        """
+        self.logger = log('ndfc_vrf_log')
+
+    def _init_internal_properties(self):
+        self._internal_properties["logger"] = self.logger
+        self._internal_properties["ndfc"] = None
+
+    def verify_ndfc_is_set(self):
+        if self.ndfc is None:
+            msg = "exiting. instance.ndfc is not set.  "
+            msg += "Call instance.ndfc = <ndfc instance> to interact with "
+            msg += "your NDFC."
+            self.logger.error(msg)
+            sys.exit(1)
+
     def _init_payload(self):
         """
         initialize the REST payload
@@ -139,22 +167,24 @@ class NdfcVrf:
         verify all mandatory parameters are set and that
         self.vrf does not already exist in self.fabric
         """
+        self.verify_ndfc_is_set()
+
         for param in self.mandatory_payload_set:
             if self.payload[param] == "":
                 msg = f"Exiting. call instance.{param} before calling "
                 msg += "instance.post()"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
         for param in self.mandatory_template_config_set:
             if self.template_config[param] == "":
                 msg = f"Exiting. call instance.{param} before calling "
                 msg += "instance.post()"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
         if self.vrf_exists_in_fabric():
             msg = f"Exiting. VRF {self.vrf_name} already exists in "
             msg += f"fabric {self.fabric}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
     def post(self):
@@ -194,6 +224,29 @@ class NdfcVrf:
                 continue
             return True
         return False
+
+    # properties that are not passed to NDFC
+    @property
+    def logger(self):
+        """
+        return/set the current logger instance
+        """
+        return self._internal_properties["logger"]
+
+    @logger.setter
+    def logger(self, param):
+        self._internal_properties["logger"] = param
+
+    @property
+    def ndfc(self):
+        """
+        return/set the current ndfc instance
+        """
+        return self._internal_properties["ndfc"]
+
+    @ndfc.setter
+    def ndfc(self, param):
+        self._internal_properties["ndfc"] = param
 
     # top_level properties
     @property
@@ -296,10 +349,10 @@ class NdfcVrf:
     @advertise_host_route_flag.setter
     def advertise_host_route_flag(self, param):
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["advertiseHostRouteFlag"] = param
 
@@ -314,10 +367,10 @@ class NdfcVrf:
     @advertise_default_route_flag.setter
     def advertise_default_route_flag(self, param):
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["advertiseDefaultRouteFlag"] = param
 
@@ -342,9 +395,9 @@ class NdfcVrf:
     @bgp_password_key_type.setter
     def bgp_password_key_type(self, param):
         try:
-            self.ndfc.verify_bgp_password_key_type(param)
+            self.validations._verify_bgp_password_key_type(param)
         except ValueError as err:
-            self.ndfc.log.error(f"exiting, {err}")
+            self.logger.error(f"exiting, {err}")
             sys.exit(1)
         self.template_config["bgpPasswordKeyType"] = param
 
@@ -359,10 +412,10 @@ class NdfcVrf:
     @configure_static_default_route_flag.setter
     def configure_static_default_route_flag(self, param):
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["configureStaticDefaultRouteFlag"] = param
 
@@ -376,10 +429,10 @@ class NdfcVrf:
     @enable_netflow.setter
     def enable_netflow(self, param):
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["ENABLE_NETFLOW"] = param
 
@@ -393,10 +446,10 @@ class NdfcVrf:
     @ipv6_link_local_flag.setter
     def ipv6_link_local_flag(self, param):
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["ipv6LinkLocalFlag"] = param
 
@@ -410,10 +463,10 @@ class NdfcVrf:
     @is_rp_external.setter
     def is_rp_external(self, param):
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["isRPExternal"] = param
 
@@ -427,10 +480,10 @@ class NdfcVrf:
     @l3_vni_mcast_group.setter
     def l3_vni_mcast_group(self, param):
         try:
-            self.ndfc.verify_ipv4_multicast_address(param)
+            self.validations._verify_ipv4_multicast_address(param)
         except AddressValueError as err:
             msg = f"exiting. l3_vni_mcast_group, {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["L3VniMcastGroup"] = param
 
@@ -444,10 +497,10 @@ class NdfcVrf:
     @loopback_number.setter
     def loopback_number(self, param):
         try:
-            self.ndfc.verify_loopback_id(param)
+            self.validations._verify_loopback_id(param)
         except ValueError as err:
             msg = f"exiting. loopback_number, {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["loopbackNumber"] = param
 
@@ -461,10 +514,10 @@ class NdfcVrf:
     @max_bgp_paths.setter
     def max_bgp_paths(self, param):
         try:
-            self.ndfc.verify_max_bgp_paths(param)
+            self.validations._verify_max_bgp_paths(param)
         except ValueError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["maxBgpPaths"] = param
 
@@ -478,10 +531,10 @@ class NdfcVrf:
     @max_ibgp_paths.setter
     def max_ibgp_paths(self, param):
         try:
-            self.ndfc.verify_max_bgp_paths(param)
+            self.validations._verify_max_bgp_paths(param)
         except ValueError as err:
             msg = f"exiting. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["maxIbgpPaths"] = param
 
@@ -495,10 +548,10 @@ class NdfcVrf:
     @multicast_group.setter
     def multicast_group(self, param):
         try:
-            self.ndfc.verify_ipv4_multicast_address(param)
+            self.validations._verify_ipv4_multicast_address(param)
         except AddressValueError as err:
             msg = f"exiting. multicast_group, {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["multicastGroup"] = param
 
@@ -512,10 +565,10 @@ class NdfcVrf:
     @mtu.setter
     def mtu(self, param):
         try:
-            self.ndfc.verify_mtu(param)
+            self.validations._verify_mtu(param)
         except ValueError as err:
             msg = f"exiting. mtu, {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["mtu"] = param
 
@@ -540,10 +593,10 @@ class NdfcVrf:
     @nve_id.setter
     def nve_id(self, param):
         try:
-            self.ndfc.verify_nve_id(param)
+            self.validations._verify_nve_id(param)
         except ValueError as err:
             msg = f"exiting. nve_id, {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["nveId"] = param
 
@@ -557,10 +610,10 @@ class NdfcVrf:
     @rp_address.setter
     def rp_address(self, param):
         try:
-            self.ndfc.verify_ipv4_address(param)
+            self.validations._verify_ipv4_address(param)
         except AddressValueError as err:
             msg = f"exiting. rp_address, {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["rpAddress"] = param
 
@@ -574,10 +627,10 @@ class NdfcVrf:
     @tag.setter
     def tag(self, param):
         try:
-            self.ndfc.verify_routing_tag(param)
+            self.validations._verify_routing_tag(param)
         except ValueError as err:
             msg = f"exiting. tag, {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["tag"] = param
 
@@ -591,10 +644,10 @@ class NdfcVrf:
     @trm_bgw_msite_enabled.setter
     def trm_bgw_msite_enabled(self, param):
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. trm_bgw_msite_enabled, {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["trmBGWMSiteEnabled"] = param
 
@@ -608,10 +661,10 @@ class NdfcVrf:
     @trm_enabled.setter
     def trm_enabled(self, param):
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. trm_enabled, {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["trmEnabled"] = param
 
@@ -658,10 +711,10 @@ class NdfcVrf:
     @vrf_vlan_id.setter
     def vrf_vlan_id(self, param):
         try:
-            self.ndfc.verify_vrf_vlan_id(param)
+            self.validations._verify_vrf_vlan_id(param)
         except ValueError as err:
             msg = f"exiting. vrf_vlan_id, {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["vrfVlanId"] = param
 

@@ -9,13 +9,17 @@ from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_policy import NdfcPolicy
 
 nc = NdfcCredentials()
-ndfc = NDFC(log("ndfc_policy_create_log", "INFO", "DEBUG"))
+logger = log("ndfc_policy_create_log", "INFO", "DEBUG")
+ndfc = NDFC()
+ndfc.logger = logger
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
-instance = NdfcPolicy(ndfc)
+instance = NdfcPolicy()
+instance.logger = logger
+instance.ndfc = ndfc
 instance.description = "TelemetryDst_EF policy"
 instance.entity_type = "SWITCH"
 instance.entity_name = "SWITCH"

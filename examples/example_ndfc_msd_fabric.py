@@ -9,14 +9,18 @@ from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_msd_fabric import NdfcMsdFabric
 
 nc = NdfcCredentials()
+logger = log("ndfc_msd_fabric_log", "INFO", "DEBUG")
 
-ndfc = NDFC(log("ndfc_msd_fabric_log", "INFO", "DEBUG"))
+ndfc = NDFC()
+ndfc.logger = logger
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
-instance = NdfcMsdFabric(ndfc)
+instance = NdfcMsdFabric()
+instance.logger = logger
+instance.ndfc = ndfc
 instance.fabric_name = "msd_1"
 
 # This defaults to 10.10.0.0/24.

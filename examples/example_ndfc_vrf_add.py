@@ -8,16 +8,21 @@ from ndfc_python.ndfc import NDFC
 from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_vrf import NdfcVrf
 
+logger = log("ndfc_vrf_add_log", "INFO", "DEBUG")
 nc = NdfcCredentials()
-ndfc = NDFC(log("ndfc_vrf_add_log", "INFO", "DEBUG"))
+
+ndfc = NDFC()
+ndfc.logger = logger
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
-instance = NdfcVrf(ndfc)
+instance = NdfcVrf()
+instance.logger = logger
+instance.ndfc = ndfc
 instance.display_name = "foo_vrf"
-instance.fabric = "MSD"
+instance.fabric = "easy"
 instance.vrf_id = 50055
 instance.vrf_name = "foo_vrf"
 instance.vrf_vlan_id = 2006

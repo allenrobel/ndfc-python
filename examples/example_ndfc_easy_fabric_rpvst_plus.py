@@ -9,15 +9,18 @@ from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_easy_fabric import NdfcEasyFabric
 
 nc = NdfcCredentials()
-
-ndfc = NDFC(log("ndfc_easy_fabric_log", "INFO", "DEBUG"))
+logger = log("ndfc_easy_fabric_log", "INFO", "DEBUG")
+ndfc = NDFC()
+ndfc.logger = logger
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
-instance = NdfcEasyFabric(ndfc)
-instance.fabric_name = "rpvst_plus"
+instance = NdfcEasyFabric()
+instance.logger = logger
+instance.ndfc = ndfc
+instance.fabric_name = "easy_rpvst_plus"
 instance.bgp_as = 65001
 instance.stp_root_option = "rpvst+"
 instance.stp_vlan_range = ["1-3967"]

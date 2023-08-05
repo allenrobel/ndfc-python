@@ -12,10 +12,11 @@ from ndfc_python.log import Log
 from ndfc_python.ndfc import NDFC
 
 log = Log('example_log', 'INFO', 'DEBUG') # INFO to screen, DEBUG to file
-ndfc = NDFC(log)
+ndfc = NDFC()
 ndfc.username = "my_username"
 ndfc.password = "my_password"
 ndfc.ip4 = nc.ndfc_ip
+ndfc.logger = log
 ndfc.login()
 """
 import json
@@ -23,9 +24,9 @@ import sys
 
 import requests
 import urllib3
-from ndfc_python.common import Common
+from ndfc_python.validations import Validations
 
-OUR_VERSION = 104
+OUR_VERSION = 105
 
 
 class NdfcRequestError(Exception):
@@ -35,26 +36,37 @@ class NdfcRequestError(Exception):
     """
 
 
-class NDFC(Common):
+class NDFC:
     """
     Methods to login to an NDFC controller and perform get, post, put,
-    and delete operations
+    and delete operations.
+
+    Usage:
+
+    from ndfc_python.log import Log
+    from ndfc_python.ndfc import NDFC
+
+    logger = Log('example_log', 'INFO', 'DEBUG')
+    ndfc = NDFC()
+    ndfc.username = "my_username"
+    ndfc.password = "my_password"
+    ndfc.ip4 = nc.ndfc_ip
+    ndfc.log = logger
+    ndfc.login()
     """
 
-    def __init__(self, log):
-        super().__init__(log)
+    def __init__(self):
         self.lib_version = OUR_VERSION
-        self.log = log
         self.requests_timeout = 20
         self.headers = {}
         self.response = None
         self.auth_token = None
         self.bearer_token = None
-
         self.properties_set = set()
         self.properties_set.add("username")
         self.properties_set.add("password")
         self.properties_set.add("ip4")
+        self.properties_set.add("logger")
         self.init_properties()
 
     def init_properties(self):
@@ -71,8 +83,9 @@ class NDFC(Common):
         """
         for key, value in self.properties.items():
             if value is None:
-                msg = f"Exit. Set property {key} before calling login."
-                self.log.error(msg)
+                msg = f"exiting. Set property {key} before calling login."
+                # can't use logger here since it may not be set yet
+                print(msg)
                 sys.exit(1)
         urllib3.disable_warnings()
         payload = {}
@@ -94,7 +107,7 @@ class NDFC(Common):
         if "jwttoken" not in response:
             msg = "Exiting. Response missing jwttoken in response. "
             msg += "Check password or username?"
-            self.log.error(msg)
+            self.logger.error(msg)
             self._log_error(self.url_login, "POST")
             sys.exit(1)
         self.auth_token = response["jwttoken"]
@@ -115,21 +128,21 @@ class NDFC(Common):
         """
         msg = f"{request_type} response from NDFC controller during {url}"
         msg += f" response.status_code: {self.response.status_code}"
-        self.log.error(msg)
+        self.logger.error(msg)
         try:
             msg = (
                 f"response.reason: {self.response.reason}"
                 f" response.text: {self.response.text}"
             )
-            self.log.error(msg)
+            self.logger.error(msg)
         except ValueError as exception:
             msg = f"Error while logging response for {url}. "
             msg += f"Exception detail {exception}"
-            self.log.error(msg)
+            self.logger.error(msg)
         except AttributeError as exception:
             msg = f"Error while logging response for {url}. "
             msg += f"Exception detail {exception}"
-            self.log.error(msg)
+            self.logger.error(msg)
 
     def get(self, url, headers=None, params=None, verify=False):
         """
@@ -153,18 +166,18 @@ class NDFC(Common):
         except requests.ConnectTimeout as exception:
             msg = f"Exiting. Timed out connecting to {url} "
             msg += f"Exception detail: {exception}"
-            self.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         except requests.ConnectionError as exception:
             msg = f"Exiting. Unable to connect to {url} "
             msg += f"Exception detail: {exception}"
-            self.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         if self.response.status_code != 200:
             msg = f"status {self.response.status_code} for {request_type} "
             msg += f"url {url}"
             raise NdfcRequestError(msg)
-        self.log.debug(f"{request_type} succeeded {url}")
+        self.logger.debug(f"{request_type} succeeded {url}")
         return self.response.json()
 
     def post(self, url, headers, payload=None):
@@ -187,18 +200,18 @@ class NDFC(Common):
         except requests.ConnectTimeout as exception:
             msg = f"Exiting. Timed out connecting to {url} "
             msg += f"Exception detail: {exception}"
-            self.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         except requests.ConnectionError as exception:
             msg = f"Exiting. Unable to connect to {url} "
             msg += f"Exception detail: {exception}"
-            self.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         if self.response.status_code != 200:
             msg = f"status_code {self.response.status_code} "
             msg += f"for {request_type} url {url}"
             raise NdfcRequestError(msg)
-        self.log.debug(f"{request_type} succeeded {url}")
+        self.logger.debug(f"{request_type} succeeded {url}")
         return True
 
     def put(self, url, headers, payload=None):
@@ -219,12 +232,12 @@ class NDFC(Common):
         except requests.ConnectTimeout as exception:
             msg = f"Exiting. Timed out connecting to {url} "
             msg += f"Exception detail: {exception}"
-            self.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         except requests.ConnectionError as exception:
             msg = f"Exiting. Unable to connect to {url} "
             msg += f"Exception detail: {exception}"
-            self.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         if self.response.status_code != 200:
             msg = f"Status {self.response.status_code} during {request_type}"
@@ -247,24 +260,36 @@ class NDFC(Common):
         except requests.exceptions.InvalidSchema as exception:
             msg = f"Exiting. error connecting to {url} "
             msg += f"Exception detail: {exception}"
-            self.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         except requests.ConnectTimeout as exception:
             msg = f"Exiting. Timed out connecting to {url} "
             msg += f"Exception detail: {exception}"
-            self.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         except requests.ConnectionError as exception:
             msg = f"Exiting. Unable to connect to {url} "
             msg = f"Exception detail: {exception}"
-            self.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         if self.response.status_code != 200:
             self._log_error(url, request_type)
             msg = f"request response {self.response}"
             raise NdfcRequestError(msg)
         msg = f"{request_type} succeeded {url} response {self.response}"
-        self.log.debug(msg)
+        self.logger.debug(msg)
+
+    @property
+    def logger(self):
+        """
+        return the current logger instance
+        """
+        return self.properties["logger"]
+
+    @logger.setter
+    def logger(self, param):
+        # TODO: add verification
+        self.properties["logger"] = param
 
     @property
     def username(self):
@@ -305,7 +330,7 @@ class NDFC(Common):
         Return the base URL for the NDFC controller
         """
         if self.ip4 is None:
-            self.log.error(
+            self.logger.error(
                 "Exit. Set instance.i4 before calling NDFC() url properties."
             )
         return f"https://{self.ip4}"

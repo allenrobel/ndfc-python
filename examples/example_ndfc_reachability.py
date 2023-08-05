@@ -9,23 +9,27 @@ from ndfc_python.ndfc import NDFC
 from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_reachability import NdfcReachability
 
+logger = log("ndfc_reachability_log", "INFO", "DEBUG")
 nc = NdfcCredentials()
-ndfc = NDFC(log("ndfc_reachability_log", "INFO", "DEBUG"))
-ndfc.username = nc.username
-ndfc.password = nc.password
+ndfc = NDFC()
 ndfc.ip4 = nc.ndfc_ip
+ndfc.logger = logger
+ndfc.password = nc.password
+ndfc.username = nc.username
 ndfc.login()
 
-instance = NdfcReachability(ndfc)
-instance.seed_ip = "10.1.1.1"
-instance.fabric_name = "f1"
-instance.max_hops = 1
-instance.cdp_second_timeout = 5
-# Note: NdfcReachability() populates username and password
-# from the passed ndfc instance.  But, you can override these
-# values with the following properties if need be.
-# instance.username = nc.discover_username
-# instance.password = nc.discover_password
+instance = NdfcReachability()
+instance.logger = logger
+instance.ndfc = ndfc
+instance.seed_ip = "172.22.150.113"
+instance.fabric_name = "easy"
+# for EasyFabric, if overlay_mode is "config-profile"
+# it's recommended that preserve_config is set to False
+instance.preserve_config = False
+instance.max_hops = 0
+#instance.cdp_second_timeout = 5
+instance.username = nc.discover_username
+instance.password = nc.discover_password
 instance.reachability()
 print(f"status_code {instance.status_code}")
 print(f"response {instance.response}")

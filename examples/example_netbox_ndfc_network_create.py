@@ -21,7 +21,7 @@ https://github.com/allenrobel/netbox-tools
 to the NDFC controller and once for access to your Netbox instance.
 """
 from ndfc_python.log import log
-from ndfc_python.ndfc import NDFC
+from ndfc_python.ndfc_new import NDFC
 from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_network import NdfcNetwork
 from netbox_tools.common import netbox

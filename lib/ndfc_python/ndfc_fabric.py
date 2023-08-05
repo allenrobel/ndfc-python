@@ -4,38 +4,56 @@ Description: superclass inherited by the other fabric classes in this repo
 """
 import sys
 
+from ndfc_python.log import log
 from ndfc_python.ndfc import NdfcRequestError
+from ndfc_python.validations import Validations
 
-OUR_VERSION = 103
+OUR_VERSION = 104
 
 
 class NdfcFabric:
     """
     superclass inherited by the other fabric classes in this repo.
 
-    Requires one parameter; an instance of NDFC() (see ndfc.py
-    in this directory)
-
     Example usage:
 
-    from ndfc_python.log import Log
+    from ndfc_python.log import log
     from ndfc_python.ndfc import NDFC
+    from ndfc_python.ndfc_fabric import NdfcFabric
 
-    log = Log('example_log', 'INFO', 'DEBUG') # INFO to screen, DEBUG to file
+    # INFO to screen, DEBUG to file
+    logger = log('example_log', 'INFO', 'DEBUG')
     ndfc = NDFC()
+    ndfc.log = logger
+    ndfc.username = "admin"
+    ndfc.password = "mypassword"
+    ndfc.login()
 
     class MyNewNdfcFabricType(NdfcFabric):
-        def __init__(self, ndfc):
-            super().__init__(ndfc)
+        def __init__(self):
+            super().__init__()
         etc...
+
+    fabric = MyNewNdfcFabricType()
+    fabric.logger = logger
+    fabric.ndfc = ndfc
+    etc...
 
     TODO: Need a delete() method
     """
 
-    def __init__(self, ndfc):
+    def __init__(self):
         self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
-        self.ndfc = ndfc
+
+        self.validations = Validations()
+
+        # properties not passed to NDFC
+        # order is important for these three
+        self._internal_properties = {}
+        self._init_default_logger()
+        self._init_internal_properties()
+
         # See self._get_fabric_info()
         self.fabric_info = {}
         # See self._get_fabric_info()
@@ -79,6 +97,16 @@ class NdfcFabric:
         self.valid["rp_mode"] = {"asm", "bidir"}
         self.valid["stp_root_option"] = {"mst", "rpvst+", "unmanaged"}
 
+    def _init_default_logger(self):
+        """
+        This logger will be active if the user hasn't set self.logger 
+        """
+        self.logger = log('ndfc_fabric_log')
+
+    def _init_internal_properties(self):
+        self._internal_properties["logger"] = self.logger
+        self._internal_properties["ndfc"] = None
+
     def _init_properties_default(self):
         """
         Initialize default properties
@@ -99,6 +127,17 @@ class NdfcFabric:
         """
         self._properties_mandatory_set = set()
         self._properties_mandatory_set.add("fabricName")
+
+    def _init_properties(self):
+        """
+        Initialize all properties
+        """
+        self._properties = {}
+        for param in self._properties_set:
+            if param in self._properties_default:
+                self._properties[param] = self._properties_default[param]
+            else:
+                self._properties[param] = ""
 
     def _init_ndfc_params_default(self):
         """
@@ -121,11 +160,6 @@ class NdfcFabric:
         self._ndfc_params_mandatory_set = set()
         self._ndfc_params_mandatory_set.add("fabricName")
 
-    def _init_nv_pairs_default(self):
-        """
-        Initialize a dictionary containing default values for nv pairs
-        """
-        self._nv_pairs_default = {}
 
     def _init_ndfc_params(self):
         """
@@ -135,6 +169,12 @@ class NdfcFabric:
         self._ndfc_params = self._ndfc_params_default
         for item in self._ndfc_params_mandatory_set:
             self._ndfc_params[item] = ""
+
+    def _init_nv_pairs_default(self):
+        """
+        Initialize a dictionary containing default values for nv pairs
+        """
+        self._nv_pairs_default = {}
 
     def _init_nv_pairs_set(self):
         """
@@ -148,16 +188,6 @@ class NdfcFabric:
         """
         self._nv_pairs_mandatory_set = set()
 
-    def _init_properties(self):
-        """
-        Initialize all properties
-        """
-        self._properties = {}
-        for param in self._properties_set:
-            if param in self._properties_default:
-                self._properties[param] = self._properties_default[param]
-            else:
-                self._properties[param] = ""
 
     def _init_nv_pairs(self):
         """
@@ -189,51 +219,11 @@ class NdfcFabric:
         Else, exit with error message including caller.
         """
         try:
-            self.ndfc.verify_boolean(param)
+            self.validations._verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {caller}, not expected type. {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
-
-    def verify_rp_count(self, param, caller=""):
-        """
-        verify rp_count conforms to NDFC's expectations
-        """
-        if param in self.valid["rp_count"]:
-            return
-        msg = f"exiting. {caller}, expected an integer with value in: "
-        msg += f"{self.valid['rp_count']}. Got {param}"
-        raise ValueError(msg)
-
-    def verify_rp_mode(self, param, caller=""):
-        """
-        verify rp_mode conforms to NDFC's expectations
-        """
-        if param in self.valid["rp_mode"]:
-            return
-        msg = f"exiting. {caller}, expected string with value in: "
-        msg += f"{self.valid['rp_mode']}. Got {param}"
-        raise ValueError(msg)
-
-    def verify_rr_count(self, param, caller=""):
-        """
-        verify rr_count conforms to NDFC's expectations
-        """
-        if param in self.valid["rr_count"]:
-            return
-        msg = f"exiting. {caller}, expected an integer with value in: "
-        msg += f"{self.valid['rr_count']}. Got {param}"
-        raise ValueError(msg)
-
-    def verify_stp_root_option(self, param, caller=""):
-        """
-        verify stp_root_option conforms to NDFC's expectations
-        """
-        if param in self.valid["stp_root_option"]:
-            return
-        msg = f"exiting. {caller}, expected string with value in: "
-        msg += f"{self.valid['stp_root_option']}. Got {param}"
-        raise ValueError(msg)
 
     def _get_fabric_info(self):
         """
@@ -243,11 +233,12 @@ class NdfcFabric:
         populate set self.fabric_names with the names of
         all fabrics on the NDFC
         """
+        self.verify_ndfc_is_set()
         url = self.ndfc.url_control_fabrics
         try:
             self.fabric_info = self.ndfc.get(url, self.ndfc.make_headers())
         except NdfcRequestError as err:
-            self.ndfc.log.error(f"error: {err}")
+            self.logger.error(f"error: {err}")
             sys.exit(1)
         for item in self.fabric_info:
             if "fabricName" in item:
@@ -263,12 +254,21 @@ class NdfcFabric:
             return True
         return False
 
+    def verify_ndfc_is_set(self):
+        if self.ndfc is None:
+            msg = "exiting. instance.ndfc is not set.  "
+            msg += "Call instance.ndfc = <ndfc instance> to interact with "
+            msg += "your NDFC."
+            self.logger.error(msg)
+            sys.exit(1)
+
     def create(self):
         """
         Create a fabric
 
         raise ValueError if bearer_token is not provided
         """
+        self.verify_ndfc_is_set()
         self._preprocess_properties()
         self._final_verification()
         if self.ndfc.bearer_token is None:
@@ -284,26 +284,50 @@ class NdfcFabric:
         except NdfcRequestError as err:
             msg = f"error creating fabric {self.fabric_name} "
             msg += f"error detail: {err}"
-            self.ndfc.log.error(f"exiting. {msg}")
+            self.logger.error(f"exiting. {msg}")
             sys.exit(1)
 
     def config_save(self):
         """
         Send validated POST request to the NDFC config-save endpoint.
         """
+        self.verify_ndfc_is_set()
         if self.fabric_name is None:
             msg = "exiting. Set instance.fabric_name before calling "
             msg += "instance.config_save()."
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         if self.ndfc.bearer_token is None:
             msg = "exiting. Call ndfc_instance.login() before calling "
             msg += "confg_save()"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}/config-save"
         self.ndfc.post(url, self.ndfc.make_headers(), {})
-        self.ndfc.log.info(f"{self.fabric_name}: config_save complete.")
+        self.logger.info(f"{self.fabric_name}: config_save complete.")
+
+    # properties that are not passed to NDFC
+    @property
+    def logger(self):
+        """
+        return/set the current logger instance
+        """
+        return self._internal_properties["logger"]
+
+    @logger.setter
+    def logger(self, param):
+        self._internal_properties["logger"] = param
+
+    @property
+    def ndfc(self):
+        """
+        return/set the current ndfc instance
+        """
+        return self._internal_properties["ndfc"]
+
+    @ndfc.setter
+    def ndfc(self, param):
+        self._internal_properties["ndfc"] = param
 
     # top_level properties
     @property

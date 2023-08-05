@@ -13,16 +13,20 @@ from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_discover import NdfcDiscover
 from ndfc_python.ndfc_fabric import NdfcFabric
 
+logger = log("ndfc_discover_log", "INFO", "DEBUG")
 nc = NdfcCredentials()
 
-ndfc = NDFC(log("ndfc_discover_log", "INFO", "DEBUG"))
-ndfc.username = nc.username
-ndfc.password = nc.password
+ndfc = NDFC()
 ndfc.ip4 = nc.ndfc_ip
+ndfc.logger = logger
+ndfc.password = nc.password
+ndfc.username = nc.username
 ndfc.login()
 
-instance = NdfcDiscover(ndfc)
-instance.fabric_name = "ext1"
+instance = NdfcDiscover()
+instance.logger = logger
+instance.ndfc = ndfc
+instance.fabric_name = "easy"
 instance.seed_ip = "10.1.1.1"
 instance.discover_password = nc.discover_password
 instance.discover_username = nc.discover_username
@@ -32,7 +36,7 @@ while up is False and retries > 0:
     try:
         up = instance.is_up()
     except ValueError as err:
-        ndfc.log.error(f"exiting. {err}")
+        logger.error(f"exiting. {err}")
         sys.exit(1)
     retries -= 1
     if up is not True:
@@ -41,6 +45,8 @@ if up is not True:
     ndfc.log.info(f"switch {instance.seed_ip} is not up.")
     sys.exit(0)
 
-fabric = NdfcFabric(ndfc)
+fabric = NdfcFabric()
+fabric.logger = logger
+fabric.ndfc = ndfc
 fabric.fabric_name = instance.fabric_name
 fabric.config_save()

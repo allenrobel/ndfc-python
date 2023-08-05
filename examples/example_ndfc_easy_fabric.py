@@ -10,16 +10,20 @@ from ndfc_python.ndfc_easy_fabric import NdfcEasyFabric
 
 nc = NdfcCredentials()
 
-ndfc = NDFC(log("ndfc_easy_fabric_log", "INFO", "DEBUG"))
+logger = log("ndfc_easy_fabric_log", "INFO", "DEBUG")
+
+ndfc = NDFC()
 ndfc.username = nc.username
 ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip
+ndfc.logger = logger
 ndfc.login()
 
-instance = NdfcEasyFabric(ndfc)
-instance.fabric_name = "easy"
+instance = NdfcEasyFabric()
+instance.ndfc = ndfc
+instance.logger = logger
+instance.fabric_name = "easy2"
 instance.bgp_as = 65001
-instance.subnet_range = "10.20.0.0/16"
 instance.dci_subnet_range = "10.22.0.0/16"
 instance.loopback0_ip_range = "10.23.0.0/16"
 instance.loopback1_ip_range = "10.24.0.0/16"
