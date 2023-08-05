@@ -35,7 +35,8 @@ for seedIp in seedIps:
     try:
         instance.discover()
     except ValueError as err:
-        logger.error(f"exiting. {err}")
+        msg = f"exiting. {err}"
+        logger.error(msg)
         sys.exit(1)
     print(f"discover_status_code {instance.discover_status_code}")
     print(f"discover_response {instance.discover_response}")

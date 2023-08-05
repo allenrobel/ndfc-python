@@ -36,13 +36,15 @@ while up is False and retries > 0:
     try:
         up = instance.is_up()
     except ValueError as err:
-        logger.error(f"exiting. {err}")
+        msg = f"exiting. {err}"
+        logger.error(msg)
         sys.exit(1)
     retries -= 1
     if up is not True:
         sleep(10)
 if up is not True:
-    ndfc.log.info(f"switch {instance.seed_ip} is not up.")
+    msg = f"switch {instance.seed_ip} is not up."
+    instance.logger.info(msg)
     sys.exit(0)
 
 fabric = NdfcFabric()
