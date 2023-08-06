@@ -1152,7 +1152,6 @@ class NdfcEasyFabric(NdfcFabric):
     @anycast_lb_id.setter
     def anycast_lb_id(self, param):
         params = {}
-        params["item"] = "anycast_lb_id"
         params["value"] = param
         params["min"] = 0
         params["max"] = 1023
@@ -1561,12 +1560,10 @@ class NdfcEasyFabric(NdfcFabric):
 
     @dci_subnet_target_mask.setter
     def dci_subnet_target_mask(self, param):
-        params = {
-            "item": "dci_subnet_target_mask",
-            "value": param,
-            "min": 30,
-            "max": 31,
-        }
+        params = {}
+        params["value"] = param
+        params["min"] = 30
+        params["max"] = 31
         try:
             self.validations.verify_integer_range(params)
         except (KeyError, TypeError, ValueError) as err:
@@ -2213,7 +2210,6 @@ class NdfcEasyFabric(NdfcFabric):
     @fabric_mtu.setter
     def fabric_mtu(self, param):
         params = {}
-        params["item"] = "fabric_mtu"
         params["value"] = param
         params["min"] = 576
         params["max"] = 9216
@@ -2265,7 +2261,6 @@ class NdfcEasyFabric(NdfcFabric):
     @fabric_vpc_domain_id.setter
     def fabric_vpc_domain_id(self, param):
         params = {}
-        params["item"] = "fabric_vpc_domain_id"
         params["value"] = param
         params["min"] = 1
         params["max"] = 1000
@@ -2410,7 +2405,10 @@ class NdfcEasyFabric(NdfcFabric):
 
     @hd_time.setter
     def hd_time(self, param):
-        params = {"item": "hd_time", "value": param, "min": 1, "max": 1500}
+        params = {}
+        params["value"] = param
+        params["min"] = 1
+        params["max"] = 1500
         try:
             self.validations.verify_integer_range(params)
         except (KeyError, TypeError, ValueError) as err:
@@ -2618,12 +2616,10 @@ class NdfcEasyFabric(NdfcFabric):
 
     @isis_auth_keychain_key_id.setter
     def isis_auth_keychain_key_id(self, param):
-        params = {
-            "item": "isis_auth_keychain_key_id",
-            "value": param,
-            "min": 0,
-            "max": 65535,
-        }
+        params = {}
+        params["value"] = param
+        params["min"] = 0
+        params["max"] = 65535
         try:
             self.validations.verify_integer_range(params)
         except (KeyError, TypeError, ValueError) as err:
@@ -2684,12 +2680,10 @@ class NdfcEasyFabric(NdfcFabric):
 
     @isis_overload_elapse_time.setter
     def isis_overload_elapse_time(self, param):
-        params = {
-            "item": "isis_overload_elapse_time",
-            "value": param,
-            "min": 5,
-            "max": 86400,
-        }
+        params = {}
+        params["value"] = param
+        params["min"] = 5
+        params["max"] = 86400
         try:
             self.validations.verify_integer_range(params)
         except (KeyError, TypeError, ValueError) as err:
@@ -2753,7 +2747,6 @@ class NdfcEasyFabric(NdfcFabric):
     @l2_host_intf_mtu.setter
     def l2_host_intf_mtu(self, param):
         params = {}
-        params["item"] = "l2_host_intf_mtu"
         params["value"] = param
         params["min"] = 1500
         params["max"] = 9216
@@ -2804,12 +2797,10 @@ class NdfcEasyFabric(NdfcFabric):
 
     @l2_segment_id_range.setter
     def l2_segment_id_range(self, param):
-        params = {
-            "value": param,
-            "min": 1,
-            "max": 16777214,
-            "caller": "l2_segment_id_range",
-        }
+        params = {}
+        params["value"] = param
+        params["min"] = 1
+        params["max"] = 16777214
         try:
             self.validations.verify_hypenated_range(params)
         except (ValueError, TypeError, KeyError) as err:
@@ -2862,12 +2853,10 @@ class NdfcEasyFabric(NdfcFabric):
 
     @l3_partition_id_range.setter
     def l3_partition_id_range(self, param):
-        params = {
-            "value": param,
-            "min": 1,
-            "max": 16777214,
-            "caller": "l3_partition_id_range",
-        }
+        params = {}
+        params["value"] = param
+        params["min"] = 1
+        params["max"] = 16777214
         try:
             self.validations.verify_hypenated_range(params)
         except (ValueError, TypeError, KeyError) as err:
@@ -2920,7 +2909,9 @@ class NdfcEasyFabric(NdfcFabric):
     @link_state_routing_tag.setter
     def link_state_routing_tag(self, param):
         try:
-            params = {"string": param, "length": 20}
+            params = {}
+            params["string"] = param
+            params["length"] = 20
             self.validations.verify_string_length(params)
         except (ValueError, TypeError, KeyError) as err:
             msg = f"exiting. {err}"
@@ -3172,7 +3163,6 @@ class NdfcEasyFabric(NdfcFabric):
     @macsec_report_timer.setter
     def macsec_report_timer(self, param):
         params = {}
-        params["item"] = "macsec_report_timer"
         params["value"] = param
         params["min"] = 5
         params["max"] = 60
@@ -3234,7 +3224,10 @@ class NdfcEasyFabric(NdfcFabric):
 
     @mgmt_prefix.setter
     def mgmt_prefix(self, param):
-        params = {"item": "mgmt_prefix", "value": param, "min": 8, "max": 30}
+        params = {}
+        params["value"] = param
+        params["min"] = 8
+        params["max"] = 30
         try:
             self.validations.verify_integer_range(params)
         except (KeyError, TypeError, ValueError) as err:
@@ -3319,7 +3312,10 @@ class NdfcEasyFabric(NdfcFabric):
 
     @mpls_lb_id.setter
     def mpls_lb_id(self, param):
-        params = {"item": "mpls_lb_id", "value": param, "min": 0, "max": 1023}
+        params = {}
+        params["value"] = param
+        params["min"] = 0
+        params["max"] = 1023
         try:
             self.validations.verify_integer_range(params)
         except (KeyError, TypeError, ValueError) as err:
@@ -3439,12 +3435,10 @@ class NdfcEasyFabric(NdfcFabric):
                 self.logger.error(msg)
                 sys.exit(1)
             if "-" in mst_range:
-                mst_params = {
-                    "value": mst_range,
-                    "min": 0,
-                    "max": 4094,
-                    "caller": "mst_instance_range",
-                }
+                mst_params = {}
+                mst_params["value"] = mst_range
+                mst_params["min"] = 0
+                mst_params["max"] = 4094
                 try:
                     self.validations.verify_hypenated_range(mst_params)
                 except (ValueError, TypeError, KeyError) as err:
@@ -3458,12 +3452,10 @@ class NdfcEasyFabric(NdfcFabric):
                     msg = f"exiting. {mst_range} not convertible to int()"
                     self.logger.error(msg)
                     sys.exit(1)
-                params = {
-                    "item": "mst_instance_range",
-                    "value": int(mst_range),
-                    "min": 0,
-                    "max": 4094,
-                }
+                params = {}
+                params["value"] = int(mst_range)
+                params["min"] = 0
+                params["max"] = 4094
                 try:
                     self.validations.verify_integer_range(params)
                 except (KeyError, TypeError, ValueError) as err:
@@ -3494,7 +3486,6 @@ class NdfcEasyFabric(NdfcFabric):
     @phantom_rp_lb_id1.setter
     def phantom_rp_lb_id1(self, param):
         params = {}
-        params["item"] = "phantom_rp_lb_id1"
         params["value"] = param
         params["min"] = 0
         params["max"] = 1023
@@ -3528,7 +3519,6 @@ class NdfcEasyFabric(NdfcFabric):
     @phantom_rp_lb_id2.setter
     def phantom_rp_lb_id2(self, param):
         params = {}
-        params["item"] = "phantom_rp_lb_id2"
         params["value"] = param
         params["min"] = 0
         params["max"] = 1023
@@ -3562,7 +3552,6 @@ class NdfcEasyFabric(NdfcFabric):
     @phantom_rp_lb_id3.setter
     def phantom_rp_lb_id3(self, param):
         params = {}
-        params["item"] = "phantom_rp_lb_id3"
         params["value"] = param
         params["min"] = 0
         params["max"] = 1023
@@ -3596,7 +3585,6 @@ class NdfcEasyFabric(NdfcFabric):
     @phantom_rp_lb_id4.setter
     def phantom_rp_lb_id4(self, param):
         params = {}
-        params["item"] = "phantom_rp_lb_id4"
         params["value"] = param
         params["min"] = 0
         params["max"] = 1023
@@ -3647,12 +3635,10 @@ class NdfcEasyFabric(NdfcFabric):
 
     @route_map_sequence_number_range.setter
     def route_map_sequence_number_range(self, param):
-        params = {
-            "value": param,
-            "min": 1,
-            "max": 65534,
-            "caller": "route_map_sequence_number_range",
-        }
+        params = {}
+        params["value"] = param
+        params["min"] = 1
+        params["max"] = 65534
         try:
             self.validations.verify_hypenated_range(params)
         except (ValueError, TypeError, KeyError) as err:
@@ -3702,7 +3688,10 @@ class NdfcEasyFabric(NdfcFabric):
 
     @rp_lb_id.setter
     def rp_lb_id(self, param):
-        params = {"item": "rp_lb_id", "value": param, "min": 0, "max": 1023}
+        params = {}
+        params["value"] = param
+        params["min"] = 0
+        params["max"] = 1023
         try:
             self.validations.verify_integer_range(params)
         except (KeyError, TypeError, ValueError) as err:
@@ -3872,12 +3861,10 @@ class NdfcEasyFabric(NdfcFabric):
                 self.logger.error(msg)
                 sys.exit(1)
             if "-" in stp_range:
-                stp_params = {
-                    "value": stp_range,
-                    "min": 0,
-                    "max": 3967,
-                    "caller": "stp_vlan_range",
-                }
+                stp_params = {}
+                stp_params["value"] = stp_range
+                stp_params["min"] = 0
+                stp_params["max"] = 3967
                 try:
                     self.validations.verify_hypenated_range(stp_params)
                 except (ValueError, TypeError, KeyError) as err:
@@ -3891,12 +3878,10 @@ class NdfcEasyFabric(NdfcFabric):
                     msg = f"exiting. {stp_range} not convertible to int()"
                     self.logger.error(msg)
                     sys.exit(1)
-                params = {
-                    "item": "stp_vlan_range",
-                    "value": int(stp_range),
-                    "min": 0,
-                    "max": 3967,
-                }
+                params = {}
+                params["value"] = int(stp_range)
+                params["min"] = 0
+                params["max"] = 3967
                 try:
                     self.validations.verify_integer_range(params)
                 except (KeyError, TypeError, ValueError) as err:
@@ -3944,12 +3929,10 @@ class NdfcEasyFabric(NdfcFabric):
 
     @subinterface_range.setter
     def subinterface_range(self, param):
-        params = {
-            "value": param,
-            "min": 2,
-            "max": 4093,
-            "caller": "subinterface_range",
-        }
+        params = {}
+        params["value"] = param
+        params["min"] = 2
+        params["max"] = 4093
         try:
             self.validations.verify_hypenated_range(params)
         except (ValueError, TypeError, KeyError) as err:
@@ -4000,7 +3983,6 @@ class NdfcEasyFabric(NdfcFabric):
     @subnet_target_mask.setter
     def subnet_target_mask(self, param):
         params = {}
-        params["item"] = "subnet_target_mask"
         params["value"] = param
         params["min"] = 30
         params["max"] = 31
@@ -4191,7 +4173,6 @@ class NdfcEasyFabric(NdfcFabric):
     @unnum_bootstrap_lb_id.setter
     def unnum_bootstrap_lb_id(self, param):
         params = {}
-        params["item"] = "unnum_bootstrap_lb_id"
         params["value"] = param
         params["min"] = 0
         params["max"] = 1023
@@ -4303,25 +4284,56 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def v6_subnet_target_mask(self):
         """
-        return the current nv_pairs value of v6_subnet_target_mask
+        Mask for Underlay Subnet IPv6 Range
+
+        Valid values: integer in range 126-127
+        Default value: 126
+
+        NDFC GUI label: Underlay Subnet IPv6 Mask
+        NDFC GUI tab: General Parameters
+
+        NOTES:
+        - underlay_is_v6 must be set to True
         """
         return self._nv_pairs["V6_SUBNET_TARGET_MASK"]
 
     @v6_subnet_target_mask.setter
     def v6_subnet_target_mask(self, param):
-        # TODO: Add validation
+        params = {}
+        params["value"] = param
+        params["min"] = 126
+        params["max"] = 127
+        try:
+            self.validations.verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["V6_SUBNET_TARGET_MASK"] = param
 
     @property
     def vpc_auto_recovery_time(self):
         """
-        return the current nv_pairs value of vpc_auto_recovery_time
+        vPC Auto Recovery Time (In Seconds)
+
+        Valid values: integer in range 240-3600
+        Default value: 360
+
+        NDFC GUI label: vPC Auto Recovery Time (In Seconds)
+        NDFC GUI tab: VPC
         """
         return self._nv_pairs["VPC_AUTO_RECOVERY_TIME"]
 
     @vpc_auto_recovery_time.setter
     def vpc_auto_recovery_time(self, param):
-        # TODO: Add validation
+        params = {}
+        params["value"] = param
+        params["min"] = 240
+        params["max"] = 3600
+        try:
+            self.validations.verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["VPC_AUTO_RECOVERY_TIME"] = param
 
     @property
@@ -4339,73 +4351,148 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def vpc_delay_restore_time(self):
         """
-        return the current nv_pairs value of vpc_delay_restore_time
+        vPC Delay Restore Time (In Seconds)
+
+        Valid values: integer in range 1-3600
+        Default value: 150
+
+        NDFC GUI label: vPC Delay Restore Time (In Seconds)
+        NDFC GUI tab: VPC
         """
         return self._nv_pairs["VPC_DELAY_RESTORE_TIME"]
 
     @vpc_delay_restore_time.setter
     def vpc_delay_restore_time(self, param):
-        # TODO: Add validation
+        params = {}
+        params["value"] = param
+        params["min"] = 1
+        params["max"] = 3600
+        try:
+            self.validations.verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["VPC_DELAY_RESTORE_TIME"] = param
 
     @property
     def vpc_domain_id_range(self):
         """
-        return the current nv_pairs value of vpc_domain_id_range
+        vPC Domain id range to use for new pairings
+
+        Valid values: hyphenated integer range X-Y, where X > 0 and Y <= 1000
+        Default value: 1-1000
+
+        NDFC GUI label: vPC Domain Id Range
+        NDFC GUI tab: VPC
         """
         return self._nv_pairs["VPC_DOMAIN_ID_RANGE"]
 
     @vpc_domain_id_range.setter
     def vpc_domain_id_range(self, param):
-        # TODO: Add validation
+        params = {}
+        params["value"] = param
+        params["min"] = 1
+        params["max"] = 1000
+        try:
+            self.validations.verify_hypenated_range(params)
+        except (ValueError, TypeError, KeyError) as err:
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
+            sys.exit(1)
         self._nv_pairs["VPC_DOMAIN_ID_RANGE"] = param
 
     @property
     def vpc_enable_ipv6_nd_sync(self):
         """
-        return the current nv_pairs value of vpc_enable_ipv6_nd_sync
+        Enable (True) or disable (False) synchronization of IPv6 neighbor
+        discovery across VPC peers
+
+        Valid values: boolean
+        Default value: True
+
+        NDFC GUI label: vPC IPv6 ND Synchronize
+        NDFC GUI tab: VPC
         """
         return self._nv_pairs["VPC_ENABLE_IPv6_ND_SYNC"]
 
     @vpc_enable_ipv6_nd_sync.setter
     def vpc_enable_ipv6_nd_sync(self, param):
-        # TODO: Add validation
+        self.verify_boolean(param, "vpc_enable_ipv6_nd_sync")
         self._nv_pairs["VPC_ENABLE_IPv6_ND_SYNC"] = param
 
     @property
     def vpc_peer_keep_alive_option(self):
         """
-        return the current nv_pairs value of vpc_peer_keep_alive_option
+        Port-channel ID for VPC Port-channel
+
+        Valid values: One of "management" or "loopback"
+        Default value: management
+
+        NDFC GUI label: vPC Peer Keep Alive option
+        NDFC GUI tab: VPC
         """
         return self._nv_pairs["VPC_PEER_KEEP_ALIVE_OPTION"]
 
     @vpc_peer_keep_alive_option.setter
     def vpc_peer_keep_alive_option(self, param):
-        # TODO: Add validation
+        try:
+            self.validations.verify_vpc_peer_keepalive_option(param)
+        except ValueError as err:
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
+            sys.exit(1)
         self._nv_pairs["VPC_PEER_KEEP_ALIVE_OPTION"] = param
 
     @property
     def vpc_peer_link_po(self):
         """
-        return the current nv_pairs value of vpc_peer_link_po
+        Port-channel ID for VPC Port-channel
+
+        Valid values: integer in range 1-4096
+        Default value: 500
+
+        NDFC GUI label: vPC Peer Link Port Channel ID
+        NDFC GUI tab: VPC
         """
         return self._nv_pairs["VPC_PEER_LINK_PO"]
 
     @vpc_peer_link_po.setter
     def vpc_peer_link_po(self, param):
-        # TODO: Add validation
+        params = {}
+        params["value"] = param
+        params["min"] = 1
+        params["max"] = 4096
+        try:
+            self.validations.verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["VPC_PEER_LINK_PO"] = param
 
     @property
     def vpc_peer_link_vlan(self):
         """
-        return the current nv_pairs value of vpc_peer_link_vlan
+        VLAN for vPC Peer Link SVI
+
+        Valid values: integer in range 2-4094
+        Default value: 3600
+
+        NDFC GUI label: vPC Peer Link VLAN
+        NDFC GUI tab: VPC
         """
         return self._nv_pairs["VPC_PEER_LINK_VLAN"]
 
     @vpc_peer_link_vlan.setter
     def vpc_peer_link_vlan(self, param):
-        # TODO: Add validation
+        params = {}
+        params["value"] = param
+        params["min"] = 2
+        params["max"] = 4094
+        try:
+            self.validations.verify_integer_range(params)
+        except (KeyError, TypeError, ValueError) as err:
+            self.logger(f"exiting. {err}")
+            sys.exit(1)
         self._nv_pairs["VPC_PEER_LINK_VLAN"] = param
 
     @property
