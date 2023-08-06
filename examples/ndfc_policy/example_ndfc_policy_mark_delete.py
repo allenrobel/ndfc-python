@@ -5,6 +5,7 @@ Description: Mark switch policies for deletion matching SWITCH_SERIAL,
 ENTITY_TYPE, and ENTITY_NAME
 """
 import sys
+
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC, NdfcRequestError
 from ndfc_python.ndfc_credentials import NdfcCredentials
@@ -30,6 +31,7 @@ headers = {"Authorization": f"{ndfc.bearer_token}"}
 try:
     ndfc.put(url, headers)
 except NdfcRequestError as err:
-    ndfc.log.error(f"error: {err}")
+    msg = f"error: {err}"
+    ndfc.logger.error(msg)
     sys.exit(1)
-ndfc.log.info(ndfc.response.text)
+ndfc.logger.info(ndfc.response.text)

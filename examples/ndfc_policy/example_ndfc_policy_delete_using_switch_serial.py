@@ -28,10 +28,10 @@ try:
     instance.delete()
 except ValueError as err:
     msg = f"exiting. Exception detail: {err}"
-    ndfc.log.error(msg)
+    instance.logger.error(msg)
     sys.exit(1)
 except NdfcRequestError as err:
     msg = f"exiting. Exception detail: {err}"
-    ndfc.log.error(msg)
+    instance.logger.error(msg)
     sys.exit(1)
-ndfc.log.info("Delete request succeeded")
+instance.logger.info("Delete request succeeded")
