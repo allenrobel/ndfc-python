@@ -22,7 +22,7 @@ Library                 | Description
 [validations]           | Validation methods used by the other classes
 
 [ndfc]: /lib/ndfc_python/ndfc.py
-[ndfc_config.py]: /lib/ndfc_python/ndfc_config.py
+[ndfc_config]: /lib/ndfc_python/ndfc_config.py
 [ndfc_credentials]: /lib/ndfc_python/ndfc_credentials.py
 [ndfc_device_info]: /lib/ndfc_python/ndfc_device_info.py
 [ndfc_discover]: /lib/ndfc_python/ndfc_discover.py
