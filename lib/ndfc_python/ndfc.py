@@ -8,15 +8,16 @@ delete operations.
 Example usage:
 
 # Login to an NDFC controller
-from ndfc_python.log import Log
+from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
 
-log = Log('example_log', 'INFO', 'DEBUG') # INFO to screen, DEBUG to file
+# INFO to screen, DEBUG to file
+logger = log('example_log', 'INFO', 'DEBUG')
 ndfc = NDFC()
-ndfc.username = "my_username"
-ndfc.password = "my_password"
 ndfc.ip4 = nc.ndfc_ip
 ndfc.logger = log
+ndfc.password = "my_password"
+ndfc.username = "my_username"
 ndfc.login()
 """
 import json
