@@ -2,8 +2,8 @@
 Name: ndfc.py
 Description:
 
-Methods to login to an NDFC controller and perform get, post,
-delete operations.
+Methods to login to an NDFC controller and issue
+DELETE, GET, POST, PUT requests
 
 Example usage:
 
@@ -17,6 +17,10 @@ ndfc = NDFC()
 ndfc.ip4 = nc.ndfc_ip
 ndfc.logger = log
 ndfc.password = "my_password"
+# optional (default is 20)
+ndfc.request_timeout = 30
+# optional (default is False)
+ndfc.request_verify = True
 ndfc.username = "my_username"
 ndfc.login()
 """
@@ -26,20 +30,21 @@ import sys
 import requests
 import urllib3
 
-OUR_VERSION = 106
+from ndfc_python.log import log
+
+OUR_VERSION = 107
 
 
 class NdfcRequestError(Exception):
     """
     Use for any uncaught errors associated with NDFC REST API requests
-    See, for example, NDFC().delete()
     """
 
 
 class NDFC:
     """
-    Methods to login to an NDFC controller and perform get, post, put,
-    and delete operations.
+    Methods to login to an NDFC controller and send DELETE,
+    GET, POST, PUT requests to NDFC's REST endpoints
 
     Usage:
 
@@ -57,7 +62,6 @@ class NDFC:
 
     def __init__(self):
         self.lib_version = OUR_VERSION
-        self.requests_timeout = 20
         self.headers = {}
         self.response = None
         self.auth_token = None
@@ -67,15 +71,32 @@ class NDFC:
         self.properties_set.add("password")
         self.properties_set.add("ip4")
         self.properties_set.add("logger")
-        self.init_properties()
+        self.properties_set.add("request_verify")
+        self.properties_set.add("request_timeout")
+        self._valid_request_types = set()
+        self._valid_request_types.add("DELETE")
+        self._valid_request_types.add("GET")
+        self._valid_request_types.add("POST")
+        self._valid_request_types.add("PUT")
+        self._init_properties()
+        self._init_default_logger()
 
-    def init_properties(self):
+    def _init_properties(self):
         """
         initialize all properties to None
+        set defaults for properties that should have one
         """
         self.properties = {}
         for param in self.properties_set:
             self.properties[param] = None
+        self.properties["request_verify"] = False
+        self.properties["request_timeout"] = 20
+
+    def _init_default_logger(self):
+        """
+        This logger will be active until the user has set self.logger
+        """
+        self.logger = log("ndfc_log")
 
     def login(self):
         """
@@ -84,8 +105,7 @@ class NDFC:
         for key, value in self.properties.items():
             if value is None:
                 msg = f"exiting. Set property {key} before calling login."
-                # can't use logger here since it may not be set yet
-                print(msg)
+                self.logger.error(msg)
                 sys.exit(1)
         urllib3.disable_warnings()
         payload = {}
@@ -100,7 +120,7 @@ class NDFC:
             self.url_login,
             headers=headers,
             data=json.dumps(payload),
-            timeout=self.requests_timeout,
+            timeout=self.request_timeout,
             verify=False,
         )
         response = json.loads(self.response.text)
@@ -135,128 +155,108 @@ class NDFC:
                 f" response.text: {self.response.text}"
             )
             self.logger.error(msg)
-        except ValueError as exception:
-            msg = f"Error while logging response for {url}. "
-            msg += f"Exception detail {exception}"
-            self.logger.error(msg)
-        except AttributeError as exception:
+        except (AttributeError, ValueError) as exception:
             msg = f"Error while logging response for {url}. "
             msg += f"Exception detail {exception}"
             self.logger.error(msg)
 
-    def get(self, url, headers=None, params=None, verify=False):
+    def _make_headers(self, params):
         """
-        Send a GET request to an NDFC controller and set self.response
-        Return True if response.status_code == 200
-        Else return False
+        populate headers for ndfc_action
         """
-        if headers is None:
+        if "headers" not in params:
+            headers = self.make_headers()
+        elif params["headers"] is None:
             headers = {}
-        if params is None:
-            params = {}
-        request_type = "GET"
-        try:
-            self.response = requests.get(
-                url,
-                params=params,
-                timeout=self.requests_timeout,
-                verify=verify,
-                headers=headers,
-            )
-        except requests.ConnectTimeout as exception:
-            msg = f"Exiting. Timed out connecting to {url} "
-            msg += f"Exception detail: {exception}"
-            self.logger.error(msg)
-            sys.exit(1)
-        except requests.ConnectionError as exception:
-            msg = f"Exiting. Unable to connect to {url} "
-            msg += f"Exception detail: {exception}"
-            self.logger.error(msg)
-            sys.exit(1)
-        if self.response.status_code != 200:
-            msg = f"status {self.response.status_code} for {request_type} "
-            msg += f"url {url}"
-            raise NdfcRequestError(msg)
-        self.logger.debug(f"{request_type} succeeded {url}")
-        return self.response.json()
+        else:
+            headers = params["headers"]
+        return headers
 
-    def post(self, url, headers, payload=None):
+    def _make_payload(self, params):
         """
-        Send a POST request to an NDFC controller and set self.response
-        raise NdfcRequestError if status_code is anything other than 200s
-        exit with error on any exceptions from requests.
+        populate payload for ndfc_action
         """
-        if payload is None:
-            payload: dict[str, str] = {}
-        request_type = "POST"
-        try:
-            self.response = requests.post(
-                url,
-                data=json.dumps(payload),
-                timeout=self.requests_timeout,
-                verify=False,
-                headers=headers,
-            )
-        except requests.ConnectTimeout as exception:
-            msg = f"Exiting. Timed out connecting to {url} "
-            msg += f"Exception detail: {exception}"
-            self.logger.error(msg)
-            sys.exit(1)
-        except requests.ConnectionError as exception:
-            msg = f"Exiting. Unable to connect to {url} "
-            msg += f"Exception detail: {exception}"
-            self.logger.error(msg)
-            sys.exit(1)
-        if self.response.status_code != 200:
-            msg = f"status_code {self.response.status_code} "
-            msg += f"for {request_type} url {url}"
-            raise NdfcRequestError(msg)
-        self.logger.debug(f"{request_type} succeeded {url}")
-        return True
+        payload: dict[str, str] = {}
+        if "payload" in params:
+            payload = params["payload"]
+        return payload
 
-    def put(self, url, headers, payload=None):
+    def _make_request_params(self, params):
         """
-        Send a PUT request to an NDFC controller and set self.response
-        raise NdfcRequestError if anything other than 200 response is received
-        Exit on any requests connection errors
+        populate request_params for ndfc_action
         """
-        request_type = "PUT"
-        try:
-            self.response = requests.put(
-                url,
-                data=json.dumps(payload),
-                timeout=self.requests_timeout,
-                verify=False,
-                headers=headers,
-            )
-        except requests.ConnectTimeout as exception:
-            msg = f"Exiting. Timed out connecting to {url} "
-            msg += f"Exception detail: {exception}"
-            self.logger.error(msg)
-            sys.exit(1)
-        except requests.ConnectionError as exception:
-            msg = f"Exiting. Unable to connect to {url} "
-            msg += f"Exception detail: {exception}"
-            self.logger.error(msg)
-            sys.exit(1)
-        if self.response.status_code != 200:
-            msg = f"Status {self.response.status_code} during {request_type}"
-            raise NdfcRequestError(msg)
+        request_params = {}
+        if "params" in params:
+            request_params = params["params"]
+        return request_params
 
-    def delete(self, url, headers):
+    def ndfc_action(self, params):
         """
-        Send a DELETE request to an NDFC controller and set self.response
-        raise NdfcRequestError if NDFC response code is anything other than 200
-        Exit on any caught error from the requests module.
+        Send GET, POST, PUT, DELETE requests to NDFC
+
+        params is a dictionary with the following keys
+        (mandatory keys denoted with *)
+
+        headers -  dictionary or None, headers to send with the request
+                    -   Set to None if an empty dictionary is desired
+                    -   Omit if standard headers are desired (see
+                        self.make_headers)
+                    -   Populate if custom headers are desired
+        params  -   dictionary, parameters, if any, to send with GET requests
+                    - Omit if no parameters
+        payload -   dictionary, the request payload
+                    - Omit if no payload
+        *request_type - string: one of DELETE, GET, POST, PUT
+        *url    -   string: the REST API endpoint
         """
-        request_type = "DELETE"
+        mandatory_keys = {"url", "request_type"}
+        if not mandatory_keys.issubset(params):
+            msg = f"exiting. expected keys {mandatory_keys}. got {params}"
+            self.logger.error(msg)
+            sys.exit(1)
+        if params["request_type"] not in self._valid_request_types:
+            msg = f"exiting. invalid request type {params['request_type']} "
+            msg += f"expected one of {self._valid_request_types}"
+            self.logger.error(msg)
+            sys.exit(1)
+        request_type = params["request_type"]
+        url = params["url"]
+        request_params = self._make_request_params(params)
+        headers = self._make_headers(params)
+        payload = self._make_payload(params)
+
         try:
-            params = {}
-            params["url"] = url
-            params["timeout"] = self.requests_timeout
-            params["verify"] = False
-            params["headers"] = headers
-            self.response = requests.delete(**params)
+            if request_type == "DELETE":
+                self.response = requests.delete(
+                    url,
+                    timeout=self.request_timeout,
+                    verify=self.request_verify,
+                    headers=headers,
+                )
+            if request_type == "GET":
+                self.response = requests.get(
+                    url,
+                    params=request_params,
+                    timeout=self.request_timeout,
+                    verify=self.request_verify,
+                    headers=headers,
+                )
+            if request_type == "POST":
+                self.response = requests.post(
+                    url,
+                    data=json.dumps(payload),
+                    timeout=self.request_timeout,
+                    verify=self.request_verify,
+                    headers=headers,
+                )
+            if request_type == "PUT":
+                self.response = requests.put(
+                    url,
+                    data=json.dumps(payload),
+                    timeout=self.request_timeout,
+                    verify=self.request_verify,
+                    headers=headers,
+                )
         except requests.exceptions.InvalidSchema as exception:
             msg = f"Exiting. error connecting to {url} "
             msg += f"Exception detail: {exception}"
@@ -269,15 +269,68 @@ class NDFC:
             sys.exit(1)
         except requests.ConnectionError as exception:
             msg = f"Exiting. Unable to connect to {url} "
-            msg = f"Exception detail: {exception}"
+            msg += f"Exception detail: {exception}"
             self.logger.error(msg)
             sys.exit(1)
+
         if self.response.status_code != 200:
-            self._log_error(url, request_type)
-            msg = f"request response {self.response}"
+            msg = f"status {self.response.status_code} for {request_type} "
+            msg += f"url {url}"
             raise NdfcRequestError(msg)
-        msg = f"{request_type} succeeded {url} response {self.response}"
+        msg = f"{request_type} succeeded {url}"
         self.logger.debug(msg)
+        try:
+            response = self.response.json()
+        except json.decoder.JSONDecodeError:
+            response = self.response
+        return response
+
+    def get(self, url, headers=None, parameters=None, verify=False):
+        """
+        call self.ndfc_action() with a GET request
+        """
+        params = {}
+        params["request_type"] = "GET"
+        params["url"] = url
+        params["headers"] = headers
+        if parameters is not None:
+            params["params"] = parameters
+        params["verify"] = verify
+        return self.ndfc_action(params)
+
+    def post(self, url, headers, payload=None):
+        """
+        call self.ndfc_action() with a POST request
+        """
+        params = {}
+        params["request_type"] = "POST"
+        params["url"] = url
+        params["headers"] = headers
+        if payload is not None:
+            params["payload"] = payload
+        return self.ndfc_action(params)
+
+    def put(self, url, headers, payload=None):
+        """
+        call self.ndfc_action() with a PUT request
+        """
+        params = {}
+        params["request_type"] = "PUT"
+        params["url"] = url
+        params["headers"] = headers
+        if payload is not None:
+            params["payload"] = payload
+        return self.ndfc_action(params)
+
+    def delete(self, url, headers):
+        """
+        call self.ndfc_action() with a DELETE request
+        """
+        params = {}
+        params["request_type"] = "DELETE"
+        params["url"] = url
+        params["headers"] = headers
+        return self.ndfc_action(params)
 
     @property
     def logger(self):
@@ -369,3 +422,39 @@ class NDFC:
         Return the fabric control API URL for the NDFC controller
         """
         return f"{self.url_api_v1}/lan-fabric/rest/control/policies/switches"
+
+    @property
+    def request_timeout(self):
+        """
+        Timeout (in seconds) for requests to the NDFC
+
+        Valid values: integer
+        Default value: 20
+        """
+        return self.properties["request_timeout"]
+
+    @request_timeout.setter
+    def request_timeout(self, param):
+        if not isinstance(param, int):
+            msg = f"exiting. expected integer, got {param}"
+            self.logger.error(msg)
+            sys.exit(1)
+        self.properties["request_timeout"] = param
+
+    @property
+    def request_verify(self):
+        """
+        verify (True) or do not verify (False) requests
+
+        Valid values: boolean
+        Default value: False
+        """
+        return self.properties["request_verify"]
+
+    @request_verify.setter
+    def request_verify(self, param):
+        if not isinstance(param, bool):
+            msg = f"exiting. expected boolean, got {param}"
+            self.logger.error(msg)
+            sys.exit(1)
+        self.properties["request_verify"] = param
