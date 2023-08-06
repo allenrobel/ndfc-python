@@ -1,8 +1,7 @@
 # ndfc-python
 
-This repository is a work in progress that, when finished, will contain Python libraries and example scripts that, together, implement a basic Spine/Leaf VXLAN/EVPN fabric using Cisco's Nexus Dashboard Fabric Controller (NDFC).
+This repository contains Python classes and example scripts for interacting with Cisco's Nexus Dashboard Fabric Controller (NDFC) via its REST API.
 
-The goal is to implement two identical child fabrics connected through a multisite domain (MSD) fabric.
 
 ## Libraries
 
