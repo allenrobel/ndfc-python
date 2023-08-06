@@ -5,48 +5,85 @@ This repository contains Python classes and example scripts for interacting with
 
 ## Libraries
 
-Library               | Description
---------------------- | -----------
-ndfc                  | Methods to login to an NDFC controller and perform get, post, delete operations
-ndfc_config           | Loads the config file which all libraries reference
-ndfc_credentials      | Read the caller's Ansible Vault and provides the credentials therein to the other libraries
-ndfc_device_info      | Retrieve device information
-ndfc_discover         | Discover device
-ndfc_easy_fabric_ebgp | Create a fabric using Easy_Fabric_eBGP template
-ndfc_easy_fabric      | Create a fabric using Easy_Fabric template
-ndfc_network          | Create, delete networks
-ndfc_msd_fabric       | Create a multisite domain fabric
-ndfc_policy           | Create / delete policies
-ndfc_reachability     | Test for device reachability (from NDFC perspective)
-ndfc_vrf              | Create VRFs
-validations           | Validation methods used by the other classes
+Library                 | Description
+----------------------- | -----------
+[ndfc]                  | Methods to login to an NDFC controller and perform get, post, delete operations
+[ndfc_config]           | Loads the config file which all libraries reference
+[ndfc_credentials]      | Read the caller's Ansible Vault and provides the credentials therein to the other libraries
+[ndfc_device_info]      | Retrieve device information
+[ndfc_discover]         | Discover device
+[ndfc_easy_fabric_ebgp] | Create a fabric using Easy_Fabric_eBGP template
+[ndfc_easy_fabric]      | Create a fabric using Easy_Fabric template
+[ndfc_network]          | Create, delete networks
+[ndfc_msd_fabric]       | Create a multisite domain fabric
+[ndfc_policy]           | Create / delete policies
+[ndfc_reachability]     | Test for device reachability (from NDFC perspective)
+[ndfc_vrf]              | Create VRFs
+[validations]           | Validation methods used by the other classes
+
+[ndfc]: /lib/ndfc_python/ndfc.py
+[ndfc_config.py]: /lib/ndfc_python/ndfc_config.py
+[ndfc_credentials]: /lib/ndfc_python/ndfc_credentials.py
+[ndfc_device_info]: /lib/ndfc_python/ndfc_device_info.py
+[ndfc_discover]: /lib/ndfc_python/ndfc_discover.py
+[ndfc_easy_fabric_ebgp]: /lib/ndfc_python/ndfc_easy_fabric_ebgp.py
+[ndfc_easy_fabric]: /lib/ndfc_python/ndfc_easy_fabric.py
+[ndfc_network]: /lib/ndfc_python/ndfc_network.py
+[ndfc_msd_fabric]: /lib/ndfc_python/ndfc_msd_fabric.py
+[ndfc_policy]: /lib/ndfc_python/ndfc_policy.py
+[ndfc_reachability]: /lib/ndfc_python/ndfc_reachability.py
+[ndfc_vrf]: /lib/ndfc_python/ndfc_vrf.py
+[validations]: /lib/ndfc_python/validations.py
 
 ## Example scripts
 
 Script                  | Description
 ----------------------- | -----------
 [credentials.py]        | Print the user's credentials after asking for their ansible vault password
-device_info.py          | Retrieve various information about a device, given its fabric_name and ip_address
-discover_is_up.py       | Check if device is up and manageable.  If so, call config_save on the fabric.
-discover.py             | Discover device
-fabric_bootstrap_and_local_dhcp_server_unnumbered.py | Create a fabric with unnumbered fabric interfaces, configured with inband management, local (NDFC) DHCP server, and bootstrap enabled
-fabric_bootstrap_and_local_dhcp_server.py | Create a fabric configured with DHCP server and with bootstrap enabled
-fabric_ebgp.py          | Create an eBGP-based fabric
-fabric_ipv4_underlay.py | Create a fabric with ipv4 underlay
-fabric_ipv6_underlay.py | Create a fabric configured with an IPv6 underlay
-fabric_mpls_handoff.py  | Create a fabric configured with MPLS handoff
-fabric_mst.py           | Create a fabric configured with multi-instance spanning tree
-fabric_multicast_bidir.py | Create a fabric using multicast replication and configured with four multicast bidir rendevous points
-fabric_rpvst_plus.py    | Create a fabric with rpvst+ spanning-tree root option
-fabric_with_syslog.py   | Create a fabric with syslog configured
-load_config.py          | Load the configuration file pointed to in lib/ndfc_python/ndfc_config.py and print the parameters and values contained therein
-login.py                | Login to an NDFC controller and print the returned auth token
-fabric_msd.py           | Create a multi-site domain (MSD) fabric
-network_create.py       | Create an NDFC network
-network_delete.py       | Delete an NDFC network
-reachability.py         | Test for device reachability (from NDFC perspective)
-vrf_add.py              | Add a vrf to a fabric
-netbox_ndfc_network_create.py | Read networks from a Netbox instance, and create these in NDFC.  This is a proof-of-concept for one way to integrate NDFC and Netbox.
+[device_info.py]          | Retrieve various information about a device, given its fabric_name and ip_address
+[discover_is_up.py]       | Check if device is up and manageable.  If so, call config_save on the fabric.
+[discover.py]             | Discover device
+[fabric_bootstrap_and_local_dhcp_server_unnumbered.py] | Create a fabric with unnumbered fabric interfaces, configured with inband management, local (NDFC) DHCP server, and bootstrap enabled
+[fabric_bootstrap_and_local_dhcp_server.py] | Create a fabric configured with DHCP server and with bootstrap enabled
+[fabric_ebgp.py]          | Create an eBGP-based fabric
+[fabric_ipv4_underlay.py] | Create a fabric with ipv4 underlay
+[fabric_ipv6_underlay.py] | Create a fabric configured with an IPv6 underlay
+[fabric_mpls_handoff.py]  | Create a fabric configured with MPLS handoff
+[fabric_mst.py]           | Create a fabric configured with multi-instance spanning tree
+[fabric_multicast_bidir.py] | Create a fabric using multicast replication and configured with four multicast bidir rendevous points
+[fabric_rpvst_plus.py]    | Create a fabric with rpvst+ spanning-tree root option
+[fabric_with_syslog.py]   | Create a fabric with syslog configured
+[load_config.py]          | Load the configuration file pointed to in lib/ndfc_python/ndfc_config.py and print the parameters and values contained therein
+[login.py]                | Login to an NDFC controller and print the returned auth token
+[fabric_msd.py]           | Create a multi-site domain (MSD) fabric
+[network_create.py]       | Create an NDFC network
+[network_delete.py]       | Delete an NDFC network
+[reachability.py]         | Test for device reachability (from NDFC perspective)
+[vrf_add.py]              | Add a vrf to a fabric
+[netbox_ndfc_network_create.py] | Read networks from a Netbox instance, and create these in NDFC.  This is a proof-of-concept for one way to integrate NDFC and Netbox.
+
+[credentials.py]: /examples/credentials.py
+[device_info.py]: /examples/device_info.py
+[discover_is_up.py]: /examples/discover_is_up.py
+[discover.py]: /examples/discover.py
+[fabric_bootstrap_and_local_dhcp_server_unnumbered.py]: /examples/fabric_bootstrap_and_local_dhcp_server_unnumbered.py
+[fabric_bootstrap_and_local_dhcp_server.py]: /examples/fabric_bootstrap_and_local_dhcp_server.py
+[fabric_ebgp.py]: /examples/fabric_ebgp.py
+[fabric_ipv4_underlay.py]: /examples/fabric_ipv4_underlay.py
+[fabric_ipv6_underlay.py]: /examples/fabric_ipv6_underlay.py
+[fabric_mpls_handoff.py]: /examples/fabric_mpls_handoff.py
+[fabric_msd.py]: /examples/fabric_msd.py
+[fabric_mst.py]: /examples/fabric_mst.py
+[fabric_multicast_bidir.py]: /examples/fabric_multicast_bidir.py
+[fabric_rpvst_plus.py]: /examples/fabric_rpvst_plus.py
+[fabric_with_syslog.py]: /examples/fabric_with_syslog.py
+[load_config.py]: /examples/load_config.py
+[login.py]: /examples/login.py
+[netbox_ndfc_network_create.py]: /examples/netbox_ndfc_network_create.py
+[network_create.py]: /examples/network_create.py
+[network_delete.py]: /examples/network_delete.py
+[reachability.py]: /examples/reachability.py
+[vrf_add.py]: /examples/vrf_add.py
 
 ## To clone this repository
 
@@ -196,5 +233,3 @@ This repository follows the Contributor Covenant [Code of Conduct](https://githu
 GNU General Public License v3.0 or later.
 
 See [LICENSE](https://www.gnu.org/licenses/gpl-3.0.txt) for full text.
-
-[credentials.py]: /examples/credentials.py
