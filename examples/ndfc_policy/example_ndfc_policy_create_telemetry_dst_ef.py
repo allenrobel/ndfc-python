@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Name: example_ndfc_policy_create.py
-Description: Create NDFC policy
+Name: example_ndfc_policy_create_telemetry_dst_ef.py
+Description: Create NDFC policy using the TelemetryDst_EF template.
 """
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
@@ -23,13 +23,23 @@ instance.ndfc = ndfc
 instance.description = "TelemetryDst_EF policy"
 instance.entity_type = "SWITCH"
 instance.entity_name = "SWITCH"
+# IP address of the device to which the policy will be associated
 instance.ip_address = "10.1.150.99"
+# Priority of the policy. This determines the order in
+# which the policy's CLI will be applied on the device
 instance.priority = 500
+# device's serial number
 instance.serial_number = "FDO2443096H"
 instance.source = ""
-instance.switch_name = "cvd-1112-bgw"
+# device's name
+instance.switch_name = "leaf1"
+# template_name of the policy
 instance.template_name = "TelemetryDst_EF"
 instance.template_content_type = "string"
+# nv_pairs are different for every policy.  To learn what a given policy
+# template requires, take the following path in NDFC's GUI:
+# Operations -> Templates -> Select a template -> Actions
+# -> Edit Template Content
 instance.nv_pairs = {
     "DSTGRP": "500",
     "IPADDR": "10.1.150.244",
@@ -37,4 +47,5 @@ instance.nv_pairs = {
     "VRF": "management",
 }
 instance.create()
-instance.log(f"Response text: {instance.ndfc.response.text}")
+msg = f"Response text: {instance.ndfc.response.text}"
+instance.logger.info(msg)
