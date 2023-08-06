@@ -6,7 +6,7 @@ Description: Discover device
 import sys
 
 from ndfc_python.log import log
-from ndfc_python.ndfc import NDFC
+from ndfc_python.ndfc import NDFC, NdfcRequestError
 from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_discover import NdfcDiscover
 
@@ -33,7 +33,7 @@ for seedIp in seedIps:
     instance.seed_ip = seedIp
     try:
         instance.discover()
-    except ValueError as err:
+    except (NdfcRequestError, ValueError) as err:
         msg = f"exiting. {err}"
         logger.error(msg)
         sys.exit(1)

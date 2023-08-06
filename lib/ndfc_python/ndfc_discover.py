@@ -65,9 +65,10 @@ from re import sub
 from time import sleep
 
 from ndfc_python.log import log
+from ndfc_python.ndfc import NdfcRequestError
 from ndfc_python.validations import Validations
 
-OUR_VERSION = 107
+OUR_VERSION = 108
 
 
 class NdfcDiscover:
@@ -420,13 +421,13 @@ class NdfcDiscover:
         return True
 
     def _populate_raw_fabric_info(self):
-        try:
-            self.verify_ndfc_is_set()
-        except AttributeError as err:
-            self.logger.error(err)
-            sys.exit(1)
         url = self.ndfc.url_control_fabrics
-        self.raw_fabric_info = self.ndfc.get(url, self.ndfc.make_headers())
+        try:
+            self.raw_fabric_info = self.ndfc.get(url, self.ndfc.make_headers())
+        except NdfcRequestError as err:
+            msg = "_populate_raw_fabric_info, unable to populate fabric info"
+            msg += f"detail: {err}"
+            raise NdfcRequestError(msg) from err
 
     def _populate_existing_fabric_names(self):
         """
@@ -516,7 +517,11 @@ class NdfcDiscover:
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
         url += "/inventory/switchesByFabric"
         headers = self.ndfc.make_headers()
-        self.ndfc.get(url, headers)
+        try:
+            self.ndfc.get(url, headers)
+        except NdfcRequestError as err:
+            msg = f"unable to send request. detail: {err}"
+            raise NdfcRequestError(msg) from err
         response = json.loads(self.ndfc.response.text)
         our_switch = None
         for item in response:

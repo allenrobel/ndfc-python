@@ -4,7 +4,7 @@ Name: example_ndfc_network_delete.py
 Description: Delete an NDFC network
 """
 from ndfc_python.log import log
-from ndfc_python.ndfc import NDFC
+from ndfc_python.ndfc import NDFC, NdfcRequestError
 from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_network import NdfcNetwork
 
@@ -23,4 +23,8 @@ instance.logger = logger
 instance.ndfc = ndfc
 instance.fabric = "easy"
 instance.network_name = "MyNet"
-instance.delete()
+try:
+    instance.delete()
+except NdfcRequestError as err:
+    msg = f"exiting {err}"
+    instance.logger.error(msg)

@@ -53,6 +53,7 @@ import sys
 from ipaddress import AddressValueError
 
 from ndfc_python.log import log
+from ndfc_python.ndfc import NdfcRequestError
 from ndfc_python.validations import Validations
 
 OUR_VERSION = 107
@@ -456,8 +457,12 @@ class NdfcNetwork:
 
         value = json.dumps(self.template_config)
         self.payload["networkTemplateConfig"] = value
-
-        self.ndfc.post(url, headers, self.payload)
+        try:
+            self.ndfc.post(url, headers, self.payload)
+        except NdfcRequestError as err:
+            msg = "error sending POST request to the NDFC. "
+            msg += f"detail: {err}"
+            raise NdfcRequestError(msg) from err
 
     def delete(self):
         """
@@ -485,7 +490,12 @@ class NdfcNetwork:
 
         url = f"{self.ndfc.url_top_down_fabrics}/{self.fabric}"
         url += f"/networks/{self.network_name}"
-        self.ndfc.delete(url, headers)
+        try:
+            self.ndfc.delete(url, headers)
+        except NdfcRequestError as err:
+            msg = "error sending DELETE request to the NDFC. "
+            msg += f"detail: {err}"
+            raise NdfcRequestError(msg) from err
 
     # properties that are not passed to NDFC
     @property

@@ -4,7 +4,7 @@ Name: example_ndfc_network_create.py
 Description: Create an NDFC network
 """
 from ndfc_python.log import log
-from ndfc_python.ndfc import NDFC
+from ndfc_python.ndfc import NDFC, NdfcRequestError
 from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_network import NdfcNetwork
 
@@ -28,4 +28,8 @@ instance.gateway_ip_address = "10.1.1.1/24"
 instance.network_id = 30005
 instance.vlan_id = 3005
 instance.vrf = "MyVrf"
-instance.create()
+try:
+    instance.create()
+except NdfcRequestError as err:
+    msg = f"exiting {err}"
+    instance.logger.error(msg)
