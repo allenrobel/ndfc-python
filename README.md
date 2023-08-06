@@ -23,30 +23,30 @@ validations           | Validation methods used by the other classes
 
 ## Example scripts
 
-Script                           | Description
--------------------------------- | -----------
-example_ndfc_credentials.py      | Print the user's credentials after asking for their ansible vault password
-example_ndfc_device_info.py      | Retrieve various information about a device, given its fabric_name and ip_address
-example_ndfc_discover_is_ip.py   | Check if device is up and manageable.  If so, call config_save on the fabric.
-example_ndfc_discover.py         | Discover device
-example_ndfc_easy_fabric_bootstrap_and_local_dhcp_server_unnumbered.py | Create a fabric with unnumbered fabric interfaces, configured with inband management, local (NDFC) DHCP server, and bootstrap enabled
-example_ndfc_easy_fabric_bootstrap_and_local_dhcp_server.py | Create a fabric configured with DHCP server and with bootstrap enabled
-example_ndfc_easy_fabric_ebgp.py | Create an eBGP-based fabric
-example_ndfc_easy_fabric_ipv6_underlay.py | Create a fabric configured with an IPv6 underlay
-example_ndfc_easy_fabric_mpls_handoff.py | Create a fabric configured with MPLS handoff
-example_ndfc_easy_fabric_mst.py  | Create a fabric configured with multi-instance spanning tree
-example_ndfc_easy_fabric_multicast_bidir.py | Create a fabric using multicast replication and configured with four multicast bidir rendevous points
-example_ndfc_easy_fabric_rpvst_plus.py | Create a fabric with rpvst+ spanning-tree root option
-example_ndfc_easy_fabric_with_syslog.py | Create a fabric with syslog configured
-example_ndfc_easy_fabric.py      | Create a fabric with ipv4 underlay
-example_ndfc_load_config.py      | Load the configuration file pointed to in lib/ndfc_python/ndfc_config.py and print the parameters and values contained therein
-example_ndfc_login.py            | Login to an NDFC controller and print the returned auth token
-example_ndfc_msd_fabric.py       | Create a multi-site domain (MSD) fabric
-example_ndfc_network_create.py   | Create an NDFC network
-example_ndfc_network_delete.py   | Delete an NDFC network
-example_ndfc_reachability.py     | Test for device reachability (from NDFC perspective)
-example_ndfc_vrf_add.py          | Add a vrf to a fabric
-example_netbox_ndfc_network_create.py | Read networks from a Netbox instance, and create these in NDFC.  This is a proof-of-concept for one way to integrate NDFC and Netbox.
+Script                  | Description
+----------------------- | -----------
+credentials.py          | Print the user's credentials after asking for their ansible vault password
+device_info.py          | Retrieve various information about a device, given its fabric_name and ip_address
+discover_is_up.py       | Check if device is up and manageable.  If so, call config_save on the fabric.
+discover.py             | Discover device
+fabric_bootstrap_and_local_dhcp_server_unnumbered.py | Create a fabric with unnumbered fabric interfaces, configured with inband management, local (NDFC) DHCP server, and bootstrap enabled
+fabric_bootstrap_and_local_dhcp_server.py | Create a fabric configured with DHCP server and with bootstrap enabled
+fabric_ebgp.py          | Create an eBGP-based fabric
+fabric_ipv4_underlay.py | Create a fabric with ipv4 underlay
+fabric_ipv6_underlay.py | Create a fabric configured with an IPv6 underlay
+fabric_mpls_handoff.py  | Create a fabric configured with MPLS handoff
+fabric_mst.py           | Create a fabric configured with multi-instance spanning tree
+fabric_multicast_bidir.py | Create a fabric using multicast replication and configured with four multicast bidir rendevous points
+fabric_rpvst_plus.py    | Create a fabric with rpvst+ spanning-tree root option
+fabric_with_syslog.py   | Create a fabric with syslog configured
+load_config.py          | Load the configuration file pointed to in lib/ndfc_python/ndfc_config.py and print the parameters and values contained therein
+login.py                | Login to an NDFC controller and print the returned auth token
+fabric_msd.py           | Create a multi-site domain (MSD) fabric
+network_create.py       | Create an NDFC network
+network_delete.py       | Delete an NDFC network
+reachability.py         | Test for device reachability (from NDFC perspective)
+vrf_add.py              | Add a vrf to a fabric
+netbox_ndfc_network_create.py | Read networks from a Netbox instance, and create these in NDFC.  This is a proof-of-concept for one way to integrate NDFC and Netbox.
 
 ## To clone this repository
 
