@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
+Name: example_ndfc_discover_is_ip.py
 Description:
 
-Check if switch is up and manageable.  If so, call config_save on the fabric.
+Check if device is up and manageable.  If so, call config_save on the fabric.
 """
 import sys
 from time import sleep

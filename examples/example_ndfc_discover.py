@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-Description:
-
-Discover switch
+Name: example_ndfc_discover.py
+Description: Discover device
 """
 import sys
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Name: example_ndfc_easy_fabric.py
-Description: Create a fabric using NdfcEasyFabric()
+Description: Create a fabric with ipv4 underlay
 """
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
@@ -22,7 +22,7 @@ ndfc.login()
 instance = NdfcEasyFabric()
 instance.ndfc = ndfc
 instance.logger = logger
-instance.fabric_name = "easy2"
+instance.fabric_name = "easy"
 instance.bgp_as = 65001
 instance.dci_subnet_range = "10.22.0.0/16"
 instance.loopback0_ip_range = "10.23.0.0/16"

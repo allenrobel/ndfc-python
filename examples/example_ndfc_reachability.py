@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """
+Name: example_ndfc_reachability.py
 Description:
 
-Test for switch reachability (from NDFC perspective)
+Test for device reachability (from NDFC perspective)
 """
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
