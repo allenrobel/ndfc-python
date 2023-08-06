@@ -7,7 +7,7 @@ from ipaddress import AddressValueError
 
 from ndfc_python.ndfc_fabric import NdfcFabric, NdfcRequestError
 
-OUR_VERSION = 105
+OUR_VERSION = 106
 
 
 class NdfcEasyFabricEbgp(NdfcFabric):
@@ -25,11 +25,10 @@ class NdfcEasyFabricEbgp(NdfcFabric):
     TODO: Need a delete() method
     """
 
-    def __init__(self, ndfc):
-        super().__init__(ndfc)
+    def __init__(self):
+        super().__init__()
         self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
-        self.ndfc = ndfc
 
         self._init_nv_pairs_default()
         self._init_nv_pairs_set()
@@ -452,20 +451,31 @@ class NdfcEasyFabricEbgp(NdfcFabric):
     def _final_verification(self):
         """
         Any final verifications go here
+
+        Current verifications:
+        - self.ndfc has been set with an ndfc instance
+        - all mandatory parameters have been set
         """
+        self._ndfc_verification()
         for param in self._nv_pairs_mandatory_set:
             if self._nv_pairs[param] == "":
                 msg = f"exiting. 2. call instance.{param.lower()} before "
                 msg += "calling instance.post()"
-                self.ndfc.log.error(msg)
+                self.logger.error(msg)
                 sys.exit(1)
 
     def create(self):
         """
         Create a fabric using Easy_Fabric_EBGP template.
-        TODO: Verify fabric does not exist before trying to create it
         """
         self._final_verification()
+
+        if self.fabric_exists(self.fabric_name):
+            msg = f"exiting. fabric {self.fabric_name} already exists "
+            msg += f"on the NDFC at {self.ndfc.url_base}.  Existing "
+            msg += f"fabrics: {', '.join(sorted(self.fabric_names))}"
+            self.logger.error(msg)
+            sys.exit(1)
 
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
         url += "/Easy_Fabric_eBGP"
@@ -479,7 +489,7 @@ class NdfcEasyFabricEbgp(NdfcFabric):
         except NdfcRequestError as err:
             msg = f"error creating fabric {self.fabric_name}, "
             msg += f"error detail {err}"
-            self.ndfc.log.error(msg)
+            self.logger.error(msg)
             sys.exit(1)
 
     # nvPairs
@@ -493,9 +503,10 @@ class NdfcEasyFabricEbgp(NdfcFabric):
     @anycast_rp_ip_range.setter
     def anycast_rp_ip_range(self, param):
         try:
-            self.ndfc.verify_ipv4_address_with_prefix(param)
+            self.validations.verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self._nv_pairs["ANYCAST_RP_IP_RANGE"] = param
 
@@ -508,7 +519,12 @@ class NdfcEasyFabricEbgp(NdfcFabric):
 
     @bgp_as.setter
     def bgp_as(self, param):
-        self.ndfc.verify_bgp_asn(param)
+        try:
+            self.validations.verify_bgp_asn(param)
+        except ValueError as err:
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
+            sys.exit(1)
         self._nv_pairs["BGP_AS"] = str(param)
 
     @property
@@ -521,9 +537,10 @@ class NdfcEasyFabricEbgp(NdfcFabric):
     @dci_subnet_range.setter
     def dci_subnet_range(self, param):
         try:
-            self.ndfc.verify_ipv4_address_with_prefix(param)
+            self.validations.verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self._nv_pairs["DCI_SUBNET_RANGE"] = param
 
@@ -547,6 +564,12 @@ class NdfcEasyFabricEbgp(NdfcFabric):
 
     @fabric_mtu.setter
     def fabric_mtu(self, param):
+        try:
+            self.validations.verify_mtu(param)
+        except ValueError as err:
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
+            sys.exit(1)
         self._nv_pairs["FABRIC_MTU"] = param
 
     @property
@@ -558,6 +581,12 @@ class NdfcEasyFabricEbgp(NdfcFabric):
 
     @fabric_name.setter
     def fabric_name(self, param):
+        try:
+            self.validations.verify_fabric_name(param)
+        except (TypeError, ValueError) as err:
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
+            sys.exit(1)
         self._nv_pairs["FABRIC_NAME"] = param
 
     @property
@@ -570,9 +599,10 @@ class NdfcEasyFabricEbgp(NdfcFabric):
     @loopback0_ip_range.setter
     def loopback0_ip_range(self, param):
         try:
-            self.ndfc.verify_ipv4_address_with_prefix(param)
+            self.validations.verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self._nv_pairs["LOOPBACK0_IP_RANGE"] = param
 
@@ -586,9 +616,10 @@ class NdfcEasyFabricEbgp(NdfcFabric):
     @loopback1_ip_range.setter
     def loopback1_ip_range(self, param):
         try:
-            self.ndfc.verify_ipv4_address_with_prefix(param)
+            self.validations.verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self._nv_pairs["LOOPBACK1_IP_RANGE"] = param
 
@@ -601,7 +632,12 @@ class NdfcEasyFabricEbgp(NdfcFabric):
 
     @replication_mode.setter
     def replication_mode(self, param):
-        self.ndfc.verify_replication_mode(param)
+        try:
+            self.validations.verify_replication_mode(param)
+        except ValueError as err:
+            msg = f"exiting {err}"
+            self.logger.error(msg)
+            sys.exit(1)
         self._nv_pairs["REPLICATION_MODE"] = param
 
     @property
@@ -614,8 +650,9 @@ class NdfcEasyFabricEbgp(NdfcFabric):
     @subnet_range.setter
     def subnet_range(self, param):
         try:
-            self.ndfc.verify_ipv4_address_with_prefix(param)
+            self.validations.verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.ndfc.log.error(f"exiting. {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self._nv_pairs["SUBNET_RANGE"] = param

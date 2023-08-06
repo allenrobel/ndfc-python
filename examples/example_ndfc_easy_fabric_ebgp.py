@@ -17,7 +17,9 @@ ndfc.password = nc.password
 ndfc.ip4 = nc.ndfc_ip
 ndfc.login()
 
-instance = NdfcEasyFabricEbgp(ndfc)
+instance = NdfcEasyFabricEbgp()
+instance.logger = logger
+instance.ndfc = ndfc
 instance.fabric_name = "Easy_Fabric_EBGP_1"
 instance.bgp_as = 65222
 # instance.subnet_range = "10.10.0.0/16"
