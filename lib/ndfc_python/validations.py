@@ -584,7 +584,8 @@ class Validations:
     @staticmethod
     def verify_bgp_asn(asn):
         """
-        Verify that asn conforms to the following NDFC constraint
+        raise ValueError if asn does not conform to the following
+        NDFC constraint
 
         1-4294967295 | 1-65535[.0-65535]
         """
