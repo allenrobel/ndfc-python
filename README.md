@@ -25,7 +25,7 @@ validations           | Validation methods used by the other classes
 
 Script                  | Description
 ----------------------- | -----------
-credentials.py          | Print the user's credentials after asking for their ansible vault password
+[credentials.py]        | Print the user's credentials after asking for their ansible vault password
 device_info.py          | Retrieve various information about a device, given its fabric_name and ip_address
 discover_is_up.py       | Check if device is up and manageable.  If so, call config_save on the fabric.
 discover.py             | Discover device
@@ -196,3 +196,5 @@ This repository follows the Contributor Covenant [Code of Conduct](https://githu
 GNU General Public License v3.0 or later.
 
 See [LICENSE](https://www.gnu.org/licenses/gpl-3.0.txt) for full text.
+
+[credentials.py]: /examples/credentials.py
