@@ -1,16 +1,13 @@
 """
-Common() - common.py
-
-Description:
-
-Validation methods and constants for libraries in this repository
+Name: validations.py
+Description: Validation methods for libraries in this repository
 """
 import ipaddress
 import re
 
-from ndfc_python.ndfc import NDFC  # _verify_ndfc()
+from ndfc_python.ndfc import NDFC  # verify_ndfc()
 
-OUR_VERSION = 119
+OUR_VERSION = 120
 
 
 class Validations:
@@ -119,7 +116,7 @@ class Validations:
         Return False otherwise
 
         See also:
-        _verify_integer_range() throw an exception when param is out of range
+        verify_integer_range() throw an exception when param is out of range
         """
         if not self.is_digits(param):
             return False
@@ -130,7 +127,7 @@ class Validations:
         return True
 
     @staticmethod
-    def _verify_hypenated_range(params):
+    def verify_hypenated_range(params):
         """
         Given a string with format "X-Y" where:
             X is convertable to integer, e.g. "1", "1532"
@@ -585,7 +582,7 @@ class Validations:
         return False
 
     @staticmethod
-    def _verify_bgp_asn(asn):
+    def verify_bgp_asn(asn):
         """
         Verify that asn conforms to the following NDFC constraint
 
@@ -646,18 +643,18 @@ class Validations:
             msg += f"1-4294967295 | 1-65535[.0-65535], got {asn}"
             raise ValueError(msg)
 
-    def _verify_bgp_password_key_type(self, param, caller=""):
+    def verify_bgp_password_key_type(self, param):
         """
         raise ValueError if bgp_password_key_type is not what NDFC expects.
         caller is optional.  Use if you want your error message to include
         that information.
         """
         if param not in self._valid["bgp_password_key_type"]:
-            msg = f"{caller} must match one of "
-            msg += f"{self._valid['bgp_password_key_type']}"
+            msg = f"expected one of {self._valid['bgp_password_key_type']}, "
+            msg += f"got {param}"
             raise ValueError(msg)
 
-    def _verify_bgp_rp_asn_list(self, param):
+    def verify_bgp_rp_asn_list(self, param):
         """
         raise TypeError if param is not a list.
         raise ValueError if any element in param does not meet NDFC's
@@ -668,11 +665,11 @@ class Validations:
             raise TypeError(msg)
         try:
             for asn in param:
-                self._verify_bgp_asn(asn)
+                self.verify_bgp_asn(asn)
         except ValueError as err:
             raise ValueError(err) from err
 
-    def _verify_border_gwy_connections(self, param):
+    def verify_border_gwy_connections(self, param):
         """
         raise ValueError if param does not match a valid border gateway
         connection type.
@@ -685,7 +682,7 @@ class Validations:
         raise ValueError(msg)
 
     @staticmethod
-    def _verify_disable_enable(param):
+    def verify_disable_enable(param):
         """
         raise ValueError if param is not one of "Disable" or "Enable"
         """
@@ -695,7 +692,7 @@ class Validations:
         msg = f"expected one of {_valid}, got {param}"
         raise ValueError(msg)
 
-    def _verify_digits(self, param):
+    def verify_digits(self, param):
         """
         raise ValueError if param is not digits
         """
@@ -704,7 +701,7 @@ class Validations:
         msg = f"expected digits, got {param}"
         raise ValueError(msg)
 
-    def _verify_digits_or_default(self, param):
+    def verify_digits_or_default(self, param):
         """
         raise ValueError if param is not digits, or the string 'default'
         """
@@ -715,7 +712,7 @@ class Validations:
         msg = f"expected digits or the string 'default', got {param}"
         raise ValueError(msg)
 
-    def _verify_fabric_name(self, param):
+    def verify_fabric_name(self, param):
         """
         raise TypeError if param is not a string
         raise ValueError if param does not conform to NDFC's constraints
@@ -744,7 +741,7 @@ class Validations:
             msg = f"fabric_name cannot contain ONLY numbers, got {param}"
             raise ValueError(msg)
 
-    def _verify_ndfc(self, param):
+    def verify_ndfc(self, param):
         """
         raise AttributeError if param is None or ""
         raise TypeError if param is not an NDFC() instance
@@ -759,7 +756,7 @@ class Validations:
             msg += f"got {type(param).__name__}"
             raise TypeError(msg)
 
-    def _verify_ipv4_address(self, param):
+    def verify_ipv4_address(self, param):
         """
         raise ipaddress.AddressValueError if param is not an IPv4 address
         """
@@ -768,7 +765,7 @@ class Validations:
         msg = f"expected ipv4 address, got {param}"
         raise ipaddress.AddressValueError(msg)
 
-    def _verify_ipv6_address(self, param):
+    def verify_ipv6_address(self, param):
         """
         raise ipaddress.AddressValueError if param is not an IPv6 address
         """
@@ -777,7 +774,7 @@ class Validations:
         msg = f"expected ipv6 address, got {param}"
         raise ipaddress.AddressValueError(msg)
 
-    def _verify_ipv4_multicast_address(self, param):
+    def verify_ipv4_multicast_address(self, param):
         """
         raise ipaddress.AddressValueError if param is not an IPv4 multicast
         address without prefix
@@ -788,7 +785,7 @@ class Validations:
         msg += f"e.g. 225.1.1.2, got {param}"
         raise ipaddress.AddressValueError(msg)
 
-    def _verify_ipv4_multicast_address_with_prefix(self, param):
+    def verify_ipv4_multicast_address_with_prefix(self, param):
         """
         raise ipaddress.AddressValueError if param is not an IPv4 multicast
         address with prefix
@@ -804,7 +801,7 @@ class Validations:
         msg += f"e.g. 225.1.0.0/16, got {param}"
         raise ipaddress.AddressValueError(msg)
 
-    def _verify_ipv4_address_with_prefix(self, param):
+    def verify_ipv4_address_with_prefix(self, param):
         """
         raise ipaddress.AddressValueError if param is not an IPv4 address
         with prefix
@@ -815,7 +812,7 @@ class Validations:
         msg += f"got {param}"
         raise ipaddress.AddressValueError(msg)
 
-    def _verify_ipv6_address_with_prefix(self, param):
+    def verify_ipv6_address_with_prefix(self, param):
         """
         raise ipaddress.AddressValueError if param is not an IPv6 address
         with prefix
@@ -826,7 +823,7 @@ class Validations:
         msg += f"got {param}"
         raise ipaddress.AddressValueError(msg)
 
-    def _verify_ipv4_network_range(self, param):
+    def verify_ipv4_network_range(self, param):
         """
         raise ipaddress.AddressValueError if param is not an IPv4 network range
         """
@@ -836,7 +833,7 @@ class Validations:
         msg += f" where X <= 31. got {param}"
         raise ipaddress.AddressValueError(msg)
 
-    def _verify_ipv6_network_range(self, param):
+    def verify_ipv6_network_range(self, param):
         """
         raise ipaddress.AddressValueError if param is not an IPv6 network range
         """
@@ -846,7 +843,7 @@ class Validations:
         msg += f" where X <= 127. got {param}"
         raise ipaddress.AddressValueError(msg)
 
-    def _verify_list(self, param):
+    def verify_list(self, param):
         """
         raise TypeError if param is not a list()
         """
@@ -855,7 +852,7 @@ class Validations:
             raise TypeError(msg)
 
     @staticmethod
-    def _verify_list_lengths_are_equal(list_a, list_b):
+    def verify_list_lengths_are_equal(list_a, list_b):
         """
         raise ValueError if lists are not of equal length
         raise TypeError if either list_a or list_b  is not a python list
@@ -870,7 +867,7 @@ class Validations:
             msg += f"{list_a} and {list_b}"
             raise ValueError(msg)
 
-    def _verify_list_of_dict(self, param):
+    def verify_list_of_dict(self, param):
         """
         raise TypeError if param is not a list() of dict()
         """
@@ -884,7 +881,7 @@ class Validations:
                 msg += "list element"
                 raise TypeError(msg)
 
-    def _verify_list_of_list(self, param):
+    def verify_list_of_list(self, param):
         """
         raise TypeError if param is not a list() of list()
         """
@@ -898,7 +895,7 @@ class Validations:
                 msg += "list element"
                 raise TypeError(msg)
 
-    def _verify_list_or_default(self, param):
+    def verify_list_or_default(self, param):
         """
         raise TypeError if param is not a list() or string "default"
         """
@@ -910,7 +907,7 @@ class Validations:
         msg += f"got {type(param).__name__}"
         raise TypeError(msg)
 
-    def _verify_macsec_algorithm(self, param):
+    def verify_macsec_algorithm(self, param):
         """
         raise ValueError if param does not conform to NDFC's expectations
         for macsec algorithm
@@ -922,7 +919,7 @@ class Validations:
         raise ValueError(msg)
 
     @staticmethod
-    def _verify_property_has_value(param, value):
+    def verify_property_has_value(param, value):
         """
         raise ValueError if value of param is "" or None
         """
@@ -930,7 +927,7 @@ class Validations:
             msg = f"missing value for mandatory property {param}"
             raise ValueError(msg)
 
-    def _verify_replication_mode(self, param):
+    def verify_replication_mode(self, param):
         """
         raise ValueError if param is not a valid NDFC replication mode
         """
@@ -942,7 +939,7 @@ class Validations:
         raise ValueError(msg)
 
     @staticmethod
-    def _verify_string_length(params):
+    def verify_string_length(params):
         """
         Given params dictionary with the following keys:
 
@@ -990,7 +987,7 @@ class Validations:
             return True
         return False
 
-    def _verify_boolean(self, param):
+    def verify_boolean(self, param):
         """
         raise TypeError if param is not a boolean
         """
@@ -999,7 +996,7 @@ class Validations:
         msg = f"expected boolean, got {param}"
         raise TypeError(msg)
 
-    def _verify_integer_range(self, params):
+    def verify_integer_range(self, params):
         """
         raise ValueError if params.value is not with range
         params.min and params.max
@@ -1035,7 +1032,7 @@ class Validations:
         msg += f"{params['min']}-{params['max']}"
         raise ValueError(msg)
 
-    def _verify_rp_count(self, param):
+    def verify_rp_count(self, param):
         """
         verify rp_count conforms to NDFC's expectations
         """
@@ -1045,7 +1042,7 @@ class Validations:
         msg += f"{self._valid['rp_count']}. got {param}"
         raise ValueError(msg)
 
-    def _verify_rp_mode(self, param):
+    def verify_rp_mode(self, param):
         """
         verify rp_mode conforms to NDFC's expectations
         """
@@ -1055,7 +1052,7 @@ class Validations:
         msg += f"{self._valid['rp_mode']}. got {param}"
         raise ValueError(msg)
 
-    def _verify_rp_server_ip_list(self, param):
+    def verify_rp_server_ip_list(self, param):
         """
         raise TypeError if param is not a python list
         raise ipaddress.AddressValueError if any element in param is not an
@@ -1067,11 +1064,11 @@ class Validations:
             raise TypeError(msg)
         for item in param:
             try:
-                self._verify_ipv4_address(item)
+                self.verify_ipv4_address(item)
             except ipaddress.AddressValueError as err:
                 raise ipaddress.AddressValueError(err) from err
 
-    def _verify_rr_count(self, param):
+    def verify_rr_count(self, param):
         """
         verify rr_count conforms to NDFC's expectations
         """
@@ -1081,7 +1078,7 @@ class Validations:
         msg += f"{self._valid['rr_count']}. got {param}"
         raise ValueError(msg)
 
-    def _verify_stp_root_option(self, param):
+    def verify_stp_root_option(self, param):
         """
         raise ValueError of stp_root_option does not conforms to
         NDFC's expectations.
@@ -1092,7 +1089,7 @@ class Validations:
         msg += f"{self._valid['stp_root_option']}. Got {param}"
         raise ValueError(msg)
 
-    def _verify_vlan(self, param):
+    def verify_vlan(self, param):
         """
         raise ValueError if param is not a valid NDFC vlan ID
         """
@@ -1101,9 +1098,9 @@ class Validations:
         params["min"] = self.min_vlan
         params["max"] = self.max_vlan
         params["item"] = "vlan_id"
-        self._verify_integer_range(params)
+        self.verify_integer_range(params)
 
-    def _verify_vrf_vlan_id(self, param):
+    def verify_vrf_vlan_id(self, param):
         """
         raise ValueError if param is not a valid NDFC vrf vlan ID
         """
@@ -1112,9 +1109,9 @@ class Validations:
         params["min"] = self.min_vrf_vlan_id
         params["max"] = self.max_vrf_vlan_id
         params["item"] = "vrf_vlan_id"
-        self._verify_integer_range(params)
+        self.verify_integer_range(params)
 
-    def _verify_loopback_id(self, param):
+    def verify_loopback_id(self, param):
         """
         raise ValueError if param is not a valid NDFC loopback interface ID
         """
@@ -1123,9 +1120,9 @@ class Validations:
         params["min"] = self.min_loopback_id
         params["max"] = self.max_loopback_id
         params["item"] = "loopback_id"
-        self._verify_integer_range(params)
+        self.verify_integer_range(params)
 
-    def _verify_max_bgp_paths(self, param):
+    def verify_max_bgp_paths(self, param):
         """
         raise ValueError if param is not a valid value
         for NDFC max_bgp_paths
@@ -1135,9 +1132,9 @@ class Validations:
         params["min"] = self.min_max_bgp_paths
         params["max"] = self.max_max_bgp_paths
         params["item"] = "max_bgp_paths"
-        self._verify_integer_range(params)
+        self.verify_integer_range(params)
 
-    def _verify_mtu(self, param):
+    def verify_mtu(self, param):
         """
         raise ValueError if param is not a valid NDFC MTU
         """
@@ -1146,9 +1143,9 @@ class Validations:
         params["min"] = self.min_mtu
         params["max"] = self.max_mtu
         params["item"] = "mtu"
-        self._verify_integer_range(params)
+        self.verify_integer_range(params)
 
-    def _verify_nve_id(self, param):
+    def verify_nve_id(self, param):
         """
         raise ValueError if param is not a valid NDFC nve ID
         """
@@ -1157,9 +1154,9 @@ class Validations:
         params["min"] = self.min_nve_id
         params["max"] = self.max_nve_id
         params["item"] = "nve_id"
-        self._verify_integer_range(params)
+        self.verify_integer_range(params)
 
-    def _verify_routing_tag(self, param):
+    def verify_routing_tag(self, param):
         """
         raise ValueError if param is not a valid NDFC routing tag
         """
@@ -1168,9 +1165,9 @@ class Validations:
         params["min"] = self.min_routing_tag
         params["max"] = self.max_routing_tag
         params["item"] = "routing_tag"
-        self._verify_integer_range(params)
+        self.verify_integer_range(params)
 
-    def _verify_vni(self, param):
+    def verify_vni(self, param):
         """
         raise ValueError if param is not a valid NDFC vni value
         """
@@ -1179,7 +1176,7 @@ class Validations:
         params["min"] = self.min_vni
         params["max"] = self.max_vni
         params["item"] = "vni"
-        self._verify_integer_range(params)
+        self.verify_integer_range(params)
 
     def strip_netmask(self, param):
         """

@@ -46,7 +46,7 @@ from ndfc_python.log import log
 from ndfc_python.ndfc import NdfcRequestError
 from ndfc_python.validations import Validations
 
-OUR_VERSION = 106
+OUR_VERSION = 107
 
 
 class NdfcReachability:
@@ -96,9 +96,9 @@ class NdfcReachability:
 
     def _init_default_logger(self):
         """
-        This logger will be active if the user hasn't set self.logger 
+        This logger will be active if the user hasn't set self.logger
         """
-        self.logger = log('ndfc_policy_log')
+        self.logger = log("ndfc_policy_log")
 
     def _init_payload_set(self):
         """
@@ -181,7 +181,6 @@ class NdfcReachability:
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
         url += "inventory/test-reachability"
 
-        print(f'get payload: {self.payload}')
         try:
             self.ndfc.post(url, self.ndfc.make_headers(), self.payload)
         except NdfcRequestError as err:
@@ -225,9 +224,10 @@ class NdfcReachability:
     @cdp_second_timeout.setter
     def cdp_second_timeout(self, param):
         try:
-            self.validations._verify_digits(param)
+            self.validations.verify_digits(param)
         except ValueError as err:
-            self.logger.error(f"exiting. {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self.payload["cdpSecondTimeout"] = param
 
@@ -252,9 +252,10 @@ class NdfcReachability:
     @max_hops.setter
     def max_hops(self, param):
         try:
-            self.validations._verify_digits(param)
+            self.validations.verify_digits(param)
         except ValueError as err:
-            self.logger.error(f"exiting. {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self.payload["maxHops"] = param
 
@@ -279,7 +280,7 @@ class NdfcReachability:
     @preserve_config.setter
     def preserve_config(self, param):
         try:
-            self.validations._verify_boolean(param)
+            self.validations.verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
             self.logger.error(msg)
@@ -296,9 +297,10 @@ class NdfcReachability:
     @seed_ip.setter
     def seed_ip(self, param):
         try:
-            self.validations._verify_ipv4_address(param)
+            self.validations.verify_ipv4_address(param)
         except AddressValueError as err:
-            self.logger.error(f"exiting. {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self.payload["seedIP"] = param
 
@@ -312,9 +314,10 @@ class NdfcReachability:
     @snmp_v3_auth_protocol.setter
     def snmp_v3_auth_protocol(self, param):
         try:
-            self.validations._verify_digits(param)
+            self.validations.verify_digits(param)
         except ValueError as err:
-            self.logger.error(f"exiting. {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self.payload["snmpV3AuthProtocol"] = param
 

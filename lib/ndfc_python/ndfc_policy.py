@@ -26,7 +26,7 @@ from ndfc_python.log import log
 from ndfc_python.ndfc import NdfcRequestError
 from ndfc_python.validations import Validations
 
-OUR_VERSION = 104
+OUR_VERSION = 105
 
 
 class NdfcPolicy:
@@ -104,9 +104,9 @@ class NdfcPolicy:
 
     def _init_default_logger(self):
         """
-        This logger will be active if the user hasn't set self.logger 
+        This logger will be active if the user hasn't set self.logger
         """
-        self.logger = log('ndfc_policy_log')
+        self.logger = log("ndfc_policy_log")
 
     def _init_internal_properties(self):
         self._internal_properties["logger"] = self.logger
@@ -266,7 +266,6 @@ class NdfcPolicy:
             msg = f"Failure response from NDFC. Detail: {err}"
             raise NdfcRequestError(msg) from err
 
-
     # properties that are not passed to NDFC
     @property
     def logger(self):
@@ -346,7 +345,9 @@ class NdfcPolicy:
     @nv_pairs.setter
     def nv_pairs(self, param):
         if not isinstance(param, dict):
-            self.logger.error(f"exiting. expected dict(), got {param}")
+            msg = f"exiting. expected dict(), got {param} with type "
+            msg += f"{type(param).__name__}"
+            self.logger.error(msg)
             sys.exit(1)
         self.payload["nvPairs"] = param
 
@@ -360,7 +361,9 @@ class NdfcPolicy:
     @policy_ids.setter
     def policy_ids(self, param):
         if not isinstance(param, list):
-            self.logger.error(f"exiting. expected list(), got {param}")
+            msg = f"exiting. expected list(), got {param} with type "
+            msg += f"{type(param).__name__}"
+            self.logger.error(msg)
             sys.exit(1)
         self._policy_ids = param
 

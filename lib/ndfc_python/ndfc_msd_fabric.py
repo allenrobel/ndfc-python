@@ -20,9 +20,7 @@ from re import sub
 
 from ndfc_python.ndfc_fabric import NdfcFabric, NdfcRequestError
 
-# from ndfc_python.validations import Validations
-
-OUR_VERSION = 101
+OUR_VERSION = 102
 
 
 class NdfcMsdFabric(NdfcFabric):
@@ -218,9 +216,10 @@ class NdfcMsdFabric(NdfcFabric):
         """
 
     def _final_verification(self):
+        self._ndfc_verification()
         for param in self._properties_mandatory_set:
             try:
-                self.validations._verify_property_has_value(
+                self.validations.verify_property_has_value(
                     param, self._properties[param]
                 )
             except ValueError:
@@ -235,9 +234,8 @@ class NdfcMsdFabric(NdfcFabric):
                 self.logger.error(msg)
                 sys.exit(1)
             try:
-                self.validations._verify_property_has_value(
-                    param, self._nv_pairs[param]
-                )
+                value = self._nv_pairs[param]
+                self.validations.verify_property_has_value(param, value)
             except ValueError:
                 msg = f"exiting. call instance.{self._property_map[param]} "
                 msg += "before calling instance.post()"
@@ -252,7 +250,7 @@ class NdfcMsdFabric(NdfcFabric):
             for param in ["RP_SERVER_IP", "BGP_RP_ASN"]:
                 try:
                     nvp = self._nv_pairs[param]
-                    self.validations._verify_property_has_value(param, nvp)
+                    self.validations.verify_property_has_value(param, nvp)
                 except ValueError as err:
                     msg = "exiting, "
                     msg += "border_gwy_connections is set to "
@@ -264,7 +262,7 @@ class NdfcMsdFabric(NdfcFabric):
             # RP_SERVER_IP and BGP_RP_ASN lists must be equal length
             try:
                 nv_param = self._nv_pairs["BGP_RP_ASN"]
-                self.validations._verify_list_lengths_are_equal(
+                self.validations.verify_list_lengths_are_equal(
                     self._nv_pairs["RP_SERVER_IP"], nv_param
                 )
             except TypeError as err:
@@ -339,7 +337,7 @@ class NdfcMsdFabric(NdfcFabric):
         the values for both below.
         """
         try:
-            self.validations._verify_fabric_name(param)
+            self.validations.verify_fabric_name(param)
         except (TypeError, ValueError) as err:
             msg = f"exiting. {err}"
             self.logger.error(msg)
@@ -465,7 +463,7 @@ class NdfcMsdFabric(NdfcFabric):
     @bgp_rp_asn.setter
     def bgp_rp_asn(self, param):
         try:
-            self.validations._verify_bgp_rp_asn_list(param)
+            self.validations.verify_bgp_rp_asn_list(param)
         except (ValueError, TypeError) as err:
             msg = f"exiting. {err}"
             self.logger.error(msg)
@@ -509,9 +507,10 @@ class NdfcMsdFabric(NdfcFabric):
     @border_gwy_connections.setter
     def border_gwy_connections(self, param):
         try:
-            self.validations._verify_border_gwy_connections(param)
+            self.validations.verify_border_gwy_connections(param)
         except ValueError as err:
-            self.logger.error(f"exiting {err}")
+            msg = f"exiting {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self._nv_pairs["BORDER_GWY_CONNECTIONS"] = param
 
@@ -874,9 +873,10 @@ class NdfcMsdFabric(NdfcFabric):
     @rp_server_ip.setter
     def rp_server_ip(self, param):
         try:
-            self.validations._verify_rp_server_ip_list(param)
+            self.validations.verify_rp_server_ip_list(param)
         except (AddressValueError, TypeError) as err:
-            self.logger.error(f"exiting. {err}")
+            msg = f"exiting {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self._nv_pairs["RP_SERVER_IP"] = param
 

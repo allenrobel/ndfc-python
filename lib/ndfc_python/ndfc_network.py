@@ -50,13 +50,12 @@ network = {
 """
 import json
 import sys
-from inspect import stack
 from ipaddress import AddressValueError
 
 from ndfc_python.log import log
 from ndfc_python.validations import Validations
 
-OUR_VERSION = 106
+OUR_VERSION = 107
 
 
 class NdfcNetwork:
@@ -110,9 +109,9 @@ class NdfcNetwork:
 
     def _init_default_logger(self):
         """
-        This logger will be active if the user hasn't set self.logger 
+        This logger will be active if the user hasn't set self.logger
         """
-        self.logger = log('ndfc_network_log')
+        self.logger = log("ndfc_network_log")
 
     def _init_internal_properties(self):
         self._internal_properties["logger"] = self.logger
@@ -231,14 +230,6 @@ class NdfcNetwork:
                 self.template_config[param] = value
             else:
                 self.template_config[param] = ""
-
-    def _verify_ndfc_is_set(self):
-        if self.ndfc is None:
-            msg = "exiting. instance.ndfc is not set.  "
-            msg += "Call instance.ndfc = <ndfc instance> to interact with "
-            msg += "your NDFC."
-            self.logger.error(msg)
-            sys.exit(1)
 
     def _preprocess_payload(self):
         """
@@ -361,6 +352,12 @@ class NdfcNetwork:
         """
         final verification of all parameters
         """
+        try:
+            self.validations.verify_ndfc(self.ndfc)
+        except (AttributeError, TypeError) as err:
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
+            sys.exit(1)
         for param in self._payload_set_mandatory:
             if self.payload[param] == "":
                 msg = "exiting. call instance."
@@ -657,7 +654,7 @@ class NdfcNetwork:
     @enable_ir.setter
     def enable_ir(self, param):
         try:
-            self.validations._verify_boolean(param)
+            self.validations.verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
             self.logger.error(msg)
@@ -674,7 +671,7 @@ class NdfcNetwork:
     @enable_l3_on_border.setter
     def enable_l3_on_border(self, param):
         try:
-            self.validations._verify_boolean(param)
+            self.validations.verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
             self.logger.error(msg)
@@ -691,9 +688,10 @@ class NdfcNetwork:
     @gateway_ip_address.setter
     def gateway_ip_address(self, param):
         try:
-            self.validations._verify_ipv4_address_with_prefix(param)
+            self.validations.verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.logger.error(f"exiting. {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["gatewayIpAddress"] = param
 
@@ -707,9 +705,10 @@ class NdfcNetwork:
     @gateway_ipv6_address.setter
     def gateway_ipv6_address(self, param):
         try:
-            self.validations._verify_ipv6_address_with_prefix(param)
+            self.validations.verify_ipv6_address_with_prefix(param)
         except AddressValueError as err:
-            self.logger.error(f"exiting. {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["gatewayIpV6Address"] = param
 
@@ -734,7 +733,7 @@ class NdfcNetwork:
     @is_layer2_only.setter
     def is_layer2_only(self, param):
         try:
-            self.validations._verify_boolean(param)
+            self.validations.verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
             self.logger.error(msg)
@@ -750,7 +749,7 @@ class NdfcNetwork:
 
     @loopback_id.setter
     def loopback_id(self, param):
-        self.validations._verify_loopback_id(param)
+        self.validations.verify_loopback_id(param)
         self.template_config["loopbackId"] = param
 
     @property
@@ -762,9 +761,12 @@ class NdfcNetwork:
 
     @mcast_group.setter
     def mcast_group(self, param):
-        self.validations._verify_ipv4_multicast_address(
-            param, f"{self.class_name}.mcast_group.setter"
-        )
+        try:
+            self.validations.verify_ipv4_multicast_address(param)
+        except AddressValueError as err:
+            msg = f"exiting {err}"
+            self.logger.error(msg)
+            sys.exit(1)
         self.template_config["mcastGroup"] = param
 
     @property
@@ -776,7 +778,12 @@ class NdfcNetwork:
 
     @mtu.setter
     def mtu(self, param):
-        self.validations._verify_mtu(param, f"{self.class_name}.mtu.setter")
+        try:
+            self.validations.verify_mtu(param)
+        except ValueError as err:
+            msg = f"exiting {err}"
+            self.logger.error(msg)
+            sys.exit(1)
         self.template_config["mtu"] = param
 
     # networkName (see property for self.payload['networkName])
@@ -792,7 +799,12 @@ class NdfcNetwork:
 
     @nve_id.setter
     def nve_id(self, param):
-        self.validations._verify_nve_id(param, f"{self.class_name}.nve_id.setter")
+        try:
+            self.validations.verify_nve_id(param)
+        except ValueError as err:
+            msg = f"exiting {err}"
+            self.logger.error(msg)
+            sys.exit(1)
         self.template_config["nveId"] = param
 
     @property
@@ -805,7 +817,7 @@ class NdfcNetwork:
     @rt_both_auto.setter
     def rt_both_auto(self, param):
         try:
-            self.validations._verify_boolean(param)
+            self.validations.verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
             self.logger.error(msg)
@@ -822,9 +834,10 @@ class NdfcNetwork:
     @secondary_gw_1.setter
     def secondary_gw_1(self, param):
         try:
-            self.validations._verify_ipv4_address_with_prefix(param)
+            self.validations.verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.logger.error(f"exiting. {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["secondaryGW1"] = param
 
@@ -838,9 +851,10 @@ class NdfcNetwork:
     @secondary_gw_2.setter
     def secondary_gw_2(self, param):
         try:
-            self.validations._verify_ipv4_address_with_prefix(param)
+            self.validations.verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.logger.error(f"exiting. {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["secondaryGW2"] = param
 
@@ -854,9 +868,10 @@ class NdfcNetwork:
     @secondary_gw_3.setter
     def secondary_gw_3(self, param):
         try:
-            self.validations._verify_ipv4_address_with_prefix(param)
+            self.validations.verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.logger.error(f"exiting. {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["secondaryGW3"] = param
 
@@ -870,9 +885,10 @@ class NdfcNetwork:
     @secondary_gw_4.setter
     def secondary_gw_4(self, param):
         try:
-            self.validations._verify_ipv4_address_with_prefix(param)
+            self.validations.verify_ipv4_address_with_prefix(param)
         except AddressValueError as err:
-            self.logger.error(f"exiting. {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self.template_config["secondaryGW4"] = param
 
@@ -885,7 +901,7 @@ class NdfcNetwork:
 
     @segment_id.setter
     def segment_id(self, param):
-        self.validations._verify_vni(param)
+        self.validations.verify_vni(param)
         self.template_config["segmentId"] = param
 
     @property
@@ -898,7 +914,7 @@ class NdfcNetwork:
     @suppress_arp.setter
     def suppress_arp(self, param):
         try:
-            self.validations._verify_boolean(param)
+            self.validations.verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
             self.logger.error(msg)
@@ -914,7 +930,7 @@ class NdfcNetwork:
 
     @tag.setter
     def tag(self, param):
-        self.validations._verify_routing_tag(param)
+        self.validations.verify_routing_tag(param)
         self.template_config["tag"] = param
 
     @property
@@ -927,7 +943,7 @@ class NdfcNetwork:
     @trm_enabled.setter
     def trm_enabled(self, param):
         try:
-            self.validations._verify_boolean(param)
+            self.validations.verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
             self.logger.error(msg)
@@ -943,7 +959,7 @@ class NdfcNetwork:
 
     @vlan_id.setter
     def vlan_id(self, param):
-        self.validations._verify_vlan(param)
+        self.validations.verify_vlan(param)
         self.template_config["vlanId"] = param
 
     @property

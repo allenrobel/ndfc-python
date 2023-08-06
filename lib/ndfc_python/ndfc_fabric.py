@@ -8,7 +8,7 @@ from ndfc_python.log import log
 from ndfc_python.ndfc import NdfcRequestError
 from ndfc_python.validations import Validations
 
-OUR_VERSION = 104
+OUR_VERSION = 105
 
 
 class NdfcFabric:
@@ -99,9 +99,9 @@ class NdfcFabric:
 
     def _init_default_logger(self):
         """
-        This logger will be active if the user hasn't set self.logger 
+        This logger will be active if the user hasn't set self.logger
         """
-        self.logger = log('ndfc_fabric_log')
+        self.logger = log("ndfc_fabric_log")
 
     def _init_internal_properties(self):
         self._internal_properties["logger"] = self.logger
@@ -160,7 +160,6 @@ class NdfcFabric:
         self._ndfc_params_mandatory_set = set()
         self._ndfc_params_mandatory_set.add("fabricName")
 
-
     def _init_ndfc_params(self):
         """
         This is used to build the payload in self.create()
@@ -188,7 +187,6 @@ class NdfcFabric:
         """
         self._nv_pairs_mandatory_set = set()
 
-
     def _init_nv_pairs(self):
         """
         Set all nv_pairs params to default initially.
@@ -207,6 +205,14 @@ class NdfcFabric:
         Override this in subclasses
         """
 
+    def _ndfc_verification(self):
+        try:
+            self.validations.verify_ndfc(self.ndfc)
+        except (AttributeError, TypeError) as err:
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
+            sys.exit(1)
+
     def _final_verification(self):
         """
         Any final verifications go here
@@ -219,7 +225,7 @@ class NdfcFabric:
         Else, exit with error message including caller.
         """
         try:
-            self.validations._verify_boolean(param)
+            self.validations.verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {caller}, not expected type. {err}"
             self.logger.error(msg)
@@ -233,12 +239,13 @@ class NdfcFabric:
         populate set self.fabric_names with the names of
         all fabrics on the NDFC
         """
-        self.verify_ndfc_is_set()
+        self._ndfc_verification()
         url = self.ndfc.url_control_fabrics
         try:
             self.fabric_info = self.ndfc.get(url, self.ndfc.make_headers())
         except NdfcRequestError as err:
-            self.logger.error(f"error: {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         for item in self.fabric_info:
             if "fabricName" in item:
@@ -254,21 +261,12 @@ class NdfcFabric:
             return True
         return False
 
-    def verify_ndfc_is_set(self):
-        if self.ndfc is None:
-            msg = "exiting. instance.ndfc is not set.  "
-            msg += "Call instance.ndfc = <ndfc instance> to interact with "
-            msg += "your NDFC."
-            self.logger.error(msg)
-            sys.exit(1)
-
     def create(self):
         """
         Create a fabric
 
         raise ValueError if bearer_token is not provided
         """
-        self.verify_ndfc_is_set()
         self._preprocess_properties()
         self._final_verification()
         if self.ndfc.bearer_token is None:
@@ -282,16 +280,16 @@ class NdfcFabric:
         try:
             self.ndfc.post(url, self.ndfc.make_headers(), self._properties)
         except NdfcRequestError as err:
-            msg = f"error creating fabric {self.fabric_name} "
+            msg = f"exiting. error creating fabric {self.fabric_name} "
             msg += f"error detail: {err}"
-            self.logger.error(f"exiting. {msg}")
+            self.logger.error(msg)
             sys.exit(1)
 
     def config_save(self):
         """
         Send validated POST request to the NDFC config-save endpoint.
         """
-        self.verify_ndfc_is_set()
+        self._ndfc_verification()
         if self.fabric_name is None:
             msg = "exiting. Set instance.fabric_name before calling "
             msg += "instance.config_save()."
@@ -304,7 +302,6 @@ class NdfcFabric:
             sys.exit(1)
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}/config-save"
         self.ndfc.post(url, self.ndfc.make_headers(), {})
-        self.logger.info(f"{self.fabric_name}: config_save complete.")
 
     # properties that are not passed to NDFC
     @property

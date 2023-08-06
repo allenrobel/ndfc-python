@@ -10,7 +10,7 @@ from ndfc_python.log import log
 from ndfc_python.ndfc import NdfcRequestError
 from ndfc_python.validations import Validations
 
-OUR_VERSION = 101
+OUR_VERSION = 102
 
 
 class NdfcDeviceInfo:
@@ -350,18 +350,11 @@ class NdfcDeviceInfo:
             "operStatus",
         }
 
-    def verify_ndfc_is_set(self):
-        if self.ndfc is None:
-            msg = "exiting. instance.ndfc is not set.  "
-            msg += "Call instance.ndfc = <ndfc instance> to interact with "
-            msg += "your NDFC."
-            raise AttributeError(msg)
-
     def _init_default_logger(self):
         """
-        This logger will be active if the user hasn't set self.logger 
+        This logger will be active if the user hasn't set self.logger
         """
-        self.logger = log('ndfc_device_info_log')
+        self.logger = log("ndfc_device_info_log")
 
     def _init_internal_properties(self):
         self._internal_properties["logger"] = self.logger
@@ -401,9 +394,10 @@ class NdfcDeviceInfo:
         2. Populate vars and structures needed by self.refresh()
         """
         try:
-            self.verify_ndfc_is_set()
-        except AttributeError as err:
-            self.logger(f"exiting. {err}")
+            self.validations.verify_ndfc(self.ndfc)
+        except (AttributeError, TypeError) as err:
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         for key in self._property_mandatory_set:
             if self._properties[key] is None:
@@ -449,7 +443,6 @@ class NdfcDeviceInfo:
 
         If unsuccessful, exit with error
         """
-        self.verify_ndfc_is_set()
         try:
             self._raw_fabric_info = self.ndfc.get(
                 self.ndfc.url_control_fabrics, self.ndfc.make_headers()
@@ -516,8 +509,8 @@ class NdfcDeviceInfo:
         try:
             self._final_verification()
         except ValueError as err:
-            msg = f"final verification failed. detail: {err}"
-            self.logger.error(f"exiting. {err}")
+            msg = f"exiting. final verification failed. detail: {err}"
+            self.logger.error(msg)
             sys.exit(1)
 
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
@@ -535,7 +528,8 @@ class NdfcDeviceInfo:
         try:
             self._verify_inventory_switches_by_fabric(self._response)
         except (TypeError, KeyError) as err:
-            self.logger.error(f"exiting. {err}")
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
         self._switches_by_fabric = self._response
 
@@ -591,7 +585,7 @@ class NdfcDeviceInfo:
     @ip_address.setter
     def ip_address(self, param):
         try:
-            self.validations._verify_ipv4_address(param)
+            self.validations.verify_ipv4_address(param)
         except AddressValueError:
             self.logger.error("Exiting.")
             sys.exit(1)

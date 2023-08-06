@@ -67,7 +67,7 @@ from time import sleep
 from ndfc_python.log import log
 from ndfc_python.validations import Validations
 
-OUR_VERSION = 106
+OUR_VERSION = 107
 
 
 class NdfcDiscover:
@@ -181,18 +181,11 @@ class NdfcDiscover:
             "version",
         ]
 
-    def verify_ndfc_is_set(self):
-        if self.ndfc is None:
-            msg = "exiting. instance.ndfc is not set.  "
-            msg += "Call instance.ndfc = <ndfc instance> to interact with "
-            msg += "your NDFC."
-            raise AttributeError(msg)
-
     def _init_default_logger(self):
         """
-        This logger will be active if the user hasn't set self.logger 
+        This logger will be active if the user hasn't set self.logger
         """
-        self.logger = log('ndfc_discover_log')
+        self.logger = log("ndfc_discover_log")
 
     def _init_internal_properties(self):
         self._internal_properties["logger"] = self.logger
@@ -307,13 +300,16 @@ class NdfcDiscover:
         """
         Set of final checks prior to sending the request.
 
-        1. Verify all mandatory parameters have been set
-        2. Populate vars and structures needed by self.discover()
+        - verify ndfc is set and is an NDFC instance
+        - all mandatory parameters have been set
+        - populate vars and structures needed by self.discover()
+        - verify fabric exists on the NDFC
         """
         try:
-            self.verify_ndfc_is_set()
-        except AttributeError as err:
-            self.logger.error(err)
+            self.validations.verify_ndfc(self.ndfc)
+        except (AttributeError, TypeError) as err:
+            msg = f"exiting. {err}"
+            self.logger.error(msg)
             sys.exit(1)
 
         for key in self.payload_set_mandatory:
@@ -499,7 +495,6 @@ class NdfcDiscover:
         url += "/inventory/discover"
 
         self.payload["switches"] = self._reachability_response
-        self.logger.info(f"self.payload {self.payload}")
 
         self.ndfc.post(url, self.ndfc.make_headers(), self.payload)
         self.discover_status_code = self.ndfc.response.status_code
@@ -577,7 +572,7 @@ class NdfcDiscover:
     @cdp_second_timeout.setter
     def cdp_second_timeout(self, param):
         try:
-            self.validations._verify_digits(param)
+            self.validations.verify_digits(param)
         except TypeError as err:
             msg = f"exiting. {err}"
             self.logger.error(msg)
@@ -607,7 +602,7 @@ class NdfcDiscover:
     @max_hops.setter
     def max_hops(self, param):
         try:
-            self.validations._verify_digits(param)
+            self.validations.verify_digits(param)
         except TypeError as err:
             msg = f"exiting. {err}"
             self.logger.error(msg)
@@ -635,7 +630,7 @@ class NdfcDiscover:
     @preserve_config.setter
     def preserve_config(self, param):
         try:
-            self.validations._verify_boolean(param)
+            self.validations.verify_boolean(param)
         except TypeError as err:
             msg = f"exiting. {err}"
             self.logger.error(msg)
@@ -652,7 +647,7 @@ class NdfcDiscover:
     @seed_ip.setter
     def seed_ip(self, param):
         try:
-            self.validations._verify_ipv4_address(param)
+            self.validations.verify_ipv4_address(param)
         except AddressValueError:
             self.logger.error("Exiting.")
             sys.exit(1)
@@ -668,7 +663,7 @@ class NdfcDiscover:
     @snmp_v3_auth_protocol.setter
     def snmp_v3_auth_protocol(self, param):
         try:
-            self.validations._verify_digits(param)
+            self.validations.verify_digits(param)
         except TypeError as err:
             msg = f"exiting. {err}"
             self.logger.error(msg)
