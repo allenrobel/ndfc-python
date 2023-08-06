@@ -109,6 +109,9 @@ class Validations:
         self._valid["replication_mode"] = set()
         self._valid["replication_mode"].add("Ingress")
         self._valid["replication_mode"].add("Multicast")
+        self._valid["vpc_peer_keep_alive_option"] = set()
+        self._valid["vpc_peer_keep_alive_option"].add("management")
+        self._valid["vpc_peer_keep_alive_option"].add("loopback")
 
     def is_within_integer_range(self, param, range_min, range_max):
         """
@@ -144,7 +147,6 @@ class Validations:
         Example params:
 
         params = {
-            "caller": "my_function",
             "value": "15-26000",
             "min": 1,
             "max": 28740
@@ -154,20 +156,16 @@ class Validations:
             msg = f"expected dict, got type {type(params).__name__} "
             msg += f"with value {params}"
             raise TypeError(msg)
-        if "caller" in params:
-            _caller = params["caller"]
-        else:
-            _caller = "unspecified_caller"
         mandatory_keys = {"value", "min", "max"}
         if not mandatory_keys.issubset(params):
-            msg = f"{_caller}, missing expected key. "
+            msg = "missing expected key. "
             msg += f"expected {mandatory_keys}, got {params.keys()}"
             raise KeyError(msg)
         if not isinstance(params["max"], int):
-            msg = f"{_caller}, expected type int for max, got {params['max']}."
+            msg = f"expected type int for max, got {params['max']}."
             raise TypeError(msg)
         if not isinstance(params["min"], int):
-            msg = f"{_caller}, expected type int for min, got {params['min']}."
+            msg = f"expected type int for min, got {params['min']}."
             raise TypeError(msg)
         try:
             _match = re.search(r"^(\d+)-(\d+)$", params["value"])
@@ -177,26 +175,27 @@ class Validations:
             msg += f"Error detail: {err}"
             raise ValueError(msg) from err
         if not _match:
-            msg = f"{_caller}, expected string with format X-Y, where X "
+            msg = "expected string with format X-Y, where X "
             msg += f"and Y are digits.  Got {params['value']}"
             raise ValueError(msg)
         try:
             _lower = int(_match.group(1))
             _upper = int(_match.group(2))
         except ValueError as err:
-            msg = f"{_caller}, hyphenated range values not convertable "
+            msg = "hyphenated range values not convertable "
             msg += "to int().  expected integer-integer, got "
+            msg += f"{params['value']}"
             raise ValueError(msg) from err
         if not _lower >= params["min"]:
-            msg = f"{_caller}, expected X-Y, where X >= {params['min']}. "
+            msg = f"expected X-Y, where X >= {params['min']}. "
             msg += f"got X {_lower}"
             raise ValueError(msg)
         if not _upper <= params["max"]:
-            msg = f"{_caller}, expected X-Y, where Y <= {params['max']}. "
+            msg = f"expected X-Y, where Y <= {params['max']}. "
             msg += f"got Y {_upper}"
             raise ValueError(msg)
         if _lower >= _upper:
-            msg = f"{_caller}, expected X-Y, X < Y. "
+            msg = "expected X-Y, X < Y. "
             msg += f"got X {_lower}, Y {_upper}"
             raise ValueError(msg)
 
@@ -1100,6 +1099,16 @@ class Validations:
         params["max"] = self.max_vlan
         params["item"] = "vlan_id"
         self.verify_integer_range(params)
+
+    def verify_vpc_peer_keepalive_option(self, param):
+        """
+        verify vpc_peer_keepalive_option conforms to NDFC's expectations
+        """
+        if param in self._valid["vpc_peer_keepalive_option"]:
+            return
+        msg = "expected string with value in: "
+        msg += f"{self._valid['vpc_peer_keepalive_option']}. got {param}"
+        raise ValueError(msg)
 
     def verify_vrf_vlan_id(self, param):
         """
