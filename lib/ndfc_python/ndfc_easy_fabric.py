@@ -10,7 +10,7 @@ from re import sub
 
 from ndfc_python.ndfc_fabric import NdfcFabric, NdfcRequestError
 
-OUR_VERSION = 111
+OUR_VERSION = 112
 
 
 class NdfcEasyFabric(NdfcFabric):
@@ -949,7 +949,6 @@ class NdfcEasyFabric(NdfcFabric):
         _ndfc_payload = self._ndfc_params
         _ndfc_payload["nvPairs"] = self._nv_pairs
 
-        print(f"_ndfc_payload {_ndfc_payload}")
         try:
             self.ndfc.post(url, headers, _ndfc_payload)
         except NdfcRequestError as err:
