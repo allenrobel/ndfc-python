@@ -21,7 +21,7 @@ ndfc.login()
 
 exporter_dict = {}
 exporter_dict["EXPORTER_NAME"] = "exporter1"
-exporter_dict["IP"] = "172.22.150.103"
+exporter_dict["IP"] = "172.22.150.102"
 exporter_dict["VRF"] = "default"
 exporter_dict["SRC_IF_NAME"] = "Loopback0"
 exporter_dict["UDP_PORT"] = 6500
