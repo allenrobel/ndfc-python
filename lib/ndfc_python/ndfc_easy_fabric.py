@@ -2,13 +2,15 @@
 Name: ndfc_easy_fabric.py
 Description: Create fabric using the NDFC Easy_Fabric template
 """
+import copy
+import json
 import sys
 from ipaddress import AddressValueError
 from re import sub
 
 from ndfc_python.ndfc_fabric import NdfcFabric, NdfcRequestError
 
-OUR_VERSION = 110
+OUR_VERSION = 111
 
 
 class NdfcEasyFabric(NdfcFabric):
@@ -755,6 +757,106 @@ class NdfcEasyFabric(NdfcFabric):
         1. Align the properties to the expectations of NDFC
         """
 
+    def _validate_netflow_exporter_list(self, param):
+        """
+        Verify the following:
+        1. param is a list of dict
+        2. mandatory keys are present in every dict
+        3. each key's value is appropriate
+        """
+        try:
+            self.validations.verify_list_of_dict(param)
+        except ValueError as err:
+            msg = "_validate_netflow_exporter_list: exiting. "
+            msg += f"expected list of dict. got {param}. "
+            msg += f"error detail: {err}"
+            self.logger.error(msg)
+            sys.exit(1)
+        keys = {"EXPORTER_NAME", "IP", "VRF", "SRC_IF_NAME", "UDP_PORT"}
+        for item in param:
+            args = {}
+            args["keys"] = keys
+            args["dict"] = item
+            try:
+                self.validations.verify_keys(args)
+            except (KeyError, TypeError) as err:
+                msg = f"_validate_netflow_exporter_list: {err}"
+                self.logger.error(msg)
+                sys.exit(1)
+
+    def _validate_netflow_record_list(self, param):
+        """
+        Verify the following:
+        1. param is a list of dict
+        2. mandatory keys are present in every dict
+        3. each key's value is appropriate
+        """
+        try:
+            self.validations.verify_list_of_dict(param)
+        except ValueError as err:
+            msg = "_validate_netflow_record_list: exiting. "
+            msg += f"expected list of dict. got {param}. "
+            msg += f"error detail: {err}"
+            self.logger.error(msg)
+            sys.exit(1)
+        keys = {"RECORD_NAME", "RECORD_TEMPLATE", "LAYER2_RECORD"}
+        for item in param:
+            args = {}
+            args["keys"] = keys
+            args["dict"] = item
+            try:
+                self.validations.verify_keys(args)
+            except (KeyError, TypeError) as err:
+                msg = f"_validate_netflow_record_list: {err}"
+                self.logger.error(msg)
+                sys.exit(1)
+
+    def _translate_netflow_record_list(self, param):
+        """
+        Perform any conversions that are needed to satisfy NDFC
+
+        Conversions:
+        1. Convert LAYER2_RECORD from bool to lowercase str()
+
+        NOTES:
+        1.  param has already been validated so it's safe to forge ahead
+        2.  LAYER2_RECORD MUST to be lowercase, not title-case, so
+            a simple conversion like str(bool) won't work.
+        """
+        new_param = []
+        for item in param:
+            new_item = copy.deepcopy(item)
+            new_item["LAYER2_RECORD"] = str(new_item["LAYER2_RECORD"]).lower()
+            new_param.append(new_item)
+        return new_param
+
+    def _validate_netflow_monitor_list(self, param):
+        """
+        Verify the following:
+        1. param is a list of dict
+        2. mandatory keys are present in every dict
+        3. each key's value is appropriate
+        """
+        try:
+            self.validations.verify_list_of_dict(param)
+        except ValueError as err:
+            msg = "_validate_netflow_monitor_list: exiting. "
+            msg += f"expected list of dict. got {param}. "
+            msg += f"error detail: {err}"
+            self.logger.error(msg)
+            sys.exit(1)
+        keys = {"MONITOR_NAME", "RECORD_NAME", "EXPORTER1"}
+        for item in param:
+            args = {}
+            args["keys"] = keys
+            args["dict"] = item
+            try:
+                self.validations.verify_keys(args)
+            except (KeyError, TypeError) as err:
+                msg = f"_validate_netflow_monitor_list: {err}"
+                self.logger.error(msg)
+                sys.exit(1)
+
     def _final_verification(self):
         self._ndfc_verification()
 
@@ -792,7 +894,12 @@ class NdfcEasyFabric(NdfcFabric):
         #       loopback1_ipv6_range
         #       v6_subnet_range
         #       v6_subnet_target_mask
-
+        # TODO: if netflow_exporter_list is defined
+        #       - verify that all other netflow lists are the same length
+        # TODO: if netflow_monitor_list is defined
+        #       - verify that all other netflow lists are the same length
+        # TODO: if netflow_record_list is defined
+        #       - verify that all other netflow lists are the same length
         if (
             self.fabric_vpc_domain_id != ""
             and self.enable_fabric_vpc_domain_id is False
@@ -842,6 +949,7 @@ class NdfcEasyFabric(NdfcFabric):
         _ndfc_payload = self._ndfc_params
         _ndfc_payload["nvPairs"] = self._nv_pairs
 
+        print(f"_ndfc_payload {_ndfc_payload}")
         try:
             self.ndfc.post(url, headers, _ndfc_payload)
         except NdfcRequestError as err:
@@ -939,10 +1047,7 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def network_extension_template(self):
         """
-        return the current nv_pairs value of replication_mode
-        Since we set the NDFC top-level parameter AND the
-        nvPair in the setter below, we're just returning
-        the nv_pairs value here.
+        return the current nv_pairs value of network_extension_template
         """
         return self._nv_pairs["network_extension_template"]
 
@@ -954,10 +1059,7 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def network_template(self):
         """
-        return the current nv_pairs value of replication_mode
-        Since we set the NDFC top-level parameter AND the
-        nvPair in the setter below, we're just returning
-        the nv_pairs value here.
+        return the current nv_pairs value of network_template
         """
         return self._nv_pairs["default_network"]
 
@@ -1084,7 +1186,13 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def advertise_pip_bgp(self):
         """
-        return the current nv_pairs value of advertise_pip_bgp
+        For Primary VTEP IP Advertisement As Next-Hop Of Prefix Routes
+
+        NDFC GUI label: vPC advertise-pip
+        NDFC GUI tab: VPC
+
+        Valid values: boolean
+        Default value: False
         """
         return self._nv_pairs["ADVERTISE_PIP_BGP"]
 
@@ -1108,7 +1216,11 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def anycast_bgw_advertise_pip(self):
         """
-        return the current nv_pairs value of anycast_bgw_advertise_pip
+        To advertise Anycast Border Gateway PIP as VTEP.
+        Effective on MSD fabric 'Recalculate Config'
+
+        NDFC GUI label: Anycast Border Gateway advertise-pip
+        NDFC GUI tab: Advanced
         """
         return self._nv_pairs["ANYCAST_BGW_ADVERTISE_PIP"]
 
@@ -1121,6 +1233,12 @@ class NdfcEasyFabric(NdfcFabric):
     def anycast_gw_mac(self):
         """
         return the current nv_pairs value of anycast_gw_mac
+
+        NDFC GUI label: Anycast Gateway MAC
+        NDFC GUI tab: General Parameters
+
+        Valid values: a dotted notation mac address e.g. 000c.fa1c.04da
+        Default value: 2020.0000.00aa
         """
         return self._nv_pairs["ANYCAST_GW_MAC"]
 
@@ -1168,8 +1286,12 @@ class NdfcEasyFabric(NdfcFabric):
         Anycast or Phantom RP IP Address Range
 
         Valid value: An ipv4 network with prefix e.g. 10.1.0.0/16
+        Default value: 10.254.254.0/24
+
         NDFC GUI label: Underlay RP Loopback IP Range
         NDFC GUI tab: Resources
+
+        replication_mode must be set to "Multicast"
         """
         return self._nv_pairs["ANYCAST_RP_IP_RANGE"]
 
@@ -1186,7 +1308,15 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def auto_symmetric_default_vrf(self):
         """
-        return the current nv_pairs value of auto_symmetric_default_vrf
+        Enable (True) or disable (False) auto generation of Default
+        VRF interface and BGP peering configuration on VRF LITE IFC
+        auto deployment. If set, auto created VRF Lite IFC links will
+        have 'Auto Deploy Default VRF' enabled.
+
+        NDFC GUI label: Auto Deploy Default VRF
+        NDFC GUI tab: Resources
+
+        vrf_lite_autoconfig must be set to Back2Back&ToExternal
         """
         return self._nv_pairs["AUTO_SYMMETRIC_DEFAULT_VRF"]
 
@@ -1198,7 +1328,8 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def auto_symmetric_vrf_lite(self):
         """
-        return the current nv_pairs value of auto_symmetric_vrf_lite
+        NDFC GUI label: Auto Deploy for Peer
+        NDFC GUI tab: Resources
         """
         return self._nv_pairs["AUTO_SYMMETRIC_VRF_LITE"]
 
@@ -1657,6 +1788,9 @@ class NdfcEasyFabric(NdfcFabric):
         """
         return the current nv_pairs value of default_vrf_redis_bgp_rmap
 
+        NDFC GUI label: Redistribute BGP Route-map Name
+        NDFC GUI tab: Resources
+
         Default value: ""
 
         Input validation is not performed.
@@ -1942,10 +2076,19 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def enable_netflow(self):
         """
-        return the current nv_pairs value of enable_netflow
+        Enable (True) or disable (False) Netflow on VTEPs
+
+        NDFC GUI label: Enable Netflow
+        NDFC gui tab: Flow Monitor
 
         Valid values: boolean
         Default value: False
+
+        NOTES:
+        - If True, the following are mandatory:
+            - NETFLOW_EXPORTER_LIST
+            - NETFLOW_RECORD_LIST
+            - NETFLOW_MONITOR_LIST
         """
         return self._nv_pairs["ENABLE_NETFLOW"]
 
@@ -3263,7 +3406,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     @mgmt_v6prefix.setter
     def mgmt_v6prefix(self, param):
-        # TODO: Add validation
+        # TODO:4 Validation. mgmt_v6prefix
         self._nv_pairs["MGMT_V6PREFIX"] = param
 
     @property
@@ -3360,7 +3503,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     @mso_connectivity_deployed.setter
     def mso_connectivity_deployed(self, param):
-        # TODO: Add validation
+        # TODO:5 Validation. mso_connectivity_deployed
         self._nv_pairs["MSO_CONNECTIVITY_DEPLOYED"] = param
 
     @property
@@ -3374,7 +3517,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     @mso_controler_id.setter
     def mso_controler_id(self, param):
-        # TODO: Add validation
+        # TODO:5 Validation. mso_controler_id
         self._nv_pairs["MSO_CONTROLER_ID"] = param
 
     @property
@@ -3383,12 +3526,12 @@ class NdfcEasyFabric(NdfcFabric):
         return the current nv_pairs value of mso_site_group_name
 
         Input not currently validated.
-        TODO: Needs work
         """
         return self._nv_pairs["MSO_SITE_GROUP_NAME"]
 
     @mso_site_group_name.setter
     def mso_site_group_name(self, param):
+        # TODO:4 Validation. mso_site_group_name
         self._nv_pairs["MSO_SITE_GROUP_NAME"] = param
 
     @property
@@ -3402,7 +3545,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     @mso_site_id.setter
     def mso_site_id(self, param):
-        # TODO: Add validation
+        # TODO:4 Validation. mso_site_id
         self._nv_pairs["MSO_SITE_ID"] = param
 
     @property
@@ -3463,6 +3606,126 @@ class NdfcEasyFabric(NdfcFabric):
                     self.logger.error(msg)
                     sys.exit(1)
         self._nv_pairs["MST_INSTANCE_RANGE"] = ",".join(param)
+
+    @property
+    def netflow_exporter_list(self):
+        """
+        One or Multiple Netflow Exporters
+
+        A list of dict with the following keys:
+
+        EXPORTER_NAME:
+        - The name of the exporter
+        - Example: exporter1
+        IP:
+        - The device/switch IP on which the exporter will be configured
+        - IPv4 address without netmask
+        - Example: 10.1.1.1
+        VRF:
+        - The VRF in which the exporter's SRC_IF_NAME lives
+        - Example: myVrf
+        SRC_IF_NAME:
+        - The name of the exporter's source interface
+        - Example: Loopback1
+        UDP_PORT:
+        - The source UDP port used by the exporter
+        - Example: 6500
+
+        NDFC GUI label: Netflow Exporter
+        MDFC GUI tab: Flow Monitor
+
+        NOTES:
+        -   The length of the list must match both:
+            - netflow_monitor_list
+            - netflow_record_list
+        """
+        return self._nv_pairs["NETFLOW_EXPORTER_LIST"]
+
+    @netflow_exporter_list.setter
+    def netflow_exporter_list(self, param):
+        self._validate_netflow_exporter_list(param)
+        payload = {}
+        payload["NETFLOW_EXPORTER_LIST"] = param
+        self._nv_pairs["NETFLOW_EXPORTER_LIST"] = json.dumps(payload)
+
+    @property
+    def netflow_monitor_list(self):
+        """
+        One or Multiple Netflow Monitors
+
+        A list of dict with the following keys:
+
+        MONITOR_NAME:
+        - The name of the monitor
+        - Example: netflow-monitor
+        RECORD_NAME:
+        - The name of the record to be monitored
+        - Example: ipv4-record
+        EXPORTER1:
+        - The name of the exporter
+        - Must match an EXPORTER_NAME in netflow_exporter_list
+        - Example: exporter1
+        EXPORTER2:
+        - Optional
+        - Must match an EXPORTER_NAME in netflow_exporter_list
+        - Example: exporter2
+
+        NDFC GUI label: Netflow Monitor
+        MDFC GUI tab: Flow Monitor
+
+        NOTES:
+        -   The length of the list must match both:
+            - netflow_exporter_list
+            - netflow_record_list
+        """
+        return self._nv_pairs["NETFLOW_MONITOR_LIST"]
+
+    @netflow_monitor_list.setter
+    def netflow_monitor_list(self, param):
+        self._validate_netflow_monitor_list(param)
+        payload = {}
+        payload["NETFLOW_MONITOR_LIST"] = param
+        self._nv_pairs["NETFLOW_MONITOR_LIST"] = json.dumps(payload)
+
+    @property
+    def netflow_record_list(self):
+        """
+        One or Multiple Netflow Records
+
+        A list of dict with the following keys:
+
+        RECORD_NAME:
+        - The name of a record
+        - Must match a RECORD_NAME in netflow_monitor_list
+        - Example: ipv4-record
+        RECORD_TEMPLATE:
+        - The template for the netflow record
+        - Must be one of the following:
+            - netflow_ipv4_record
+            - netflow_l2_record
+        - Example: netflow_ipv4_record
+        LAYER2_RECORD:
+        - If True, RECORD_NAME is a L2 record
+        - If False, RECORD_NAME is not a L2 record
+        - Example: False
+
+        NDFC GUI label: Netflow Monitor
+        MDFC GUI tab: Flow Monitor
+
+        NOTES:
+        -   The length of the list must match both:
+            - netflow_exporter_list
+            - netflow_monitor_list
+        """
+        return self._nv_pairs["NETFLOW_RECORD_LIST"]
+
+    @netflow_record_list.setter
+    def netflow_record_list(self, param):
+        self._validate_netflow_record_list(param)
+        param = self._translate_netflow_record_list(param)
+        payload = {}
+        payload["NETFLOW_RECORD_LIST"] = param
+        self._nv_pairs["NETFLOW_RECORD_LIST"] = json.dumps(payload)
 
     @property
     def phantom_rp_lb_id1(self):
@@ -4195,7 +4458,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     @unnum_dhcp_end.setter
     def unnum_dhcp_end(self, param):
-        # TODO: Add validation
+        # TODO:2 Validation. unnum_dhcp_end
         self._nv_pairs["UNNUM_DHCP_END"] = param
 
     @property
@@ -4221,7 +4484,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     @unnum_dhcp_start.setter
     def unnum_dhcp_start(self, param):
-        # TODO: Add validation
+        # TODO:2 Validation. unnum_dhcp_start
         self._nv_pairs["UNNUM_DHCP_START"] = param
 
     @property
@@ -4345,7 +4608,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     @vpc_delay_restore.setter
     def vpc_delay_restore(self, param):
-        # TODO: Add validation
+        # TODO:1 Validation. vpc_delay_restore
         self._nv_pairs["VPC_DELAY_RESTORE"] = param
 
     @property
@@ -4504,7 +4767,7 @@ class NdfcEasyFabric(NdfcFabric):
 
     @vrf_lite_autoconfig.setter
     def vrf_lite_autoconfig(self, param):
-        # TODO: Add validation
+        # TODO:1 Validation. vrf_lite_autoconfig
         self._nv_pairs["VRF_LITE_AUTOCONFIG"] = param
 
     @property
@@ -4516,5 +4779,5 @@ class NdfcEasyFabric(NdfcFabric):
 
     @vrf_vlan_range.setter
     def vrf_vlan_range(self, param):
-        # TODO: Add validation
+        # TODO:1 Validation. vrf_vlan_range
         self._nv_pairs["VRF_VLAN_RANGE"] = param

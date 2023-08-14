@@ -7,7 +7,7 @@ import re
 
 from ndfc_python.ndfc import NDFC  # verify_ndfc()
 
-OUR_VERSION = 120
+OUR_VERSION = 121
 
 
 class Validations:
@@ -198,6 +198,43 @@ class Validations:
             msg = "expected X-Y, X < Y. "
             msg += f"got X {_lower}, Y {_upper}"
             raise ValueError(msg)
+
+    @staticmethod
+    def verify_keys(args):
+        """
+        Verify that args["keys"] are present in args["dict"]
+
+        args is a dict() with the following keys:
+        - keys: a set() of keys that are expected in dict
+        - dict: the dictionary to test
+
+        raise TypeError if args is not a dict
+        raise KeyError if args does not contain keys "keys" and "dict"
+        raise TypeError if args["keys"] is not a set()
+        raise TypeError if args["dict"] is not a dict()
+        raise KeyError if args["dict"] does not contain all args["keys"]
+        """
+        if not isinstance(args, dict):
+            msg = f"expected dict. got {args}"
+            raise TypeError(msg)
+        mandatory_keys = {"keys", "dict"}
+        if not mandatory_keys.issubset(args):
+            msg = "missing internal keys. "
+            msg += f"expected {mandatory_keys} "
+            msg += f"got: {args.keys()}"
+            raise KeyError(msg)
+        if not isinstance(args["keys"], set):
+            msg = "keys (bad type): expected python set(). "
+            msg += f"got {type(args['keys']).__name__}"
+            raise TypeError(msg)
+        if not isinstance(args["dict"], dict):
+            msg = "keys (bad type): expected python dict(). "
+            msg += f"got {type(args['dict']).__name__}"
+            raise TypeError(msg)
+        if not args["keys"].issubset(args["dict"]):
+            msg = f"missing keys. expected {','.join(sorted(args['keys']))}, "
+            msg += f"got {','.join(sorted(args['dict'].keys()))}"
+            raise KeyError(msg)
 
     @staticmethod
     def is_integer_even(param):
