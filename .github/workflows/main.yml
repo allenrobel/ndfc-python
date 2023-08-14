@@ -58,5 +58,5 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PYTHON_MYPY_CONFIG_FILE: /github/workspace/.github/action/lib/mypy.ini
+          PYTHON_MYPY_CONFIG_FILE: mypy.ini
 
