@@ -51,6 +51,7 @@ Script                  | Description
 [fabric_mpls_handoff.py]  | Create a fabric configured with MPLS handoff
 [fabric_mst.py]           | Create a fabric configured with multi-instance spanning tree
 [fabric_multicast_bidir.py] | Create a fabric using multicast replication and configured with four multicast bidir rendevous points
+[fabric_netflow.py]       | Create a fabric with netflow configuration options
 [fabric_rpvst_plus.py]    | Create a fabric with rpvst+ spanning-tree root option
 [fabric_with_syslog.py]   | Create a fabric with syslog configured
 [load_config.py]          | Load the configuration file pointed to in lib/ndfc_python/ndfc_config.py and print the parameters and values contained therein
@@ -76,6 +77,7 @@ Script                  | Description
 [fabric_mst.py]: /examples/fabric_mst.py
 [fabric_multicast_bidir.py]: /examples/fabric_multicast_bidir.py
 [fabric_rpvst_plus.py]: /examples/fabric_rpvst_plus.py
+[fabric_netflow.py]: /examples/fabric_netflow.py
 [fabric_with_syslog.py]: /examples/fabric_with_syslog.py
 [load_config.py]: /examples/load_config.py
 [login.py]: /examples/login.py
