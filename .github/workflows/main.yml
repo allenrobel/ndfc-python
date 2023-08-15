@@ -59,3 +59,4 @@ jobs:
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHON_MYPY_CONFIG_FILE: mypy.ini
+          PYTHON_FLAKE8_CONFIG_FILE: flake8.ini
