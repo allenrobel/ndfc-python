@@ -1639,7 +1639,11 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def cdp_enable(self):
         """
-        return the current nv_pairs value of cdp_enable
+        Enable (True) or disable (False) CDP on management interface
+
+        NDFC label: Enable CDP for Bootstrapped Switch
+        NDFC tab: Advanced
+
         Valid values: Boolean
         Default: False
         """
