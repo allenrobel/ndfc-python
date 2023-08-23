@@ -1704,8 +1704,12 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def dci_subnet_target_mask(self):
         """
-        return the current nv_pairs value of dci_subnet_target_mask
-        Valid values: [30, 31]
+        Prefix length for P2P Interfabric Connections
+
+        NDFC label: VRF Lite Subnet Mask
+        NDFC tab: Resources
+
+        Valid values: int in range 8-31
         Default: 30
         """
         return self._nv_pairs["DCI_SUBNET_TARGET_MASK"]
