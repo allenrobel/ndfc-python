@@ -1601,7 +1601,12 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def brownfield_network_name_format(self):
         """
-        return the current nv_pairs value of brownfield_network_name_format
+        Brownfield Overlay Network Name Format
+        Generated network name should be < 64 characters
+
+        NDFC label: Brownfield Overlay Network Name Format
+        NDFC tab: Advanced
+
         Default: Auto_Net_VNI$$VNI$$_VLAN$$VLAN_ID$$
         Input validation is not performed.
         """
@@ -1614,8 +1619,12 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def brownfield_skip_overlay_network_attachments(self):
         """
-        return the current nv_pairs value of
-        brownfield_skip_overlay_network_attachments
+        Enable (True) or disable (False) skipping overlay network interface
+        attachments for Brownfield and Host Port Resync cases
+
+        NDFC label: Skip Overlay Network Interface Attachments
+        NDFC tab: Advanced
+
         Valid values: Boolean
         Default: False
         """
@@ -2519,6 +2528,8 @@ class NdfcEasyFabric(NdfcFabric):
         """
         return the current nv_pairs value of grfield_debug_flag
 
+        NDFC GUI label: Greenfield Cleanup Option
+        NDFC GUI tab: Advanced
         Valid values: "Disable", "Enable"
         Default value: "Disable"
         """
