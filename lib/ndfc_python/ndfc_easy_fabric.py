@@ -1682,7 +1682,12 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def dci_subnet_range(self):
         """
-        return the current nv_pairs value of dci_subnet_range
+        Address range to assign P2P Interfabric Connections
+
+        NDFC label: VRF Lite Subnet IP Range
+        NDFC tab: Resources
+
+        Default: 10.33.0.0/16
         """
         return self._nv_pairs["DCI_SUBNET_RANGE"]
 
