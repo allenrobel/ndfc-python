@@ -1658,9 +1658,13 @@ class NdfcEasyFabric(NdfcFabric):
     def copp_policy(self):
         """
         Fabric Wide CoPP Policy.
+
         Customized CoPP policy should be provided when 'manual' is selected.
         Valid values: "dense", "manual", "moderate", "lenient", "strict"
         Default: "strict"
+
+        NDFC label: CoPP Profile
+        NDFC tab: Advanced
         """
         return self._nv_pairs["COPP_POLICY"]
 
