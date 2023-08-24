@@ -1752,11 +1752,15 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def default_queuing_policy_cloudscale(self):
         """
-        return the current nv_pairs value of default_queuing_policy_cloudscale
+        Queuing Policy for all 92xx, -EX, -FX, -FX2, -FX3, -GX series
+        switches in the fabric
 
         NOTE: The NDFC key for this is misspelled (DEAFULT instead of
         DEFAULT). We're using the proper spelling for the property name, and
         supplying NDFC with its preferred misspelling.
+
+        NDFC label: N9K Cloud Scale Platform Queuing Policy
+        NDFC tab: Advanced
 
         Default value: ""
 
@@ -1771,11 +1775,14 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def default_queuing_policy_other(self):
         """
-        return the current nv_pairs value of default_queuing_policy_other
+        Queuing Policy for all other switches in the fabric
 
         NOTE: The NDFC key for this is misspelled (DEAFULT instead of
         DEFAULT). We're using the proper spelling for the property name, and
         supplying NDFC with its preferred misspelling.
+
+        NDFC label: Other N9K Platform Queuing Policy
+        NDFC tab: Advanced
 
         Default value: ""
 
@@ -1790,11 +1797,14 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def default_queuing_policy_r_series(self):
         """
-        return the current nv_pairs value of default_queuing_policy_r_series
+        Queuing Policy for all R-Series switches in the fabric
 
         NOTE: The NDFC key for this is misspelled (DEAFULT instead of
         DEFAULT). We're using the proper spelling for the property name, and
         supplying NDFC with its preferred misspelling.
+
+        NDFC label: N9K R-Series Platform Queuing Policy
+        NDFC tab: Advanced
 
         Default value: ""
 
@@ -1829,7 +1839,13 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def deployment_freeze(self):
         """
-        return the current nv_pairs value of deployment_freeze
+        Enable (True) or disable (False) Fabric Deployment
+
+        NDFC label, None
+        NDFC tab, None
+        Fabric deployment is enabled/disabled in the NDFC
+        GUI by right-clicking on a fabric and selecting
+        'More... Deployment Enable/Disable'
 
         Valid values: boolean
         Default value: False
