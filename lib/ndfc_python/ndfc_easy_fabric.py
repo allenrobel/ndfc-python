@@ -766,7 +766,7 @@ class NdfcEasyFabric(NdfcFabric):
         """
         try:
             self.validations.verify_list_of_dict(param)
-        except ValueError as err:
+        except TypeError as err:
             msg = "_validate_netflow_exporter_list: exiting. "
             msg += f"expected list of dict. got {param}. "
             msg += f"error detail: {err}"
@@ -793,7 +793,7 @@ class NdfcEasyFabric(NdfcFabric):
         """
         try:
             self.validations.verify_list_of_dict(param)
-        except ValueError as err:
+        except TypeError as err:
             msg = "_validate_netflow_record_list: exiting. "
             msg += f"expected list of dict. got {param}. "
             msg += f"error detail: {err}"
@@ -839,7 +839,7 @@ class NdfcEasyFabric(NdfcFabric):
         """
         try:
             self.validations.verify_list_of_dict(param)
-        except ValueError as err:
+        except TypeError as err:
             msg = "_validate_netflow_monitor_list: exiting. "
             msg += f"expected list of dict. got {param}. "
             msg += f"error detail: {err}"
@@ -1984,6 +1984,9 @@ class NdfcEasyFabric(NdfcFabric):
     def dns_server_ip_list(self):
         """
         return the current nv_pairs value of dns_server_ip_list
+
+        NDFC label, DNS Server IPs
+        NDFC tab, Manageability
         Default: ""
         Valid values: Comma separated list of IP Addresses(v4/v6)
         Input validation is not currently performed.
@@ -2044,10 +2047,13 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def enable_default_queuing_policy(self):
         """
-        return the current nv_pairs value of enable_default_queuing_policy
+        Enable (True) or disable (False) Default Queuing Policies
 
         Valid values: boolean
         Default value: False
+
+        NDFC label: Enable Default Queuing Policies
+        NDFC tab: Advanced
         """
         return self._nv_pairs["ENABLE_DEFAULT_QUEUING_POLICY"]
 
@@ -2078,6 +2084,9 @@ class NdfcEasyFabric(NdfcFabric):
 
         Valid values: boolean
         Default value: False
+
+        NDFC GUI label: NDFC label, Enable the same vPC Domain Id for all vPC Pairs
+        NDFC GUI tab: vPC
         """
         return self._nv_pairs["ENABLE_FABRIC_VPC_DOMAIN_ID"]
 
@@ -2102,10 +2111,13 @@ class NdfcEasyFabric(NdfcFabric):
     @property
     def enable_macsec(self):
         """
-        return the current nv_pairs value of enable_macsec
+        Enable (True) or disable (False) MACsec in the fabric
 
         Valid values: boolean
         Default value: False
+
+        NDFC label: Enable MACsec
+        NDFC tab: Advanced
         """
         return self._nv_pairs["ENABLE_MACSEC"]
 
