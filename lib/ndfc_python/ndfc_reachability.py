@@ -179,7 +179,7 @@ class NdfcReachability:
         self._final_verification()
 
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
-        url += "inventory/test-reachability"
+        url += "/inventory/test-reachability"
 
         try:
             self.ndfc.post(url, self.ndfc.make_headers(), self.payload)
