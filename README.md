@@ -99,7 +99,7 @@ git clone https://github.com/allenrobel/ndfc-python.git
 ### Ansible Python Libraries
 
 The libraries and scripts in this repository require that the Ansible libraries be installed.
-These are needed for Ansible vault. 
+These are needed for Ansible vault.
 
 #### Example
 
@@ -250,7 +250,7 @@ export NDFC_LOGGING_CONFIG=/path/to/logging_config.json
 ```
 
 This is a standard Pyton logging configuration file.  There is an example
-file in this repo at ``lib/ndfc_python/logging_config.json``
+file in this repository at ``lib/ndfc_python/logging_config.json``
 
 ## To run the example scripts
 

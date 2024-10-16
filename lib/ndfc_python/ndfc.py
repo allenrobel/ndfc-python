@@ -30,7 +30,6 @@ import sys
 
 import requests
 import urllib3
-from ndfc_python.log import log
 
 OUR_VERSION = 107
 

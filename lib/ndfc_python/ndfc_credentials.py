@@ -27,9 +27,9 @@ to your ansible vault.  To configure this path, edit
 ndfc-python/lib/ndfc_python/ndfc_config.py and modify the config_file variable
 at the top of the file.
 """
-import sys
 import inspect
 import logging
+import sys
 
 from ansible.cli import CLI
 from ansible.errors import AnsibleFileNotFound, AnsibleParserError
