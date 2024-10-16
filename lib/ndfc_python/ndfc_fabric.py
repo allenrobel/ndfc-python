@@ -2,6 +2,7 @@
 Name: ndfc_fabric.py
 Description: superclass inherited by the other fabric classes in this repo
 """
+
 import sys
 
 from ndfc_python.log import log

@@ -2,6 +2,7 @@
 Name: ndfc_easy_fabric.py
 Description: Create fabric using the NDFC Easy_Fabric template
 """
+
 import copy
 import json
 import sys
@@ -60,18 +61,18 @@ class NdfcEasyFabric(NdfcFabric):
         self._properties_default["fabricTechnologyFriendly"] = "VXLAN Fabric"
         self._properties_default["fabricType"] = "Switch_Fabric"
         self._properties_default["fabricTypeFriendly"] = "Switch Fabric"
-        self._properties_default[
-            "networkExtensionTemplate"
-        ] = "Default_Network_Extension_Universal"
+        self._properties_default["networkExtensionTemplate"] = (
+            "Default_Network_Extension_Universal"
+        )
         value = "Default_Network_Universal"
         self._properties_default["networkTemplate"] = value
         self._properties_default["provisionMode"] = "DCNMTopDown"
         self._properties_default["replicationMode"] = "Multicast"
         self._properties_default["siteId"] = ""
         self._properties_default["templateName"] = "Easy_Fabric"
-        self._properties_default[
-            "vrfExtensionTemplate"
-        ] = "Default_VRF_Extension_Universal"
+        self._properties_default["vrfExtensionTemplate"] = (
+            "Default_VRF_Extension_Universal"
+        )
         self._properties_default["vrfTemplate"] = "Default_VRF_Universal"
 
     def _init_properties_set(self):
@@ -141,18 +142,18 @@ class NdfcEasyFabric(NdfcFabric):
         self._ndfc_params_default["fabricTechnologyFriendly"] = "VXLAN Fabric"
         self._ndfc_params_default["fabricType"] = "Switch_Fabric"
         self._ndfc_params_default["fabricTypeFriendly"] = "Switch Fabric"
-        self._ndfc_params_default[
-            "networkExtensionTemplate"
-        ] = "Default_Network_Extension_Universal"
+        self._ndfc_params_default["networkExtensionTemplate"] = (
+            "Default_Network_Extension_Universal"
+        )
         value = "Default_Network_Universal"
         self._ndfc_params_default["networkTemplate"] = value
         self._ndfc_params_default["provisionMode"] = "DCNMTopDown"
         self._ndfc_params_default["replicationMode"] = "Multicast"
         self._ndfc_params_default["siteId"] = ""
         self._ndfc_params_default["templateName"] = "Easy_Fabric"
-        self._ndfc_params_default[
-            "vrfExtensionTemplate"
-        ] = "Default_VRF_Extension_Universal"
+        self._ndfc_params_default["vrfExtensionTemplate"] = (
+            "Default_VRF_Extension_Universal"
+        )
         self._ndfc_params_default["vrfTemplate"] = "Default_VRF_Universal"
 
     def _init_ndfc_params(self):
@@ -238,9 +239,9 @@ class NdfcEasyFabric(NdfcFabric):
         self._nv_pairs_default["BOOTSTRAP_MULTISUBNET"] = ""
         self._nv_pairs_default["BOOTSTRAP_MULTISUBNET_INTERNAL"] = ""
         self._nv_pairs_default["BRFIELD_DEBUG_FLAG"] = "Disable"
-        self._nv_pairs_default[
-            "BROWNFIELD_NETWORK_NAME_FORMAT"
-        ] = "Auto_Net_VNI$$VNI$$_VLAN$$VLAN_ID$$"
+        self._nv_pairs_default["BROWNFIELD_NETWORK_NAME_FORMAT"] = (
+            "Auto_Net_VNI$$VNI$$_VLAN$$VLAN_ID$$"
+        )
         key = "BROWNFIELD_SKIP_OVERLAY_NETWORK_ATTACHMENTS"
         self._nv_pairs_default[key] = False
         self._nv_pairs_default["CDP_ENABLE"] = False
@@ -421,9 +422,9 @@ class NdfcEasyFabric(NdfcFabric):
         self._nv_pairs_default["abstract_bgp_neighbor"] = value
         self._nv_pairs_default["abstract_bgp_rr"] = "evpn_bgp_rr"
         self._nv_pairs_default["abstract_dhcp"] = "base_dhcp"
-        self._nv_pairs_default[
-            "abstract_extra_config_bootstrap"
-        ] = "extra_config_bootstrap_11_1"
+        self._nv_pairs_default["abstract_extra_config_bootstrap"] = (
+            "extra_config_bootstrap_11_1"
+        )
         value = "extra_config_leaf"
         self._nv_pairs_default["abstract_extra_config_leaf"] = value
         value = "extra_config_spine"
@@ -436,9 +437,9 @@ class NdfcEasyFabric(NdfcFabric):
         self._nv_pairs_default["abstract_feature_spine"] = value
         self._nv_pairs_default["abstract_isis"] = "base_isis_level2"
         self._nv_pairs_default["abstract_isis_interface"] = "isis_interface"
-        self._nv_pairs_default[
-            "abstract_loopback_interface"
-        ] = "int_fabric_loopback_11_1"
+        self._nv_pairs_default["abstract_loopback_interface"] = (
+            "int_fabric_loopback_11_1"
+        )
         self._nv_pairs_default["abstract_multicast"] = "base_multicast_11_1"
         self._nv_pairs_default["abstract_ospf"] = "base_ospf"
         value = "ospf_interface_11_1"
@@ -456,16 +457,16 @@ class NdfcEasyFabric(NdfcFabric):
         self._nv_pairs_default["default_vrf"] = "Default_VRF_Universal"
         self._nv_pairs_default["enableRealTimeBackup"] = ""
         self._nv_pairs_default["enableScheduledBackup"] = ""
-        self._nv_pairs_default[
-            "network_extension_template"
-        ] = "Default_Network_Extension_Universal"
+        self._nv_pairs_default["network_extension_template"] = (
+            "Default_Network_Extension_Universal"
+        )
         self._nv_pairs_default["scheduledTime"] = ""
         self._nv_pairs_default["temp_anycast_gateway"] = "anycast_gateway"
         self._nv_pairs_default["temp_vpc_domain_mgmt"] = "vpc_domain_mgmt"
         self._nv_pairs_default["temp_vpc_peer_link"] = "int_vpc_peer_link_po"
-        self._nv_pairs_default[
-            "vrf_extension_template"
-        ] = "Default_VRF_Extension_Universal"
+        self._nv_pairs_default["vrf_extension_template"] = (
+            "Default_VRF_Extension_Universal"
+        )
         self._build_nv_pairs_12_1_3b()
         self._nv_pairs_default.update(self._nv_pairs_12_1_3b_optional)
 

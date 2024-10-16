@@ -38,6 +38,7 @@ ndfc.response.text, and has the following format:
     }
 ]
 """
+
 import json
 import sys
 from ipaddress import AddressValueError

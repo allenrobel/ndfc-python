@@ -2,6 +2,7 @@
 Name: ndfc_easy_fabric_ebgp.py
 Description: Create fabric using the NDFC Easy_Fabric_eBGP template
 """
+
 import sys
 from ipaddress import AddressValueError
 
@@ -73,15 +74,15 @@ class NdfcEasyFabricEbgp(NdfcFabric):
         # These are intentionally mispelled ("DEAFULT_") since they are
         # mispelled on the controller and the bug to correct the spelling
         # is Closed
-        self._nv_pairs_default[
-            "DEAFULT_QUEUING_POLICY_CLOUDSCALE"
-        ] = "queuing_policy_default_8q_cloudscale"
-        self._nv_pairs_default[
-            "DEAFULT_QUEUING_POLICY_OTHER"
-        ] = "queuing_policy_default_other"
-        self._nv_pairs_default[
-            "DEAFULT_QUEUING_POLICY_R_SERIES"
-        ] = "queuing_policy_default_r_series"
+        self._nv_pairs_default["DEAFULT_QUEUING_POLICY_CLOUDSCALE"] = (
+            "queuing_policy_default_8q_cloudscale"
+        )
+        self._nv_pairs_default["DEAFULT_QUEUING_POLICY_OTHER"] = (
+            "queuing_policy_default_other"
+        )
+        self._nv_pairs_default["DEAFULT_QUEUING_POLICY_R_SERIES"] = (
+            "queuing_policy_default_r_series"
+        )
         self._nv_pairs_default["DEPLOYMENT_FREEZE"] = "false"
         self._nv_pairs_default["DHCP_ENABLE"] = "false"
         self._nv_pairs_default["DHCP_END"] = ""
@@ -121,9 +122,9 @@ class NdfcEasyFabricEbgp(NdfcFabric):
         self._nv_pairs_default["FABRIC_VPC_DOMAIN_ID"] = ""
         self._nv_pairs_default["FABRIC_VPC_DOMAIN_ID_PREV"] = ""
         self._nv_pairs_default["FABRIC_VPC_QOS"] = "false"
-        self._nv_pairs_default[
-            "FABRIC_VPC_QOS_POLICY_NAME"
-        ] = "spine_qos_for_fabric_vpc_peering"
+        self._nv_pairs_default["FABRIC_VPC_QOS_POLICY_NAME"] = (
+            "spine_qos_for_fabric_vpc_peering"
+        )
         self._nv_pairs_default["FF"] = "Easy_Fabric_eBGP"
         self._nv_pairs_default["FHRP_PROTOCOL"] = "hsrp"
         self._nv_pairs_default["GRFIELD_DEBUG_FLAG"] = "Disable"
@@ -169,9 +170,9 @@ class NdfcEasyFabricEbgp(NdfcFabric):
         self._nv_pairs_default["PIM_HELLO_AUTH_KEY"] = ""
         self._nv_pairs_default["PM_ENABLE"] = "false"
         self._nv_pairs_default["PM_ENABLE_PREV"] = "false"
-        self._nv_pairs_default[
-            "POWER_REDUNDANCY_MODE"
-        ] = "ps-redundant"  # combined, insrc-redundant, ps-redundant
+        self._nv_pairs_default["POWER_REDUNDANCY_MODE"] = (
+            "ps-redundant"  # combined, insrc-redundant, ps-redundant
+        )
         self._nv_pairs_default["PREV_EVPN_FLAG"] = ""  # "false"
         self._nv_pairs_default["PREV_FHRP_PROTOCOL"] = "hsrp"
         self._nv_pairs_default["REPLICATION_MODE"] = ""  # Ingress, Multicast
@@ -208,9 +209,9 @@ class NdfcEasyFabricEbgp(NdfcFabric):
         self._nv_pairs_default["abstract_anycast_rp"] = "anycast_rp"
         self._nv_pairs_default["abstract_bgp"] = "base_bgp"
         self._nv_pairs_default["abstract_dhcp"] = "base_dhcp"
-        self._nv_pairs_default[
-            "abstract_extra_config_bootstrap"
-        ] = "extra_config_bootstrap_11_1"
+        self._nv_pairs_default["abstract_extra_config_bootstrap"] = (
+            "extra_config_bootstrap_11_1"
+        )
         value = "extra_config_leaf"
         self._nv_pairs_default["abstract_extra_config_leaf"] = value
         value = "extra_config_spine"
@@ -219,9 +220,9 @@ class NdfcEasyFabricEbgp(NdfcFabric):
         self._nv_pairs_default["abstract_feature_leaf"] = value
         value = "base_feature_spine_upg"
         self._nv_pairs_default["abstract_feature_spine"] = value
-        self._nv_pairs_default[
-            "abstract_loopback_interface"
-        ] = "int_fabric_loopback_11_1"
+        self._nv_pairs_default["abstract_loopback_interface"] = (
+            "int_fabric_loopback_11_1"
+        )
         self._nv_pairs_default["abstract_multicast"] = "base_multicast_11_1"
         self._nv_pairs_default["abstract_pim_interface"] = "pim_interface"
         self._nv_pairs_default["abstract_route_map"] = "route_map"
@@ -243,9 +244,9 @@ class NdfcEasyFabricEbgp(NdfcFabric):
         self._nv_pairs_default["temp_anycast_gateway"] = "anycast_gateway"
         self._nv_pairs_default["temp_vpc_domain_mgmt"] = "vpc_domain_mgmt"
         self._nv_pairs_default["temp_vpc_peer_link"] = "int_vpc_peer_link_po"
-        self._nv_pairs_default[
-            "vrf_extension_template"
-        ] = ""  # "Default_VRF_Extension_Universal
+        self._nv_pairs_default["vrf_extension_template"] = (
+            ""  # "Default_VRF_Extension_Universal
+        )
 
     def _init_nv_pairs_set(self):
         """

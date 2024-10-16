@@ -58,6 +58,7 @@ Note, this can be used as the "switches" value in the NdfcDiscover() payload:
         }
     ]
 """
+
 import json
 import sys
 from ipaddress import AddressValueError

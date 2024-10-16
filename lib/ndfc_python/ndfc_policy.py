@@ -20,6 +20,7 @@ All of the policies matching the serial_number will be deleted
 
 All the policy IDs in this list will be deleted.
 """
+
 import sys
 
 from ndfc_python.log import log

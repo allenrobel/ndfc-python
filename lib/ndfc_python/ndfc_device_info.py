@@ -2,6 +2,7 @@
 Name: ndfc_device_info.py
 Description: Retrieve information about a device
 """
+
 import json
 import sys
 from ipaddress import AddressValueError

@@ -25,6 +25,7 @@ ndfc.request_verify = True
 ndfc.username = "my_username"
 ndfc.login()
 """
+
 import json
 import sys
 
@@ -487,18 +488,21 @@ class NDFC:
         Return the response text from the last request
         """
         return self.response.text
+
     @property
     def response_content(self):
         """
         Return the response content from the last request
         """
         return self.response.content
+
     @property
     def response_status_code(self):
         """
         Return the response status code from the last request
         """
         return self.response.status_code
+
     @property
     def response_json(self):
         try:

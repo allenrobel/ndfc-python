@@ -14,6 +14,7 @@ from ndfc_python.ndfc_config import NdfcLoadConfig
 c = NdfcLoadConfig()
 print(f"c.ansible_vault {c.config['ansible_vault']}")
 """
+
 import sys
 from os import environ
 

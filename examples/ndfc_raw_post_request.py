@@ -3,20 +3,16 @@
 Example of a raw GET request to NDFC
 """
 import json
+
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
 from ndfc_python.ndfc_credentials import NdfcCredentials
 
 payload = {
-    "devices": [
-        {
-            "serialNumber": "FDO21120U5D",
-            "policyName": "KR5M"
-        }
-    ],
+    "devices": [{"serialNumber": "FDO21120U5D", "policyName": "KR5M"}],
     "issu": True,
     "epld": False,
-    "packageInstall": False
+    "packageInstall": False,
 }
 
 logger = log("ndfc_login_log", "INFO", "DEBUG")
