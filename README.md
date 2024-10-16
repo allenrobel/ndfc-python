@@ -1,6 +1,7 @@
 # ndfc-python
 
-This repository contains Python classes and example scripts for interacting with Cisco's Nexus Dashboard Fabric Controller (NDFC) via its REST API.
+This repository contains Python classes and example scripts for interacting
+with Cisco's Nexus Dashboard Fabric Controller (NDFC) via its REST API.
 
 
 ## Libraries
@@ -97,7 +98,8 @@ git clone https://github.com/allenrobel/ndfc-python.git
 
 ### Ansible Python Libraries
 
-The libraries and scripts in this repository require that the Ansible libraries be installed.  
+The libraries and scripts in this repository require that the Ansible libraries be installed.
+These are needed for Ansible vault. 
 
 #### Example
 
@@ -122,9 +124,15 @@ Spines and Leafs can be added/removed by updating the Common Role Variables desc
 
 ## Config File
 
-To use these scripts and libraries, you'll need to update a common settings file located in ``./ndfc-python/lib/ndfc_python/config.yml``.  This points to the locaton of your Ansible Vault file (see below for how Ansible Vault is used).
+To use these scripts and libraries, you'll need to update a common settings file and set the
+environment variable ``NDFC_PYTHON_CONFIG`` to point to it.  For example, if you want your
+settings to be located in $HOME/ndfc-python-settings.yaml, then set:
 
-There is one setting in this file (currently):
+```bash
+export NDFC_PYTHON_CONFIG=$HOME/ndfc-python-settings.yaml
+```
+
+And edit this file to contain:
 
 ```yaml
 ---
@@ -133,30 +141,38 @@ ansible_vault: '/path/to/your/ansible/vault/file'
 
 ## Ansible Vault
 
-Next, you'll need to edit your Ansible Vault file to add your NDFC username and password and the ip address of your ndfc controller.  We may also require the username and password for your switches in the future, so you might want to add this as well.
+Next, you'll need to edit your Ansible Vault file to add your Nexus Dashboard Controller
+credentials (username, password, and login domain) and ip address.
+
+We may also require the username and password for your switches in the future,
+so you might want to add this as well.
 
 ```bash
 /path/to/your/ansible/vault/file 
 ```
 
-It is recommended (but not mandatory) that you encrypt these passwords.  Below is one way to do this.
+It is recommended (but not mandatory) that you encrypt all passwords.  Below is one way to do this.
 
 ### Modify /path/to/your/ansible/vault/file
 
 #### Edit ``ansible_password`` (password for NDFC controller) and ``device_password`` (password for NX-OS switches)
 
-Add ``ansible_password`` and ``device_password`` in encrypted format (or non-encrypted, if you don't care about security).  These are the passwords you use to login to your DCNM/NDFC Controller, and NX-OS switches, respectively.
+Add ``ansible_password`` and ``device_password`` in encrypted format (or non-encrypted,
+if you don't care about security).  These are the passwords you use to login to your
+ND/NDFC Controller, and NX-OS switches, respectively.
 
-To add encrypted passwords for the NDFC controller and NX-OS devices, issue the following from this repository's top-level directory.
+To add encrypted passwords for the ND/NDFC controller and NX-OS devices,
+issue the following from this repository's top-level directory.
 
 ```bash
 ansible-vault encrypt_string 'mySuperSecretNdfcPassword' --name 'ansible_password' >> /path/to/your/ansible/vault/file
-echo "\n" >> /path/to/your/ansible/vault/file
+echo "" >> /path/to/your/ansible/vault/file
 ansible-vault encrypt_string 'mySuperSecretNxosPassword' --name 'device_password' >> /path/to/your/ansible/vault/file
-echo "\n" >> /path/to/your/ansible/vault/file
+echo "" >> /path/to/your/ansible/vault/file
 ```
 
-ansible-vault will prompt you for a vault password, which you'll use to decrypt these passwords when running the example scripts.
+ansible-vault will prompt you for a vault password, which you'll use to decrypt
+these passwords when running the example scripts.
 
 Example:
 
@@ -165,7 +181,7 @@ Example:
 New Vault password: 
 Confirm New Vault password: 
 %
-% echo "\n" >> /path/to/your/ansible/vault/file
+% echo "" >> /path/to/your/ansible/vault/file
 % cat /path/to/your/ansible/vault/file
 ansible_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
@@ -177,8 +193,9 @@ ansible_password: !vault |
 % 
 ```
 
-If you don't care about security, you can add a non-encrypted password by editing the file directly.
-The following are example unencrypted passwords for the NDFC controller and NX-OS devices added to this file:
+If you don't care about security, you can add a non-encrypted password by editing the
+file directly. The following are example unencrypted passwords for the ND/NDFC controller
+and NX-OS devices added to this file:
 
 ```yaml
 ansible_password: mySuperSecretNdfcPassword
@@ -187,16 +204,21 @@ device_password: mySuperSecretNxosPassword
 
 #### Add the domain for Nexus Dashboard Controller login
 
-Change ``nd_domain`` in the same file to the domain associated with the above password that you're using on ND/NDFC.
+Change ``nd_domain`` in the same file to the domain associated with the above password
+that you're using on ND/NDFC.  If the "domain" field is not displayed when you login to
+the GUI, then use local, as shown below.
 
 ```yaml
 nd_domain: local
 ```
 
-#### Add usernames for NDFC Controller and switches
+#### Add usernames for Nexus Dashboard Controller and switches
 
-Change ``ansible_user`` in the same file to the username associated with the above password that you're using on ND/NDFC.
-Change ``device_username`` in the same file to the username used to login to your NX-OS switches.
+Change ``ansible_user`` in the same file to the username associated with the above
+password that you're using on ND/NDFC.
+
+Change ``device_username`` in the same file to the username used to login to your
+NX-OS switches.
 
 Example:
 
@@ -205,7 +227,7 @@ ansible_user: voldomort
 device_username: admin
 ```
 
-#### Add the ip address of your DCNM/NDFC Controller
+#### Add the ip address of your Nexus Dashboard Controller
 
 ```yaml
 ndfc_ip: 192.168.1.1
@@ -216,14 +238,28 @@ ndfc_ip: 192.168.1.1
 Add this repository's library to your python path.  For example, in .bash_profile or .zprofile
 
 ```bash
-PYTHONPATH=${PYTHONPATH}:${HOME}/repos/ndfc-python/lib
-export PYTHONPATH
+export PYTHONPATH=${PYTHONPATH}:${HOME}/repos/ndfc-python/lib
 ```
+
+## Logging configuration
+
+To enable logging, set the following environment variable.
+
+```bash
+export NDFC_LOGGING_CONFIG=/path/to/logging_config.json
+```
+
+This is a standard Pyton logging configuration file.  There is an example
+file in this repo at ``lib/ndfc_python/logging_config.json``
 
 ## To run the example scripts
 
 ```bash
-cd (py311) ~ % cd /top/level/directory/for/this/repo/examples
+export PYTHONPATH=${PYTHONPATH}:/path/to/this/repo/ndfc-python/lib
+export NDFC_PYTHON_CONFIG=/path/to/ndfc-python-settings.yaml
+export NDFC_LOGGING_CONFIG=/path/to/ndfc-python-logging-config.json #optional
+
+cd (py311) ~ % cd /top/level/directory/of/this/repo/examples
 (py311) examples % ./example_ndfc_credentials.py 
 Vault password: 
 username admin

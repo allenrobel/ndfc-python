@@ -11,12 +11,9 @@ Example usage:
 from ndfc_python.log import log
 from ndfc_python.ndfc import NDFC
 
-# INFO to screen, DEBUG to file
-logger = log('example_log', 'INFO', 'DEBUG')
 ndfc = NDFC()
 ndfc.domain = "local"
 ndfc.ip4 = nc.ndfc_ip
-ndfc.logger = log
 ndfc.password = "my_password"
 # optional (default is 20)
 ndfc.request_timeout = 30
@@ -26,7 +23,9 @@ ndfc.username = "my_username"
 ndfc.login()
 """
 
+import inspect
 import json
+import logging
 import sys
 
 import requests
@@ -52,17 +51,17 @@ class NDFC:
     from ndfc_python.log import Log
     from ndfc_python.ndfc import NDFC
 
-    logger = Log('example_log', 'INFO', 'DEBUG')
     ndfc = NDFC()
     ndfc.username = "my_username"
     ndfc.password = "my_password"
+    ndfc.domain = "local"
     ndfc.ip4 = nc.ndfc_ip
-    ndfc.log = logger
     ndfc.login()
     """
 
     def __init__(self):
         self.class_name = __class__.__name__
+        self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
         self.lib_version = OUR_VERSION
         self.headers = {}
         self.response = None
@@ -73,7 +72,6 @@ class NDFC:
         self.properties_set.add("username")
         self.properties_set.add("password")
         self.properties_set.add("ip4")
-        self.properties_set.add("logger")
         self.properties_set.add("request_verify")
         self.properties_set.add("request_timeout")
         self._valid_request_types = set()
@@ -82,7 +80,6 @@ class NDFC:
         self._valid_request_types.add("POST")
         self._valid_request_types.add("PUT")
         self._init_properties()
-        self._init_default_logger()
 
     def _init_properties(self):
         """
@@ -95,20 +92,16 @@ class NDFC:
         self.properties["request_verify"] = False
         self.properties["request_timeout"] = 20
 
-    def _init_default_logger(self):
-        """
-        This logger will be active until the user has set self.logger
-        """
-        self.logger = log("ndfc_log")
-
     def login(self):
         """
         login to an NDFC controller
         """
+        method_name = inspect.stack()[0][3]
         for key, value in self.properties.items():
             if value is None:
-                msg = f"exiting. Set property {key} before calling login."
-                self.logger.error(msg)
+                msg = f"{self.class_name}.{method_name}: "
+                msg += f"exiting. Set property {key} before calling login."
+                self.log.debug(msg)
                 sys.exit(1)
         urllib3.disable_warnings()
         payload = {}
@@ -128,10 +121,11 @@ class NDFC:
         )
         response = json.loads(self.response.text)
         if "jwttoken" not in response:
-            msg = "Exiting. Response missing jwttoken in response. "
-            msg += "Check password or username?"
-            self.logger.error(msg)
-            self._log_error(self.url_login, "POST")
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "Exiting. Response missing jwttoken in response. "
+            msg += "Check password or username? "
+            msg += f"Verb: POST, Path: {self.url_login}"
+            self.log.error(msg)
             sys.exit(1)
         self.auth_token = response["jwttoken"]
         self.bearer_token = f"Bearer {self.auth_token}"
@@ -144,24 +138,6 @@ class NDFC:
         self.headers["Authorization"] = self.bearer_token
         self.headers["Content-Type"] = "application/json"
         return self.headers
-
-    def _log_error(self, url, request_type):
-        """
-        Boilerplate error log to corral this in one place.
-        """
-        msg = f"{request_type} response from NDFC controller during {url}"
-        msg += f" response.status_code: {self.response.status_code}"
-        self.logger.error(msg)
-        try:
-            msg = (
-                f"response.reason: {self.response.reason}"
-                f" response.text: {self.response.text}"
-            )
-            self.logger.error(msg)
-        except (AttributeError, ValueError) as exception:
-            msg = f"Error while logging response for {url}. "
-            msg += f"Exception detail {exception}"
-            self.logger.error(msg)
 
     def _make_headers(self, params):
         """
@@ -212,15 +188,18 @@ class NDFC:
         *request_type - string: one of DELETE, GET, POST, PUT
         *url    -   string: the REST API endpoint
         """
+        method_name = inspect.stack()[0][3]
         mandatory_keys = {"url", "request_type"}
         if not mandatory_keys.issubset(params):
-            msg = f"exiting. expected keys {mandatory_keys}. got {params}"
-            self.logger.error(msg)
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"exiting. expected keys {mandatory_keys}. got {params}"
+            self.log.debug(msg)
             sys.exit(1)
         if params["request_type"] not in self._valid_request_types:
+            msg = f"{self.class_name}.{method_name}: "
             msg = f"exiting. invalid request type {params['request_type']} "
             msg += f"expected one of {self._valid_request_types}"
-            self.logger.error(msg)
+            self.log.debug(msg)
             sys.exit(1)
         request_type = params["request_type"]
         url = params["url"]
@@ -267,27 +246,32 @@ class NDFC:
                     headers=headers,
                 )
         except requests.exceptions.InvalidSchema as exception:
-            msg = f"Exiting. error connecting to {url} "
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Exiting. error connecting to {url} "
             msg += f"Exception detail: {exception}"
-            self.logger.error(msg)
+            self.log.debug(msg)
             sys.exit(1)
         except requests.ConnectTimeout as exception:
-            msg = f"Exiting. Timed out connecting to {url} "
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Exiting. Timed out connecting to {url} "
             msg += f"Exception detail: {exception}"
-            self.logger.error(msg)
+            self.log.debug(msg)
             sys.exit(1)
         except requests.ConnectionError as exception:
+            msg = f"{self.class_name}.{method_name}: "
             msg = f"Exiting. Unable to connect to {url} "
             msg += f"Exception detail: {exception}"
-            self.logger.error(msg)
+            self.log.debug(msg)
             sys.exit(1)
 
         if self.response.status_code != 200:
-            msg = f"status {self.response.status_code} for {request_type} "
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"status {self.response.status_code} for {request_type} "
             msg += f"url {url}"
             raise NdfcRequestError(msg)
-        msg = f"{request_type} succeeded {url}"
-        self.logger.debug(msg)
+        msg = f"{self.class_name}.{method_name}: "
+        msg += f"{request_type} succeeded {url}"
+        self.log.debug(msg)
         try:
             response = self.response.json()
         except json.decoder.JSONDecodeError:
@@ -355,18 +339,6 @@ class NDFC:
         self.properties["domain"] = param
 
     @property
-    def logger(self):
-        """
-        return the current logger instance
-        """
-        return self.properties["logger"]
-
-    @logger.setter
-    def logger(self, param):
-        # TODO: add verification
-        self.properties["logger"] = param
-
-    @property
     def username(self):
         """
         return the current username
@@ -404,10 +376,11 @@ class NDFC:
         """
         Return the base URL for the NDFC controller
         """
+        method_name = inspect.stack()[0][3]
         if self.ip4 is None:
-            self.logger.error(
-                "Exit. Set instance.i4 before calling NDFC() url properties."
-            )
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "Exit. Set instance.ip4 before calling NDFC() url properties."
+            self.log.debug(msg)
         return f"https://{self.ip4}"
 
     @property
@@ -457,9 +430,11 @@ class NDFC:
 
     @request_timeout.setter
     def request_timeout(self, param):
+        method_name = inspect.stack()[0][3]
         if not isinstance(param, int):
-            msg = f"exiting. expected integer, got {param}"
-            self.logger.error(msg)
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"exiting. expected integer, got {param}"
+            self.log.debug(msg)
             sys.exit(1)
         self.properties["request_timeout"] = param
 
@@ -475,9 +450,11 @@ class NDFC:
 
     @request_verify.setter
     def request_verify(self, param):
+        method_name = inspect.stack()[0][3]
         if not isinstance(param, bool):
-            msg = f"exiting. expected boolean, got {param}"
-            self.logger.error(msg)
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"exiting. expected boolean, got {param}"
+            self.log.debug(msg)
             sys.exit(1)
         self.properties["request_verify"] = param
 

@@ -20,15 +20,24 @@ from os import environ
 
 import yaml
 
-REPOS = f"{environ['HOME']}/repos"
-# Edit me!
-CONFIG_FILE = f"{REPOS}/ndfc-python/lib/ndfc_python/config/config.yml"
+CONFIG_FILE = environ.get("NDFC_PYTHON_CONFIG", None)
+if CONFIG_FILE is None:
+    msg = "Missing NDFC_PYTHON_CONFIG environment variable. "
+    msg += "Set NDFC_PYTHON_CONFIG to point to your ndfc-python "
+    msg += "configuration file. For example: "
+    msg += "export NDFC_PYTHON_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python"
+    msg += "/config/config.yml"
+    print(msg)
+    sys.exit(1)
+# REPOS = f"{environ['HOME']}/repos"
+# # Edit me!
+# CONFIG_FILE = f"{REPOS}/ndfc-python/lib/ndfc_python/config/config.yml"
 
 
 class NdfcLoadConfig:
     """
-    When instantiated, load the YAML file pointed to by CONFIG_FILE (at the
-    top of this file) and set self.properties["config"] to the contents of
+    When instantiated, load the YAML file pointed to by NDFC_CONFIG_FILE
+    environment variable, and set self.properties["config"] to the contents of
     this file.  self.properties["config"] will be a python dictionary
     representing the contents of CONFIG_FILE.
 
