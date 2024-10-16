@@ -11,10 +11,11 @@ from ndfc_python.ndfc_easy_fabric_ebgp import NdfcEasyFabricEbgp
 nc = NdfcCredentials()
 logger = log("ndfc_easy_fabric_ebgp_log", "INFO", "DEBUG")
 ndfc = NDFC()
-ndfc.logger = logger
-ndfc.username = nc.username
-ndfc.password = nc.password
+ndfc.domain = nc.nd_domain
 ndfc.ip4 = nc.ndfc_ip
+ndfc.logger = logger
+ndfc.password = nc.password
+ndfc.username = nc.username
 ndfc.login()
 
 instance = NdfcEasyFabricEbgp()

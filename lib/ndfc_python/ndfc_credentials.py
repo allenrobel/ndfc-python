@@ -65,6 +65,7 @@ class NdfcCredentials:
         self.mandatory_keys.add("ansible_user")
         self.mandatory_keys.add("ansible_password")
         self.mandatory_keys.add("ndfc_ip")
+        self.mandatory_keys.add('nd_domain')
         self.mandatory_keys.add("discover_username")
         self.mandatory_keys.add("discover_password")
 
@@ -100,6 +101,7 @@ class NdfcCredentials:
         self.credentials = {}
         self.credentials["username"] = str(data["ansible_user"])
         self.credentials["password"] = str(data["ansible_password"])
+        self.credentials["nd_domain"] = str(data["nd_domain"])
         self.credentials["ndfc_ip"] = str(data["ndfc_ip"])
         self.credentials["discover_username"] = str(data["discover_username"])
         self.credentials["discover_password"] = str(data["discover_password"])
@@ -131,6 +133,13 @@ class NdfcCredentials:
         return current value of password
         """
         return self.credentials["password"]
+
+    @property
+    def nd_domain(self):
+        """
+        return current value of nd_domain
+        """
+        return self.credentials['nd_domain']
 
     @property
     def ndfc_ip(self):

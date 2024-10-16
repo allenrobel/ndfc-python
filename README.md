@@ -185,9 +185,17 @@ ansible_password: mySuperSecretNdfcPassword
 device_password: mySuperSecretNxosPassword
 ```
 
+#### Add the domain for Nexus Dashboard Controller login
+
+Change ``nd_domain`` in the same file to the domain associated with the above password that you're using on ND/NDFC.
+
+```yaml
+nd_domain: local
+```
+
 #### Add usernames for NDFC Controller and switches
 
-Change ``ansible_user`` in the same file to the username associated with the above password that you're using on DCNM/NDFC.
+Change ``ansible_user`` in the same file to the username associated with the above password that you're using on ND/NDFC.
 Change ``device_username`` in the same file to the username used to login to your NX-OS switches.
 
 Example:
@@ -221,6 +229,7 @@ Vault password:
 username admin
 password FeFiFoFum
 ndfc_ip 192.168.1.2
+nd_domain local
 (py311) examples % 
 ```
 

@@ -31,13 +31,16 @@ class NdfcMsdFabric(NdfcFabric):
 
     from ndfc_python.log import log
     from ndfc_python.ndfc import NDFC
+    from ndfc_python.ndfc_credentials import NdfcCredentials
     from ndfc_python.ndfc_fabric import NdfcFabric
 
     logger = log('example_log', 'INFO', 'DEBUG')
+    nc = NdfcCredentials()
     ndfc = NDFC()
     ndfc.log = logger
-    ndfc.username = "admin"
-    ndfc.password = "mypassword"
+    ndfc.domain = nc.nd_domain
+    ndfc.username = nc.username
+    ndfc.password = nc.password
     ndfc.login()
 
     instance = NdfcMsdFabric()

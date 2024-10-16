@@ -14,6 +14,7 @@ from ndfc_python.ndfc import NDFC
 # INFO to screen, DEBUG to file
 logger = log('example_log', 'INFO', 'DEBUG')
 ndfc = NDFC()
+ndfc.domain = "local"
 ndfc.ip4 = nc.ndfc_ip
 ndfc.logger = log
 ndfc.password = "my_password"
@@ -61,12 +62,14 @@ class NDFC:
     """
 
     def __init__(self):
+        self.class_name = __class__.__name__
         self.lib_version = OUR_VERSION
         self.headers = {}
         self.response = None
         self.auth_token = None
         self.bearer_token = None
         self.properties_set = set()
+        self.properties_set.add("domain")
         self.properties_set.add("username")
         self.properties_set.add("password")
         self.properties_set.add("ip4")
@@ -111,7 +114,7 @@ class NDFC:
         payload = {}
         payload["userName"] = self.username
         payload["userPasswd"] = self.password
-        payload["domain"] = "DefaultAuth"
+        payload["domain"] = self.domain
         headers = {}
         headers["Content-Type"] = "application/json"
         headers["Connection"] = "keep-alive"
@@ -225,6 +228,12 @@ class NDFC:
         headers = self._make_headers(params)
         payload = self._make_payload(params)
 
+        # print(f"request_type {request_type}")
+        # print(f"url {url}")
+        # print(f"request_params {request_params}")
+        # print(f"headers {headers}")
+        # print(f"payload {json.dumps(payload)}")
+
         try:
             if request_type == "DELETE":
                 self.response = requests.delete(
@@ -292,20 +301,22 @@ class NDFC:
         params = {}
         params["request_type"] = "GET"
         params["url"] = url
-        params["headers"] = headers
+        if headers is not None:
+            params["headers"] = headers
         if parameters is not None:
             params["params"] = parameters
         params["verify"] = verify
         return self.ndfc_action(params)
 
-    def post(self, url, headers, payload=None):
+    def post(self, url, headers=None, payload=None):
         """
         call self.ndfc_action() with a POST request
         """
         params = {}
         params["request_type"] = "POST"
         params["url"] = url
-        params["headers"] = headers
+        if headers is not None:
+            params["headers"] = headers
         if payload is not None:
             params["payload"] = payload
         return self.ndfc_action(params)
@@ -331,6 +342,17 @@ class NDFC:
         params["url"] = url
         params["headers"] = headers
         return self.ndfc_action(params)
+
+    @property
+    def domain(self):
+        """
+        return the current NDFC domain
+        """
+        return self.properties["domain"]
+
+    @domain.setter
+    def domain(self, param):
+        self.properties["domain"] = param
 
     @property
     def logger(self):
@@ -458,3 +480,31 @@ class NDFC:
             self.logger.error(msg)
             sys.exit(1)
         self.properties["request_verify"] = param
+
+    @property
+    def response_text(self):
+        """
+        Return the response text from the last request
+        """
+        return self.response.text
+    @property
+    def response_content(self):
+        """
+        Return the response content from the last request
+        """
+        return self.response.content
+    @property
+    def response_status_code(self):
+        """
+        Return the response status code from the last request
+        """
+        return self.response.status_code
+    @property
+    def response_json(self):
+        try:
+            return self.response.json()
+        except json.decoder.JSONDecodeError:
+            msg = f"{self.class_name}.response_json: Error decoding JSON "
+            msg += "response, returning undecoded response instead."
+            print(msg)
+            return self.response

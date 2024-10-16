@@ -13,10 +13,11 @@ nc = NdfcCredentials()
 logger = log("fabric_netflow_log", "INFO", "DEBUG")
 
 ndfc = NDFC()
-ndfc.username = nc.username
-ndfc.password = nc.password
+ndfc.domain = nc.nd_domain
 ndfc.ip4 = nc.ndfc_ip
 ndfc.logger = logger
+ndfc.password = nc.password
+ndfc.username = nc.username
 ndfc.login()
 
 exporter_dict = {}

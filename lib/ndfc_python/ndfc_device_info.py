@@ -58,6 +58,7 @@ class NdfcDeviceInfo:
 
     ndfc = NDFC()
     ndfc.logger = logger
+    ndfc.domain = nc.nd_domain
     ndfc.username = nc.username
     ndfc.password = nc.password
     ndfc.ip4 = nc.ndfc_ip

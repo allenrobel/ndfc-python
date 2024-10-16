@@ -24,10 +24,12 @@ class NdfcEasyFabric(NdfcFabric):
     from ndfc_python.ndfc_fabric import NdfcFabric
 
     logger = log('example_log', 'INFO', 'DEBUG')
+    nc = NdfcCredentials()
     ndfc = NDFC()
     ndfc.log = logger
-    ndfc.username = "admin"
-    ndfc.password = "mypassword"
+    ndfc.domain = nc.nd_domain
+    ndfc.username = nc.username
+    ndfc.password = nc.password
     ndfc.login()
 
     instance = NdfcEasyFabric()
@@ -464,6 +466,123 @@ class NdfcEasyFabric(NdfcFabric):
         self._nv_pairs_default[
             "vrf_extension_template"
         ] = "Default_VRF_Extension_Universal"
+        self._build_nv_pairs_12_1_3b()
+        self._nv_pairs_default.update(self._nv_pairs_12_1_3b_optional)
+
+    def _build_nv_pairs_12_1_3b(self):
+        """
+        Caller: self._init_nv_pairs_default()
+        builds the following dictionaries:
+        - self._nv_pairs_12_1_3b_optional
+        - self._nv_pairs_12_1_3b_mandatory
+        - self._nv_pairs_12_1_3b_all
+
+        NDFC 12.1.3b adds the following nvPairs:
+
+        Mandatory (will cause fabric errors if not present)):
+            AUTO_UNIQUE_VRF_LITE_IP_PREFIX: "false"
+            BANNER: ""
+            NXAPI_HTTPS_PORT: "443"
+            NXAPI_HTTP_PORT: "80"
+            OBJECT_TRACKING_NUMBER_RANGE: "100-299"
+            PER_VRF_LOOPBACK_AUTO_PROVISION: "false"
+            SLA_ID_RANGE: "10000-19999"
+            TOPDOWN_CONFIG_RM_TRACKING: "notstarted"
+
+        Optional:
+            ADVERTISE_PIP_ON_BORDER: "true"
+            ALLOW_NXC: "true"
+            ALLOW_NXC_PREV: "true"
+            AUTO_UNIQUE_VRF_LITE_IP_PREFIX_PREV: "false"
+            DOMAIN_NAME_INTERNAL: ""
+            ESR_OPTION: "PBR"
+            EXT_FABRIC_TYPE: ""
+            NXC_DEST_VRF: "management"
+            NXC_PROXY_PORT: "8080"
+            NXC_PROXY_SERVER: ""
+            NXC_SRC_INTF: ""
+            OVERWRITE_GLOBAL_NXC: "false"
+            PER_VRF_LOOPBACK_AUTO_PROVISION_PREV: "false"
+            PER_VRF_LOOPBACK_IP_RANGE: ""
+            UPGRADE_FROM_VERSION: ""
+
+        All:
+            ADVERTISE_PIP_ON_BORDER: "true"
+            ALLOW_NXC: "true"
+            ALLOW_NXC_PREV: "true"
+            AUTO_UNIQUE_VRF_LITE_IP_PREFIX: "false"
+            AUTO_UNIQUE_VRF_LITE_IP_PREFIX_PREV: "false"
+            BANNER: ""
+            DOMAIN_NAME_INTERNAL: ""
+            ESR_OPTION: "PBR"
+            EXT_FABRIC_TYPE: ""
+            NXAPI_HTTPS_PORT: "443"
+            NXAPI_HTTP_PORT: "80"
+            NXC_DEST_VRF: "management"
+            NXC_PROXY_PORT: "8080"
+            NXC_PROXY_SERVER: ""
+            NXC_SRC_INTF: ""
+            OBJECT_TRACKING_NUMBER_RANGE: "100-299"
+            OVERWRITE_GLOBAL_NXC: "false"
+            PER_VRF_LOOPBACK_AUTO_PROVISION: "false"
+            PER_VRF_LOOPBACK_AUTO_PROVISION_PREV: "false"
+            PER_VRF_LOOPBACK_IP_RANGE: ""
+            SLA_ID_RANGE: "10000-19999"
+            TOPDOWN_CONFIG_RM_TRACKING: "notstarted"
+            UPGRADE_FROM_VERSION: ""
+
+        """
+        self._nv_pairs_12_1_3b_optional = {}
+        self._nv_pairs_12_1_3b_mandatory = {}
+        self._nv_pairs_12_1_3b_all = {}
+
+        self._nv_pairs_12_1_3b_optional["AUTO_UNIQUE_VRF_LITE_IP_PREFIX"] = False
+        self._nv_pairs_12_1_3b_optional["BANNER"] = ""
+        self._nv_pairs_12_1_3b_optional["NXAPI_HTTPS_PORT"] = "443"
+        self._nv_pairs_12_1_3b_optional["NXAPI_HTTP_PORT"] = "80"
+        self._nv_pairs_12_1_3b_optional["OBJECT_TRACKING_NUMBER_RANGE"] = "100-299"
+        self._nv_pairs_12_1_3b_optional["PER_VRF_LOOPBACK_AUTO_PROVISION"] = False
+        self._nv_pairs_12_1_3b_optional["SLA_ID_RANGE"] = "10000-19999"
+        self._nv_pairs_12_1_3b_optional["TOPDOWN_CONFIG_RM_TRACKING"] = "notstarted"
+        self._nv_pairs_12_1_3b_optional["ADVERTISE_PIP_ON_BORDER"] = True
+        self._nv_pairs_12_1_3b_optional["ALLOW_NXC"] = True
+        self._nv_pairs_12_1_3b_optional["ALLOW_NXC_PREV"] = True
+        self._nv_pairs_12_1_3b_optional["AUTO_UNIQUE_VRF_LITE_IP_PREFIX_PREV"] = False
+        self._nv_pairs_12_1_3b_optional["DOMAIN_NAME_INTERNAL"] = ""
+        self._nv_pairs_12_1_3b_optional["ESR_OPTION"] = "PBR"
+        self._nv_pairs_12_1_3b_optional["EXT_FABRIC_TYPE"] = ""
+        self._nv_pairs_12_1_3b_optional["NXC_DEST_VRF"] = "management"
+        self._nv_pairs_12_1_3b_optional["NXC_PROXY_PORT"] = "8080"
+        self._nv_pairs_12_1_3b_optional["NXC_PROXY_SERVER"] = ""
+        self._nv_pairs_12_1_3b_optional["NXC_SRC_INTF"] = ""
+        self._nv_pairs_12_1_3b_optional["OVERWRITE_GLOBAL_NXC"] = False
+        self._nv_pairs_12_1_3b_optional["PER_VRF_LOOPBACK_AUTO_PROVISION_PREV"] = False
+        self._nv_pairs_12_1_3b_optional["PER_VRF_LOOPBACK_IP_RANGE"] = ""
+        self._nv_pairs_12_1_3b_optional["UPGRADE_FROM_VERSION"] = ""
+
+        self._nv_pairs_12_1_3b_all["ADVERTISE_PIP_ON_BORDER"] = True
+        self._nv_pairs_12_1_3b_all["ALLOW_NXC"] = True
+        self._nv_pairs_12_1_3b_all["ALLOW_NXC_PREV"] = True
+        self._nv_pairs_12_1_3b_all["AUTO_UNIQUE_VRF_LITE_IP_PREFIX"] = False
+        self._nv_pairs_12_1_3b_all["AUTO_UNIQUE_VRF_LITE_IP_PREFIX_PREV"] = False
+        self._nv_pairs_12_1_3b_all["BANNER"] = ""
+        self._nv_pairs_12_1_3b_all["DOMAIN_NAME_INTERNAL"] = ""
+        self._nv_pairs_12_1_3b_all["ESR_OPTION"] = "PBR"
+        self._nv_pairs_12_1_3b_all["EXT_FABRIC_TYPE"] = ""
+        self._nv_pairs_12_1_3b_all["NXAPI_HTTPS_PORT"] = "443"
+        self._nv_pairs_12_1_3b_all["NXAPI_HTTP_PORT"] = "80"
+        self._nv_pairs_12_1_3b_all["NXC_DEST_VRF"] = "management"
+        self._nv_pairs_12_1_3b_all["NXC_PROXY_PORT"] = "8080"
+        self._nv_pairs_12_1_3b_all["NXC_PROXY_SERVER"] = ""
+        self._nv_pairs_12_1_3b_all["NXC_SRC_INTF"] = ""
+        self._nv_pairs_12_1_3b_all["OBJECT_TRACKING_NUMBER_RANGE"] = "100-299"
+        self._nv_pairs_12_1_3b_all["OVERWRITE_GLOBAL_NXC"] = False
+        self._nv_pairs_12_1_3b_all["PER_VRF_LOOPBACK_AUTO_PROVISION"] = False
+        self._nv_pairs_12_1_3b_all["PER_VRF_LOOPBACK_AUTO_PROVISION_PREV"] = False
+        self._nv_pairs_12_1_3b_all["PER_VRF_LOOPBACK_IP_RANGE"] = ""
+        self._nv_pairs_12_1_3b_all["SLA_ID_RANGE"] = "10000-19999"
+        self._nv_pairs_12_1_3b_all["TOPDOWN_CONFIG_RM_TRACKING"] = "notstarted"
+        self._nv_pairs_12_1_3b_all["UPGRADE_FROM_VERSION"] = ""
 
     def _init_nv_pairs_set(self):
         """
@@ -717,6 +836,9 @@ class NdfcEasyFabric(NdfcFabric):
         self._nv_pairs_set.add("temp_vpc_domain_mgmt")
         self._nv_pairs_set.add("temp_vpc_peer_link")
         self._nv_pairs_set.add("vrf_extension_template")
+        self._build_nv_pairs_12_1_3b()
+        for key in self._nv_pairs_12_1_3b_all:
+            self._nv_pairs_set.add(key)
 
     def _init_nv_pairs_mandatory_set(self):
         """
@@ -820,7 +942,7 @@ class NdfcEasyFabric(NdfcFabric):
 
         NOTES:
         1.  param has already been validated so it's safe to forge ahead
-        2.  LAYER2_RECORD MUST to be lowercase, not title-case, so
+        2.  LAYER2_RECORD MUST be lowercase, not title-case, so
             a simple conversion like str(bool) won't work.
         """
         new_param = []
@@ -948,6 +1070,7 @@ class NdfcEasyFabric(NdfcFabric):
 
         _ndfc_payload = self._ndfc_params
         _ndfc_payload["nvPairs"] = self._nv_pairs
+        print(f"_ndfc_payload {_ndfc_payload}")
 
         try:
             self.ndfc.post(url, headers, _ndfc_payload)

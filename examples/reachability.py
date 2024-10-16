@@ -13,6 +13,7 @@ from ndfc_python.ndfc_reachability import NdfcReachability
 logger = log("ndfc_reachability_log", "INFO", "DEBUG")
 nc = NdfcCredentials()
 ndfc = NDFC()
+ndfc.domain = nc.nd_domain
 ndfc.ip4 = nc.ndfc_ip
 ndfc.logger = logger
 ndfc.password = nc.password
@@ -22,7 +23,7 @@ ndfc.login()
 instance = NdfcReachability()
 instance.logger = logger
 instance.ndfc = ndfc
-instance.seed_ip = "172.22.150.113"
+instance.seed_ip = "10.1.1.2"
 instance.fabric_name = "easy"
 
 # For EasyFabric, if overlay_mode is "config-profile" (the default),

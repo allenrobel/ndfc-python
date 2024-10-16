@@ -19,14 +19,17 @@ class NdfcFabric:
 
     from ndfc_python.log import log
     from ndfc_python.ndfc import NDFC
+    from ndfc_python.ndfc_credentials import NdfcCredentials
     from ndfc_python.ndfc_fabric import NdfcFabric
 
     # INFO to screen, DEBUG to file
     logger = log('example_log', 'INFO', 'DEBUG')
+    nc = NdfcCredentials()
     ndfc = NDFC()
     ndfc.log = logger
-    ndfc.username = "admin"
-    ndfc.password = "mypassword"
+    ndfc.domain = nc.nd_domain
+    ndfc.username = nc.username
+    ndfc.password = nc.password
     ndfc.login()
 
     class MyNewNdfcFabricType(NdfcFabric):

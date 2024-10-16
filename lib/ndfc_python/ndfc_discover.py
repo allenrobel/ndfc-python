@@ -85,8 +85,12 @@ class NdfcDiscover:
     - is_up Tests if a switch is up
 
     Examples:
+    from ndfc_python.ndfc import NDFC
+    from ndfc_python.ndfc_credentials import NdfcCredentials
 
+    nc = NdfcCredentials()
     ndfc = NDFC(log("ndfc_discover_log", "INFO", "DEBUG"))
+    ndfc.domain = nc.nd_domain
     ndfc.username = nc.username
     ndfc.password = nc.password
     ndfc.ip4 = nc.ndfc_ip
@@ -96,8 +100,8 @@ class NdfcDiscover:
     instance = NdfcDiscover(ndfc)
     instance.seed_ip = '10.1.1.1'
     instance.cdp_second_timeout = 10
-    instance.discover_username = 'admin'
-    instance.discover_password = 'myPassword'
+    instance.discover_password = nc.discover_password
+    instance.discover_username = nc.discover_username
     try:
         instance.discover()
     except ValueError as err:
@@ -107,8 +111,8 @@ class NdfcDiscover:
 
     # is_up() method
     instance = NdfcDiscover(ndfc)
-    instance.discover_password = "myPassword"
-    instance.discover_username = "admin"
+    instance.discover_password = nc.discover_password
+    instance.discover_username = nc.discover_username
     instance.fabric_name = "ext1"
     instance.seed_ip = "10.1.1.100"
     try:
