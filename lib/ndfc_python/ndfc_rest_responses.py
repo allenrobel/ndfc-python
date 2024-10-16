@@ -6,6 +6,7 @@ class NdfcRestServer:
     """
     A rudimentary REST response server.
     """
+
     def __init__(self):
         pass
 

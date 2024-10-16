@@ -121,13 +121,13 @@ class NdfcMsdFabric(NdfcFabric):
         self._nv_pairs_default["default_pvlan_sec_network"] = ""
         self._nv_pairs_default["default_vrf"] = "Default_VRF_Universal"
         self._nv_pairs_default["enableScheduledBackup"] = ""
-        self._nv_pairs_default["network_extension_template"] = (
-            "Default_Network_Extension_Universal"
-        )
+        self._nv_pairs_default[
+            "network_extension_template"
+        ] = "Default_Network_Extension_Universal"
         self._nv_pairs_default["scheduledTime"] = ""
-        self._nv_pairs_default["vrf_extension_template"] = (
-            "Default_VRF_Extension_Universal"
-        )
+        self._nv_pairs_default[
+            "vrf_extension_template"
+        ] = "Default_VRF_Extension_Universal"
         self._nv_pairs_default["ANYCAST_GW_MAC"] = "2020.0000.00aa"
         self._nv_pairs_default["BGP_RP_ASN"] = ""
         self._nv_pairs_default["BGW_ROUTING_TAG"] = "54321"
