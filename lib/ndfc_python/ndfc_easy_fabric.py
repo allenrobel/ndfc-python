@@ -48,7 +48,20 @@ class NdfcEasyFabric(NdfcFabric):
         super().__init__()
         self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
-
+        self._ndfc_params_default = {}
+        self._ndfc_params = {}
+        self._ndfc_params_set = set()
+        self._ndfc_params_mandatory_set = set()
+        self._nv_pairs_default = {}
+        self._nv_pairs = {}
+        self._nv_pairs_set = set()
+        self._nv_pairs_mandatory_set = set()
+        self._nv_pairs_12_1_3b_optional = {}
+        self._nv_pairs_12_1_3b_mandatory = {}
+        self._nv_pairs_12_1_3b_all = {}
+        self._properties_set = set()
+        self._properties = {}
+        self._properties_mandatory_set = set()
         self._init_ndfc_param_to_property_map()
 
     def _init_properties_default(self):
@@ -79,7 +92,6 @@ class NdfcEasyFabric(NdfcFabric):
         """
         Initialize a set containing all properties
         """
-        self._properties_set = set()
         self._properties_set.add("deviceType")
         self._properties_set.add("fabricTechnology")
         self._properties_set.add("fabricTechnologyFriendly")
@@ -99,7 +111,6 @@ class NdfcEasyFabric(NdfcFabric):
         """
         Initialize a set containing mandatory properties
         """
-        self._properties_mandatory_set = set()
         self._properties_mandatory_set.add("fabric_name")
 
     def _init_ndfc_param_to_property_map(self):
@@ -136,7 +147,6 @@ class NdfcEasyFabric(NdfcFabric):
         Initialize default NDFC top-level parameters
         See also: _init_nv_pairs*
         """
-        self._ndfc_params_default = {}
         self._ndfc_params_default["deviceType"] = "n9k"
         self._ndfc_params_default["fabricTechnology"] = "VXLANFabric"
         self._ndfc_params_default["fabricTechnologyFriendly"] = "VXLAN Fabric"
@@ -169,7 +179,6 @@ class NdfcEasyFabric(NdfcFabric):
         """
         Initialize a set containing all NDFC parameters
         """
-        self._ndfc_params_set = set()
         self._ndfc_params_set.add("asn")
         self._ndfc_params_set.add("deviceType")
         self._ndfc_params_set.add("fabricName")
@@ -190,7 +199,6 @@ class NdfcEasyFabric(NdfcFabric):
         """
         Initialize a set containing mandatory NDFC parameters
         """
-        self._ndfc_params_mandatory_set = set()
         self._ndfc_params_mandatory_set = self._ndfc_params_set.difference(
             self._ndfc_params_default
         )
@@ -2677,6 +2685,7 @@ class NdfcEasyFabric(NdfcFabric):
     def feature_ptp_internal(self, param):
         self._nv_pairs["FEATURE_PTP_INTERNAL"] = param
 
+    # pylint: disable=invalid-name
     @property
     def ff(self):
         """
@@ -2688,9 +2697,10 @@ class NdfcEasyFabric(NdfcFabric):
         """
         return self._nv_pairs["FF"]
 
-    @ff.setter
+    @ff.setter  #
     def ff(self, param):
         self._nv_pairs["FF"] = param
+    # pylint: enable=invalid-name
 
     @property
     def grfield_debug_flag(self):

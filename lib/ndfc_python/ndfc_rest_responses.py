@@ -3,11 +3,18 @@ import json
 
 
 class NdfcRestServer:
+    """
+    A rudimentary REST response server.
+    """
     def __init__(self):
         pass
 
     @staticmethod
-    def ndfcFabricInventory():
+    def ndfc_fabric_inventory():
+        """
+        ### Summary
+        Return JSON response for ndfcFabricInventory
+        """
         return json.dumps(
             {
                 "fabricName": "DCNM",
@@ -31,5 +38,5 @@ class NdfcRestServer:
 
 
 ndfc = NdfcRestServer()
-inventory = json.loads(ndfc.ndfcFabricInventory())
+inventory = json.loads(ndfc.ndfc_fabric_inventory())
 print(inventory["fabricName"])

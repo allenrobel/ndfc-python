@@ -58,6 +58,14 @@ class NdfcMsdFabric(NdfcFabric):
         super().__init__()
         self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
+        self._nv_pairs = {}
+        self._nv_pairs_default = {}
+        self._nv_pairs_set = set()
+        self._nv_pairs_mandatory_set = set()
+        self._properties = {}
+        self._properties_default = {}
+        self._properties_set = set()
+        self._properties_mandatory_set = set()
 
         self._init_property_map()
 

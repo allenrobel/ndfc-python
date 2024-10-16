@@ -24,6 +24,7 @@ ndfc.logger = logger
 ndfc.password = nc.password
 ndfc.username = nc.username
 ndfc.login()
-url = f"https://{ndfc.ip4}/appcenter/cisco/ndfc/api/v1/imagemanagement/rest/imageupgrade/install-options"
+url = f"https://{ndfc.ip4}"
+url += "/appcenter/cisco/ndfc/api/v1/imagemanagement/rest/imageupgrade/install-options"
 ndfc.post(url, payload=payload)
 print(f"{json.dumps(ndfc.response_json, indent=4)}")

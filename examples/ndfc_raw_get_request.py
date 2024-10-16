@@ -17,7 +17,8 @@ ndfc.logger = logger
 ndfc.password = nc.password
 ndfc.username = nc.username
 ndfc.login()
-url_issu = f"https://{ndfc.ip4}/appcenter/cisco/ndfc/api/v1/imagemanagement/rest/packagemgnt/issu"
+url_issu = f"https://{ndfc.ip4}"
+url_issu += "/appcenter/cisco/ndfc/api/v1/imagemanagement/rest/packagemgnt/issu"
 url = f"https://{ndfc.ip4}/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics"
 ndfc.get(url_issu)
 print(f"{json.dumps(ndfc.response_json, indent=4)}")
