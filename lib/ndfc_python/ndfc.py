@@ -248,29 +248,34 @@ class NDFC:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Exiting. error connecting to {url} "
             msg += f"Exception detail: {exception}"
-            self.log.debug(msg)
-            sys.exit(1)
+            self.log.error(msg)
+            raise requests.exceptions.InvalidSchema from exception
         except requests.ConnectTimeout as exception:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Exiting. Timed out connecting to {url} "
             msg += f"Exception detail: {exception}"
-            self.log.debug(msg)
-            sys.exit(1)
+            self.log.error(msg)
+            raise requests.ConnectTimeout from exception
         except requests.ConnectionError as exception:
             msg = f"{self.class_name}.{method_name}: "
             msg = f"Exiting. Unable to connect to {url} "
             msg += f"Exception detail: {exception}"
-            self.log.debug(msg)
-            sys.exit(1)
+            self.log.error(msg)
+            raise requests.ConnectionError from exception
 
         if self.response.status_code != 200:
             msg = f"{self.class_name}.{method_name}: "
-            msg += f"status {self.response.status_code} for {request_type} "
-            msg += f"url {url}"
+            msg += f"status: {self.response.status_code}, "
+            msg += f"request_type: {request_type}, "
+            msg += f"url: {url}, "
+            msg += f"response: {self.response.text}"
+            self.log.error(msg)
             raise NdfcRequestError(msg)
+
         msg = f"{self.class_name}.{method_name}: "
         msg += f"{request_type} succeeded {url}"
         self.log.debug(msg)
+
         try:
             response = self.response.json()
         except json.decoder.JSONDecodeError:
