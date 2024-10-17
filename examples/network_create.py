@@ -3,34 +3,45 @@
 Name: example_ndfc_network_create.py
 Description: Create an NDFC network
 """
-from ndfc_python.log import log
+import logging
+import sys
+
+from ndfc_python.log_v2 import Log
 from ndfc_python.ndfc import NDFC, NdfcRequestError
 from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_network import NdfcNetwork
 
-logger = log("ndfc_network_create_log", "INFO", "DEBUG")
-nc = NdfcCredentials()
+try:
+    log = Log()
+    log.commit()
+except ValueError as error:
+    MSG = "Error while instantiating Log(). "
+    MSG += f"Error detail: {error}"
+    print(MSG)
+    sys.exit(1)
 
+nc = NdfcCredentials()
 ndfc = NDFC()
 ndfc.domain = nc.nd_domain
 ndfc.ip4 = nc.ndfc_ip
-ndfc.logger = logger
 ndfc.password = nc.password
 ndfc.username = nc.username
 ndfc.login()
 
-instance = NdfcNetwork()
-instance.logger = logger
-instance.ndfc = ndfc
-instance.fabric = "easy"
-instance.network_name = "MyNet"
-instance.enable_ir = True
-instance.gateway_ip_address = "10.1.1.1/24"
-instance.network_id = 30005
-instance.vlan_id = 3005
-instance.vrf = "MyVrf"
+log = logging.getLogger("ndfc_python.main")
+
 try:
+    instance = NdfcNetwork()
+    instance.ndfc = ndfc
+    instance.fabric = "f1"
+    instance.network_name = "MyNet"
+    instance.enable_ir = True
+    instance.gateway_ip_address = "10.1.1.1/24"
+    instance.network_id = 30005
+    instance.vlan_id = 3005
+    instance.vrf = "MyVrf"
     instance.create()
-except NdfcRequestError as err:
-    msg = f"exiting {err}"
-    instance.logger.error(msg)
+except (NdfcRequestError, ValueError) as error:
+    msg = "Error creating network. "
+    msg += f"Error detail: {error}"
+    log.error(msg)

@@ -409,13 +409,13 @@ class NdfcDeviceInfo:
             self._verify_fabric_exists()
         except ValueError as error:
             msg = f"{self.class_name}.{method_name}: "
-            msg = f"Error detail: {error}."
+            msg += f"Error detail: {error}."
             raise ValueError(msg) from error
         try:
             self._populate_fabric_type()
         except ValueError as error:
             msg = f"{self.class_name}.{method_name}: "
-            msg = f"Error detail: {error}"
+            msg += f"Error detail: {error}"
             raise ValueError(msg) from error
 
     def _verify_inventory_switches_by_fabric(self, response):
