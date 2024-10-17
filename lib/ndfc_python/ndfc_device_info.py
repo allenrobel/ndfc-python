@@ -581,10 +581,10 @@ class NdfcDeviceInfo:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_ipv4_address(param)
-        except AddressValueError:
+        except AddressValueError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += "Unable to validate ip_address"
-            raise ValueError(msg)
+            raise ValueError(msg) from error
         self._properties["ip_address"] = param
 
     # Public read-only properties
