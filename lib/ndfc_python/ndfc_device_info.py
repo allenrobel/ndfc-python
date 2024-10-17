@@ -11,8 +11,6 @@ from ipaddress import AddressValueError
 from ndfc_python.ndfc import NdfcRequestError
 from ndfc_python.validations import Validations
 
-OUR_VERSION = 104
-
 
 class NdfcDeviceInfo:
     """
@@ -49,9 +47,19 @@ class NdfcDeviceInfo:
 
     Examples:
 
+    from ndfc_python.log_v2 import Log
     from ndfc_python.ndfc import NDFC
     from ndfc_python.ndfc_credentials import NdfcCredentials
     from ndfc_python.ndfc_device_info import NdfcDeviceInfo
+
+    try:
+        log = Log()
+        log.commit()
+    except ValueError as error:
+        MSG = "Error while instantiating Log(). "
+        MSG += f"Error detail: {error}"
+        print(MSG)
+        exit(1)
 
     nc = NdfcCredentials()
     ndfc = NDFC()
@@ -196,7 +204,6 @@ class NdfcDeviceInfo:
     """
 
     def __init__(self):
-        self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 

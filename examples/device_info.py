@@ -12,6 +12,8 @@ Edit the vars below to match your setup
     - fabric
     - devices
 """
+import sys
+
 from ndfc_python.log_v2 import Log
 from ndfc_python.ndfc import NDFC
 from ndfc_python.ndfc_credentials import NdfcCredentials
@@ -24,6 +26,7 @@ except ValueError as error:
     MSG = "Error while instantiating Log(). "
     MSG += f"Error detail: {error}"
     print(MSG)
+    sys.exit(1)
 
 fabric = "f1"
 devices = ["10.1.1.1", "10.1.1.2"]
