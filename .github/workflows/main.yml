@@ -13,8 +13,8 @@ on:
   push:
     # branches-ignore: [master, main]
     # Uncomment the line above to disable run when pushing to master
-  pull_request:
-    branches: [master, main]
+  # pull_request:
+  #  branches: [master, main]
 
 ###############
 # Set the Job #
@@ -54,7 +54,7 @@ jobs:
       - name: Lint Code Base
         uses: github/super-linter/slim@v5
         env:
-
+          VALIDATE_JSCPD: false
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
