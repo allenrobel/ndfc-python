@@ -20,6 +20,8 @@ except ValueError as error:
     print(MSG)
     sys.exit(1)
 
+log = logging.getLogger("ndfc_python.main")
+
 nc = NdfcCredentials()
 ndfc = NDFC()
 ndfc.domain = nc.nd_domain
@@ -27,8 +29,6 @@ ndfc.ip4 = nc.ndfc_ip
 ndfc.password = nc.password
 ndfc.username = nc.username
 ndfc.login()
-
-log = logging.getLogger("ndfc_python.main")
 
 try:
     instance = NdfcNetwork()
