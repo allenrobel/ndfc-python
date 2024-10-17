@@ -15,23 +15,12 @@ c = NdfcLoadConfig()
 print(f"c.ansible_vault {c.config['ansible_vault']}")
 """
 
+import inspect
+import logging
 import sys
 from os import environ
 
 import yaml
-
-CONFIG_FILE = environ.get("NDFC_PYTHON_CONFIG", None)
-if CONFIG_FILE is None:
-    msg = "Missing NDFC_PYTHON_CONFIG environment variable. "
-    msg += "Set NDFC_PYTHON_CONFIG to point to your ndfc-python "
-    msg += "configuration file. For example: "
-    msg += "export NDFC_PYTHON_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python"
-    msg += "/config/config.yml"
-    print(msg)
-    sys.exit(1)
-# REPOS = f"{environ['HOME']}/repos"
-# # Edit me!
-# CONFIG_FILE = f"{REPOS}/ndfc-python/lib/ndfc_python/config/config.yml"
 
 
 class NdfcLoadConfig:
@@ -53,6 +42,18 @@ class NdfcLoadConfig:
     """
 
     def __init__(self):
+        self.class_name = self.__class__.__name__
+        self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
+
+        self.config_file = environ.get("NDFC_PYTHON_CONFIG", None)
+        if self.config_file is None:
+            msg = "Missing NDFC_PYTHON_CONFIG environment variable. "
+            msg += "Set NDFC_PYTHON_CONFIG to point to your ndfc-python "
+            msg += "configuration file. For example: "
+            msg += "export NDFC_PYTHON_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python"
+            msg += "/config/config.yml"
+            self.log.error(msg)
+            sys.exit(1)
         self.properties = {}
         self.mandatory_keys = set()
         self.mandatory_keys.add("ansible_vault")
@@ -63,41 +64,43 @@ class NdfcLoadConfig:
         """
         Exit if all mandatory keys are not present in self.properties["config"]
         """
+        method_name = inspect.stack()[0][3]
         for key in self.mandatory_keys:
             if key in self.properties["config"]:
                 continue
-            msg = f"Exiting. {__class__.__name__}.load_config() - missing "
-            msg += f"mandatory key '{key}' in CONFIG_FILE {CONFIG_FILE}"
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Exiting. missing mandatory key {key} in config file "
+            msg += f"{self.config_file}"
             print(msg)
             sys.exit(1)
 
     def load_config(self):
         """
-        Open the YAML file, CONFIG_FILE, and load its contents
+        Open the YAML self.config_file, and load its contents
         into self.properties["config"]
         """
+        method_name = inspect.stack()[0][3]
         try:
-            with open(CONFIG_FILE, "r", encoding="utf-8") as handle:
+            with open(self.config_file, "r", encoding="utf-8") as handle:
                 self.properties["config"] = yaml.safe_load(handle)
         except FileNotFoundError as exception:
-            print(
-                f"Exiting. {__class__.__name__}."
-                f"load_config() - CONFIG_FILE not found: {CONFIG_FILE}"
-                f" Exception detail: {exception}"
-            )
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Exiting. config file not found {self.config_file}"
+            msg += f"Exception detail: {exception}"
+            self.log.error(msg)
             sys.exit(1)
         except EOFError as exception:
-            print(
-                f"Exiting. {__class__.__name__}."
-                f"load_config() - CONFIG_FILE {CONFIG_FILE} has no contents?"
-                f" Exception detail: {exception}"
-            )
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Exiting. config file {self.config_file} "
+            msg += "has no contents? "
+            msg += f"Exception detail: {exception}"
+            self.log.error(msg)
             sys.exit(1)
         if self.properties["config"] is None:
-            msg = f"Exiting. {__class__.__name__}. "
-            msg += "load_config() - No key/values found in CONFIG_FILE "
-            msg += f"{CONFIG_FILE}"
-            print(msg)
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Exiting. No key/values found in config file "
+            msg += f"{self.config_file}"
+            self.log.error(msg)
             sys.exit(1)
 
     @property

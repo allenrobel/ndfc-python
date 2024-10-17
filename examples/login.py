@@ -26,9 +26,9 @@ try:
     log = Log()
     log.commit()
 except ValueError as error:
-    msg = "Error while instantiating Log(). "
-    msg += f"Error detail: {error}"
-    print(msg)
+    MSG = "Error while instantiating Log(). "
+    MSG += f"Error detail: {error}"
+    print(MSG)
 
 nc = NdfcCredentials()
 ndfc = NDFC()

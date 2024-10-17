@@ -480,10 +480,15 @@ class NDFC:
 
     @property
     def response_json(self):
+        """
+        Return the JSON response from the last request
+        """
+        method_name = inspect.stack()[0][3]
         try:
             return self.response.json()
         except json.decoder.JSONDecodeError:
-            msg = f"{self.class_name}.response_json: Error decoding JSON "
-            msg += "response, returning undecoded response instead."
-            print(msg)
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Error decoding JSON response, returning undecoded "
+            msg += "response instead."
+            self.log.debug(msg)
             return self.response
