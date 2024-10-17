@@ -4,9 +4,9 @@ This repository contains Python classes and example scripts for interacting
 with Cisco's Nexus Dashboard Fabric Controller (NDFC) via its REST API.
 
 NOTES:
-1.  We have removed the example scripts and libraries for fabrics for now.
-    These will be replaced with code from the DCNM Ansible Collection which
-    we are modifying to work without Ansible.
+1. We have removed the example scripts and libraries for fabrics for now.
+   These will be replaced with code from the DCNM Ansible Collection which
+   we are modifying to work without Ansible.
 
 ## Libraries
 
@@ -34,7 +34,7 @@ Library                 | Description
 [ndfc_vrf]: /lib/ndfc_python/ndfc_vrf.py
 [validations]: /lib/ndfc_python/validations.py
 
-## The following libraries have been removed.  See note 1 above.
+## The following libraries have been removed, see note 1 above
 
 Library                 | Description
 ----------------------- | -----------
@@ -58,7 +58,7 @@ Script                  | Description
 [vrf_add.py]              | Add a vrf to a fabric
 [netbox_ndfc_network_create.py] | Read networks from a Netbox instance, and create these in NDFC.  This is a proof-of-concept for one way to integrate NDFC and Netbox.
 
-# The following example scripts have been removed.  See note 1 above.
+## The following example scripts have been removed, see note 1 above
 
 Script                  | Description
 ----------------------- | -----------
