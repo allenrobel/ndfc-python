@@ -28,8 +28,8 @@ except ValueError as error:
     print(MSG)
     sys.exit(1)
 
-fabric = "f1"
-devices = ["10.1.1.1", "10.1.1.2"]
+FABRIC = "f1"
+DEVICES = ["10.1.1.1", "10.1.1.2"]
 
 nc = NdfcCredentials()
 ndfc = NDFC()
@@ -41,8 +41,8 @@ ndfc.login()
 
 instance = NdfcDeviceInfo()
 instance.ndfc = ndfc
-instance.fabric_name = fabric
-for ipv4 in devices:
+instance.fabric_name = FABRIC
+for ipv4 in DEVICES:
     instance.ip_address = ipv4
     instance.refresh()
     print(f"device: {instance.ip_address}")
