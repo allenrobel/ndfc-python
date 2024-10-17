@@ -488,7 +488,7 @@ class NDFC:
             return self.response.json()
         except json.decoder.JSONDecodeError:
             msg = f"{self.class_name}.{method_name}: "
-            msg += f"Error decoding JSON response, returning undecoded "
+            msg += "Error decoding JSON response, returning undecoded "
             msg += "response instead."
             self.log.debug(msg)
             return self.response

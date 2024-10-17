@@ -98,7 +98,7 @@ class NdfcLoadConfig:
             sys.exit(1)
         if self.properties["config"] is None:
             msg = f"{self.class_name}.{method_name}: "
-            msg += f"Exiting. No key/values found in config file "
+            msg += "Exiting. No key/values found in config file: "
             msg += f"{self.config_file}"
             self.log.error(msg)
             sys.exit(1)
