@@ -61,9 +61,9 @@ Note, this can be used as the "switches" value in the NdfcDiscover() payload:
 
 import inspect
 import json
+import logging
 import sys
 from ipaddress import AddressValueError
-import logging
 from re import sub
 from time import sleep
 
@@ -315,7 +315,7 @@ class NdfcDiscover:
         except (AttributeError, TypeError) as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Error detail: {error}"
-            raise ValueError(msg)
+            raise ValueError(msg) from error
 
         for key in self.payload_set_mandatory:
             if self.payload[key] == "":

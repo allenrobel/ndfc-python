@@ -10,8 +10,8 @@ from ndfc_python.ndfc import NDFC, NdfcRequestError
 from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_discover import NdfcDiscover
 
-fabric_name = "MyFabric"
-seed_ips = ["10.1.1.1"]
+FABRIC_NAME = "MyFabric"
+SEED_IPS = ["10.1.1.1"]
 
 try:
     log = Log()
@@ -32,13 +32,13 @@ ndfc.login()
 
 instance = NdfcDiscover()
 instance.ndfc = ndfc
-instance.fabric_name = fabric_name
+instance.fabric_name = FABRIC_NAME
 instance.cdp_second_timeout = 5
 instance.max_hops = 0
 instance.discover_username = nc.discover_username
 instance.discover_password = nc.discover_password
 instance.preserve_config = True
-for seed_ip in seed_ips:
+for seed_ip in SEED_IPS:
     instance.seed_ip = seed_ip
     try:
         instance.discover()
