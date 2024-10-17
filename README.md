@@ -3,6 +3,10 @@
 This repository contains Python classes and example scripts for interacting
 with Cisco's Nexus Dashboard Fabric Controller (NDFC) via its REST API.
 
+NOTES:
+1.  We have removed the example scripts and libraries for fabrics for now.
+    These will be replaced with code from the DCNM Ansible Collection which
+    we are modifying to work without Ansible.
 
 ## Libraries
 
@@ -13,10 +17,7 @@ Library                 | Description
 [ndfc_credentials]      | Read the caller's Ansible Vault and provides the credentials therein to the other libraries
 [ndfc_device_info]      | Retrieve device information
 [ndfc_discover]         | Discover device
-[ndfc_easy_fabric_ebgp] | Create a fabric using Easy_Fabric_eBGP template
-[ndfc_easy_fabric]      | Create a fabric using Easy_Fabric template
 [ndfc_network]          | Create, delete networks
-[ndfc_msd_fabric]       | Create a multisite domain fabric
 [ndfc_policy]           | Create / delete policies
 [ndfc_reachability]     | Test for device reachability (from NDFC perspective)
 [ndfc_vrf]              | Create VRFs
@@ -27,14 +28,19 @@ Library                 | Description
 [ndfc_credentials]: /lib/ndfc_python/ndfc_credentials.py
 [ndfc_device_info]: /lib/ndfc_python/ndfc_device_info.py
 [ndfc_discover]: /lib/ndfc_python/ndfc_discover.py
-[ndfc_easy_fabric_ebgp]: /lib/ndfc_python/ndfc_easy_fabric_ebgp.py
-[ndfc_easy_fabric]: /lib/ndfc_python/ndfc_easy_fabric.py
 [ndfc_network]: /lib/ndfc_python/ndfc_network.py
-[ndfc_msd_fabric]: /lib/ndfc_python/ndfc_msd_fabric.py
 [ndfc_policy]: /lib/ndfc_python/ndfc_policy.py
 [ndfc_reachability]: /lib/ndfc_python/ndfc_reachability.py
 [ndfc_vrf]: /lib/ndfc_python/ndfc_vrf.py
 [validations]: /lib/ndfc_python/validations.py
+
+## The following libraries have been removed.  See note 1 above.
+
+Library                 | Description
+----------------------- | -----------
+ndfc_easy_fabric_ebgp   | Create a fabric using Easy_Fabric_eBGP template.
+ndfc_easy_fabric        | Create a fabric using Easy_Fabric template.
+ndfc_msd_fabric         | Create a multisite domain fabric.
 
 ## Example scripts
 
@@ -44,42 +50,35 @@ Script                  | Description
 [device_info.py]          | Retrieve various information about a device, given its fabric_name and ip_address
 [discover_is_up.py]       | Check if device is up and manageable.  If so, call config_save on the fabric.
 [discover.py]             | Discover device
-[fabric_bootstrap_and_local_dhcp_server_unnumbered.py] | Create a fabric with unnumbered fabric interfaces, configured with inband management, local (NDFC) DHCP server, and bootstrap enabled
-[fabric_bootstrap_and_local_dhcp_server.py] | Create a fabric configured with DHCP server and with bootstrap enabled
-[fabric_ebgp.py]          | Create an eBGP-based fabric
-[fabric_ipv4_underlay.py] | Create a fabric with ipv4 underlay
-[fabric_ipv6_underlay.py] | Create a fabric configured with an IPv6 underlay
-[fabric_mpls_handoff.py]  | Create a fabric configured with MPLS handoff
-[fabric_mst.py]           | Create a fabric configured with multi-instance spanning tree
-[fabric_multicast_bidir.py] | Create a fabric using multicast replication and configured with four multicast bidir rendevous points
-[fabric_netflow.py]       | Create a fabric with netflow configuration options
-[fabric_rpvst_plus.py]    | Create a fabric with rpvst+ spanning-tree root option
-[fabric_with_syslog.py]   | Create a fabric with syslog configured
 [load_config.py]          | Load the configuration file pointed to in lib/ndfc_python/ndfc_config.py and print the parameters and values contained therein
 [login.py]                | Login to an NDFC controller and print the returned auth token
-[fabric_msd.py]           | Create a multi-site domain (MSD) fabric
 [network_create.py]       | Create an NDFC network
 [network_delete.py]       | Delete an NDFC network
 [reachability.py]         | Test for device reachability (from NDFC perspective)
 [vrf_add.py]              | Add a vrf to a fabric
 [netbox_ndfc_network_create.py] | Read networks from a Netbox instance, and create these in NDFC.  This is a proof-of-concept for one way to integrate NDFC and Netbox.
 
+# The following example scripts have been removed.  See note 1 above.
+
+Script                  | Description
+----------------------- | -----------
+fabric_bootstrap_and_local_dhcp_server_unnumbered.py | Create a fabric with unnumbered fabric interfaces, configured with inband management, local (NDFC) DHCP server, and bootstrap enabled
+fabric_bootstrap_and_local_dhcp_server.py | Create a fabric configured with DHCP server and with bootstrap enabled
+fabric_ebgp.py          | Create an eBGP-based fabric
+fabric_ipv4_underlay.py | Create a fabric with ipv4 underlay
+fabric_ipv6_underlay.py | Create a fabric configured with an IPv6 underlay
+fabric_mpls_handoff.py  | Create a fabric configured with MPLS handoff
+fabric_mst.py           | Create a fabric configured with multi-instance spanning tree
+fabric_multicast_bidir.py | Create a fabric using multicast replication and configured with four multicast bidir rendevous points
+fabric_netflow.py       | Create a fabric with netflow configuration options
+fabric_rpvst_plus.py    | Create a fabric with rpvst+ spanning-tree root option
+fabric_with_syslog.py   | Create a fabric with syslog configured
+fabric_msd.py           | Create a multi-site domain (MSD) fabric
+
 [credentials.py]: /examples/credentials.py
 [device_info.py]: /examples/device_info.py
 [discover_is_up.py]: /examples/discover_is_up.py
 [discover.py]: /examples/discover.py
-[fabric_bootstrap_and_local_dhcp_server_unnumbered.py]: /examples/fabric_bootstrap_and_local_dhcp_server_unnumbered.py
-[fabric_bootstrap_and_local_dhcp_server.py]: /examples/fabric_bootstrap_and_local_dhcp_server.py
-[fabric_ebgp.py]: /examples/fabric_ebgp.py
-[fabric_ipv4_underlay.py]: /examples/fabric_ipv4_underlay.py
-[fabric_ipv6_underlay.py]: /examples/fabric_ipv6_underlay.py
-[fabric_mpls_handoff.py]: /examples/fabric_mpls_handoff.py
-[fabric_msd.py]: /examples/fabric_msd.py
-[fabric_mst.py]: /examples/fabric_mst.py
-[fabric_multicast_bidir.py]: /examples/fabric_multicast_bidir.py
-[fabric_rpvst_plus.py]: /examples/fabric_rpvst_plus.py
-[fabric_netflow.py]: /examples/fabric_netflow.py
-[fabric_with_syslog.py]: /examples/fabric_with_syslog.py
 [load_config.py]: /examples/load_config.py
 [login.py]: /examples/login.py
 [netbox_ndfc_network_create.py]: /examples/netbox_ndfc_network_create.py
@@ -107,6 +106,9 @@ These are needed for Ansible vault.
 pip install ansible
 ```
 
+<!---
+Commenting this section out until we have replaced the fabric scripts and libraries...
+
 ## Fabric Characteristics
 
 The characteristics of the child/site fabrics are as follows (see also the included PDF for a topology).
@@ -121,6 +123,8 @@ The characteristics of the child/site fabrics are as follows (see also the inclu
 8. VXLAN/EVPN Replication Mode: Ingress
 
 Spines and Leafs can be added/removed by updating the Common Role Variables described below.
+
+-->
 
 ## Config File
 
