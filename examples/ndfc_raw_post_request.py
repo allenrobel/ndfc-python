@@ -37,7 +37,7 @@ payload = {
     "policyDescr": "Policy notes",
     "epldImgName": "",
     "rpmimages": "",
-    "agnostic": True
+    "agnostic": True,
 }
 
 ndfc.post(url, payload=payload)
