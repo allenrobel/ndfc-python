@@ -26,7 +26,7 @@ try:
     log = Log()
     log.commit()
 except ValueError as error:
-    msg = f"Error while instantiating Log(). "
+    msg = "Error while instantiating Log(). "
     msg += f"Error detail: {error}"
     print(msg)
 
