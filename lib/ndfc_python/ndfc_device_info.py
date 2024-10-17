@@ -6,13 +6,12 @@ Description: Retrieve information about a device
 import inspect
 import json
 import logging
-import sys
 from ipaddress import AddressValueError
 
 from ndfc_python.ndfc import NdfcRequestError
 from ndfc_python.validations import Validations
 
-OUR_VERSION = 103
+OUR_VERSION = 104
 
 
 class NdfcDeviceInfo:
@@ -515,7 +514,7 @@ class NdfcDeviceInfo:
             self._final_verification()
         except ValueError as error:
             msg = f"{self.class_name}.{method_name}: "
-            msg += f"Final verification failed. "
+            msg += "Final verification failed. "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
 
