@@ -1,32 +1,45 @@
 #!/usr/bin/env python3
 """
-Name: example_ndfc_device_info.py
+Name: device_info.py
 Description:
 
-Retrieve various information about a device, given its
-fabric_name and ip_address
+Retrieve various information about devices, given their
+fabric_name and ip_address.
+
+Usage:
+
+Edit the vars below to match your setup
+    - fabric
+    - devices
 """
-from ndfc_python.log import log
+from ndfc_python.log_v2 import Log
 from ndfc_python.ndfc import NDFC
 from ndfc_python.ndfc_credentials import NdfcCredentials
 from ndfc_python.ndfc_device_info import NdfcDeviceInfo
 
-nc = NdfcCredentials()
+try:
+    log = Log()
+    log.commit()
+except ValueError as error:
+    MSG = "Error while instantiating Log(). "
+    MSG += f"Error detail: {error}"
+    print(MSG)
 
-logger = log("ndfc_device_info", "INFO", "DEBUG")
+fabric = "f1"
+devices = ["10.1.1.1", "10.1.1.2"]
+
+nc = NdfcCredentials()
 ndfc = NDFC()
 ndfc.domain = nc.nd_domain
 ndfc.ip4 = nc.ndfc_ip
-ndfc.logger = logger
 ndfc.password = nc.password
 ndfc.username = nc.username
 ndfc.login()
 
 instance = NdfcDeviceInfo()
 instance.ndfc = ndfc
-instance.logger = logger
-instance.fabric_name = "easy"
-for ipv4 in ["172.22.150.102", "172.22.150.103"]:
+instance.fabric_name = fabric
+for ipv4 in devices:
     instance.ip_address = ipv4
     instance.refresh()
     print(f"device: {instance.ip_address}")
