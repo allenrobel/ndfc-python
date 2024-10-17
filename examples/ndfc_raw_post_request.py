@@ -26,7 +26,7 @@ ndfc.login()
 url_base = f"https://{ndfc.ip4}"
 
 url = f"{url_base}"
-url += f"/appcenter/cisco/ndfc/api/v1/imagemanagement/rest/policymgnt/platform-policy"
+url += "/appcenter/cisco/ndfc/api/v1/imagemanagement/rest/policymgnt/platform-policy"
 
 payload = {
     "policyName": "MyPolicy",
