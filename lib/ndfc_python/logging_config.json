@@ -7,10 +7,14 @@
     }
   },
   "handlers": {
+    "console": {
+        "class": "logging.StreamHandler",
+        "formatter": "standard",
+        "stream"  : "ext://sys.stdout"
+      },
     "file": {
       "class": "logging.handlers.RotatingFileHandler",
       "formatter": "standard",
-      "level": "DEBUG",
       "filename": "/tmp/ndfc-python.log",
       "mode": "a",
       "encoding": "utf-8",
@@ -21,6 +25,7 @@
   "loggers": {
     "ndfc_python": {
       "handlers": [
+        "console",
         "file"
       ],
       "level": "DEBUG",

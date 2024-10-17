@@ -197,6 +197,7 @@ class Log:
         logging.raiseExceptions = False
 
         self.valid_handlers = set()
+        self.valid_handlers.add("console")
         self.valid_handlers.add("file")
 
         self._build_properties()
@@ -255,7 +256,7 @@ class Log:
 
         try:
             dictConfig(logging_config)
-        except (RuntimeError, TypeError, ValueError) as error:
+        except (AttributeError, ImportError, RuntimeError, TypeError, ValueError) as error:
             msg = "logging.config.dictConfig: "
             msg += f"Unable to configure logging from {self.config}. "
             msg += f"Error detail: {error}"
