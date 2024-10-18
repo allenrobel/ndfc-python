@@ -2,6 +2,19 @@
 """
 Name: example_ndfc_vrf_add.py
 Description: Add a vrf to a fabric
+
+NOTES:
+
+1.  Set the following environment variables before running this script
+    (edit appropriately for your setup)
+
+export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/netbox-tools/lib
+export NDFC_PYTHON_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/config/config.yml
+
+Optional, to enable logging:
+export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
+
+2. Edit the VRF values in the script below.
 """
 import logging
 import sys
