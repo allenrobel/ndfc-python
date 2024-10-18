@@ -15,9 +15,10 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 """
 import json
 import logging
+import sys
 
 from ndfc_python.log_v2 import Log
-from ndfc_python.ndfc import NDFC
+from ndfc_python.ndfc import NDFC, NdfcRequestError
 from ndfc_python.ndfc_credentials import NdfcCredentials
 
 try:
@@ -47,8 +48,18 @@ url_fabrics = f"{url_base}"
 url_fabrics += "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics"
 
 url_image_platform = f"{url_base}"
-url_image_platform += "/appcenter/cisco/ndfc/api/v1/imagemanagement/rest/policymgnt/platforms"
+url_image_platform += (
+    "/appcenter/cisco/ndfc/api/v1/imagemanagement/rest/policymgnt/platforms"
+)
 
-# Use of of the above example URLs
-ndfc.get(url_fabrics)
-log.info(f"{json.dumps(ndfc.response_json, indent=4)}")
+try:
+    # Use one of the above example URLs
+    ndfc.get(url_fabrics)
+except NdfcRequestError as error:
+    msg = "Error posting request. "
+    msg += f"Error detail: {error}"
+    log.error(msg)
+    sys.exit(1)
+
+msg = f"{json.dumps(ndfc.response_json, indent=4)}"
+log.info(msg)

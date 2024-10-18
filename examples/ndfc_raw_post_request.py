@@ -63,4 +63,5 @@ except NdfcRequestError as error:
     msg += f"Error detail: {error}"
     log.error(msg)
     sys.exit(1)
-log.info(f"{json.dumps(ndfc.response_json, indent=4)}")
+msg = f"{json.dumps(ndfc.response_json, indent=4)}"
+log.info(msg)
