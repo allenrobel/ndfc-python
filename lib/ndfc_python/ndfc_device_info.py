@@ -3,15 +3,13 @@ Name: ndfc_device_info.py
 Description: Retrieve information about a device
 """
 
+import inspect
 import json
-import sys
+import logging
 from ipaddress import AddressValueError
 
-from ndfc_python.log import log
 from ndfc_python.ndfc import NdfcRequestError
 from ndfc_python.validations import Validations
-
-OUR_VERSION = 102
 
 
 class NdfcDeviceInfo:
@@ -49,16 +47,22 @@ class NdfcDeviceInfo:
 
     Examples:
 
-    from ndfc_python.log import log
+    from ndfc_python.log_v2 import Log
     from ndfc_python.ndfc import NDFC
     from ndfc_python.ndfc_credentials import NdfcCredentials
     from ndfc_python.ndfc_device_info import NdfcDeviceInfo
 
-    logger = log("ndfc_device_info_log", "INFO", "DEBUG")
-    nc = NdfcCredentials()
+    try:
+        log = Log()
+        log.commit()
+    except ValueError as error:
+        MSG = "Error while instantiating Log(). "
+        MSG += f"Error detail: {error}"
+        print(MSG)
+        exit(1)
 
+    nc = NdfcCredentials()
     ndfc = NDFC()
-    ndfc.logger = logger
     ndfc.domain = nc.nd_domain
     ndfc.username = nc.username
     ndfc.password = nc.password
@@ -67,9 +71,8 @@ class NdfcDeviceInfo:
 
     instance = NdfcDeviceInfo()
     instance.ndfc = ndfc
-    instance.logger = logger
     instance.fabric_name = "easy"
-    instance.ip_address = "172.22.150.103"
+    instance.ip_address = "10.1.1.2"
     instance.refresh()
     print(f"device: {instance.ip_address}")
     print(f"fabric: {instance.fabric_name}")
@@ -201,14 +204,13 @@ class NdfcDeviceInfo:
     """
 
     def __init__(self):
-        self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
+        self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
         self.validations = Validations()
 
         # order is important with these three
         self._internal_properties = {}
-        self._init_default_logger()
         self._init_internal_properties()
 
         # get base headers
@@ -352,14 +354,7 @@ class NdfcDeviceInfo:
             "operStatus",
         }
 
-    def _init_default_logger(self):
-        """
-        This logger will be active if the user hasn't set self.logger
-        """
-        self.logger = log("ndfc_device_info_log")
-
     def _init_internal_properties(self):
-        self._internal_properties["logger"] = self.logger
         self._internal_properties["ndfc"] = None
 
     def _init_property_set(self):
@@ -395,30 +390,33 @@ class NdfcDeviceInfo:
         1. Verify all mandatory parameters have been set
         2. Populate vars and structures needed by self.refresh()
         """
+        method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_ndfc(self.ndfc)
-        except (AttributeError, TypeError) as err:
-            msg = f"exiting. {err}"
-            self.logger.error(msg)
-            sys.exit(1)
+        except (AttributeError, TypeError) as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Error detail: {error}"
+            raise ValueError(msg) from error
         for key in self._property_mandatory_set:
             if self._properties[key] is None:
-                msg = f"exiting. call instance.{key} "
-                msg += "before calling instance.refresh()"
-                self.logger.error(msg)
-                sys.exit(1)
+                msg = f"{self.class_name}.{method_name}: "
+                msg += f"Call {self.class_name}.{key} "
+                msg += f"before calling {self.class_name}.refresh()"
+                raise ValueError(msg)
         self._populate_raw_fabric_info()
         self._populate_existing_fabric_names()
         try:
             self._verify_fabric_exists()
-        except ValueError as err:
-            msg = f"cannot continue due to {err}."
-            raise ValueError(msg) from err
+        except ValueError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Error detail: {error}."
+            raise ValueError(msg) from error
         try:
             self._populate_fabric_type()
-        except ValueError as err:
-            msg = f"cannot continue due to {err}"
-            raise ValueError(msg) from err
+        except ValueError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Error detail: {error}"
+            raise ValueError(msg) from error
 
     def _verify_inventory_switches_by_fabric(self, response):
         """
@@ -427,15 +425,18 @@ class NdfcDeviceInfo:
 
         See: self._inventory_response_keys
         """
+        method_name = inspect.stack()[0][3]
         if not isinstance(response, list):
-            msg = "expected self._inventory_response to be a list. "
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "expected self._inventory_response to be a list. "
             msg += f"got {type({response}).__name__} "
             msg += "instead."
             raise TypeError(msg)
         for item in response:
             for key in self._inventory_response_keys:
                 if key not in item:
-                    msg = f"self._inventory_response is missing key {key} "
+                    msg = f"{self.class_name}.{method_name}: "
+                    msg += f"self._inventory_response is missing key {key} "
                     msg += f"in item {item}"
                     raise KeyError(msg)
 
@@ -445,16 +446,17 @@ class NdfcDeviceInfo:
 
         If unsuccessful, exit with error
         """
+        method_name = inspect.stack()[0][3]
         try:
             self._raw_fabric_info = self.ndfc.get(
                 self.ndfc.url_control_fabrics, self.ndfc.make_headers()
             )
-        except NdfcRequestError as err:
-            msg = "exiting. unable to populate fabric "
+        except NdfcRequestError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "Unable to populate fabric "
             msg += f"information via url {self.ndfc.url_control_fabrics}. "
-            msg += f"exception detail: {err}"
-            self.logger.error(msg)
-            sys.exit(1)
+            msg += f"Error detail: {error}"
+            raise NdfcRequestError(msg) from error
 
     def _populate_existing_fabric_names(self):
         """
@@ -466,8 +468,10 @@ class NdfcDeviceInfo:
                 self._fabric_names.add(item["fabricName"])
 
     def _populate_fabric_type(self):
+        method_name = inspect.stack()[0][3]
         if self.fabric_name not in self._fabric_names:
-            msg = f"fabric_name {self.fabric_name} not found in existing "
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"fabric_name {self.fabric_name} not found in existing "
             msg += f"fabrics {self._fabric_names}"
             raise ValueError(msg)
         for item in self._raw_fabric_info:
@@ -483,8 +487,10 @@ class NdfcDeviceInfo:
         """
         raise ValueError if fabric does not exist on the NDFC
         """
+        method_name = inspect.stack()[0][3]
         if self.fabric_name not in self._fabric_names:
-            msg = f"fabric_name {self.fabric_name} does not exist "
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"fabric_name {self.fabric_name} does not exist "
             msg += f"on the NDFC, current fabrics: {self._fabric_names}"
             raise ValueError(msg)
 
@@ -495,12 +501,14 @@ class NdfcDeviceInfo:
 
         raise ValueError otherwise.
         """
+        method_name = inspect.stack()[0][3]
         self._device_info = {}
         for device in self._switches_by_fabric:
             if device["ipAddress"] == self.ip_address:
                 self._device_info = device
                 return
-        msg = f"device {self.ip_address} not found in fabric "
+        msg = f"{self.class_name}.{method_name}: "
+        msg += f"device {self.ip_address} not found in fabric "
         msg += f"{self.fabric_name}"
         raise ValueError(msg)
 
@@ -508,12 +516,14 @@ class NdfcDeviceInfo:
         """
         Refresh a device's information
         """
+        method_name = inspect.stack()[0][3]
         try:
             self._final_verification()
-        except ValueError as err:
-            msg = f"exiting. final verification failed. detail: {err}"
-            self.logger.error(msg)
-            sys.exit(1)
+        except ValueError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "Final verification failed. "
+            msg += f"Error detail: {error}"
+            raise ValueError(msg) from error
 
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
         url += "/inventory/switchesByFabric"
@@ -522,38 +532,27 @@ class NdfcDeviceInfo:
         self._status_code = self.ndfc.response.status_code
         self._response = json.loads(self.ndfc.response.text)
         if self._status_code != 200:
-            msg = f"exiting. got non-200 status code {self._status_code} "
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"got non-200 status code {self._status_code} "
             msg += f"for url {url}"
-            self.logger.error(msg)
-            sys.exit(1)
+            raise ValueError(msg)
 
         try:
             self._verify_inventory_switches_by_fabric(self._response)
-        except (TypeError, KeyError) as err:
-            msg = f"exiting. {err}"
-            self.logger.error(msg)
-            sys.exit(1)
+        except (TypeError, KeyError) as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Error detail: {error}"
+            raise ValueError(msg) from error
         self._switches_by_fabric = self._response
 
         try:
             self._populate_device_info()
-        except ValueError as err:
-            msg = f"exiting. {err}"
-            self.logger.error(msg)
-            sys.exit(1)
+        except ValueError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Error detail: {error}"
+            raise ValueError(msg) from error
 
     # properties that are not passed to NDFC
-    @property
-    def logger(self):
-        """
-        return/set the current logger instance
-        """
-        return self._internal_properties["logger"]
-
-    @logger.setter
-    def logger(self, param):
-        self._internal_properties["logger"] = param
-
     @property
     def ndfc(self):
         """
@@ -586,11 +585,13 @@ class NdfcDeviceInfo:
 
     @ip_address.setter
     def ip_address(self, param):
+        method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_ipv4_address(param)
-        except AddressValueError:
-            self.logger.error("Exiting.")
-            sys.exit(1)
+        except AddressValueError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "Unable to validate ip_address"
+            raise ValueError(msg) from error
         self._properties["ip_address"] = param
 
     # Public read-only properties

@@ -59,17 +59,16 @@ Note, this can be used as the "switches" value in the NdfcDiscover() payload:
     ]
 """
 
+import inspect
 import json
+import logging
 import sys
 from ipaddress import AddressValueError
 from re import sub
 from time import sleep
 
-from ndfc_python.log import log
 from ndfc_python.ndfc import NdfcRequestError
 from ndfc_python.validations import Validations
-
-OUR_VERSION = 108
 
 
 class NdfcDiscover:
@@ -86,11 +85,20 @@ class NdfcDiscover:
     - is_up Tests if a switch is up
 
     Examples:
+    from ndfc_python.log_v2 import Log
     from ndfc_python.ndfc import NDFC
     from ndfc_python.ndfc_credentials import NdfcCredentials
 
+    try:
+        log = Log()
+        log.commit()
+    except ValueError as error:
+        MSG = "Error while instantiating Log(). "
+        MSG += f"Error detail: {error}"
+        print(MSG)
+        exit(1)
+
     nc = NdfcCredentials()
-    ndfc = NDFC(log("ndfc_discover_log", "INFO", "DEBUG"))
     ndfc.domain = nc.nd_domain
     ndfc.username = nc.username
     ndfc.password = nc.password
@@ -105,9 +113,8 @@ class NdfcDiscover:
     instance.discover_username = nc.discover_username
     try:
         instance.discover()
-    except ValueError as err:
-        instance.logger.error(f"exiting. {err}")
-        sys.exit(1)
+    except ValueError as error:
+        raise ValueError(f"{error}") from error
     print(f"response: {instance.response}")
 
     # is_up() method
@@ -118,9 +125,8 @@ class NdfcDiscover:
     instance.seed_ip = "10.1.1.100"
     try:
         up = discover.is_up()
-    except ValueError as err:
-        instance.logger.error(f"exiting. {err}")
-        sys.exit(1)
+    except ValueError as error:
+        raise ValueError(f"{error}") from error
     if up is True:
         result = "up"
     else:
@@ -129,14 +135,13 @@ class NdfcDiscover:
     """
 
     def __init__(self):
-        self.lib_version = OUR_VERSION
         self.class_name = __class__.__name__
+        self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
         self.validations = Validations()
         # ordering of the next three items matters
         # properties not passed to NDFC
         self._internal_properties = {}
-        self._init_default_logger()
         self._init_internal_properties()
 
         # time to sleep after each request retry
@@ -187,14 +192,7 @@ class NdfcDiscover:
             "version",
         ]
 
-    def _init_default_logger(self):
-        """
-        This logger will be active if the user hasn't set self.logger
-        """
-        self.logger = log("ndfc_discover_log")
-
     def _init_internal_properties(self):
-        self._internal_properties["logger"] = self.logger
         self._internal_properties["ndfc"] = None
 
     def _init_payload_set(self):
@@ -311,31 +309,34 @@ class NdfcDiscover:
         - populate vars and structures needed by self.discover()
         - verify fabric exists on the NDFC
         """
+        method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_ndfc(self.ndfc)
-        except (AttributeError, TypeError) as err:
-            msg = f"exiting. {err}"
-            self.logger.error(msg)
-            sys.exit(1)
+        except (AttributeError, TypeError) as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Error detail: {error}"
+            raise ValueError(msg) from error
 
         for key in self.payload_set_mandatory:
             if self.payload[key] == "":
-                msg = f"exiting. call instance.{self._payload_map[key]} "
-                msg += "before calling instance.create()"
-                self.logger.error(msg)
-                sys.exit(1)
+                msg = f"{self.class_name}.{method_name}: "
+                msg += f"call {self.class_name}.{self._payload_map[key]} "
+                msg += f"before calling {self.class_name}.create()"
+                raise ValueError(msg)
         self._populate_raw_fabric_info()
         self._populate_existing_fabric_names()
         try:
             self._verify_fabric_exists()
-        except ValueError as err:
-            msg = f"cannot continue due to {err}."
-            raise ValueError(msg) from err
+        except ValueError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"cannot continue due to {error}."
+            raise ValueError(msg) from error
         try:
             self._populate_fabric_type()
-        except ValueError as err:
-            msg = f"cannot continue due to {err}"
-            raise ValueError(msg) from err
+        except ValueError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"cannot continue due to {error}"
+            raise ValueError(msg) from error
 
     def _verify_reachability_response(self):
         """
@@ -364,15 +365,18 @@ class NdfcDiscover:
             }
         ]
         """
+        method_name = inspect.stack()[0][3]
         if not isinstance(self._reachability_response, list):
-            msg = "expected self._reachability_response to be a list. "
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "expected self._reachability_response to be a list. "
             msg += f"got {type({self._reachability_response}).__name__} "
             msg += "instead."
             raise TypeError(msg)
         for item in self._reachability_response:
             for key in self._reachability_response_keys:
                 if key not in item:
-                    msg = f"self._reachability_response is missing key {key} "
+                    msg = f"{self.class_name}.{method_name}: "
+                    msg += f"self._reachability_response is missing key {key} "
                     msg += f"in item {item}"
                     raise KeyError(msg)
 
@@ -399,6 +403,7 @@ class NdfcDiscover:
         Exit with error if reachability_response is not a list()
         Exit with error if any items in reachability_response are missing keys
         """
+        method_name = inspect.stack()[0][3]
         self._final_verification()
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
         url += "/inventory/test-reachability"
@@ -408,31 +413,31 @@ class NdfcDiscover:
 
         try:
             self._verify_reachability_response()
-        except TypeError as err:
-            msg = f"cannot continue. unexpected reachability response. {err}"
-            self.logger.error(msg)
-            sys.exit(1)
-        except KeyError as err:
-            msg = f"cannot continue. unexpected reachability response. {err}"
-            self.logger.error(msg)
-            sys.exit(1)
+        except (KeyError, TypeError) as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "cannot continue. unexpected reachability response. "
+            msg += f"Error detail: {error}"
+            raise ValueError(msg) from error
 
         if self._reachability_status_code != 200:
-            msg = f"Switch {self.seed_ip} is not reachable."
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Switch {self.seed_ip} is not reachable."
             msg += f" status_code: {self._reachability_status_code}"
             msg += f" response: {self._reachability_response}"
-            self.logger.error(msg)
+            self.log.error(msg)
             return False
         return True
 
     def _populate_raw_fabric_info(self):
+        method_name = inspect.stack()[0][3]
         url = self.ndfc.url_control_fabrics
         try:
             self.raw_fabric_info = self.ndfc.get(url, self.ndfc.make_headers())
-        except NdfcRequestError as err:
-            msg = "_populate_raw_fabric_info, unable to populate fabric info"
-            msg += f"detail: {err}"
-            raise NdfcRequestError(msg) from err
+        except NdfcRequestError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "_populate_raw_fabric_info, unable to populate fabric info. "
+            msg += f"Error detail: {error}"
+            raise NdfcRequestError(msg) from error
 
     def _populate_existing_fabric_names(self):
         """
@@ -444,8 +449,10 @@ class NdfcDiscover:
                 self.fabric_names.add(item["fabricName"])
 
     def _populate_fabric_type(self):
+        method_name = inspect.stack()[0][3]
         if self.fabric_name not in self.fabric_names:
-            msg = f"fabric_name {self.fabric_name} not found in existing "
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"fabric_name {self.fabric_name} not found in existing "
             msg += f"fabrics {self.fabric_names}"
             raise ValueError(msg)
         for item in self.raw_fabric_info:
@@ -458,8 +465,10 @@ class NdfcDiscover:
                 break
 
     def _verify_fabric_exists(self):
+        method_name = inspect.stack()[0][3]
         if self.fabric_name not in self.fabric_names:
-            msg = f"fabric_name {self.fabric_name} does not exist "
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"fabric_name {self.fabric_name} does not exist "
             msg += f"on the NDFC, current fabrics: {self.fabric_names}"
             raise ValueError(msg)
 
@@ -468,14 +477,18 @@ class NdfcDiscover:
         Issue POST to NDFC's discover endpoint with validated request.
         raise ValueError if fabric does not exist.
         """
+        method_name = inspect.stack()[0][3]
         self._preprocess_payload()
         try:
             self._final_verification()
-        except ValueError as err:
-            msg = f"final verification failed. detail: {err}"
-            raise ValueError(msg) from err
+        except ValueError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "final verification failed. "
+            msg += f"Error detail: {error}"
+            raise ValueError(msg) from error
         if self.preserve_config is False and self._fabric_type == "External":
-            msg = "preserve_config must be True for External fabric_type. "
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "preserve_config must be True for External fabric_type. "
             msg += f"got preserve_config {self.preserve_config}, "
             msg += f"fabric {self.fabric_name}, "
             msg += f"fabric_type {self._fabric_type}"
@@ -486,15 +499,16 @@ class NdfcDiscover:
             sleep(self._retry_sleep_time)
             retries += 1
         if self.is_reachable() is False:
-            msg = f"exiting, {self.seed_ip} not reachable "
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"{self.seed_ip} not reachable "
             msg += f"after {retries} retries"
-            self.logger.error(msg)
-            sys.exit(1)
+            raise ValueError(msg)
 
         if self.is_managed() is True:
-            msg = f"exiting, {self.seed_ip} is already managed in fabric "
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Exiting. {self.seed_ip} is already managed in fabric "
             msg += f"{self.fabric_name}"
-            self.logger.error(msg)
+            self.log.error(msg)
             sys.exit(1)
 
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
@@ -513,20 +527,24 @@ class NdfcDiscover:
         raise ValueError if self.seed_ip is not found on the NDFC
         Return False if self.seed_ip is known to NDFC, but is not reachable
         """
+        method_name = inspect.stack()[0][3]
         try:
             self._final_verification()
-        except ValueError as err:
-            msg = "is_up cannot continue. final verification failed."
-            msg += f"detail: {err}"
-            raise ValueError(msg) from err
+        except ValueError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "is_up cannot continue. final verification failed. "
+            msg += f"Error detail: {error}"
+            raise ValueError(msg) from error
         url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
         url += "/inventory/switchesByFabric"
         headers = self.ndfc.make_headers()
         try:
             self.ndfc.get(url, headers)
-        except NdfcRequestError as err:
-            msg = f"unable to send request. detail: {err}"
-            raise NdfcRequestError(msg) from err
+        except NdfcRequestError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "unable to send request. "
+            msg += f"Error detail: {error}"
+            raise NdfcRequestError(msg) from error
         response = json.loads(self.ndfc.response.text)
         our_switch = None
         for item in response:
@@ -535,31 +553,22 @@ class NdfcDiscover:
             # The key 'manageable' is mispelled in NDFC's response so we have
             # to mispell it here as well. :-(
             if "managable" not in item:
-                msg = "Skipping. 'managable' [sic] key not found in response "
+                msg = f"{self.class_name}.{method_name}: "
+                msg += "Skipping. 'managable' [sic] key not found in response "
                 msg += f"{item}"
-                self.logger.error(msg)
+                self.log.error(msg)
                 continue
             if item["ipAddress"] == self.seed_ip:
                 our_switch = item
                 break
         if our_switch is None:
-            msg = f"{self.seed_ip} not found in fabric {self.fabric_name} "
-            msg += "on the NDFC."
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"{self.seed_ip} not found in fabric {self.fabric_name} "
+            msg += "on the controller."
             raise ValueError(msg)
         return our_switch["managable"]
 
     # properties that are not passed to NDFC
-    @property
-    def logger(self):
-        """
-        return/set the current logger instance
-        """
-        return self._internal_properties["logger"]
-
-    @logger.setter
-    def logger(self, param):
-        self._internal_properties["logger"] = param
-
     @property
     def ndfc(self):
         """
@@ -581,11 +590,13 @@ class NdfcDiscover:
 
     @cdp_second_timeout.setter
     def cdp_second_timeout(self, param):
+        method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_digits(param)
-        except TypeError as err:
-            msg = f"exiting. {err}"
-            self.logger.error(msg)
+        except TypeError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Exiting. {error}"
+            raise ValueError(msg) from error
         self.payload["cdpSecondTimeout"] = param
 
     @property
@@ -611,11 +622,13 @@ class NdfcDiscover:
 
     @max_hops.setter
     def max_hops(self, param):
+        method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_digits(param)
-        except TypeError as err:
-            msg = f"exiting. {err}"
-            self.logger.error(msg)
+        except TypeError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Exiting. {error}"
+            raise ValueError(msg) from error
         self.payload["maxHops"] = param
 
     @property
@@ -639,12 +652,13 @@ class NdfcDiscover:
 
     @preserve_config.setter
     def preserve_config(self, param):
+        method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_boolean(param)
-        except TypeError as err:
-            msg = f"exiting. {err}"
-            self.logger.error(msg)
-            sys.exit(1)
+        except TypeError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Exiting. {error}"
+            raise ValueError(msg) from error
         self.payload["preserveConfig"] = param
 
     @property
@@ -656,11 +670,13 @@ class NdfcDiscover:
 
     @seed_ip.setter
     def seed_ip(self, param):
+        method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_ipv4_address(param)
-        except AddressValueError:
-            self.logger.error("Exiting.")
-            sys.exit(1)
+        except AddressValueError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Exiting. {error}"
+            raise ValueError(msg) from error
         self.payload["seedIP"] = param
 
     @property
@@ -672,11 +688,13 @@ class NdfcDiscover:
 
     @snmp_v3_auth_protocol.setter
     def snmp_v3_auth_protocol(self, param):
+        method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_digits(param)
-        except TypeError as err:
-            msg = f"exiting. {err}"
-            self.logger.error(msg)
+        except TypeError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Exiting. {error}"
+            raise ValueError(msg) from error
         self.payload["snmpV3AuthProtocol"] = param
 
     @property

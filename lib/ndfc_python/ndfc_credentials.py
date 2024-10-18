@@ -27,15 +27,16 @@ to your ansible vault.  To configure this path, edit
 ndfc-python/lib/ndfc_python/ndfc_config.py and modify the config_file variable
 at the top of the file.
 """
+import inspect
+import logging
 import sys
-from inspect import stack
 
 from ansible.cli import CLI
 from ansible.errors import AnsibleFileNotFound, AnsibleParserError
 from ansible.parsing.dataloader import DataLoader
 from ndfc_python.ndfc_config import NdfcLoadConfig
 
-OUR_VERSION = 105
+OUR_VERSION = 106
 
 
 class NdfcCredentials:
@@ -46,15 +47,11 @@ class NdfcCredentials:
 
     def __init__(self):
         self.lib_version = OUR_VERSION
+        self.class_name = self.__class__.__name__
+        self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
         self._init_mandatory_keys()
         self.cred_obj = NdfcLoadConfig()
         self.load_credentials()
-
-    def log(self, *args):
-        """
-        simple logger
-        """
-        print(f"{stack()[1].function}(v{self.lib_version}): {' '.join(args)}")
 
     def _init_mandatory_keys(self):
         """
@@ -73,29 +70,33 @@ class NdfcCredentials:
         Load user credentials from ansible vault.  This asked for the ansible
         vault password.
         """
+        method_name = inspect.stack()[0][3]
         try:
             loader = DataLoader()
             secrets = CLI.setup_vault_secrets(loader=loader, vault_ids=None)
             loader.set_vault_secrets(secrets)
             data = loader.load_from_file(self.cred_obj.config["ansible_vault"])
         except AnsibleFileNotFound as exception:
-            self.log(
-                "Exiting. Unable to load credentials in "
-                f" {self.cred_obj.config['ansible_vault']}.",
-                f" Exception detail: {exception}",
-            )
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "Exiting. Unable to load credentials in "
+            msg += f" {self.cred_obj.config['ansible_vault']}. "
+            msg += f"Exception detail: {exception}"
+            self.log.debug(msg)
             sys.exit(1)
         except AnsibleParserError as exception:
-            self.log(
-                "Exiting. Unable to load credentials in "
-                f" {self.cred_obj.config['ansible_vault']}.",
-                f" Exception detail: {exception}",
-            )
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "Exiting. Unable to load credentials in "
+            msg += f" {self.cred_obj.config['ansible_vault']}. "
+            msg += f"Exception detail: {exception}"
+            self.log.debug(msg)
             sys.exit(1)
 
         for key in self.mandatory_keys:
             if key not in data:
-                self.log("Exiting. ansible_vault is missing key {key}")
+                msg = f"{self.class_name}.{method_name}: "
+                msg += f"Exiting. ansible_vault is missing key {key}. "
+                msg += f"value file: {self.cred_obj.config['ansible_vault']}"
+                self.log.debug(msg)
                 sys.exit(1)
         self.credentials = {}
         self.credentials["username"] = str(data["ansible_user"])

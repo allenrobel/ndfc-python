@@ -1,7 +1,12 @@
 # ndfc-python
 
-This repository contains Python classes and example scripts for interacting with Cisco's Nexus Dashboard Fabric Controller (NDFC) via its REST API.
+This repository contains Python classes and example scripts for interacting
+with Cisco's Nexus Dashboard Fabric Controller (NDFC) via its REST API.
 
+NOTES:
+1. We have removed the example scripts and libraries for fabrics for now.
+   These will be replaced with code from the DCNM Ansible Collection which
+   we are modifying to work without Ansible.
 
 ## Libraries
 
@@ -12,10 +17,7 @@ Library                 | Description
 [ndfc_credentials]      | Read the caller's Ansible Vault and provides the credentials therein to the other libraries
 [ndfc_device_info]      | Retrieve device information
 [ndfc_discover]         | Discover device
-[ndfc_easy_fabric_ebgp] | Create a fabric using Easy_Fabric_eBGP template
-[ndfc_easy_fabric]      | Create a fabric using Easy_Fabric template
 [ndfc_network]          | Create, delete networks
-[ndfc_msd_fabric]       | Create a multisite domain fabric
 [ndfc_policy]           | Create / delete policies
 [ndfc_reachability]     | Test for device reachability (from NDFC perspective)
 [ndfc_vrf]              | Create VRFs
@@ -26,14 +28,19 @@ Library                 | Description
 [ndfc_credentials]: /lib/ndfc_python/ndfc_credentials.py
 [ndfc_device_info]: /lib/ndfc_python/ndfc_device_info.py
 [ndfc_discover]: /lib/ndfc_python/ndfc_discover.py
-[ndfc_easy_fabric_ebgp]: /lib/ndfc_python/ndfc_easy_fabric_ebgp.py
-[ndfc_easy_fabric]: /lib/ndfc_python/ndfc_easy_fabric.py
 [ndfc_network]: /lib/ndfc_python/ndfc_network.py
-[ndfc_msd_fabric]: /lib/ndfc_python/ndfc_msd_fabric.py
 [ndfc_policy]: /lib/ndfc_python/ndfc_policy.py
 [ndfc_reachability]: /lib/ndfc_python/ndfc_reachability.py
 [ndfc_vrf]: /lib/ndfc_python/ndfc_vrf.py
 [validations]: /lib/ndfc_python/validations.py
+
+## The following libraries have been removed, see note 1 above
+
+Library                 | Description
+----------------------- | -----------
+ndfc_easy_fabric_ebgp   | Create a fabric using Easy_Fabric_eBGP template.
+ndfc_easy_fabric        | Create a fabric using Easy_Fabric template.
+ndfc_msd_fabric         | Create a multisite domain fabric.
 
 ## Example scripts
 
@@ -43,42 +50,35 @@ Script                  | Description
 [device_info.py]          | Retrieve various information about a device, given its fabric_name and ip_address
 [discover_is_up.py]       | Check if device is up and manageable.  If so, call config_save on the fabric.
 [discover.py]             | Discover device
-[fabric_bootstrap_and_local_dhcp_server_unnumbered.py] | Create a fabric with unnumbered fabric interfaces, configured with inband management, local (NDFC) DHCP server, and bootstrap enabled
-[fabric_bootstrap_and_local_dhcp_server.py] | Create a fabric configured with DHCP server and with bootstrap enabled
-[fabric_ebgp.py]          | Create an eBGP-based fabric
-[fabric_ipv4_underlay.py] | Create a fabric with ipv4 underlay
-[fabric_ipv6_underlay.py] | Create a fabric configured with an IPv6 underlay
-[fabric_mpls_handoff.py]  | Create a fabric configured with MPLS handoff
-[fabric_mst.py]           | Create a fabric configured with multi-instance spanning tree
-[fabric_multicast_bidir.py] | Create a fabric using multicast replication and configured with four multicast bidir rendevous points
-[fabric_netflow.py]       | Create a fabric with netflow configuration options
-[fabric_rpvst_plus.py]    | Create a fabric with rpvst+ spanning-tree root option
-[fabric_with_syslog.py]   | Create a fabric with syslog configured
 [load_config.py]          | Load the configuration file pointed to in lib/ndfc_python/ndfc_config.py and print the parameters and values contained therein
 [login.py]                | Login to an NDFC controller and print the returned auth token
-[fabric_msd.py]           | Create a multi-site domain (MSD) fabric
 [network_create.py]       | Create an NDFC network
 [network_delete.py]       | Delete an NDFC network
 [reachability.py]         | Test for device reachability (from NDFC perspective)
 [vrf_add.py]              | Add a vrf to a fabric
 [netbox_ndfc_network_create.py] | Read networks from a Netbox instance, and create these in NDFC.  This is a proof-of-concept for one way to integrate NDFC and Netbox.
 
+## The following example scripts have been removed, see note 1 above
+
+Script                  | Description
+----------------------- | -----------
+fabric_bootstrap_and_local_dhcp_server_unnumbered.py | Create a fabric with unnumbered fabric interfaces, configured with inband management, local (NDFC) DHCP server, and bootstrap enabled
+fabric_bootstrap_and_local_dhcp_server.py | Create a fabric configured with DHCP server and with bootstrap enabled
+fabric_ebgp.py          | Create an eBGP-based fabric
+fabric_ipv4_underlay.py | Create a fabric with ipv4 underlay
+fabric_ipv6_underlay.py | Create a fabric configured with an IPv6 underlay
+fabric_mpls_handoff.py  | Create a fabric configured with MPLS handoff
+fabric_mst.py           | Create a fabric configured with multi-instance spanning tree
+fabric_multicast_bidir.py | Create a fabric using multicast replication and configured with four multicast bidir rendevous points
+fabric_netflow.py       | Create a fabric with netflow configuration options
+fabric_rpvst_plus.py    | Create a fabric with rpvst+ spanning-tree root option
+fabric_with_syslog.py   | Create a fabric with syslog configured
+fabric_msd.py           | Create a multi-site domain (MSD) fabric
+
 [credentials.py]: /examples/credentials.py
 [device_info.py]: /examples/device_info.py
 [discover_is_up.py]: /examples/discover_is_up.py
 [discover.py]: /examples/discover.py
-[fabric_bootstrap_and_local_dhcp_server_unnumbered.py]: /examples/fabric_bootstrap_and_local_dhcp_server_unnumbered.py
-[fabric_bootstrap_and_local_dhcp_server.py]: /examples/fabric_bootstrap_and_local_dhcp_server.py
-[fabric_ebgp.py]: /examples/fabric_ebgp.py
-[fabric_ipv4_underlay.py]: /examples/fabric_ipv4_underlay.py
-[fabric_ipv6_underlay.py]: /examples/fabric_ipv6_underlay.py
-[fabric_mpls_handoff.py]: /examples/fabric_mpls_handoff.py
-[fabric_msd.py]: /examples/fabric_msd.py
-[fabric_mst.py]: /examples/fabric_mst.py
-[fabric_multicast_bidir.py]: /examples/fabric_multicast_bidir.py
-[fabric_rpvst_plus.py]: /examples/fabric_rpvst_plus.py
-[fabric_netflow.py]: /examples/fabric_netflow.py
-[fabric_with_syslog.py]: /examples/fabric_with_syslog.py
 [load_config.py]: /examples/load_config.py
 [login.py]: /examples/login.py
 [netbox_ndfc_network_create.py]: /examples/netbox_ndfc_network_create.py
@@ -97,13 +97,17 @@ git clone https://github.com/allenrobel/ndfc-python.git
 
 ### Ansible Python Libraries
 
-The libraries and scripts in this repository require that the Ansible libraries be installed.  
+The libraries and scripts in this repository require that the Ansible libraries be installed.
+These are needed for Ansible vault.
 
 #### Example
 
 ```bash
 pip install ansible
 ```
+
+<!---
+Commenting this section out until we have replaced the fabric scripts and libraries...
 
 ## Fabric Characteristics
 
@@ -120,11 +124,19 @@ The characteristics of the child/site fabrics are as follows (see also the inclu
 
 Spines and Leafs can be added/removed by updating the Common Role Variables described below.
 
+-->
+
 ## Config File
 
-To use these scripts and libraries, you'll need to update a common settings file located in ``./ndfc-python/lib/ndfc_python/config.yml``.  This points to the locaton of your Ansible Vault file (see below for how Ansible Vault is used).
+To use these scripts and libraries, you'll need to update a common settings file and set the
+environment variable ``NDFC_PYTHON_CONFIG`` to point to it.  For example, if you want your
+settings to be located in $HOME/ndfc-python-settings.yaml, then set:
 
-There is one setting in this file (currently):
+```bash
+export NDFC_PYTHON_CONFIG=$HOME/ndfc-python-settings.yaml
+```
+
+And edit this file to contain:
 
 ```yaml
 ---
@@ -133,30 +145,38 @@ ansible_vault: '/path/to/your/ansible/vault/file'
 
 ## Ansible Vault
 
-Next, you'll need to edit your Ansible Vault file to add your NDFC username and password and the ip address of your ndfc controller.  We may also require the username and password for your switches in the future, so you might want to add this as well.
+Next, you'll need to edit your Ansible Vault file to add your Nexus Dashboard Controller
+credentials (username, password, and login domain) and ip address.
+
+We may also require the username and password for your switches in the future,
+so you might want to add this as well.
 
 ```bash
 /path/to/your/ansible/vault/file 
 ```
 
-It is recommended (but not mandatory) that you encrypt these passwords.  Below is one way to do this.
+It is recommended (but not mandatory) that you encrypt all passwords.  Below is one way to do this.
 
 ### Modify /path/to/your/ansible/vault/file
 
 #### Edit ``ansible_password`` (password for NDFC controller) and ``device_password`` (password for NX-OS switches)
 
-Add ``ansible_password`` and ``device_password`` in encrypted format (or non-encrypted, if you don't care about security).  These are the passwords you use to login to your DCNM/NDFC Controller, and NX-OS switches, respectively.
+Add ``ansible_password`` and ``device_password`` in encrypted format (or non-encrypted,
+if you don't care about security).  These are the passwords you use to login to your
+ND/NDFC Controller, and NX-OS switches, respectively.
 
-To add encrypted passwords for the NDFC controller and NX-OS devices, issue the following from this repository's top-level directory.
+To add encrypted passwords for the ND/NDFC controller and NX-OS devices,
+issue the following from this repository's top-level directory.
 
 ```bash
 ansible-vault encrypt_string 'mySuperSecretNdfcPassword' --name 'ansible_password' >> /path/to/your/ansible/vault/file
-echo "\n" >> /path/to/your/ansible/vault/file
+echo "" >> /path/to/your/ansible/vault/file
 ansible-vault encrypt_string 'mySuperSecretNxosPassword' --name 'device_password' >> /path/to/your/ansible/vault/file
-echo "\n" >> /path/to/your/ansible/vault/file
+echo "" >> /path/to/your/ansible/vault/file
 ```
 
-ansible-vault will prompt you for a vault password, which you'll use to decrypt these passwords when running the example scripts.
+ansible-vault will prompt you for a vault password, which you'll use to decrypt
+these passwords when running the example scripts.
 
 Example:
 
@@ -165,7 +185,7 @@ Example:
 New Vault password: 
 Confirm New Vault password: 
 %
-% echo "\n" >> /path/to/your/ansible/vault/file
+% echo "" >> /path/to/your/ansible/vault/file
 % cat /path/to/your/ansible/vault/file
 ansible_password: !vault |
           $ANSIBLE_VAULT;1.1;AES256
@@ -177,8 +197,9 @@ ansible_password: !vault |
 % 
 ```
 
-If you don't care about security, you can add a non-encrypted password by editing the file directly.
-The following are example unencrypted passwords for the NDFC controller and NX-OS devices added to this file:
+If you don't care about security, you can add a non-encrypted password by editing the
+file directly. The following are example unencrypted passwords for the ND/NDFC controller
+and NX-OS devices added to this file:
 
 ```yaml
 ansible_password: mySuperSecretNdfcPassword
@@ -187,16 +208,21 @@ device_password: mySuperSecretNxosPassword
 
 #### Add the domain for Nexus Dashboard Controller login
 
-Change ``nd_domain`` in the same file to the domain associated with the above password that you're using on ND/NDFC.
+Change ``nd_domain`` in the same file to the domain associated with the above password
+that you're using on ND/NDFC.  If the "domain" field is not displayed when you login to
+the GUI, then use local, as shown below.
 
 ```yaml
 nd_domain: local
 ```
 
-#### Add usernames for NDFC Controller and switches
+#### Add usernames for Nexus Dashboard Controller and switches
 
-Change ``ansible_user`` in the same file to the username associated with the above password that you're using on ND/NDFC.
-Change ``device_username`` in the same file to the username used to login to your NX-OS switches.
+Change ``ansible_user`` in the same file to the username associated with the above
+password that you're using on ND/NDFC.
+
+Change ``device_username`` in the same file to the username used to login to your
+NX-OS switches.
 
 Example:
 
@@ -205,7 +231,7 @@ ansible_user: voldomort
 device_username: admin
 ```
 
-#### Add the ip address of your DCNM/NDFC Controller
+#### Add the ip address of your Nexus Dashboard Controller
 
 ```yaml
 ndfc_ip: 192.168.1.1
@@ -216,14 +242,28 @@ ndfc_ip: 192.168.1.1
 Add this repository's library to your python path.  For example, in .bash_profile or .zprofile
 
 ```bash
-PYTHONPATH=${PYTHONPATH}:${HOME}/repos/ndfc-python/lib
-export PYTHONPATH
+export PYTHONPATH=${PYTHONPATH}:${HOME}/repos/ndfc-python/lib
 ```
+
+## Logging configuration
+
+To enable logging, set the following environment variable.
+
+```bash
+export NDFC_LOGGING_CONFIG=/path/to/logging_config.json
+```
+
+This is a standard Pyton logging configuration file.  There is an example
+file in this repository at ``lib/ndfc_python/logging_config.json``
 
 ## To run the example scripts
 
 ```bash
-cd (py311) ~ % cd /top/level/directory/for/this/repo/examples
+export PYTHONPATH=${PYTHONPATH}:/path/to/this/repo/ndfc-python/lib
+export NDFC_PYTHON_CONFIG=/path/to/ndfc-python-settings.yaml
+export NDFC_LOGGING_CONFIG=/path/to/ndfc-python-logging-config.json #optional
+
+cd (py311) ~ % cd /top/level/directory/of/this/repo/examples
 (py311) examples % ./example_ndfc_credentials.py 
 Vault password: 
 username admin
