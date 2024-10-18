@@ -168,7 +168,7 @@ class NdfcNetwork:
         self._payload_default = {}
         self._payload_default[
             "networkExtensionTemplate"
-        ] ="Default_Network_Extension_Universal"
+        ] = "Default_Network_Extension_Universal"
         self._payload_default["networkTemplate"] = "Default_Network_Universal"
 
     def _init_template_config_set(self):
@@ -287,7 +287,7 @@ class NdfcNetwork:
         self._payload_mapping_dict["networkTemplate"] = "network_template"
         self._payload_mapping_dict[
             "serviceNetworkTemplate"
-        ] ="service_network_template"
+        ] = "service_network_template"
         self._payload_mapping_dict["source"] = "source"
         self._payload_mapping_dict["vrf"] = "vrf"
 
