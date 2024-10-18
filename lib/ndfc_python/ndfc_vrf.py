@@ -6,7 +6,6 @@ Description: Create VRFs
 import inspect
 import json
 import logging
-import sys
 from ipaddress import AddressValueError
 
 from ndfc_python.ndfc import NdfcRequestError
@@ -168,13 +167,13 @@ class NdfcVrf:
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"Call {self.class_name}.{param} before calling "
                 msg += f"{self.class_name}.post()"
-                raise ValueError(msg) from error
+                raise ValueError(msg)
         for param in self.mandatory_template_config_set:
             if self.template_config[param] == "":
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"Call {self.class_name}.{param} before calling "
                 msg += f"{self.class_name}.post()"
-                raise ValueError(msg) from error
+                raise ValueError(msg)
         if self.vrf_exists_in_fabric():
             msg = f"{self.class_name}.{method_name}: "
             msg += f"VRF {self.vrf_name} already exists in "
