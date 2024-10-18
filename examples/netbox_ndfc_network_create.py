@@ -41,18 +41,18 @@ import sys
 unable_to_import = []
 try:
     import requests
-except ImportError as error:
+except ImportError:
     unable_to_import.append("requests")
 try:
     from ndfc_python.log_v2 import Log
     from ndfc_python.ndfc import NDFC, NdfcRequestError
     from ndfc_python.ndfc_credentials import NdfcCredentials
     from ndfc_python.ndfc_network import NdfcNetwork
-except ImportError as error:
+except ImportError:
     unable_to_import.append("ndfc-python")
 try:
     from netbox_tools.common import netbox
-except ImportError as error:
+except ImportError:
     unable_to_import.append("netbox-tools")
 
 if len(unable_to_import) != 0:
