@@ -3,55 +3,67 @@
 Name: device_info.py
 Description:
 
-Retrieve various information about devices, given their
-fabric_name and ip_address.
+Retrieve various information about a device, given its ip address.
 
 Usage:
 
 Edit the vars below to match your setup
-    - fabric
-    - devices
+    - SWITCH_IP4
 """
+import logging
 import sys
 
 from ndfc_python.log_v2 import Log
-from ndfc_python.ndfc import NDFC
-from ndfc_python.ndfc_credentials import NdfcCredentials
-from ndfc_python.ndfc_device_info import NdfcDeviceInfo
+from plugins.module_utils.common.response_handler import ResponseHandler
+from plugins.module_utils.common.rest_send_v2 import RestSend
+from plugins.module_utils.common.results import Results
+from plugins.module_utils.common.sender_requests import Sender
+from plugins.module_utils.common.switch_details import SwitchDetails
+
+SWITCH_IP4 = "10.1.1.1"
 
 try:
-    log = Log()
-    log.commit()
+    logger = Log()
+    logger.commit()
 except ValueError as error:
-    MSG = "Error while instantiating Log(). "
-    MSG += f"Error detail: {error}"
-    print(MSG)
+    msg = "Error while instantiating Log(). "
+    msg += f"Error detail: {error}"
+    print(msg)
     sys.exit(1)
 
-FABRIC = "f1"
-DEVICES = ["10.1.1.1", "10.1.1.2"]
+log = logging.getLogger("ndfc_python.main")
 
-nc = NdfcCredentials()
-ndfc = NDFC()
-ndfc.domain = nc.nd_domain
-ndfc.ip4 = nc.ndfc_ip
-ndfc.password = nc.password
-ndfc.username = nc.username
-ndfc.login()
+try:
+    sender = Sender()
+    sender.login()
+except ValueError as error:
+    msg = "unable to login to the controller. "
+    msg += f"Error detail: {error}"
+    log.error(msg)
 
-instance = NdfcDeviceInfo()
-instance.ndfc = ndfc
-instance.fabric_name = FABRIC
-for ipv4 in DEVICES:
-    instance.ip_address = ipv4
+rest_send = RestSend({})
+rest_send.sender = sender
+rest_send.response_handler = ResponseHandler()
+
+try:
+    instance = SwitchDetails()
+    instance.results = Results()
+    instance.rest_send = rest_send
     instance.refresh()
-    print(f"device: {instance.ip_address}")
-    print(f"fabric: {instance.fabric_name}")
-    print(f"   name: {instance.logical_name}")
-    print(f"   role: {instance.switch_role}")
-    print(f"   db_id: {instance.switch_db_id}")
-    print(f"   serial_number: {instance.serial_number}")
-    print(f"   model: {instance.model}")
-    print(f"   release: {instance.release}")
-    print(f"   status: {instance.status}")
-    print(f"   oper_status: {instance.oper_status}")
+except ValueError as error:
+    msg = "Unable to get switch details. "
+    msg += f"Error details: {error}"
+    log.error(msg)
+    sys.exit(1)
+
+instance.filter = SWITCH_IP4
+try:
+    print(f"fabric_name: {instance.fabric_name}")
+    print(f"serial_number: {instance.serial_number}")
+    print(f"status: {instance.status}")
+    print(f"model: {instance.model}")
+except ValueError as error:
+    msg = "Unable to get switch details. "
+    msg += f"Error details: {error}"
+    log.error(msg)
+# etc, see additional properties in SwitchDetails()
