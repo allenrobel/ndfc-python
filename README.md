@@ -7,6 +7,7 @@ NOTES:
 1. We have removed the example scripts and libraries for fabrics for now.
    These will be replaced with code from the DCNM Ansible Collection which
    we are modifying to work without Ansible.
+2. For now, we need to use the ``relative-imports`` branch from the DCNM Collection.
 
 ## Libraries
 
@@ -104,6 +105,34 @@ These are needed for Ansible vault.
 
 ```bash
 pip install ansible
+```
+
+### DCNM Ansible Collection
+
+We depend on RestSend(), Sender() and other classes in this repository.
+
+To install:
+
+1. cd $HOME/repos (or wherever you keep your repositories)
+2. git clone https://github.com/CiscoDevNet/ansible-dcnm.git
+3. For now, you need to switch to the ``relative-imports`` branch.
+
+```bash
+cd $HOME/repos/ansible-dcnm
+git switch relative-imports
+```
+
+4. Update your PYTHONPATH to include this repository
+
+```bash
+export PYTHONPATH=$PYTHONPATH:$HOME/repos/ansible-dcnm
+```
+
+With the above in place, imports from this repository will look like the following in your scripts.
+
+```python
+from plugins.module_utils.common.rest_send import RestSend
+from plugins.module_utils.common.sender_requests import Sender
 ```
 
 <!---

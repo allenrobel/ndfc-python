@@ -46,6 +46,7 @@ Usage:
 ansible_vault: "/path/to/your/ansible/vault"
 
 """
+import json
 import logging
 import sys
 # We are using our local copy of log_v2.py which is modified to
@@ -67,6 +68,8 @@ except ValueError as error:
 
 log = logging.getLogger(f"ndfc_python.main")
 
+ep_fabric_details = EpFabricDetails()
+ep_fabric_details.fabric_name = "f1"
 sender = Sender()
 
 try:
@@ -74,7 +77,22 @@ try:
 except ValueError as error:
     msg = "unable to login to the controller."
     log.error(msg)
-    sys.exit(1)
 
 msg = f"Sender().token: {sender.token}"
 log.info(msg)
+
+rest_send = RestSend({})
+rest_send.sender = sender
+rest_send.response_handler = ResponseHandler()
+rest_send.path = ep_fabric_details.path
+rest_send.verb = ep_fabric_details.verb
+try:
+    rest_send.commit()
+except ValueError as error:
+    msg = f"Could not login to the controller. "
+    msg += f"Error detail: {error}"
+    log.error(msg)
+    sys.exit(1)
+
+msg = f"{json.dumps(rest_send.response_current["DATA"], indent=4, sort_keys=True)}"
+print(msg)
