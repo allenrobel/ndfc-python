@@ -7,3 +7,4 @@ theme: readthedocs
 repo_name: allenrobel/ndfc-python
 repo_url: https://github.com/allenrobel/ndfc-python
 edit_uri: blob/mkdocs/docs/
+remote_branch: mkdocs
