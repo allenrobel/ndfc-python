@@ -54,18 +54,21 @@ Usage:
 import argparse
 import logging
 import sys
+
 # We are using our local copy of log_v2.py which is modified to
 # console logging.  The copy in the DCNM Ansible Collection specifically
 # disallows console logging.
-from ndfc_python.ndfc_python_config import NdfcPythonConfig
 from ndfc_python.ndfc_python_logger import NdfcPythonLogger
 from ndfc_python.ndfc_python_sender import NdfcPythonSender
-from ndfc_python.parsers.parser_config import parser_config
-from ndfc_python.parsers.parser_loglevel import parser_loglevel
-from ndfc_python.parsers.parser_controller_domain import parser_controller_domain
+from ndfc_python.parsers.parser_controller_domain import \
+    parser_controller_domain
 from ndfc_python.parsers.parser_controller_ip4 import parser_controller_ip4
-from ndfc_python.parsers.parser_controller_password import parser_controller_password
-from ndfc_python.parsers.parser_controller_username import parser_controller_username
+from ndfc_python.parsers.parser_controller_password import \
+    parser_controller_password
+from ndfc_python.parsers.parser_controller_username import \
+    parser_controller_username
+from ndfc_python.parsers.parser_loglevel import parser_loglevel
+
 
 def setup_parser() -> argparse.Namespace:
     """

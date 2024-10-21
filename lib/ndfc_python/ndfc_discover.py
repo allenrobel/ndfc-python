@@ -58,6 +58,7 @@ Note, this can be used as the "switches" value in the NdfcDiscover() payload:
         }
     ]
 """
+
 import copy
 import inspect
 import logging
@@ -66,11 +67,14 @@ from ipaddress import AddressValueError
 from re import sub
 from time import sleep
 
-from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import EpFabricDetails
-from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
+from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import \
+    EpFabricDetails
 # from plugins.module_utils.common.exceptions import ControllerResponseError
 from plugins.module_utils.common.properties import Properties
+from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
+
 from ndfc_python.validations import Validations
+
 
 @Properties.add_rest_send
 @Properties.add_results
@@ -325,6 +329,7 @@ class NdfcDiscover:
         - populate vars and structures needed by self.discover()
         - verify fabric exists on the controller
         """
+        # pylint: disable=no-member
         method_name = inspect.stack()[0][3]
         if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
@@ -434,6 +439,7 @@ class NdfcDiscover:
         path = ep.path
         path += "/inventory/test-reachability"
 
+        # pylint: disable=no-member
         try:
             self.rest_send.path = path
             self.rest_send.verb = "POST"
@@ -445,8 +451,10 @@ class NdfcDiscover:
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
         self._reachability_status_code = self.rest_send.response_current["RETURN_CODE"]
-        self._reachability_response = copy.deepcopy(self.rest_send.response_current["DATA"])
-
+        self._reachability_response = copy.deepcopy(
+            self.rest_send.response_current["DATA"]
+        )
+        # pylint: enable=no-member
         msg = f"{self.class_name}.{method_name}: "
         try:
             self._verify_reachability_response()
@@ -468,15 +476,17 @@ class NdfcDiscover:
     def _populate_raw_fabric_info(self):
         method_name = inspect.stack()[0][3]
 
+        # pylint: disable=no-member
         self.fabric_details_by_name.rest_send = self.rest_send
         self.fabric_details_by_name.results = self.results
+        # pylint: enable=no-member
         try:
             self.fabric_details_by_name.refresh()
         except ValueError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += "unable to populate fabric information. "
             msg += f"Error detail: {error}"
-            raise ValueError(msg)
+            raise ValueError(msg) from error
 
         self.raw_fabric_info = self.fabric_details_by_name.all_data
 
@@ -485,6 +495,7 @@ class NdfcDiscover:
         populates self.fabric_names, a set containing the names of fabrics
         that exist on the controller.
         """
+        # pylint: disable=consider-iterating-dictionary
         for fabric_name in self.raw_fabric_info.keys():
             self.fabric_names.add(fabric_name)
 
@@ -551,6 +562,7 @@ class NdfcDiscover:
         path += "/inventory/discover"
         self.payload["switches"] = self._reachability_response
 
+        # pylint: disable=no-member
         try:
             self.rest_send.path = path
             self.rest_send.verb = "POST"
@@ -563,6 +575,7 @@ class NdfcDiscover:
             raise ValueError(msg) from error
         self.discover_status_code = copy.copy(self.rest_send.sender.last_rc)
         self.discover_response = copy.deepcopy(self.rest_send.response_current)
+        # pylint: enable=no-member
 
     def is_up(self):
         """
@@ -586,6 +599,7 @@ class NdfcDiscover:
         path += "/inventory/switchesByFabric"
         verb = ep.verb
 
+        # pylint: disable=no-member
         try:
             self.rest_send.path = path
             self.rest_send.verb = verb
@@ -597,6 +611,7 @@ class NdfcDiscover:
             raise ValueError(msg) from error
 
         response = self.rest_send.response_current
+        # pylint: enable=no-member
         response_data = response.get("DATA")
         if response_data is None:
             msg = f"{self.class_name}.{method_name}: "

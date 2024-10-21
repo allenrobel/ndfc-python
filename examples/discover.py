@@ -38,13 +38,12 @@ Usage
 import logging
 import sys
 
+from ndfc_python.log_v2 import Log
+from ndfc_python.ndfc_discover import NdfcDiscover
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
 from plugins.module_utils.common.sender_requests import Sender
-
-from ndfc_python.log_v2 import Log
-from ndfc_python.ndfc_discover import NdfcDiscover
 
 FABRIC_NAME = "MyFabric"
 SEED_IPS = ["10.1.1.1", "10.1.1.2"]

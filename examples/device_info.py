@@ -25,14 +25,10 @@ If you've set the standard Nexus Dashboard credentials environment variables
 ./device_info.py --config device_info_config.yaml
 ```
 
-If you'd prefer to set Nexus Dashboard credentials in the config file, then
-make it look like this, and it will override any environment variables.
+You can override the environment variables like so:
 
-```yaml
-config:
-  switch_ip4: 10.1.1.1
-  fabric_name: MyFabric
-  ndfc_ip4: 
+```bash
+./device_info.py --config device_info_config.yaml --username admin --password MyPassword --domain local --ip4 10.1.1.2
 ```
 
 """
@@ -68,6 +64,7 @@ def setup_parser() -> argparse.Namespace:
         description="DESCRIPTION: Print information about a switch.",
     )
     return parser.parse_args()
+
 
 args = setup_parser()
 

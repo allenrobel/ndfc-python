@@ -21,8 +21,10 @@ def setup_parser() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(
         parents=[parser_config, parser_loglevel],
-        description='DESCRIPTION: read YAML configuration files.')
+        description="DESCRIPTION: read YAML configuration files.",
+    )
     return parser.parse_args()
+
 
 args = setup_parser()
 
