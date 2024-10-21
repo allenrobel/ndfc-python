@@ -1,16 +1,10 @@
 #!/usr/bin/env python
 """
-Name: example_ndfc_load_config.py
+Name: load_config.py
 Description:
 
-Load the configuration file pointed to in lib/ndfc_python/ndfc_config.py
+Load the configuration file pointed to by the environment variable NDFC_CONFIG_FILE,
 and print the parameters and values contained therein.
-
-Usage:
-
-Edit the config_file variable at the top of
-ndfc-python/lib/ndfc_python/ndfc_config.py
-to point to your Ansible vault file
 """
 
 from ndfc_python.ndfc_config import NdfcLoadConfig

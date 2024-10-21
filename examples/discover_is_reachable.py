@@ -2,11 +2,11 @@
 """
 # Name
 
-discover_is_up.py
+discover_is_reachable.py
 
 # Description
 
-Check if switch is up from the controller's perspective.
+Check if device reachable from controller perspective.
 
 # Usage
 
@@ -39,7 +39,7 @@ config:
 
 ## 3. Execute this script
 
-./discover_is_up.py --config discover_config.yaml
+./discover_is_reachable.py --config discover_config.yaml
 """
 import argparse
 import logging
@@ -79,7 +79,7 @@ def setup_parser() -> argparse.Namespace:
             parser_controller_password,
             parser_controller_username,
         ],
-        description="DESCRIPTION: Check if switch is up from the controller's perspective.",
+        description="DESCRIPTION: Print the reachability status of a switch.",
     )
     return parser.parse_args()
 
@@ -121,22 +121,22 @@ instance.seed_ip = config.get("seed_ip")
 instance.discover_password = config.get("discover_password")
 instance.discover_username = config.get("discover_username")
 retries = 4
-up = False
-while up is False and retries > 0:
+reachable = False
+while reachable is False and retries > 0:
     try:
-        up = instance.is_up()
+        reachable = instance.is_reachable()
     except ValueError as err:
         msg = f"exiting. {err}"
         log.error(msg)
         sys.exit(1)
     retries -= 1
-    if up is not True:
+    if reachable is not True:
         sleep(10)
-if up is not True:
-    msg = f"switch {instance.seed_ip} is not up."
+if reachable is not True:
+    msg = f"switch {instance.seed_ip} is not reachable."
     log.info(msg)
     sys.exit(0)
 else:
-    msg = f"switch {instance.seed_ip} is up."
+    msg = f"switch {instance.seed_ip} is reachable. "
     log.info(msg)
     sys.exit(0)
