@@ -1,0 +1,6 @@
+config:
+  fabric_name: MyFabric
+  vrf_display_name: MyVrf
+  vrf_id: 50055
+  vrf_name: MyVrf
+  vrf_vlan_id: 2006
