@@ -1,27 +1,34 @@
 # Classes
 
-Classes marked with ``*`` are not yet updated to use RestSend.
+``*`` indicates that a class has not yet been updated to work with RestSend().
 
 Library                 | Description
 ----------------------- | -----------
-[log_v2]                | Create the base ndfc_python logging object.
-[ndfc_config]           | Load YAML file pointed to by --config command-line option
-[ndfc_credentials]      | Read the caller's Ansible Vault and provides the credentials therein to the other libraries
-[ndfc_device_info]      | Retrieve device information
-[ndfc_discover]         | Discover device
-[ndfc_network]          | Create, delete networks ``*``
-[ndfc_policy]           | Create / delete policies ``*``
-[ndfc_reachability]     | Test for device reachability (from NDFC perspective)
-[vrf_create]            | Create VRFs
-[validations]           | Validation methods used by the other classes
+[Log]                   | Create the base ndfc_python logging object
+[NdfcCredentials]       | Read the caller's Ansible Vault and provides the credentials therein to the other libraries
+[NdfcDeviceInfo]        | Retrieve information about a switch
+[NdfcDiscover]          | Discover device
+[NdfcNetwork]           | ``*`` Create, delete networks
+[NdfcPolicy]            | ``*`` Create / delete policies
+[NdfcPythonConfig]      | Returns the contents of a YAML file as a dictionary, given a path to the file
+[NdfcPythonLogger]      | Configure logging for ``ndfc-python`` scripts
+[NdfcPythonSender]      | Instantiate and configure the Sender() class
+[NdfcReachability]      | ``*`` Test switch reachability (from NDFC controller perspective).
+[VrfCreate]             | Create VRFs
+[Validations]           | Validation methods used by the other classes (deprecated)
+[Validations]           | Read a YAML file and return its contents as a python dict
 
-[log_v2]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/log_v2.py
-[ndfc_config]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_config.py
-[ndfc_credentials]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_credentials.py
-[ndfc_device_info]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_device_info.py
-[ndfc_discover]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_discover.py
-[ndfc_network]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_network.py
-[ndfc_policy]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_policy.py
-[ndfc_reachability]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_reachability.py
-[vrf_create]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/vrf_create.py
-[validations]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/validations.py
+[Log]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/log_v2.py
+[NdfcCredentials]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_credentials.py
+[NdfcDeviceInfo]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_device_info.py
+[NdfcDiscover]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_discover.py  
+[NdfcNetwork]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_network.py
+[NdfcPolicy]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_policy.py
+[NdfcPythonConfig]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_python_config.py
+[NdfcPythonLogger]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_python_logger.py
+[NdfcPythonSender]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_python_sender.py
+[NdfcReachability]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_reachability.py
+[VrfCreate]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/vrf_create.py
+[Validations]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/validations.py
+[YamlReader]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/yaml_reader.py
+

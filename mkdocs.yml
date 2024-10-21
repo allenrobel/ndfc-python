@@ -2,8 +2,10 @@ site_name: ndfc-python
 nav:
   - Home: index.md
   - About: about.md
+  - Usage: usage.md
+  - Scripts: scripts.md
   - Classes: classes.md
-theme: readthedocs
+theme: mkdocs
 repo_name: allenrobel/ndfc-python
 repo_url: https://github.com/allenrobel/ndfc-python
 edit_uri: blob/mkdocs/docs/
