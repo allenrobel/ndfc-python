@@ -72,7 +72,6 @@ from ndfc_python.parsers.parser_loglevel import parser_loglevel
 from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import (
     EpFabricDetails,
 )
-
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 
