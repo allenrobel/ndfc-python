@@ -70,7 +70,7 @@ from ndfc_python.parsers.parser_controller_password import parser_controller_pas
 from ndfc_python.parsers.parser_controller_username import parser_controller_username
 from ndfc_python.parsers.parser_loglevel import parser_loglevel
 from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import (
-    EpFabricDetails
+    EpFabricDetails,
 )
 
 from plugins.module_utils.common.response_handler import ResponseHandler
