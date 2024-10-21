@@ -16,7 +16,7 @@ Library                 | Description
 [NdfcReachability]      | ``*`` Test switch reachability (from NDFC controller perspective).
 [VrfCreate]             | Create VRFs
 [Validations]           | Validation methods used by the other classes (deprecated)
-[Validations]           | Read a YAML file and return its contents as a python dict
+[YamlReader]           | Read a YAML file and return its contents as a python dict
 
 [Log]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/log_v2.py
 [NdfcCredentials]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_credentials.py

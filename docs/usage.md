@@ -15,8 +15,8 @@ We depend on RestSend(), Sender() and other classes in this repository.
 
 To install:
 
-1. cd $HOME/repos (or wherever you keep your repositories)
-2. git clone https://github.com/CiscoDevNet/ansible-dcnm.git
+1. ``cd $HOME/repos`` (or wherever you keep your repositories)
+2. ``git clone https://github.com/CiscoDevNet/ansible-dcnm.git``
 3. For now, you need to switch to the ``relative-imports`` branch.
 
 ```bash
