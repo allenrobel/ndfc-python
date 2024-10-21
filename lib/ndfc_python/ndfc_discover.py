@@ -59,18 +59,25 @@ Note, this can be used as the "switches" value in the NdfcDiscover() payload:
     ]
 """
 
+import copy
 import inspect
-import json
 import logging
 import sys
 from ipaddress import AddressValueError
 from re import sub
 from time import sleep
 
-from ndfc_python.ndfc import NdfcRequestError
+from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import \
+    EpFabricDetails
+# from plugins.module_utils.common.exceptions import ControllerResponseError
+from plugins.module_utils.common.properties import Properties
+from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
+
 from ndfc_python.validations import Validations
 
 
+@Properties.add_rest_send
+@Properties.add_results
 class NdfcDiscover:
     """
     Discover switches
@@ -85,10 +92,29 @@ class NdfcDiscover:
     - is_up Tests if a switch is up
 
     Examples:
-    from ndfc_python.log_v2 import Log
-    from ndfc_python.ndfc import NDFC
-    from ndfc_python.ndfc_credentials import NdfcCredentials
 
+    Sender() reads credentials from environment variables unless
+    you override them with:
+
+    sender = Sender()
+    sender.domain = "local"
+    sender.ip4 = "10.1.1.1"
+    sender.password = "MyNdfcPassword"
+    sender.username = "MyNdfcUsername"
+
+    Environment variables read by Sender()
+
+    NDFC_DOMAIN=local
+    NDFC_IP4=10.1.1.1
+    NDFC_PASSWORD=MyNdfcPassword
+    NDFC_USERNAME=MyNdfcUsername
+
+
+    from ndfc_python.log_v2 import Log
+    from plugins.module_utils.common.response_handler = ResponseHandler
+    from plugins.module_utils.common.rest_send_v2 import RestSend
+    from plugins.module_utils.common.results import Results
+    from plugins.module_utils.common.sender_requests import Sender
     try:
         log = Log()
         log.commit()
@@ -98,19 +124,19 @@ class NdfcDiscover:
         print(MSG)
         exit(1)
 
-    nc = NdfcCredentials()
-    ndfc.domain = nc.nd_domain
-    ndfc.username = nc.username
-    ndfc.password = nc.password
-    ndfc.ip4 = nc.ndfc_ip
-    ndfc.login()
+    sender = Sender()
+    sender.login()
+    rest_send = RestSend()
+    rest_send.sender = sender
+    rest_send.response_handler = ResponseHandler()
 
     # discover() method
-    instance = NdfcDiscover(ndfc)
+    instance = NdfcDiscover()
+    instance.rest_send = rest_send
     instance.seed_ip = '10.1.1.1'
     instance.cdp_second_timeout = 10
-    instance.discover_password = nc.discover_password
-    instance.discover_username = nc.discover_username
+    instance.discover_password = "MySwitchPassword"
+    instance.discover_username = "MySwitchUsername"
     try:
         instance.discover()
     except ValueError as error:
@@ -118,11 +144,11 @@ class NdfcDiscover:
     print(f"response: {instance.response}")
 
     # is_up() method
-    instance = NdfcDiscover(ndfc)
-    instance.discover_password = nc.discover_password
-    instance.discover_username = nc.discover_username
-    instance.fabric_name = "ext1"
-    instance.seed_ip = "10.1.1.100"
+    instance = NdfcDiscover()
+    instance.discover_password = "MySwitchPassword"
+    instance.discover_username = "MySwitchUsername"
+    instance.fabric_name = "MyFabric"
+    instance.seed_ip = "10.1.1.1"
     try:
         up = discover.is_up()
     except ValueError as error:
@@ -138,18 +164,14 @@ class NdfcDiscover:
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
+        self.fabric_details_by_name = FabricDetailsByName()
         self.validations = Validations()
-        # ordering of the next three items matters
-        # properties not passed to NDFC
-        self._internal_properties = {}
-        self._init_internal_properties()
+
+        self._rest_send = None
+        self._results = None
 
         # time to sleep after each request retry
         self._retry_sleep_time = 10
-
-        # post/get base headers
-        self.headers = {}
-        self.headers["Content-Type"] = "application/json"
 
         self._init_properties_set()
         self._init_payload_set()
@@ -191,9 +213,6 @@ class NdfcDiscover:
             "vdcId",
             "version",
         ]
-
-    def _init_internal_properties(self):
-        self._internal_properties["ndfc"] = None
 
     def _init_payload_set(self):
         """
@@ -304,18 +323,28 @@ class NdfcDiscover:
         """
         Set of final checks prior to sending the request.
 
-        - verify ndfc is set and is an NDFC instance
+        - verify rest_send is set
+        - verify results is set
         - all mandatory parameters have been set
         - populate vars and structures needed by self.discover()
-        - verify fabric exists on the NDFC
+        - verify fabric exists on the controller
         """
+        # pylint: disable=no-member
         method_name = inspect.stack()[0][3]
-        try:
-            self.validations.verify_ndfc(self.ndfc)
-        except (AttributeError, TypeError) as error:
+        if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
-            msg += f"Error detail: {error}"
-            raise ValueError(msg) from error
+            msg += f"{self.class_name}.rest_send must be set before calling "
+            msg += f"{self.class_name}.discover, "
+            msg += f"{self.class_name}.is_up, "
+            msg += f"{self.class_name}.is_reachable"
+            raise ValueError(msg)
+        if self.results is None:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"{self.class_name}.results must be set before calling "
+            msg += f"{self.class_name}.discover, "
+            msg += f"{self.class_name}.is_up, "
+            msg += f"{self.class_name}.is_reachable"
+            raise ValueError(msg)
 
         for key in self.payload_set_mandatory:
             if self.payload[key] == "":
@@ -405,12 +434,28 @@ class NdfcDiscover:
         """
         method_name = inspect.stack()[0][3]
         self._final_verification()
-        url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
-        url += "/inventory/test-reachability"
-        self.ndfc.post(url, self.ndfc.make_headers(), self.payload)
-        self._reachability_status_code = self.ndfc.response.status_code
-        self._reachability_response = json.loads(self.ndfc.response.text)
+        ep = EpFabricDetails()
+        ep.fabric_name = self.fabric_name
+        path = ep.path
+        path += "/inventory/test-reachability"
 
+        # pylint: disable=no-member
+        try:
+            self.rest_send.path = path
+            self.rest_send.verb = "POST"
+            self.rest_send.payload = self.payload
+            self.rest_send.commit()
+        except (TypeError, ValueError) as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "Unable to determine reachability. "
+            msg += f"Error details: {error}"
+            raise ValueError(msg) from error
+        self._reachability_status_code = self.rest_send.response_current["RETURN_CODE"]
+        self._reachability_response = copy.deepcopy(
+            self.rest_send.response_current["DATA"]
+        )
+        # pylint: enable=no-member
+        msg = f"{self.class_name}.{method_name}: "
         try:
             self._verify_reachability_response()
         except (KeyError, TypeError) as error:
@@ -430,23 +475,29 @@ class NdfcDiscover:
 
     def _populate_raw_fabric_info(self):
         method_name = inspect.stack()[0][3]
-        url = self.ndfc.url_control_fabrics
+
+        # pylint: disable=no-member
+        self.fabric_details_by_name.rest_send = self.rest_send
+        self.fabric_details_by_name.results = self.results
+        # pylint: enable=no-member
         try:
-            self.raw_fabric_info = self.ndfc.get(url, self.ndfc.make_headers())
-        except NdfcRequestError as error:
+            self.fabric_details_by_name.refresh()
+        except ValueError as error:
             msg = f"{self.class_name}.{method_name}: "
-            msg += "_populate_raw_fabric_info, unable to populate fabric info. "
+            msg += "unable to populate fabric information. "
             msg += f"Error detail: {error}"
-            raise NdfcRequestError(msg) from error
+            raise ValueError(msg) from error
+
+        self.raw_fabric_info = self.fabric_details_by_name.all_data
 
     def _populate_existing_fabric_names(self):
         """
         populates self.fabric_names, a set containing the names of fabrics
-        that exist on the NDFC
+        that exist on the controller.
         """
-        for item in self.raw_fabric_info:
-            if "fabricName" in item:
-                self.fabric_names.add(item["fabricName"])
+        # pylint: disable=consider-iterating-dictionary
+        for fabric_name in self.raw_fabric_info.keys():
+            self.fabric_names.add(fabric_name)
 
     def _populate_fabric_type(self):
         method_name = inspect.stack()[0][3]
@@ -455,14 +506,8 @@ class NdfcDiscover:
             msg += f"fabric_name {self.fabric_name} not found in existing "
             msg += f"fabrics {self.fabric_names}"
             raise ValueError(msg)
-        for item in self.raw_fabric_info:
-            if "fabricName" not in item:
-                continue
-            if "fabricType" not in item:
-                continue
-            if item["fabricName"] == self.fabric_name:
-                self._fabric_type = item["fabricType"]
-                break
+        self.fabric_details_by_name.filter = self.fabric_name
+        self._fabric_type = self.fabric_details_by_name.fabric_type
 
     def _verify_fabric_exists(self):
         method_name = inspect.stack()[0][3]
@@ -511,14 +556,26 @@ class NdfcDiscover:
             self.log.error(msg)
             sys.exit(1)
 
-        url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
-        url += "/inventory/discover"
-
+        ep = EpFabricDetails()
+        ep.fabric_name = self.fabric_name
+        path = ep.path
+        path += "/inventory/discover"
         self.payload["switches"] = self._reachability_response
 
-        self.ndfc.post(url, self.ndfc.make_headers(), self.payload)
-        self.discover_status_code = self.ndfc.response.status_code
-        self.discover_response = json.loads(self.ndfc.response.text)
+        # pylint: disable=no-member
+        try:
+            self.rest_send.path = path
+            self.rest_send.verb = "POST"
+            self.rest_send.payload = copy.deepcopy(self.payload)
+            self.rest_send.commit()
+        except (TypeError, ValueError) as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "Error while discovering switches. "
+            msg += f"Error detail {error}"
+            raise ValueError(msg) from error
+        self.discover_status_code = copy.copy(self.rest_send.sender.last_rc)
+        self.discover_response = copy.deepcopy(self.rest_send.response_current)
+        # pylint: enable=no-member
 
     def is_up(self):
         """
@@ -535,28 +592,38 @@ class NdfcDiscover:
             msg += "is_up cannot continue. final verification failed. "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
-        url = f"{self.ndfc.url_control_fabrics}/{self.fabric_name}"
-        url += "/inventory/switchesByFabric"
-        headers = self.ndfc.make_headers()
+
+        ep = EpFabricDetails()
+        ep.fabric_name = self.fabric_name
+        path = ep.path
+        path += "/inventory/switchesByFabric"
+        verb = ep.verb
+
+        # pylint: disable=no-member
         try:
-            self.ndfc.get(url, headers)
-        except NdfcRequestError as error:
+            self.rest_send.path = path
+            self.rest_send.verb = verb
+            self.rest_send.commit()
+        except (TypeError, ValueError) as error:
             msg = f"{self.class_name}.{method_name}: "
-            msg += "unable to send request. "
-            msg += f"Error detail: {error}"
-            raise NdfcRequestError(msg) from error
-        response = json.loads(self.ndfc.response.text)
+            msg += "Error determining if switch is up. "
+            msg += f"Error detail {error}"
+            raise ValueError(msg) from error
+
+        response = self.rest_send.response_current
+        # pylint: enable=no-member
+        response_data = response.get("DATA")
+        if response_data is None:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "Controller response contains no DATA."
+            raise ValueError(msg)
         our_switch = None
-        for item in response:
+        for item in response_data:
             if "ipAddress" not in item:
                 continue
             # The key 'manageable' is mispelled in NDFC's response so we have
-            # to mispell it here as well. :-(
+            # to mispell it here as well.
             if "managable" not in item:
-                msg = f"{self.class_name}.{method_name}: "
-                msg += "Skipping. 'managable' [sic] key not found in response "
-                msg += f"{item}"
-                self.log.error(msg)
                 continue
             if item["ipAddress"] == self.seed_ip:
                 our_switch = item
@@ -567,18 +634,6 @@ class NdfcDiscover:
             msg += "on the controller."
             raise ValueError(msg)
         return our_switch["managable"]
-
-    # properties that are not passed to NDFC
-    @property
-    def ndfc(self):
-        """
-        return/set the current ndfc instance
-        """
-        return self._internal_properties["ndfc"]
-
-    @ndfc.setter
-    def ndfc(self, param):
-        self._internal_properties["ndfc"] = param
 
     # top_level properties
     @property

@@ -6,9 +6,10 @@ Read the caller's Ansible vault and expose the following keys via properties:
 
 ansible_user - via property username
 ansible_password - via property password
-ndfc_ip - via property ndfc_ip
 discover_username - via property discover_username, the switch username
 discover_password - via property discover_password, the switch password
+ndfc_ip - via property ndfc_ip
+nd_domain = via the property nd_domain
 
 Dependencies:
 

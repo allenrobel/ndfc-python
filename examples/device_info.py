@@ -1,57 +1,119 @@
 #!/usr/bin/env python3
 """
-Name: device_info.py
-Description:
+# Name
 
-Retrieve various information about devices, given their
-fabric_name and ip_address.
+device_info.py
 
-Usage:
+# Description
 
-Edit the vars below to match your setup
-    - fabric
-    - devices
+Retrieve various information about a device, given its ip address.
+
+#Usage
+
+Edit ``device_info_config.yaml`` appropriately for your setup.
+
+```yaml
+config:
+  switch_ip4: 10.1.1.1
+  fabric_name: MyFabric
+```
+
+If you've set the standard Nexus Dashboard credentials environment variables
+(NDFC_DOMAIN, NDFC_IP4, NDFC_PASSWORD, NDFC_USERNAME) then you're good to go.
+
+```bash
+./device_info.py --config device_info_config.yaml
+```
+
+You can override the environment variables like so:
+
+```bash
+./device_info.py --config device_info_config.yaml --username admin --password MyPassword --domain local --ip4 10.1.1.2
+```
+
 """
+import argparse
+import logging
 import sys
 
-from ndfc_python.log_v2 import Log
-from ndfc_python.ndfc import NDFC
-from ndfc_python.ndfc_credentials import NdfcCredentials
-from ndfc_python.ndfc_device_info import NdfcDeviceInfo
+from ndfc_python.ndfc_python_config import NdfcPythonConfig
+from ndfc_python.ndfc_python_logger import NdfcPythonLogger
+from ndfc_python.ndfc_python_sender import NdfcPythonSender
+from ndfc_python.parsers.parser_config import parser_config
+from ndfc_python.parsers.parser_loglevel import parser_loglevel
+from plugins.module_utils.common.response_handler import ResponseHandler
+from plugins.module_utils.common.rest_send_v2 import RestSend
+from plugins.module_utils.common.results import Results
+from plugins.module_utils.common.switch_details import SwitchDetails
+
+
+def setup_parser() -> argparse.Namespace:
+    """
+    ### Summary
+
+    Setup script-specific parser
+
+    Returns:
+        argparse.Namespace
+    """
+    parser = argparse.ArgumentParser(
+        parents=[
+            parser_config,
+            parser_loglevel,
+        ],
+        description="DESCRIPTION: Print information about a switch.",
+    )
+    return parser.parse_args()
+
+
+args = setup_parser()
+
+NdfcPythonLogger()
+log = logging.getLogger("ndfc_python.main")
+log.setLevel = args.loglevel
 
 try:
-    log = Log()
-    log.commit()
+    ndfc_sender = NdfcPythonSender()
+    ndfc_sender.args = args
+    ndfc_sender.commit()
 except ValueError as error:
-    MSG = "Error while instantiating Log(). "
-    MSG += f"Error detail: {error}"
-    print(MSG)
+    msg = f"Exiting.  Error detail: {error}"
+    log.error(msg)
     sys.exit(1)
 
-FABRIC = "f1"
-DEVICES = ["10.1.1.1", "10.1.1.2"]
+try:
+    ndfc_config = NdfcPythonConfig()
+    ndfc_config.filename = args.config
+    ndfc_config.commit()
+    config = ndfc_config.contents["config"]
+except ValueError as error:
+    msg = f"Exiting: Error detail: {error}"
+    log.error(msg)
+    sys.exit()
 
-nc = NdfcCredentials()
-ndfc = NDFC()
-ndfc.domain = nc.nd_domain
-ndfc.ip4 = nc.ndfc_ip
-ndfc.password = nc.password
-ndfc.username = nc.username
-ndfc.login()
+rest_send = RestSend({})
+rest_send.sender = ndfc_sender.sender
+rest_send.response_handler = ResponseHandler()
 
-instance = NdfcDeviceInfo()
-instance.ndfc = ndfc
-instance.fabric_name = FABRIC
-for ipv4 in DEVICES:
-    instance.ip_address = ipv4
+try:
+    instance = SwitchDetails()
+    instance.results = Results()
+    instance.rest_send = rest_send
     instance.refresh()
-    print(f"device: {instance.ip_address}")
-    print(f"fabric: {instance.fabric_name}")
-    print(f"   name: {instance.logical_name}")
-    print(f"   role: {instance.switch_role}")
-    print(f"   db_id: {instance.switch_db_id}")
-    print(f"   serial_number: {instance.serial_number}")
-    print(f"   model: {instance.model}")
-    print(f"   release: {instance.release}")
-    print(f"   status: {instance.status}")
-    print(f"   oper_status: {instance.oper_status}")
+except ValueError as error:
+    msg = "Unable to get switch details. "
+    msg += f"Error details: {error}"
+    log.error(msg)
+    sys.exit(1)
+
+instance.filter = config.get("switch_ip4")
+try:
+    print(f"fabric_name: {instance.fabric_name}")
+    print(f"serial_number: {instance.serial_number}")
+    print(f"status: {instance.status}")
+    print(f"model: {instance.model}")
+    # etc, see additional properties in SwitchDetails()
+except ValueError as error:
+    msg = "Unable to get switch details. "
+    msg += f"Error details: {error}"
+    log.error(msg)

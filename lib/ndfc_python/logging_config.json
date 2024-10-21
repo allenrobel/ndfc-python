@@ -23,19 +23,27 @@
     }
   },
   "loggers": {
-    "ndfc_python": {
-      "handlers": [
-        "console",
-        "file"
-      ],
-      "level": "DEBUG",
-      "propagate": false
+        "ndfc_python": {
+        "handlers": [
+            "console",
+            "file"
+        ],
+        "level": "DEBUG",
+        "propagate": false
+        },
+        "dcnm": {
+            "handlers": [
+            "console",
+            "file"
+            ],
+            "level": "DEBUG",
+            "propagate": false
+        },
+        "root": {
+            "level": "INFO",
+            "handlers": [
+            "file"
+            ]
+        }
     }
-  },
-  "root": {
-    "level": "INFO",
-    "handlers": [
-      "file"
-    ]
-  }
 }
