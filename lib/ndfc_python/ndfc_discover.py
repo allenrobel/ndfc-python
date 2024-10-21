@@ -67,9 +67,9 @@ from ipaddress import AddressValueError
 from re import sub
 from time import sleep
 
-from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import \
+from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import (
     EpFabricDetails
-# from plugins.module_utils.common.exceptions import ControllerResponseError
+)
 from plugins.module_utils.common.properties import Properties
 from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
