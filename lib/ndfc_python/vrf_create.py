@@ -8,11 +8,13 @@ import json
 import logging
 from ipaddress import AddressValueError
 
-from ndfc_python.ndfc import NdfcRequestError
 from ndfc_python.validations import Validations
+from plugins.module_utils.common.properties import Properties
 
 
-class NdfcVrf:
+@Properties.add_rest_send
+@Properties.add_results
+class VrfCreate:
     """
     Create VRFs
     """
@@ -23,14 +25,8 @@ class NdfcVrf:
 
         self.validations = Validations()
 
-        # properties not passed to NDFC
-        # order is important for these three
-        self._internal_properties = {}
-        self._init_internal_properties()
-
-        # post/get base headers
-        self._headers = {}
-        self._headers["Content-Type"] = "application/json"
+        self._rest_send = None
+        self._results = None
 
         self._payload_set = set()
         self._payload_set.add("display_name")
@@ -105,9 +101,6 @@ class NdfcVrf:
         self._init_payload()
         self._init_vrf_template_config()
 
-    def _init_internal_properties(self):
-        self._internal_properties["ndfc"] = None
-
     def _init_payload(self):
         """
         initialize the REST payload
@@ -150,92 +143,106 @@ class NdfcVrf:
         """
         verify the following:
 
-        - ndfc is set and is an NDFC instance
+        - verify rest_send is set
+        - verify results is set
         - all mandatory parameters are set
-        - self.vrf does not already exist in self.fabric
+        - self.vrf does not already exist in self.fabric_name
         """
         method_name = inspect.stack()[0][3]
-        try:
-            self.validations.verify_ndfc(self.ndfc)
-        except (AttributeError, TypeError) as error:
+        # pylint: disable=no-member
+        if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
-            msg += f"Error detail: {error}"
-            raise ValueError(msg) from error
+            msg += f"{self.class_name}.rest_send must be set before calling "
+            msg += f"{self.class_name}.commit"
+            raise ValueError(msg)
+        if self.results is None:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"{self.class_name}.results must be set before calling "
+            msg += f"{self.class_name}.commit"
+            raise ValueError(msg)
+        # pylint: enable=no-member
 
         for param in self.mandatory_payload_set:
             if self.payload[param] == "":
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"Call {self.class_name}.{param} before calling "
-                msg += f"{self.class_name}.post()"
+                msg += f"{self.class_name}.commit"
                 raise ValueError(msg)
         for param in self.mandatory_template_config_set:
             if self.template_config[param] == "":
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"Call {self.class_name}.{param} before calling "
-                msg += f"{self.class_name}.post()"
+                msg += f"{self.class_name}.commit"
                 raise ValueError(msg)
         if self.vrf_exists_in_fabric():
             msg = f"{self.class_name}.{method_name}: "
             msg += f"VRF {self.vrf_name} already exists in "
-            msg += f"fabric {self.fabric}"
+            msg += f"fabric {self.fabric_name}"
             raise ValueError(msg)
 
-    def post(self):
+    def commit(self):
         """
-        post the resquest
+        # Summary
+        Commit VRF creation
+
+        # Raises
+        - ValueError if unable to send request to the controller
         """
         method_name = inspect.stack()[0][3]
         self._final_verification()
 
-        url = f"{self.ndfc.url_top_down_fabrics}/{self.fabric}/vrfs"
-
-        headers = {}
-        headers["Authorization"] = self.ndfc.bearer_token
-        headers["Content-Type"] = "application/json"
-
+        # path = f"{self.ndfc.url_top_down_fabrics}/{self.fabric_name}/vrfs"
+        path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics"
+        path += f"/{self.fabric_name}/vrfs"
         self.payload["vrfTemplateConfig"] = json.dumps(self.template_config)
 
+        # pylint: disable=no-member
         try:
-            self.ndfc.post(url, headers, self.payload)
-        except NdfcRequestError as error:
+            self.rest_send.path = path
+            self.rest_send.verb = "POST"
+            self.rest_send.payload = self.payload
+            self.rest_send.commit()
+        except (TypeError, ValueError) as error:
             msg = f"{self.class_name}.{method_name}: "
-            msg += "Error sending POST request to the controller. "
-            msg += f"Error detail: {error}"
+            msg += f"Unable to send {self.rest_send.verb} request to the controller. "
+            msg += f"Error details: {error}"
             raise ValueError(msg) from error
+        # pylint: enable=no-member
 
     def vrf_exists_in_fabric(self):
         """
-        Return True if self.vrf exists in self.fabric.
+        Return True if self.vrf exists in self.fabric_name.
         Else, return False
         """
-        url = f"{self.ndfc.url_top_down_fabrics}/{self.fabric}/vrfs"
+        method_name = inspect.stack()[0][3]
+        # TODO: update when this path is added to ansible-dcnm
+        path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{self.fabric_name}/vrfs"
+        verb = "GET"
 
-        self._headers["Authorization"] = self.ndfc.bearer_token
+        # pylint: disable=no-member
+        try:
+            self.rest_send.path = path
+            self.rest_send.verb = verb
+            self.rest_send.payload = self.payload
+            self.rest_send.commit()
+        except (TypeError, ValueError) as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Unable to send {self.rest_send.verb} request to the controller. "
+            msg += f"Error details: {error}"
+            raise ValueError(msg) from error
 
-        response = self.ndfc.get(url, self._headers)
-        for item_d in response:
+        for item_d in self.rest_send.response_current["DATA"]:
             if "fabric" not in item_d:
                 continue
             if "vrfName" not in item_d:
                 continue
-            if item_d["fabric"] != self.fabric:
+            if item_d["fabric"] != self.fabric_name:
                 continue
             if item_d["vrfName"] != self.vrf_name:
                 continue
             return True
+        # pylint: enable=no-member
         return False
-
-    # properties that are not passed to NDFC
-    @property
-    def ndfc(self):
-        """
-        return/set the current ndfc instance
-        """
-        return self._internal_properties["ndfc"]
-
-    @ndfc.setter
-    def ndfc(self, param):
-        self._internal_properties["ndfc"] = param
 
     # top_level properties
     @property
@@ -250,15 +257,15 @@ class NdfcVrf:
         self.payload["displayName"] = param
 
     @property
-    def fabric(self):
+    def fabric_name(self):
         """
         return the current payload value of VRF fabric
         """
         return self.payload["fabric"]
 
-    @fabric.setter
-    def fabric(self, param):
-        self.payload["fabric"] = param
+    @fabric_name.setter
+    def fabric_name(self, value):
+        self.payload["fabric"] = value
 
     @property
     def vrf_extension_template(self):
