@@ -1,0 +1,9 @@
+site_name: ndfc-python
+nav:
+  - Home: index.md
+  - About: about.md
+  - Classes: classes.md
+theme: readthedocs
+repo_name: allenrobel/ndfc-python
+repo_url: https://github.com/allenrobel/ndfc-python
+edit_uri: blob/mkdocs/docs/
