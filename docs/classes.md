@@ -13,13 +13,13 @@ Library                 | Description
 [vrf_create]            | Create VRFs
 [validations]           | Validation methods used by the other classes
 
-[ndfc]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc.py
-[ndfc_config]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_config.py
-[ndfc_credentials]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_credentials.py
-[ndfc_device_info]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_device_info.py
-[ndfc_discover]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_discover.py
-[ndfc_network]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_network.py
-[ndfc_policy]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_policy.py
-[ndfc_reachability]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_reachability.py
-[vrf_create]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/vrf_create.py
-[validations]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/validations.py
+[ndfc]: blob/main/lib/ndfc_python/ndfc.py
+[ndfc_config]: blob/main/lib/ndfc_python/ndfc_config.py
+[ndfc_credentials]: blob/main/lib/ndfc_python/ndfc_credentials.py
+[ndfc_device_info]: blob/main/lib/ndfc_python/ndfc_device_info.py
+[ndfc_discover]: blob/main/lib/ndfc_python/ndfc_discover.py
+[ndfc_network]: blob/main/lib/ndfc_python/ndfc_network.py
+[ndfc_policy]: main/lib/ndfc_python/ndfc_policy.py
+[ndfc_reachability]: blob/main/lib/ndfc_python/ndfc_reachability.py
+[vrf_create]: blob/main/lib/ndfc_python/vrf_create.py
+[validations]: blob/main/lib/ndfc_python/validations.py
