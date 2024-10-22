@@ -1,11 +1,16 @@
 site_name: ndfc-python
+site_url: https://allenrobel.github.io/ndfc-python/
 nav:
   - Home: index.md
   - About: about.md
   - Usage: usage.md
   - Scripts: scripts.md
   - Classes: classes.md
-theme: mkdocs
+theme:
+  name: material
+  palette:
+    scheme: default
+    primary: deep orange
 repo_name: allenrobel/ndfc-python
 repo_url: https://github.com/allenrobel/ndfc-python
 edit_uri: blob/mkdocs/docs/
