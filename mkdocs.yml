@@ -1,5 +1,5 @@
 site_name: ndfc-python
-site_url: https://allenrobel.github.io/ndfc-python/docs
+site_url: https://allenrobel.github.io/ndfc-python
 theme:
   name: material
   palette:
