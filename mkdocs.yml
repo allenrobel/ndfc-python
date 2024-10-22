@@ -1,5 +1,5 @@
 site_name: ndfc-python
-site_url: https://allenrobel.github.io/ndfc-python/
+site_url: https://allenrobel.github.io/ndfc-python/docs
 theme:
   name: material
   palette:
@@ -8,4 +8,4 @@ theme:
 repo_name: allenrobel/ndfc-python
 repo_url: https://github.com/allenrobel/ndfc-python
 edit_uri: blob/mkdocs/docs/
-remote_branch: mkdocs
+remote_branch: main
