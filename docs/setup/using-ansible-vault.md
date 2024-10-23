@@ -1,10 +1,10 @@
-# Ansible Vault
+# Using Ansible Vault
 
 ndfc-python can be modified to work with Ansible Vault, per below.
 
 ## Ansible Python Libraries
 
-If you want to use Ansible Vault with ndfc-python, install Ansible.
+If you want to use Ansible Vault with `ndfc-python`, install Ansible.
 
 ### Example
 
