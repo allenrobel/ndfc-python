@@ -1,2 +1,3 @@
 MD040: false                  # Allow ``` blocks in md files with no language specified
 MD046: false                  # Temporarily disable Expected: indented; Actual: fenced
+MD013: false                  # line length 80
