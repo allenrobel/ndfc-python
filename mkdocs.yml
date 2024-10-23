@@ -1,10 +1,32 @@
 site_name: ndfc-python
 site_url: https://allenrobel.github.io/ndfc-python
+nav:
+  - "Home": "index.md"
+  - About: "about.md"
+  - Scripts: "scripts.md"
+  - Usage: "usage.md"
+  - Libraries: "classes.md"
+  - "Ansible Vault": "ansible_vault.md"
 theme:
+  features:
+    # - navigation.tabs
+    # - navigation.tabs.sticky
+    - navigation.instant
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
   name: material
   palette:
-    scheme: default
-    primary: deep orange
+    - scheme: default
+      toggle:
+        icon: material/brightness-7 
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
 repo_name: allenrobel/ndfc-python
 repo_url: https://github.com/allenrobel/ndfc-python
 edit_uri: blob/mkdocs/docs/
