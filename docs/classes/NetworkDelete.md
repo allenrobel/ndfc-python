@@ -27,7 +27,7 @@ Delete a network
 
 ## Example script
 
-```python
+```py title="Example Script"
 import argparse
 import logging
 import sys

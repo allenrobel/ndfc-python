@@ -11,11 +11,11 @@ NdfcPythonLogger()
 
 ## Raises
 
-- `ValueError`
+- ValueError
   * An error is encountered reading the logging config file.
   * An error is encountered parsing the logging config file.
   * No formatters are found in the logging config file that are associated with the configured handlers.
-- `TypeError`
+- TypeError
   * `develop` is not a boolean.
 
 ## Methods
@@ -65,7 +65,7 @@ By default, Log() does the following:
 
 Set the environment variable `NDFC_LOGGING_CONFIG` to the path of the logging config file.  `bash` shell is used in the example below.
 
-```bash title="set NDFC_LOGGING_CONFIG"
+``` bash title="set NDFC_LOGGING_CONFIG"
 export NDFC_LOGGING_CONFIG="/path/to/logging_config.json"
 ```
 
@@ -73,7 +73,7 @@ export NDFC_LOGGING_CONFIG="/path/to/logging_config.json"
 
 Instantiate `Log()` and call `commit()` on the instance.
 
-```py title="instantiate Log()"
+``` py title="instantiate Log()"
 import logging
 from ndfc_python.log_v2 import Log
 
@@ -89,13 +89,13 @@ At this point, a base/parent logger (`ndfc_python`) is created.  This loggerr is
 
 ### Create a logger under `ndfc_python`
 
-```py title="Create log instance"
+``` py title="Create log instance"
 log = logging.getLogger("ndfc_python.myLogger")
 ```
 
 ### Start logging
 
-```py title="Start logging"
+``` py title="Start logging"
 log.info("Logger created.")
 ```
 
@@ -137,7 +137,7 @@ except (TypeError, ValueError) as error:
 
 ### Example use in a script
 
-```python
+``` py
 import sys
 from ndfc_python.log_v2 import Log
 
@@ -170,7 +170,7 @@ from Python's standard library.
 
 An example logging config file is shown below.
 
-```json title="$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json"
+``` json title="$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json"
 {
   "version": 1,
   "formatters": {
