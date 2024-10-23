@@ -1,9 +1,11 @@
+---
 # Project
 site_name: ndfc-python
 site_url: https://allenrobel.github.io/ndfc-python
 site_author: Allen Robel
 site_description: >-
-  Python classes and example scripts to interact with Cisco's Nexus Dashboard Fabric Controller
+  Python classes and example scripts to interact with Cisco's Nexus Dashboard
+  Fabric Controller
 
 # Repo
 repo_name: allenrobel/ndfc-python

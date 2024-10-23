@@ -11,23 +11,22 @@ NdfcPythonLogger()
 
 ## Raises
 
--   `ValueError`
-    -   An error is encountered reading the logging config file.
-    -   An error is encountered parsing the logging config file.
-    -   No formatters are found in the logging config file that are associated with the configured handlers.
--   `TypeError`
-    -   ``develop`` is not a boolean.
-
+- `ValueError`
+  - An error is encountered reading the logging config file.
+  - An error is encountered parsing the logging config file.
+  - No formatters are found in the logging config file that are associated with the configured handlers.
+- `TypeError`
+  - ``develop`` is not a boolean.
 
 ## Usage
 
 By default, Log() does the following:
 
-1.  Reads the environment variable ``NDFC_LOGGING_CONFIG`` to determine
-    the path to the logging config file.  If the environment variable is
-    not set, then logging is disabled.
-2.  Sets ``develop`` to False.  This disables exceptions raised by the
-    logging module itself.
+1. Reads the environment variable ``NDFC_LOGGING_CONFIG`` to determine the path
+   to the logging config file.  If the environment variable is not set, then
+   logging is disabled.
+2. Sets ``develop`` to False.  This disables exceptions raised by the logging
+   module itself.
 
 ### Set environment variable
 
@@ -37,7 +36,7 @@ Set the environment variable `NDFC_LOGGING_CONFIG` to the path of the logging co
 export NDFC_LOGGING_CONFIG="/path/to/logging_config.json"
 ```
 
-###  Instantiate `Log()`
+### Instantiate `Log()`
 
 Instantiate `Log()` and call `commit()` on the instance.
 
@@ -67,7 +66,7 @@ log = logging.getLogger("ndfc_python.myLogger")
 log.info("Logger created.")
 ```
 
-###  Disable logging
+### Disable logging
 
 To disable for all children, unset the environment variable.
 
