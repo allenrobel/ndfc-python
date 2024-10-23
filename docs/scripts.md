@@ -8,13 +8,13 @@ Returns switch information.
 
 ### Usage
 
-```bash
+``` bash
 ./device_info.py --config config_device_info.yaml
 ```
 
 ### Example Config File
 
-```yaml
+``` yaml
 ---
 config:
   switch_ip4: 10.1.1.1
