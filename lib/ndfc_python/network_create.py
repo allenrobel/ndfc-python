@@ -54,9 +54,8 @@ import json
 import logging
 from ipaddress import AddressValueError
 
-from plugins.module_utils.common.properties import Properties
-
 from ndfc_python.validations import Validations
+from plugins.module_utils.common.properties import Properties
 
 
 @Properties.add_rest_send
@@ -168,9 +167,9 @@ class NetworkCreate:
         These are keys for which the caller does not have to provide a value
         unless they specifically want to change them.
         """
-        self._payload_default["networkExtensionTemplate"] = (
-            "Default_Network_Extension_Universal"
-        )
+        self._payload_default[
+            "networkExtensionTemplate"
+        ] = "Default_Network_Extension_Universal"
         self._payload_default["networkTemplate"] = "Default_Network_Universal"
 
     def _init_template_config_set(self):
@@ -277,15 +276,15 @@ class NetworkCreate:
         self._payload_mapping_dict = {}
         self._payload_mapping_dict["displayName"] = "display_name"
         self._payload_mapping_dict["fabric"] = "fabric"
-        self._payload_mapping_dict["networkExtensionTemplate"] = (
-            "network_extension_template"
-        )
+        self._payload_mapping_dict[
+            "networkExtensionTemplate"
+        ] = "network_extension_template"
         self._payload_mapping_dict["networkId"] = "network_id"
         self._payload_mapping_dict["networkName"] = "network_name"
         self._payload_mapping_dict["networkTemplate"] = "network_template"
-        self._payload_mapping_dict["serviceNetworkTemplate"] = (
-            "service_network_template"
-        )
+        self._payload_mapping_dict[
+            "serviceNetworkTemplate"
+        ] = "service_network_template"
         self._payload_mapping_dict["source"] = "source"
         self._payload_mapping_dict["vrf"] = "vrf"
 
@@ -300,9 +299,9 @@ class NetworkCreate:
         self._template_config_mapping_dict["enableIR"] = "enable_ir"
         self._template_config_mapping_dict["enableL3OnBorder"] = "enable_l3_on_border"
         self._template_config_mapping_dict["gatewayIpAddress"] = "gateway_ip_address"
-        self._template_config_mapping_dict["gatewayIpV6Address"] = (
-            "gateway_ipv6_address"
-        )
+        self._template_config_mapping_dict[
+            "gatewayIpV6Address"
+        ] = "gateway_ipv6_address"
         self._template_config_mapping_dict["intfDescription"] = "intf_description"
         self._template_config_mapping_dict["isLayer2Only"] = "is_layer2_only"
         self._template_config_mapping_dict["loopbackId"] = "loopback_id"
