@@ -1,33 +1,77 @@
+# Project
 site_name: ndfc-python
 site_url: https://allenrobel.github.io/ndfc-python
-nav:
-  - "Home": "index.md"
-  - About: "about.md"
-  - Scripts: "scripts.md"
-  - Usage: "usage.md"
-  - Libraries: "classes.md"
-  - "Ansible Vault": "ansible_vault.md"
-theme:
-  features:
-    # - navigation.tabs
-    # - navigation.tabs.sticky
-    - navigation.instant
-    - navigation.sections
-    - navigation.expand
-    - navigation.path
-  name: material
-  palette:
-    - scheme: default
-      toggle:
-        icon: material/brightness-7 
-        name: Switch to dark mode
+site_author: Allen Robel
+site_description: >-
+  Python classes and example scripts to interact with Cisco's Nexus Dashboard Fabric Controller
 
-    # Palette toggle for dark mode
-    - scheme: slate
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
+# Repo
 repo_name: allenrobel/ndfc-python
 repo_url: https://github.com/allenrobel/ndfc-python
 edit_uri: blob/mkdocs/docs/
 remote_branch: main
+
+# Configuration
+theme:
+  name: material
+  features:
+    - content.code.annotate
+    - content.code.copy
+    - navigation.footer
+    - navigation.indexes
+    - navigation.sections
+    - navigation.tabs
+    - navigation.top
+    - navigation.tracking
+    - toc.follow
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/link
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch-off
+        name: Switch to system preference
+  font:
+    text: Roboto
+    code: Roboto Mono
+
+# Extensions
+markdown_extensions:
+  - attr_list
+  - def_list
+  - footnotes
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+nav:
+  - "Home": "index.md"
+  - About: "about.md"
+  - Setup:
+    - Clone the repositories: setup/clone-the-repositories.md
+    - Update your PYTHONPATH: setup/update-your-pythonpath.md
+    - Enable logging: setup/enable-logging.md
+    - Running the example scripts: setup/running-the-example-scripts.md
+    - Using Ansible Vault: setup/using-ansible-vault.md
+  - Scripts: "scripts.md"
+  - Classes:
+    - Overview: classes/overview.md
+    - Log: classes/log.md
