@@ -509,7 +509,7 @@ class NetworkCreate:
         # TODO: Update when we add endpoint to ansible-dcnm
         path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics"
         path += f"/{self.fabric_name}/networks"
-        verb = "GET"
+        verb = "POST"
 
         value = json.dumps(self.template_config)
         self.payload["networkTemplateConfig"] = value
