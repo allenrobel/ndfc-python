@@ -6,7 +6,7 @@ Library                 | Description
 ----------------------- | -----------
 [Log]                   | Create the base ndfc_python logging object
 [NdfcCredentials]       | Read the caller's Ansible Vault and provides the credentials therein to the other libraries
-[NdfcDeviceInfo]        | Retrieve information about a switch
+[NdfcDeviceInfo]        | ``*`` Retrieve information about a switch
 [NdfcDiscover]          | Discover device
 [NdfcPolicy]            | ``*`` Create / delete policies
 [NdfcPythonConfig]      | Returns the contents of a YAML file as a dictionary, given a path to the file
