@@ -76,4 +76,5 @@ nav:
   - Scripts: "scripts.md"
   - Classes:
     - Overview: classes/overview.md
-    - Log: classes/log.md
+    - Log: classes/Log.md
+    - NetworkDelete: classes/NetworkDelete.md

@@ -12,11 +12,44 @@ NdfcPythonLogger()
 ## Raises
 
 - `ValueError`
-  - An error is encountered reading the logging config file.
-  - An error is encountered parsing the logging config file.
-  - No formatters are found in the logging config file that are associated with the configured handlers.
+  * An error is encountered reading the logging config file.
+  * An error is encountered parsing the logging config file.
+  * No formatters are found in the logging config file that are associated with the configured handlers.
 - `TypeError`
-  - ``develop`` is not a boolean.
+  * `develop` is not a boolean.
+
+## Methods
+
+`commit()`
+
+:   If `config` is None, disable logging.
+
+    If `config` is a JSON file conformant with `logging.config.dictConfig`
+    read the file and configure the base logger instance from the file's contents.
+
+## Properties
+
+`config`
+
+:   Override the `NDFC_LOGGING_CONFIG` environment variable.  Value is an absolute
+    path to a JSON file from which logging config is read.  The JSON file must
+    conform to `logging.config.dictConfig` from Python's standard library.
+
+    Type: str()
+
+    Default: None
+
+    Raises: None
+
+`develop`
+
+:   Disable or enable exceptions raised by the logging module.
+
+    Type: bool()
+
+    Default: False
+
+    Raises: TypeError if value is not a bool()
 
 ## Usage
 
