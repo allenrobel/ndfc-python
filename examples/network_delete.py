@@ -101,7 +101,7 @@ try:
     instance.network_name = config.get("network_name")
     instance.commit()
 except ValueError as error:
-    msg = "Error creating network. "
+    msg = "Error deleting network. "
     msg += f"Error detail: {error}"
     log.error(msg)
     print(msg)

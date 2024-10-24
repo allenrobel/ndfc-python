@@ -13,6 +13,7 @@ import inspect
 import logging
 
 from plugins.module_utils.common.properties import Properties
+from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 
 @Properties.add_rest_send
@@ -65,6 +66,22 @@ class NetworkDelete:
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
 
+    def fabric_exists(self):
+        """
+        Return True if self.fabric_name exists on the controller.
+        Return False otherwise.
+        """
+        instance = FabricDetailsByName()
+        # pylint: disable=no-member
+        instance.rest_send = self.rest_send
+        instance.results = self.results
+        # pylint: enable=no-member
+        instance.refresh()
+        instance.filter = self.fabric_name
+        if instance.filtered_data is None:
+            return False
+        return True
+
     def vrf_exists_in_fabric(self):
         """
         Return True if self.vrf_name exists in self.fabric_name.
@@ -115,7 +132,12 @@ class NetworkDelete:
         try:
             self.rest_send.path = path
             self.rest_send.verb = verb
+            self.rest_send.save_settings()
+            # Don't wait long in case there's a non-200 response
+            self.rest_send.retries = 1
+            self.rest_send.timeout = 10
             self.rest_send.commit()
+            self.rest_send.restore_settings()
         except (TypeError, ValueError) as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Unable to send {self.rest_send.verb} request to the controller. "
@@ -135,6 +157,12 @@ class NetworkDelete:
         method_name = inspect.stack()[0][3]
         self._final_verification()
 
+        if self.fabric_exists() is False:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"fabric_name {self.fabric_name} "
+            msg += "does not exist on the controller."
+            raise ValueError(msg)
+
         if self.network_name_exists_in_fabric() is False:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"networkName {self.network_name} "
@@ -149,7 +177,12 @@ class NetworkDelete:
         try:
             self.rest_send.path = path
             self.rest_send.verb = verb
+            self.rest_send.save_settings()
+            # Don't wait long in case there's a non-200 response
+            self.rest_send.retries = 1
+            self.rest_send.timeout = 10
             self.rest_send.commit()
+            self.rest_send.restore_settings()
         except (TypeError, ValueError) as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Unable to send {self.rest_send.verb} request to the controller. "
