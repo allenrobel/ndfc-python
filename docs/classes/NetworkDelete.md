@@ -70,7 +70,7 @@ def setup_parser() -> argparse.Namespace:
             parser_controller_password,
             parser_controller_username,
         ],
-        description="DESCRIPTION: Create a vrf.",
+        description="DESCRIPTION: Delete a network.",
     )
     return parser.parse_args()
 

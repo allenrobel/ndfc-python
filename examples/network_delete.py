@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
 """
-Name: example_ndfc_network_create.py
-Description: Create an NDFC network
+Name: network_delete.py
+Description: Delete a network
 
 NOTES:
 
 1.  Set the following environment variables before running this script
     (edit appropriately for your setup)
 
-export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/netbox-tools/lib
-export NDFC_PYTHON_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/config/config.yml
+export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible-dcnm
 
 Optional, to enable logging:
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
@@ -56,14 +55,11 @@ def setup_parser() -> argparse.Namespace:
             parser_controller_password,
             parser_controller_username,
         ],
-        description="DESCRIPTION: Create a vrf.",
+        description="DESCRIPTION: Delete a network.",
     )
     return parser.parse_args()
 
-
 args = setup_parser()
-
-
 NdfcPythonLogger()
 log = logging.getLogger("ndfc_python.main")
 log.setLevel = args.loglevel

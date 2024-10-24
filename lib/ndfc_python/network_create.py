@@ -57,13 +57,14 @@ from ipaddress import AddressValueError
 
 from ndfc_python.validations import Validations
 from plugins.module_utils.common.properties import Properties
+from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 
 @Properties.add_rest_send
 @Properties.add_results
 class NetworkCreate:
     """
-    create / delete networks
+    Create networks
 
     Example create operation:
 
@@ -96,15 +97,6 @@ class NetworkCreate:
     instance.vlan_id = 3000
     instance.vrf = 'foo_vrf'
     instance.create()
-
-    Example delete operation:
-
-    <see create example for boilerplate>
-    instance = NdfcNetwork()
-    instance.ndfc = ndfc
-    instance.fabric = 'foo'
-    instance.network_name = 'MyNetwork_30000'
-    instance.delete()
 
     """
 
@@ -394,6 +386,42 @@ class NetworkCreate:
                 msg += f"before calling {self.class_name}.commit()"
                 raise ValueError(msg)
 
+        if self.fabric_exists() is False:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"fabric_name {self.fabric_name} "
+            msg += "does not exist on the controller."
+            raise ValueError(msg)
+
+        if self.vrf_exists_in_fabric() is False:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"vrf {self.vrf_name} does not exist in fabric "
+            msg += f"{self.fabric_name}. Create it before calling "
+            msg += f"{self.class_name}.{method_name}"
+            raise ValueError(msg)
+
+        if self.network_id_exists_in_fabric() is True:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"networkId {self.network_id} already exists "
+            msg += f"in fabric {self.fabric_name}. Delete it before calling "
+            msg += f"{self.class_name}.{method_name}"
+            raise ValueError(msg)
+
+    def fabric_exists(self):
+        """
+        Return True if self.fabric_name exists on the controller.
+        Return False otherwise.
+        """
+        instance = FabricDetailsByName()
+        # pylint: disable=no-member
+        instance.rest_send = self.rest_send
+        instance.results = self.results
+        # pylint: enable=no-member
+        instance.refresh()
+        instance.filter = self.fabric_name
+        if instance.filtered_data is None:
+            return False
+        return True
+
     def vrf_exists_in_fabric(self):
         """
         Return True if self.vrf_name exists in self.fabric_name.
@@ -493,20 +521,6 @@ class NetworkCreate:
         self._preprocess_payload()
         self._final_verification()
 
-        if self.vrf_exists_in_fabric() is False:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"vrf {self.vrf_name} does not exist in fabric "
-            msg += f"{self.fabric_name}. Create it before calling "
-            msg += f"{self.class_name}.{method_name}"
-            raise ValueError(msg)
-
-        if self.network_id_exists_in_fabric() is True:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"networkId {self.network_id} already exists "
-            msg += f"in fabric {self.fabric_name}. Delete it before calling "
-            msg += f"{self.class_name}.{method_name}"
-            raise ValueError(msg)
-
         # TODO: Update when we add endpoint to ansible-dcnm
         path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics"
         path += f"/{self.fabric_name}/networks"
@@ -519,43 +533,6 @@ class NetworkCreate:
             self.rest_send.path = path
             self.rest_send.verb = verb
             self.rest_send.payload = self.payload
-            self.rest_send.commit()
-        except (TypeError, ValueError) as error:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"Unable to send {self.rest_send.verb} request to the controller. "
-            msg += f"Error details: {error}"
-            raise ValueError(msg) from error
-
-    def delete(self):
-        """
-        Delete a network
-        """
-        method_name = inspect.stack()[0][3]
-        if self.network_name == "":
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"Call {self.class_name}.networkName before calling "
-            msg += f"{self.class_name}.{method_name}"
-            raise ValueError(msg)
-        if self.fabric_name == "":
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"Call {self.class_name}.fabric before calling "
-            msg += f"{self.class_name}.{method_name}"
-            raise ValueError(msg)
-
-        if self.network_name_exists_in_fabric() is False:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"networkName {self.network_name} "
-            msg += f"does not exist in fabric {self.fabric_name}."
-            raise ValueError(msg)
-
-        # TODO: Update when we add endpoint to ansible-dcnm
-        path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics"
-        path += f"/{self.fabric_name}/networks/{self.network_name}"
-        verb = "DELETE"
-        # pylint: disable=no-member
-        try:
-            self.rest_send.path = path
-            self.rest_send.verb = verb
             self.rest_send.commit()
         except (TypeError, ValueError) as error:
             msg = f"{self.class_name}.{method_name}: "

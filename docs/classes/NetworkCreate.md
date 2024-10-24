@@ -1,20 +1,40 @@
-#!/usr/bin/env python3
-"""
-Name: network_create.py
-Description: Create a network
+# [NetworkCreate]
 
-NOTES:
+## Description
 
-1.  Set the following environment variables before running this script
-    (edit appropriately for your setup)
+Create a network
 
-export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible-dcnm
+[NetworCreate]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/network_create.py
 
-Optional, to enable logging:
-export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
+## Raises
 
-2. Edit the network values in the script below.
-"""
+- `ValueError`
+
+    * `rest_send` is not set prior to calling `commit`.
+    * `results` is not set prior to calling `commit`.
+    * `network_name` is not set prior to calling `commit`.
+    * `fabric_name` is not set prior to calling `commit`.
+    * `network_id` is not set prior to calling `commit`.
+    * `vlan_id` is not set prior to calling `commit`.
+    * `vrf_name` is not set prior to calling `commit`.
+    * `fabric_name` does not exist on the controller.
+    * `vrf_name` does not exist in fabric `fabric_name`.
+    * `network_name` already exists in fabric `fabric_name`.
+    * An error occurred when sending the `POST` request to the controller.
+
+## Properties
+
+`fabric_name`
+
+: The name of the fabric containing the network to be created.
+
+`network_name`
+
+: The network to create.
+
+## Example script
+
+```py title="Example Script"
 import argparse
 import logging
 import sys
@@ -71,7 +91,6 @@ try:
 except ValueError as error:
     msg = f"Exiting.  Error detail: {error}"
     log.error(msg)
-    print(msg)
     sys.exit(1)
 
 try:
@@ -111,3 +130,4 @@ except ValueError as error:
 msg = f"Network {config.get('network_name')} "
 msg += f"created in fabric {config.get('fabric_name')}"
 print(msg)
+```
