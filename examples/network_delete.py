@@ -107,4 +107,6 @@ except ValueError as error:
     print(msg)
     sys.exit(1)
 
-print(f"Network {config.get('network_name')} deleted from fabric {config.get('fabric_name')}")
+msg = f"Network {config.get('network_name')} "
+msg += f"deleted from fabric {config.get('fabric_name')}"
+print(msg)
