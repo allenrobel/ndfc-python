@@ -1,6 +1,7 @@
 # [Log]
 
 ## Description
+
 Create the base ndfc_python logging object
 
 [Log]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/log_v2.py

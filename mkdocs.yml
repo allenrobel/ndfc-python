@@ -68,13 +68,13 @@ nav:
   - Home: index.md
   - About: about.md
   - Setup:
-    - Clone the repositories: setup/clone-the-repositories.md
-    - Update your PYTHONPATH: setup/update-your-pythonpath.md
-    - Enable logging: setup/enable-logging.md
-    - Running the example scripts: setup/running-the-example-scripts.md
-    - Using Ansible Vault: setup/using-ansible-vault.md
+      - Clone the repositories: setup/clone-the-repositories.md
+      - Update your PYTHONPATH: setup/update-your-pythonpath.md
+      - Enable logging: setup/enable-logging.md
+      - Running the example scripts: setup/running-the-example-scripts.md
+      - Using Ansible Vault: setup/using-ansible-vault.md
   - Scripts: scripts.md
   - Classes:
-    - Overview: classes/overview.md
-    - Log: classes/Log.md
-    - NetworkDelete: classes/NetworkDelete.md
+      - Overview: classes/overview.md
+      - Log: classes/Log.md
+      - NetworkDelete: classes/NetworkDelete.md
