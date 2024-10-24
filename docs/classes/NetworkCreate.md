@@ -4,7 +4,7 @@
 
 Create a network
 
-[NetworCreate]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/network_create.py
+[NetworkCreate]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/network_create.py
 
 ## Raises
 

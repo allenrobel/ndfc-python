@@ -59,6 +59,7 @@ def setup_parser() -> argparse.Namespace:
     )
     return parser.parse_args()
 
+
 args = setup_parser()
 NdfcPythonLogger()
 log = logging.getLogger("ndfc_python.main")
