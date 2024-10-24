@@ -89,6 +89,7 @@ try:
 except ValueError as error:
     msg = f"Exiting.  Error detail: {error}"
     log.error(msg)
+    print(msg)
     sys.exit(1)
 
 try:
@@ -99,7 +100,8 @@ try:
 except ValueError as error:
     msg = f"Exiting: Error detail: {error}"
     log.error(msg)
-    sys.exit()
+    print(msg)
+    sys.exit(1)
 
 rest_send = RestSend({})
 rest_send.sender = ndfc_sender.sender
@@ -113,7 +115,13 @@ try:
     instance.network_name = config.get("network_name")
     instance.commit()
 except ValueError as error:
-    msg = "Error creating network. "
+    msg = "Error deleting network. "
     msg += f"Error detail: {error}"
     log.error(msg)
+    print(msg)
+    sys.exit(1)
+
+msg = f"Network {config.get('network_name')} "
+msg += f"deleted from fabric {config.get('fabric_name')}"
+print(msg)
 ```
