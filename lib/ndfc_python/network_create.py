@@ -2,7 +2,8 @@
 Name: network_create.py
 Description:
 
-Create / delete networks
+Create networks
+
 The JSON payload constructed by this class is shown below.
 
 network = {

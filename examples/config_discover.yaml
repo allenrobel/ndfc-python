@@ -1,3 +1,4 @@
+---
 config:
   discover_password: MySwitchPassword
   discover_username: admin
