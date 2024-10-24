@@ -2,7 +2,7 @@
 
 ## Description
 
-Creates a network.
+Create a network.
 
 ## Usage
 
