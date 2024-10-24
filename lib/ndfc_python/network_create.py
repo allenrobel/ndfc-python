@@ -17,7 +17,6 @@ network = {
         'dhcpServerAddr1': '',
         'dhcpServerAddr2': '',
         'dhcpServerAddr3': '',
-        'enableIR': False,
         'enableL3OnBorder': True,
         'gatewayIpAddress': '10.1.1.1/24',
         'gatewayIpV6Address': '',
@@ -172,7 +171,6 @@ class NetworkCreate:
         self._template_config_set.add("dhcpServerAddr1")
         self._template_config_set.add("dhcpServerAddr2")
         self._template_config_set.add("dhcpServerAddr3")
-        self._template_config_set.add("enableIR")
         self._template_config_set.add("enableL3OnBorder")
         self._template_config_set.add("gatewayIpAddress")
         self._template_config_set.add("gatewayIpV6Address")
@@ -205,7 +203,6 @@ class NetworkCreate:
         for which the caller does not need to provide a value
         unless they want to change them.
         """
-        self._template_config_default["enableIR"] = True
         self._template_config_default["enableL3OnBorder"] = False
         self._template_config_default["isLayer2Only"] = False
         self._template_config_default["mtu"] = 9216
@@ -289,7 +286,6 @@ class NetworkCreate:
         self._template_config_mapping_dict["dhcpServerAddr1"] = "dhcp_server_addr_1"
         self._template_config_mapping_dict["dhcpServerAddr2"] = "dhcp_server_addr_2"
         self._template_config_mapping_dict["dhcpServerAddr3"] = "dhcp_server_addr_3"
-        self._template_config_mapping_dict["enableIR"] = "enable_ir"
         self._template_config_mapping_dict["enableL3OnBorder"] = "enable_l3_on_border"
         self._template_config_mapping_dict["gatewayIpAddress"] = "gateway_ip_address"
         self._template_config_mapping_dict[
@@ -673,24 +669,6 @@ class NetworkCreate:
     @dhcp_server_addr_3.setter
     def dhcp_server_addr_3(self, param):
         self.template_config["dhcpServerAddr3"] = param
-
-    @property
-    def enable_ir(self):
-        """
-        return the current template_config value of enable_ir
-        """
-        return self.template_config["enableIR"]
-
-    @enable_ir.setter
-    def enable_ir(self, param):
-        method_name = inspect.stack()[0][3]
-        try:
-            self.validations.verify_boolean(param)
-        except TypeError as error:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"Error detail: {error}"
-            raise ValueError(msg) from error
-        self.template_config["enableIR"] = param
 
     @property
     def enable_l3_on_border(self):
