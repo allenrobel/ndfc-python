@@ -24,13 +24,65 @@ Create a network
 
 ## Properties
 
-`fabric_name`
+### Mandatory
 
-: The name of the fabric containing the network to be created.
+#### fabric_name
 
-`network_name`
+The name of the fabric containing the network to be created.
 
-: The network to create.
+- default: None
+- example: MyFabric
+- type: str
+
+#### network_id
+
+The ID the controller should assign to `network_name`.
+
+- default: None
+- example: 30000
+- type: int
+
+#### network_name
+
+The name of the network to create.
+
+- default: None
+- example: MyNet
+- type: str
+
+#### vrf_name
+
+The VRF associated with `network_name`.
+
+- default: None
+- example: MyVrf
+- type: str
+
+### Optional
+
+#### dhcp_server_addr_1
+
+The first DHCP server associated with `network_name`.
+
+- default: None
+- example: 10.1.1.2
+- type: str
+
+#### dhcp_server_addr_2
+
+The second DHCP server associated with `network_name`.
+
+- default: None
+- example: 10.1.1.3
+- type: str
+
+#### dhcp_server_addr_3
+
+The third DHCP server associated with `network_name`.
+
+- default: None
+- example: 10.1.1.4
+- type: str
 
 ## Example script
 

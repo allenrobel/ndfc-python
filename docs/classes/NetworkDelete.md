@@ -14,18 +14,33 @@ Delete a network
     * `results` is not set prior to calling `commit`.
     * `network_name` is not set prior to calling `commit`.
     * `fabric_name` is not set prior to calling `commit`.
-    * Network `network_name` does not exist in fabric `fabric_name`.
+    * `fabric_name` does not exist on the controller.
+    * `network_name` does not exist in fabric `fabric_name`.
     * An error occurred when sending the `DELETE` request to the controller.
 
 ## Properties
 
-`fabric_name`
+### Mandatory
 
-: The name of the fabric containing the network to be deleted.
+#### fabric_name
 
-`network_name`
+The name of the fabric containing the network to be deleted.
 
-: The network to delete.
+- default: None
+- example: MyFabric
+- type: str
+
+#### network_name
+
+The name of the network to delete.
+
+- default: None
+- example: MyNet
+- type: str
+
+### Optional
+
+None
 
 ## Example script
 
