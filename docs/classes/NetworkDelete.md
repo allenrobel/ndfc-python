@@ -1,6 +1,7 @@
 # [NetworkDelete]
 
 ## Description
+
 Delete a network
 
 [NetworkDelete]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/network_delete.py
