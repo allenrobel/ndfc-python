@@ -12,7 +12,7 @@ Returns switch information.
 
 ## Example Config File
 
-``` yaml
+``` yaml title="config_device_info.yaml"
 ---
 config:
   switch_ip4: 10.1.1.1
