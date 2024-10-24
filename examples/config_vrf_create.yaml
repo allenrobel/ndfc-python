@@ -1,3 +1,4 @@
+---
 config:
   fabric_name: MyFabric
   vrf_display_name: MyVrf

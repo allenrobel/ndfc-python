@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Name: example_ndfc_network_create.py
-Description: Create an NDFC network
+Name: network_create.py
+Description: Create a network
 
 NOTES:
 
@@ -85,6 +85,7 @@ try:
 except ValueError as error:
     msg = f"Exiting: Error detail: {error}"
     log.error(msg)
+    print(msg)
     sys.exit()
 
 rest_send = RestSend({})
@@ -107,3 +108,7 @@ except ValueError as error:
     msg = "Error creating network. "
     msg += f"Error detail: {error}"
     log.error(msg)
+    print(msg)
+    sys.exit(1)
+
+print(f"Network {config.get('network_name')} created in fabric {config.get('fabric_name')}")

@@ -73,7 +73,9 @@ nav:
       - Enable logging: setup/enable-logging.md
       - Running the example scripts: setup/running-the-example-scripts.md
       - Using Ansible Vault: setup/using-ansible-vault.md
-  - Scripts: scripts.md
+  - Scripts:
+      - device_info.py: scripts/device_info.md
+      - network_create.py: scripts/network_create.md
   - Classes:
       - Overview: classes/overview.md
       - Log: classes/Log.md

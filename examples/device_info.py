@@ -79,6 +79,7 @@ try:
 except ValueError as error:
     msg = f"Exiting.  Error detail: {error}"
     log.error(msg)
+    print(msg)
     sys.exit(1)
 
 try:
@@ -89,6 +90,7 @@ try:
 except ValueError as error:
     msg = f"Exiting: Error detail: {error}"
     log.error(msg)
+    print(msg)
     sys.exit()
 
 rest_send = RestSend({})
@@ -104,6 +106,7 @@ except ValueError as error:
     msg = "Unable to get switch details. "
     msg += f"Error details: {error}"
     log.error(msg)
+    print(msg)
     sys.exit(1)
 
 instance.filter = config.get("switch_ip4")
@@ -117,3 +120,4 @@ except ValueError as error:
     msg = "Unable to get switch details. "
     msg += f"Error details: {error}"
     log.error(msg)
+    print(msg)
