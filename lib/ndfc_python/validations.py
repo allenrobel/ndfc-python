@@ -2,6 +2,7 @@
 Name: validations.py
 Description: Validation methods for libraries in this repository
 """
+
 import ipaddress
 import re
 
@@ -61,7 +62,7 @@ class Validations:
 
         self.min_igmp_version = 1
         self.max_igmp_version = 3
-        self.valid_igmp_versions = [1,2,3]
+        self.valid_igmp_versions = [1, 2, 3]
 
         self.min_loopback_id = 1
         self.max_loopback_id = 1023
