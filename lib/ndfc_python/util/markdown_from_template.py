@@ -138,10 +138,10 @@ class MarkdownFromTemplate:
                 mapped_key = key
             markdown += f"#### {mapped_key}"
             markdown += "\n\n"
-            markdown += f"{value.get("description", "No description provided.")[0]}\n\n"
-            markdown += f"- default: {value.get("default", "None")}\n"
+            markdown += f"{value.get('description', 'No description provided.')[0]}\n\n"
+            markdown += f"- default: {value.get('default', 'None')}\n"
             markdown += "- example: NA\n"
-            markdown += f"- type: {value.get("type", "None")}\n"
+            markdown += f"- type: {value.get('type', 'None')}\n"
             markdown += "\n"
 
         try:

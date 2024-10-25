@@ -145,7 +145,7 @@ Comma-separated list of IPv6/Prefix.
 #### igmp_version
 
 If set to non-default value (1 or 3), the `ip igmp version` command is
-generated on NX-OS and IOS XE devices in `network_name`.
+generated on NX-OS and IOS-XE devices in `network_name`.
 
 See note below for NX-OS.
 
@@ -254,7 +254,6 @@ template.
 - example: 192.0.2.1/24
 - type: str
 
-
 #### secondary_gw_2
 
 Set's the value of `secondaryGW2` in the `Default_Network_Universal`
@@ -264,7 +263,6 @@ template.
 - example: 192.0.2.2/24
 - type: str
 
-
 #### secondary_gw_3
 
 Set's the value of `secondaryGW3` in the `Default_Network_Universal`
@@ -273,7 +271,6 @@ template.
 - default: ""
 - example: 192.0.2.3/24
 - type: str
-
 
 #### secondary_gw_4
 
@@ -313,7 +310,7 @@ template.
 
 Applicable only if `is_layer2_only` is False and `enable_netflow` is True.
 Value must be a monitor name defined in fabric setting for Layer 3 Record.
-For NX-OS only. 
+For NX-OS only.
 
 - default: ""
 - example: NA
@@ -343,7 +340,6 @@ If True, enable IPv4 Tenant Routed Multicast.
 - example: True
 - type: bool
 
-
 #### trm_v6_enabled
 
 Set's the value of `trmV6Enabled` in the `Default_Network_Universal`
@@ -370,7 +366,7 @@ Set's the value of `vlanName` in the `Default_Network_Universal`
 template.
 
 If greater than 32 chars, enable `system vlan long-name` for NX-OS.
-Disable `VTPv1` and `VTPv2` or switch to `VTPv3` for IOS XE.
+Disable `VTPv1` and `VTPv2` or switch to `VTPv3` for IOS-XE.
 
 - default: ""
 - example: MyVlan
