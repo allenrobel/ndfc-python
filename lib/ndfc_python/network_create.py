@@ -275,7 +275,7 @@ class NetworkCreate:
         """
         self._payload_mapping_dict = {}
         self._payload_mapping_dict["displayName"] = "display_name"
-        self._payload_mapping_dict["fabric"] = "fabric"
+        self._payload_mapping_dict["fabric"] = "fabric_name"
         self._payload_mapping_dict[
             "networkExtensionTemplate"
         ] = "network_extension_template"
