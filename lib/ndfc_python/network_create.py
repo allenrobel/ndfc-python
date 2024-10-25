@@ -286,7 +286,7 @@ class NetworkCreate:
             "serviceNetworkTemplate"
         ] = "service_network_template"
         self._payload_mapping_dict["source"] = "source"
-        self._payload_mapping_dict["vrf"] = "vrf"
+        self._payload_mapping_dict["vrf"] = "vrf_name"
 
     def _init_template_config_mapping_dict(self):
         """
@@ -328,6 +328,7 @@ class NetworkCreate:
         self._template_config_mapping_dict[
             "VLAN_NETFLOW_MONITOR"
         ] = "vlan_netflow_monitor"
+        self._template_config_mapping_dict["vrf"] = "vrf_name"
         self._template_config_mapping_dict["vrfDhcp"] = "vrf_dhcp"
         self._template_config_mapping_dict["vrfDhcp2"] = "vrf_dhcp_2"
         self._template_config_mapping_dict["vrfDhcp3"] = "vrf_dhcp_3"
@@ -384,7 +385,7 @@ class NetworkCreate:
         # pylint: enable=no-member
 
         for param in self._payload_set_mandatory:
-            if self.payload[param] == "":
+            if self.payload.get(param) == "" or self.payload.get(param) is None:
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"Call {self.class_name}."
                 msg += f"{self._map_payload_param(param)} "
