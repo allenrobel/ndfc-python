@@ -1,6 +1,7 @@
 # Clone the repositories
 
 We'll need to clone two repositories.
+
 - ndfc-python
 - ansible-dcnm
 
