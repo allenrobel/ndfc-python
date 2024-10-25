@@ -153,6 +153,7 @@ class NetworkCreate:
         set of all mandatory payload keys
         """
         self._payload_set_mandatory.add("fabric")
+        self._payload_set_mandatory.add("networkName")
         self._payload_set_mandatory.add("networkId")
         self._payload_set_mandatory.add("vrf")
 
