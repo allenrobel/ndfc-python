@@ -17,10 +17,11 @@ network = {
         'dhcpServerAddr1': '',
         'dhcpServerAddr2': '',
         'dhcpServerAddr3': '',
-        'enableIR': False,
         'enableL3OnBorder': True,
+        'enableL3OnBorderVpcBgw': False,
         'gatewayIpAddress': '10.1.1.1/24',
         'gatewayIpV6Address': '',
+        'igmpVersion': '2',
         'intfDescription': '',
         'isLayer2Only': False,
         'loopbackId': '',
@@ -37,8 +38,10 @@ network = {
         'suppressArp': True,
         'tag': '12345',
         'trmEnabled': False,
+        'trmV6Enabled': False,
         'vlanId': '',
         'vlanName': '',
+        'VLAN_NETFLOW_MONITOR': '',
         'vrfDhcp': '',
         'vrfDhcp2': '',
         'vrfDhcp3': '',
@@ -172,8 +175,8 @@ class NetworkCreate:
         self._template_config_set.add("dhcpServerAddr1")
         self._template_config_set.add("dhcpServerAddr2")
         self._template_config_set.add("dhcpServerAddr3")
-        self._template_config_set.add("enableIR")
         self._template_config_set.add("enableL3OnBorder")
+        self._template_config_set.add("enableL3OnBorderVpcBgw")
         self._template_config_set.add("gatewayIpAddress")
         self._template_config_set.add("gatewayIpV6Address")
         self._template_config_set.add("intfDescription")
@@ -190,10 +193,13 @@ class NetworkCreate:
         self._template_config_set.add("secondaryGW4")
         self._template_config_set.add("segmentId")
         self._template_config_set.add("suppressArp")
+        self._template_config_set.add("SVI_NETFLOW_MONITOR")
         self._template_config_set.add("tag")
         self._template_config_set.add("trmEnabled")
+        self._template_config_set.add("trmV6Enabled")
         self._template_config_set.add("vlanId")
         self._template_config_set.add("vlanName")
+        self._template_config_set.add("VLAN_NETFLOW_MONITOR")
         self._template_config_set.add("vrfDhcp")
         self._template_config_set.add("vrfDhcp2")
         self._template_config_set.add("vrfDhcp3")
@@ -205,8 +211,8 @@ class NetworkCreate:
         for which the caller does not need to provide a value
         unless they want to change them.
         """
-        self._template_config_default["enableIR"] = True
         self._template_config_default["enableL3OnBorder"] = False
+        self._template_config_default["enableL3OnBorderVpcBgw"] = False
         self._template_config_default["isLayer2Only"] = False
         self._template_config_default["mtu"] = 9216
         self._template_config_default["nveId"] = 1
@@ -214,6 +220,7 @@ class NetworkCreate:
         self._template_config_default["suppressArp"] = True
         self._template_config_default["tag"] = "12345"
         self._template_config_default["trmEnabled"] = False
+        self._template_config_default["trmV6Enabled"] = False
 
     def _init_template_config_set_mandatory(self):
         """
@@ -239,7 +246,7 @@ class NetworkCreate:
     def _preprocess_payload(self):
         """
         1. Set a default value for any properties that the caller
-        has not set and that NDFC provides a default for.
+        has not set and that the controller provides a default for.
 
         2. Copy top-level property values (that need it) into their
         respective template_config properties.
@@ -289,8 +296,10 @@ class NetworkCreate:
         self._template_config_mapping_dict["dhcpServerAddr1"] = "dhcp_server_addr_1"
         self._template_config_mapping_dict["dhcpServerAddr2"] = "dhcp_server_addr_2"
         self._template_config_mapping_dict["dhcpServerAddr3"] = "dhcp_server_addr_3"
-        self._template_config_mapping_dict["enableIR"] = "enable_ir"
         self._template_config_mapping_dict["enableL3OnBorder"] = "enable_l3_on_border"
+        self._template_config_mapping_dict[
+            "enableL3OnBorderVpcBgw"
+        ] = "enable_l3_on_border_vpc_bgw"
         self._template_config_mapping_dict["gatewayIpAddress"] = "gateway_ip_address"
         self._template_config_mapping_dict[
             "gatewayIpV6Address"
@@ -308,22 +317,28 @@ class NetworkCreate:
         self._template_config_mapping_dict["secondaryGW4"] = "secondary_gw_4"
         self._template_config_mapping_dict["segmentId"] = "segment_id"
         self._template_config_mapping_dict["suppressArp"] = "suppress_arp"
+        self._template_config_mapping_dict[
+            "SVI_NETFLOW_MONITOR"
+        ] = "svi_netflow_monitor"
         self._template_config_mapping_dict["tag"] = "tag"
         self._template_config_mapping_dict["trmEnabled"] = "trm_enabled"
+        self._template_config_mapping_dict["trmV6Enabled"] = "trm_v6_enabled"
         self._template_config_mapping_dict["vlanId"] = "vlan_id"
+        self._template_config_mapping_dict["vlanName"] = "vlan_name"
+        self._template_config_mapping_dict[
+            "VLAN_NETFLOW_MONITOR"
+        ] = "vlan_netflow_monitor"
         self._template_config_mapping_dict["vrfDhcp"] = "vrf_dhcp"
         self._template_config_mapping_dict["vrfDhcp2"] = "vrf_dhcp_2"
         self._template_config_mapping_dict["vrfDhcp3"] = "vrf_dhcp_3"
 
     def _map_payload_param(self, param):
         """
-        Because payload keys are camel case, and pylint does
-        not like camel case, we modified the corresponding
-        properties to be snake case.  This method maps the
-        camel case keys to their corresponding properties. It
-        is used in _final_verification to provide the user with
-        the correct property to call if there's a missing mandatory
-        payload property.
+        Because payload keys are camel case, and pylint does not like camel
+        case, we modified the corresponding properties to be snake case.  This
+        method maps the camel case keys to their corresponding properties. It
+        is used in _final_verification to provide the user with the correct
+        property to call if there's a missing mandatory payload property.
         """
         method_name = inspect.stack()[0][3]
         if param not in self._payload_mapping_dict:
@@ -335,13 +350,11 @@ class NetworkCreate:
 
     def _map_template_config_param(self, param):
         """
-        Because template_config keys are camel case, and pylint does
-        not like camel case, we modified the corresponding
-        properties to be snake case.  This method maps the
-        camel case keys to their corresponding properties. It
-        is used in _final_verification to provide the user with
-        the correct property to call if there's a missing mandatory
-        template_config property.
+        Because template_config keys are camel case, and pylint does not like camel
+        case, we modified the corresponding properties to be snake case.  This
+        method maps the camel case keys to their corresponding properties. It
+        is used in _final_verification to provide the user with the correct
+        property to call if there's a missing mandatory template_config property.
         """
         method_name = inspect.stack()[0][3]
         if param not in self._template_config_mapping_dict:
@@ -526,8 +539,7 @@ class NetworkCreate:
         path += f"/{self.fabric_name}/networks"
         verb = "POST"
 
-        value = json.dumps(self.template_config)
-        self.payload["networkTemplateConfig"] = value
+        self.payload["networkTemplateConfig"] = json.dumps(self.template_config)
         # pylint: disable=no-member
         try:
             self.rest_send.path = path
@@ -540,7 +552,7 @@ class NetworkCreate:
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
 
-    # top_level properties
+    # top_level payload properties
     @property
     def display_name(self):
         """
@@ -549,8 +561,8 @@ class NetworkCreate:
         return self.payload["displayName"]
 
     @display_name.setter
-    def display_name(self, param):
-        self.payload["displayName"] = param
+    def display_name(self, value):
+        self.payload["displayName"] = value
 
     @property
     def fabric_name(self):
@@ -560,8 +572,8 @@ class NetworkCreate:
         return self.payload["fabric"]
 
     @fabric_name.setter
-    def fabric_name(self, param):
-        self.payload["fabric"] = param
+    def fabric_name(self, value):
+        self.payload["fabric"] = value
 
     @property
     def network_extension_template(self):
@@ -571,52 +583,52 @@ class NetworkCreate:
         return self.payload["networkExtensionTemplate"]
 
     @network_extension_template.setter
-    def network_extension_template(self, param):
-        self.payload["networkExtensionTemplate"] = param
+    def network_extension_template(self, value):
+        self.payload["networkExtensionTemplate"] = value
 
     @property
     def network_id(self):
         """
-        return the current payload value of network_id
+        return the current payload value of networkId
         """
         return self.payload["networkId"]
 
     @network_id.setter
-    def network_id(self, param):
-        self.payload["networkId"] = param
+    def network_id(self, value):
+        self.payload["networkId"] = value
 
     @property
     def network_name(self):
         """
-        return the current payload value of network_name
+        return the current payload value of networkName
         """
         return self.payload["networkName"]
 
     @network_name.setter
-    def network_name(self, param):
-        self.payload["networkName"] = param
+    def network_name(self, value):
+        self.payload["networkName"] = value
 
     @property
     def network_template(self):
         """
-        return the current payload value of network_template
+        return the current payload value of networkTemplate
         """
         return self.payload["networkTemplate"]
 
     @network_template.setter
-    def network_template(self, param):
-        self.payload["networkTemplate"] = param
+    def network_template(self, value):
+        self.payload["networkTemplate"] = value
 
     @property
     def service_network_template(self):
         """
-        return the current payload value of service_network_template
+        return the current payload value of serviceNetworkTemplate
         """
         return self.payload["serviceNetworkTemplate"]
 
     @service_network_template.setter
-    def service_network_template(self, param):
-        self.payload["serviceNetworkTemplate"] = param
+    def service_network_template(self, value):
+        self.payload["serviceNetworkTemplate"] = value
 
     @property
     def source(self):
@@ -626,8 +638,8 @@ class NetworkCreate:
         return self.payload["source"]
 
     @source.setter
-    def source(self, param):
-        self.payload["source"] = param
+    def source(self, value):
+        self.payload["source"] = value
 
     @property
     def vrf_name(self):
@@ -644,166 +656,187 @@ class NetworkCreate:
     @property
     def dhcp_server_addr_1(self):
         """
-        return the current template_config value of dhcp_server_addr_1
+        return the current template_config value of dhcpServerAddr1
         """
         return self.template_config["dhcpServerAddr1"]
 
     @dhcp_server_addr_1.setter
-    def dhcp_server_addr_1(self, param):
-        self.template_config["dhcpServerAddr1"] = param
+    def dhcp_server_addr_1(self, value):
+        self.template_config["dhcpServerAddr1"] = value
 
     @property
     def dhcp_server_addr_2(self):
         """
-        return the current template_config value of dhcp_server_addr_2
+        return the current template_config value of dhcpServerAddr2
         """
         return self.template_config["dhcpServerAddr2"]
 
     @dhcp_server_addr_2.setter
-    def dhcp_server_addr_2(self, param):
-        self.template_config["dhcpServerAddr2"] = param
+    def dhcp_server_addr_2(self, value):
+        self.template_config["dhcpServerAddr2"] = value
 
     @property
     def dhcp_server_addr_3(self):
         """
-        return the current template_config value of dhcp_server_addr_3
+        return the current template_config value of dhcpServerAddr3
         """
         return self.template_config["dhcpServerAddr3"]
 
     @dhcp_server_addr_3.setter
-    def dhcp_server_addr_3(self, param):
-        self.template_config["dhcpServerAddr3"] = param
-
-    @property
-    def enable_ir(self):
-        """
-        return the current template_config value of enable_ir
-        """
-        return self.template_config["enableIR"]
-
-    @enable_ir.setter
-    def enable_ir(self, param):
-        method_name = inspect.stack()[0][3]
-        try:
-            self.validations.verify_boolean(param)
-        except TypeError as error:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"Error detail: {error}"
-            raise ValueError(msg) from error
-        self.template_config["enableIR"] = param
+    def dhcp_server_addr_3(self, value):
+        self.template_config["dhcpServerAddr3"] = value
 
     @property
     def enable_l3_on_border(self):
         """
-        return the current template_config value of enable_l3_on_border
+        return the current template_config value of enableL3OnBorder
         """
         return self.template_config["enableL3OnBorder"]
 
     @enable_l3_on_border.setter
-    def enable_l3_on_border(self, param):
+    def enable_l3_on_border(self, value):
         method_name = inspect.stack()[0][3]
         try:
-            self.validations.verify_boolean(param)
+            self.validations.verify_boolean(value)
         except TypeError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
-        self.template_config["enableL3OnBorder"] = param
+        self.template_config["enableL3OnBorder"] = value
+
+    @property
+    def enable_l3_on_border_vpc_bgw(self):
+        """
+        return the current template_config value of enableL3OnBorderVpcBgw
+        """
+        return self.template_config["enableL3OnBorderVpcBgw"]
+
+    @enable_l3_on_border_vpc_bgw.setter
+    def enable_l3_on_border_vpc_bgw(self, value):
+        method_name = inspect.stack()[0][3]
+        try:
+            self.validations.verify_boolean(value)
+        except TypeError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Error detail: {error}"
+            raise ValueError(msg) from error
+        self.template_config["enableL3OnBorderVpcBgw"] = value
 
     @property
     def gateway_ip_address(self):
         """
-        return the current template_config value of gateway_ip_address
+        return the current template_config value of gatewayIpAddress
         """
         return self.template_config["gatewayIpAddress"]
 
     @gateway_ip_address.setter
-    def gateway_ip_address(self, param):
+    def gateway_ip_address(self, value):
         method_name = inspect.stack()[0][3]
         try:
-            self.validations.verify_ipv4_address_with_prefix(param)
+            self.validations.verify_ipv4_address_with_prefix(value)
         except AddressValueError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
-        self.template_config["gatewayIpAddress"] = param
+        self.template_config["gatewayIpAddress"] = value
 
     @property
     def gateway_ipv6_address(self):
         """
-        return the current template_config value of gateway_ipv6_address
+        return the current template_config value of gatewayIpV6Address
+
+        Comma-separated list of IPv6/Prefix.
+
+        Example: 2001:db8::1/64,2001:db9::1/64
         """
         return self.template_config["gatewayIpV6Address"]
 
     @gateway_ipv6_address.setter
-    def gateway_ipv6_address(self, param):
+    def gateway_ipv6_address(self, value):
         method_name = inspect.stack()[0][3]
         try:
-            self.validations.verify_ipv6_address_with_prefix(param)
+            self.validations.verify_ipv6_address_with_prefix(value)
         except AddressValueError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
-        self.template_config["gatewayIpV6Address"] = param
+        self.template_config["gatewayIpV6Address"] = value
+
+    @property
+    def igmp_version(self):
+        """
+        return the current template_config value of igmpVersion
+        """
+        return self.template_config["igmpVersion"]
+
+    @igmp_version.setter
+    def igmp_version(self, value):
+        method_name = inspect.stack()[0][3]
+        if value not in self.validations.valid_igmp_versions:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "Invalid igmp_version.  Expected one of "
+            msg += f"{','.join(self.validations.valid_igmp_versions)}"
+            raise ValueError(msg)
+        self.template_config["igmpVersion"] = value
 
     @property
     def intf_description(self):
         """
-        return the current template_config value of intf_description
+        return the current template_config value of intfDescription
         """
         return self.template_config["intfDescription"]
 
     @intf_description.setter
-    def intf_description(self, param):
-        self.template_config["intfDescription"] = param
+    def intf_description(self, value):
+        self.template_config["intfDescription"] = value
 
     @property
     def is_layer2_only(self):
         """
-        return the current template_config value of is_layer2_only
+        return the current template_config value of isLayer2Only
         """
         return self.template_config["isLayer2Only"]
 
     @is_layer2_only.setter
-    def is_layer2_only(self, param):
+    def is_layer2_only(self, value):
         method_name = inspect.stack()[0][3]
         try:
-            self.validations.verify_boolean(param)
+            self.validations.verify_boolean(value)
         except TypeError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
-        self.template_config["isLayer2Only"] = param
+        self.template_config["isLayer2Only"] = value
 
     @property
     def loopback_id(self):
         """
-        return the current template_config value of loopback_id
+        return the current template_config value of loopbackId
         """
         return self.template_config["loopbackId"]
 
     @loopback_id.setter
-    def loopback_id(self, param):
-        self.validations.verify_loopback_id(param)
-        self.template_config["loopbackId"] = param
+    def loopback_id(self, value):
+        self.validations.verify_loopback_id(value)
+        self.template_config["loopbackId"] = value
 
     @property
     def mcast_group(self):
         """
-        return the current template_config value of mcast_group
+        return the current template_config value of mcastGroup
         """
         return self.template_config["mcastGroup"]
 
     @mcast_group.setter
-    def mcast_group(self, param):
+    def mcast_group(self, value):
         method_name = inspect.stack()[0][3]
         try:
-            self.validations.verify_ipv4_multicast_address(param)
+            self.validations.verify_ipv4_multicast_address(value)
         except AddressValueError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
-        self.template_config["mcastGroup"] = param
+        self.template_config["mcastGroup"] = value
 
     @property
     def mtu(self):
@@ -813,15 +846,15 @@ class NetworkCreate:
         return self.template_config["mtu"]
 
     @mtu.setter
-    def mtu(self, param):
+    def mtu(self, value):
         method_name = inspect.stack()[0][3]
         try:
-            self.validations.verify_mtu(param)
+            self.validations.verify_mtu(value)
         except ValueError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
-        self.template_config["mtu"] = param
+        self.template_config["mtu"] = value
 
     # networkName (see property for self.payload['networkName])
     # We populate self.template_config['networkName'] from the value
@@ -830,140 +863,151 @@ class NetworkCreate:
     @property
     def nve_id(self):
         """
-        return the current template_config value of nve_id
+        return the current template_config value of nveId
         """
         return self.template_config["nveId"]
 
     @nve_id.setter
-    def nve_id(self, param):
+    def nve_id(self, value):
         method_name = inspect.stack()[0][3]
         try:
-            self.validations.verify_nve_id(param)
+            self.validations.verify_nve_id(value)
         except ValueError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
-        self.template_config["nveId"] = param
+        self.template_config["nveId"] = value
 
     @property
     def rt_both_auto(self):
         """
-        return the current template_config value of rt_both_auto
+        return the current template_config value of rtBothAuto
         """
         return self.template_config["rtBothAuto"]
 
     @rt_both_auto.setter
-    def rt_both_auto(self, param):
+    def rt_both_auto(self, value):
         method_name = inspect.stack()[0][3]
         try:
-            self.validations.verify_boolean(param)
+            self.validations.verify_boolean(value)
         except TypeError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
-        self.template_config["rtBothAuto"] = param
+        self.template_config["rtBothAuto"] = value
 
     @property
     def secondary_gw_1(self):
         """
-        return the current template_config value of secondary_gw_1
+        return the current template_config value of secondaryGW1
         """
         return self.template_config["secondaryGW1"]
 
     @secondary_gw_1.setter
-    def secondary_gw_1(self, param):
+    def secondary_gw_1(self, value):
         method_name = inspect.stack()[0][3]
         try:
-            self.validations.verify_ipv4_address_with_prefix(param)
+            self.validations.verify_ipv4_address_with_prefix(value)
         except AddressValueError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
-        self.template_config["secondaryGW1"] = param
+        self.template_config["secondaryGW1"] = value
 
     @property
     def secondary_gw_2(self):
         """
-        return the current template_config value of secondary_gw_2
+        return the current template_config value of secondaryGW2
         """
         return self.template_config["secondaryGW2"]
 
     @secondary_gw_2.setter
-    def secondary_gw_2(self, param):
+    def secondary_gw_2(self, value):
         method_name = inspect.stack()[0][3]
         try:
-            self.validations.verify_ipv4_address_with_prefix(param)
+            self.validations.verify_ipv4_address_with_prefix(value)
         except AddressValueError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
-        self.template_config["secondaryGW2"] = param
+        self.template_config["secondaryGW2"] = value
 
     @property
     def secondary_gw_3(self):
         """
-        return the current template_config value of secondary_gw_3
+        return the current template_config value of secondaryGW3
         """
         return self.template_config["secondaryGW3"]
 
     @secondary_gw_3.setter
-    def secondary_gw_3(self, param):
+    def secondary_gw_3(self, value):
         method_name = inspect.stack()[0][3]
         try:
-            self.validations.verify_ipv4_address_with_prefix(param)
+            self.validations.verify_ipv4_address_with_prefix(value)
         except AddressValueError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
-        self.template_config["secondaryGW3"] = param
+        self.template_config["secondaryGW3"] = value
 
     @property
     def secondary_gw_4(self):
         """
-        return the current template_config value of secondary_gw_4
+        return the current template_config value of secondaryGW4
         """
         return self.template_config["secondaryGW4"]
 
     @secondary_gw_4.setter
-    def secondary_gw_4(self, param):
+    def secondary_gw_4(self, value):
         method_name = inspect.stack()[0][3]
         try:
-            self.validations.verify_ipv4_address_with_prefix(param)
+            self.validations.verify_ipv4_address_with_prefix(value)
         except AddressValueError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
-        self.template_config["secondaryGW4"] = param
+        self.template_config["secondaryGW4"] = value
 
     @property
     def segment_id(self):
         """
-        return the current template_config value of segment_id
+        return the current template_config value of segmentId
         """
         return self.template_config["segmentId"]
 
     @segment_id.setter
-    def segment_id(self, param):
-        self.validations.verify_vni(param)
-        self.template_config["segmentId"] = param
+    def segment_id(self, value):
+        self.validations.verify_vni(value)
+        self.template_config["segmentId"] = value
 
     @property
     def suppress_arp(self):
         """
-        return the current template_config value of suppress_arp
+        return the current template_config value of suppressArp
         """
         return self.template_config["suppressArp"]
 
     @suppress_arp.setter
-    def suppress_arp(self, param):
+    def suppress_arp(self, value):
         method_name = inspect.stack()[0][3]
         try:
-            self.validations.verify_boolean(param)
+            self.validations.verify_boolean(value)
         except TypeError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
-        self.template_config["suppressArp"] = param
+        self.template_config["suppressArp"] = value
+
+    @property
+    def svi_netflow_monitor(self):
+        """
+        return the current template_config value of SVI_NETFLOW_MONITOR
+        """
+        return self.template_config["SVI_NETFLOW_MONITOR"]
+
+    @svi_netflow_monitor.setter
+    def svi_netflow_monitor(self, value):
+        self.template_config["SVI_NETFLOW_MONITOR"] = value
 
     @property
     def tag(self):
@@ -973,69 +1017,109 @@ class NetworkCreate:
         return self.template_config["tag"]
 
     @tag.setter
-    def tag(self, param):
-        self.validations.verify_routing_tag(param)
-        self.template_config["tag"] = param
+    def tag(self, value):
+        self.validations.verify_routing_tag(value)
+        self.template_config["tag"] = value
 
     @property
     def trm_enabled(self):
         """
-        return the current template_config value of trm_enabled
+        return the current template_config value of trmEnabled
         """
         return self.template_config["trmEnabled"]
 
     @trm_enabled.setter
-    def trm_enabled(self, param):
+    def trm_enabled(self, value):
         method_name = inspect.stack()[0][3]
         try:
-            self.validations.verify_boolean(param)
+            self.validations.verify_boolean(value)
         except TypeError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
-        self.template_config["trmEnabled"] = param
+        self.template_config["trmEnabled"] = value
+
+    @property
+    def trm_v6_enabled(self):
+        """
+        return the current template_config value of trmV6Enabled
+        """
+        return self.template_config["trmV6Enabled"]
+
+    @trm_v6_enabled.setter
+    def trm_v6_enabled(self, value):
+        method_name = inspect.stack()[0][3]
+        try:
+            self.validations.verify_boolean(value)
+        except TypeError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Error detail: {error}"
+            raise ValueError(msg) from error
+        self.template_config["trmV6Enabled"] = value
 
     @property
     def vlan_id(self):
         """
-        return the current template_config value of vlan_id
+        return the current template_config value of vlanId
         """
         return self.template_config["vlanId"]
 
     @vlan_id.setter
-    def vlan_id(self, param):
-        self.validations.verify_vlan(param)
-        self.template_config["vlanId"] = param
+    def vlan_id(self, value):
+        self.validations.verify_vlan(value)
+        self.template_config["vlanId"] = value
+
+    @property
+    def vlan_name(self):
+        """
+        return the current template_config value of vlanName
+        """
+        return self.template_config["vlanName"]
+
+    @vlan_name.setter
+    def vlan_name(self, value):
+        self.template_config["vlanName"] = value
+
+    @property
+    def vlan_netflow_monitor(self):
+        """
+        return the current template_config value of VLAN_NETFLOW_MONITOR
+        """
+        return self.template_config["VLAN_NETFLOW_MONITOR"]
+
+    @vlan_netflow_monitor.setter
+    def vlan_netflow_monitor(self, value):
+        self.template_config["VLAN_NETFLOW_MONITOR"] = value
 
     @property
     def vrf_dhcp(self):
         """
-        return the current template_config value of vrf_dhcp
+        return the current template_config value of vrfDhcp
         """
         return self.template_config["vrfDhcp"]
 
     @vrf_dhcp.setter
-    def vrf_dhcp(self, param):
-        self.template_config["vrfDhcp"] = param
+    def vrf_dhcp(self, value):
+        self.template_config["vrfDhcp"] = value
 
     @property
     def vrf_dhcp_2(self):
         """
-        return the current template_config value of vrf_dhcp_2
+        return the current template_config value of vrfDhcp2
         """
         return self.template_config["vrfDhcp2"]
 
     @vrf_dhcp_2.setter
-    def vrf_dhcp_2(self, param):
-        self.template_config["vrfDhcp2"] = param
+    def vrf_dhcp_2(self, value):
+        self.template_config["vrfDhcp2"] = value
 
     @property
     def vrf_dhcp_3(self):
         """
-        return the current template_config value of vrf_dhcp_3
+        return the current template_config value of vrfDhcp3
         """
         return self.template_config["vrfDhcp3"]
 
     @vrf_dhcp_3.setter
-    def vrf_dhcp_3(self, param):
-        self.template_config["vrfDhcp3"] = param
+    def vrf_dhcp_3(self, value):
+        self.template_config["vrfDhcp3"] = value

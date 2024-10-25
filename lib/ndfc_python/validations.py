@@ -59,6 +59,10 @@ class Validations:
         self.min_vrf_vlan_id = 2
         self.max_vrf_vlan_id = 3967
 
+        self.min_igmp_version = 1
+        self.max_igmp_version = 3
+        self.valid_igmp_versions = [1,2,3]
+
         self.min_loopback_id = 1
         self.max_loopback_id = 1023
 

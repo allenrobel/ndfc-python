@@ -79,4 +79,5 @@ nav:
   - Classes:
       - Overview: classes/overview.md
       - Log: classes/Log.md
+      - NetworkCreate: classes/NetworkCreate.md
       - NetworkDelete: classes/NetworkDelete.md
