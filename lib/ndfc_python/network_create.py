@@ -1,12 +1,16 @@
 """
-Name: network_create.py
-Description:
+# Name
 
-Create networks
+network_create.py
 
-The JSON payload constructed by this class is shown below.
+# Description
 
-network = {
+Send network create POST requests to the controller
+
+# Payload Example
+
+```json
+{
     'displayName': 'MyNetwork_30000',
     'fabric': 'My_VxLAN_Fabric',
     'networkExtensionTemplate': 'Default_Network_Extension_Universal',
@@ -51,6 +55,7 @@ network = {
     'source': None,
     'vrf': 'Customer-001'
 }
+```
 """
 
 import inspect
@@ -67,40 +72,15 @@ from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 @Properties.add_results
 class NetworkCreate:
     """
+    # Summary
+
     Create networks
 
-    Example create operation:
+    ## Example network create request
 
-    from ndfc_python.log_v2 import Log
-    from ndfc_python.ndfc import NDFC
-    from ndfc_python.ndfc_credentials import NdfcCredentials
-    from ndfc_python.ndfc_device_info import NdfcDeviceInfo
+    ### See
 
-    try:
-        log = Log()
-        log.commit()
-    except ValueError as error:
-        MSG = "Error while instantiating Log(). "
-        MSG += f"Error detail: {error}"
-        print(MSG)
-        exit(1)
-
-    nc = NdfcCredentials()
-    ndfc = NDFC()
-    ndfc.domain = nc.nd_domain
-    ndfc.username = nc.username
-    ndfc.password = nc.password
-    ndfc.ip4 = nc.ndfc_ip
-    ndfc.login()
-
-    instance = NdfcNetwork()
-    instance.ndfc = ndfc
-    instance.fabric = 'foo'
-    instance.network_id = 30000
-    instance.vlan_id = 3000
-    instance.vrf = 'foo_vrf'
-    instance.create()
-
+    ./examples/network_create.py
     """
 
     def __init__(self):

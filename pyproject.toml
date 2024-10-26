@@ -13,3 +13,7 @@ profile = "black"
 extend_skip = [".md", ".json", ".yaml", ".txt"]
 skip_glob = ["docs/*"]
 use_parentheses = true
+
+[tool.pylint.main]
+disable = ["too-many-instance-attributes", "too-many-lines", "too-many-public-methods", "wrong-import-order"]
+max-line-length = 180

@@ -16,6 +16,7 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 2. Edit the network values in the script below.
 """
 import argparse
+import json
 import logging
 import sys
 
@@ -72,19 +73,21 @@ try:
     ndfc_config = ReadConfig()
     ndfc_config.filename = args.config
     ndfc_config.commit()
-    config = ndfc_config.contents["config"]
 except ValueError as error:
     msg = f"Exiting: Error detail: {error}"
     log.error(msg)
     print(msg)
-    sys.exit()
+    sys.exit(1)
 
 try:
     config = NetworkCreateConfigValidator(**ndfc_config.contents)
 except ValidationError as error:
     msg = f"{error}"
+    log.error(msg)
     print(msg)
     sys.exit(1)
+
+params = json.loads(config.model_dump_json()).get("config", {})
 
 try:
     ndfc_sender = NdfcPythonSender()
@@ -96,7 +99,6 @@ except ValueError as error:
     print(msg)
     sys.exit(1)
 
-
 rest_send = RestSend({})
 rest_send.sender = ndfc_sender.sender
 rest_send.response_handler = ResponseHandler()
@@ -105,13 +107,13 @@ try:
     instance = NetworkCreate()
     instance.rest_send = rest_send
     instance.results = Results()
-    instance.fabric_name = config.get("fabric_name")
-    instance.network_name = config.get("network_name")
-    instance.enable_ir = config.get("enable_ir")
-    instance.gateway_ip_address = config.get("gateway_ip_address")
-    instance.network_id = config.get("network_id")
-    instance.vlan_id = config.get("vlan_id")
-    instance.vrf_name = config.get("vrf_name")
+    instance.fabric_name = params.get("fabric_name")
+    instance.network_name = params.get("network_name")
+    instance.enable_ir = params.get("enable_ir")
+    instance.gateway_ip_address = params.get("gateway_ip_address")
+    instance.network_id = params.get("network_id")
+    instance.vlan_id = params.get("vlan_id")
+    instance.vrf_name = params.get("vrf_name")
     instance.commit()
 except ValueError as error:
     msg = "Error creating network. "
@@ -120,6 +122,6 @@ except ValueError as error:
     print(msg)
     sys.exit(1)
 
-msg = f"Network {config.get('network_name')} "
-msg += f"created in fabric {config.get('fabric_name')}"
+msg = f"Network {instance.network_name} with id {instance.network_id} "
+msg += f"created in fabric {instance.fabric_name}"
 print(msg)

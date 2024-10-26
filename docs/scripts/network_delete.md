@@ -25,7 +25,7 @@ config:
 
 ``` bash
 (.venv) AROBEL-M-G793% ./network_delete.py --config prod/config_network_delete.yaml
-Network MyNet deleted in fabric MyFabric
+Network MyNet deleted from fabric MyFabric
 (.venv) AROBEL-M-G793%
 ```
 

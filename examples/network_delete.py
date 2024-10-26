@@ -16,6 +16,7 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 2. Edit the network values in the script below.
 """
 import argparse
+import json
 import logging
 import sys
 
@@ -82,8 +83,11 @@ try:
     config = NetworkDeleteConfigValidator(**ndfc_config.contents)
 except ValidationError as error:
     msg = f"{error}"
+    log.error(msg)
     print(msg)
     sys.exit(1)
+
+params = json.loads(config.model_dump_json()).get("config", {})
 
 try:
     ndfc_sender = NdfcPythonSender()
@@ -95,7 +99,6 @@ except ValueError as error:
     print(msg)
     sys.exit(1)
 
-
 rest_send = RestSend({})
 rest_send.sender = ndfc_sender.sender
 rest_send.response_handler = ResponseHandler()
@@ -104,8 +107,8 @@ try:
     instance = NetworkDelete()
     instance.rest_send = rest_send
     instance.results = Results()
-    instance.fabric_name = config.get("fabric_name")
-    instance.network_name = config.get("network_name")
+    instance.fabric_name = params.get("fabric_name")
+    instance.network_name = params.get("network_name")
     instance.commit()
 except ValueError as error:
     msg = "Error deleting network. "
@@ -114,6 +117,6 @@ except ValueError as error:
     print(msg)
     sys.exit(1)
 
-msg = f"Network {config.get('network_name')} "
-msg += f"deleted from fabric {config.get('fabric_name')}"
+msg = f"Network {instance.network_name} "
+msg += f"deleted from fabric {instance.fabric_name}"
 print(msg)
