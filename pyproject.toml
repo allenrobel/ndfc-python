@@ -12,3 +12,4 @@ line_length = 180
 profile = "black"
 extend_skip = [".md", ".json", ".yaml", ".txt"]
 skip_glob = ["docs/*"]
+use_parentheses = true
