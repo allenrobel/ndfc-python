@@ -52,12 +52,12 @@ jobs:
       # Run Linter against code base #
       ################################
       - name: Lint Code Base
-        uses: github/super-linter/slim@v5
+        uses: github/super-linter/slim@v7
         env:
           VALIDATE_JSCPD: false
           VALIDATE_ALL_CODEBASE: false
-          DEFAULT_BRANCH: master
+          DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHON_MYPY_CONFIG_FILE: mypy.ini
-          PYTHON_FLAKE8_CONFIG_FILE: flake8.ini
-          PYTHON_PYLINT_CONFIG_FILE: pylint.ini
+          # PYTHON_FLAKE8_CONFIG_FILE: flake8.ini
+          # PYTHON_PYLINT_CONFIG_FILE: pylint.ini
