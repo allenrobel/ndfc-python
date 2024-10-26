@@ -19,6 +19,7 @@ on:
 ###############
 # Set the Job #
 ###############
+permissions: read-all
 jobs:
   build:
     # Name the Job
@@ -52,7 +53,7 @@ jobs:
       # Run Linter against code base #
       ################################
       - name: Lint Code Base
-        uses: github/super-linter/slim@v6
+        uses: github/super-linter/slim@v7
         env:
           VALIDATE_JSCPD: false
           VALIDATE_ALL_CODEBASE: false
