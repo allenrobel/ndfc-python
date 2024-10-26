@@ -70,8 +70,12 @@ from ndfc_python.parsers.parser_loglevel import parser_loglevel
 # console logging.  The copy in the DCNM Ansible Collection specifically
 # disallows console logging.
 from ndfc_python.read_config import ReadConfig
+
 # fmt: off
-from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import EpFabricDetails
+from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import (
+    EpFabricDetails,
+)
+
 # fmt: on
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
