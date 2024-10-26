@@ -5,7 +5,7 @@ import logging
 from ndfc_python.yaml_reader import YamlReader
 
 
-class NdfcPythonConfig:
+class ReadConfig:
     """
     # Summary
     Returns the contents of a YAML file as a dictionary, given a path to the file.
@@ -26,7 +26,7 @@ class NdfcPythonConfig:
 
     ```python
     try:
-        ndfc_config = NdfcPythonConfig()
+        ndfc_config = ReadConfig()
         ndfc_config.filename = "/tmp/config.yaml"
         ndfc_config.commit()
     except ValueError as error:
@@ -78,6 +78,9 @@ class NdfcPythonConfig:
             raise ValueError(msg) from error
 
         self.contents = self.reader.contents
+        if self.contents is None:
+            msg = f"Configuration file {self.filename} is empty."
+            raise ValueError(msg)
 
     @property
     def filename(self):

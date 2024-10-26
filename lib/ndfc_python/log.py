@@ -104,9 +104,7 @@ class Logger:
         """
         self.log = logging.getLogger(_name)
         self.log.setLevel(logging.DEBUG)
-        self._filehandler = logging.handlers.RotatingFileHandler(
-            self.logfile, maxBytes=10000000, backupCount=3
-        )
+        self._filehandler = logging.handlers.RotatingFileHandler(self.logfile, maxBytes=10000000, backupCount=3)
         self._filehandler.setLevel(self.file_loglevel)
 
         self._stream_handler = logging.StreamHandler()

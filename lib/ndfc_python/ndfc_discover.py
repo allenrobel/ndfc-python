@@ -68,9 +68,7 @@ from re import sub
 from time import sleep
 
 from ndfc_python.validations import Validations
-from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import (
-    EpFabricDetails,
-)
+from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import EpFabricDetails
 from plugins.module_utils.common.properties import Properties
 from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
@@ -450,9 +448,7 @@ class NdfcDiscover:
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
         self._reachability_status_code = self.rest_send.response_current["RETURN_CODE"]
-        self._reachability_response = copy.deepcopy(
-            self.rest_send.response_current["DATA"]
-        )
+        self._reachability_response = copy.deepcopy(self.rest_send.response_current["DATA"])
         # pylint: enable=no-member
         msg = f"{self.class_name}.{method_name}: "
         try:

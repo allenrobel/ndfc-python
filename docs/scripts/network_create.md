@@ -30,7 +30,7 @@ config:
 
 ``` bash
 (.venv) AROBEL-M-G793% ./network_create.py --config prod/config_network_create.yaml
-Network MyNet created in fabric MyFabric
+Network MyNet with id 30005 created in fabric MyFabric
 (.venv) AROBEL-M-G793%
 ```
 

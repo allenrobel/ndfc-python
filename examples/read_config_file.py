@@ -4,10 +4,10 @@ import argparse
 import logging
 import sys
 
-from ndfc_python.ndfc_python_config import NdfcPythonConfig
 from ndfc_python.ndfc_python_logger import NdfcPythonLogger
 from ndfc_python.parsers.parser_config import parser_config
 from ndfc_python.parsers.parser_loglevel import parser_loglevel
+from ndfc_python.read_config import ReadConfig
 
 
 def setup_parser() -> argparse.Namespace:
@@ -33,7 +33,7 @@ log = logging.getLogger("ndfc_python.main")
 log.setLevel = args.loglevel
 
 try:
-    ndfc_config = NdfcPythonConfig()
+    ndfc_config = ReadConfig()
     ndfc_config.filename = args.config
     ndfc_config.commit()
 except ValueError as error:

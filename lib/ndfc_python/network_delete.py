@@ -1,11 +1,11 @@
 """
 # Name
 
-network_create.py
+network_delete.py
 
-## Description
+# Description
 
-Delete networks
+Send network delete DELETE requests to the controller
 
 """
 
@@ -22,10 +22,13 @@ class NetworkDelete:
     """
     # Summary
 
-    delete a network
+    Delete networks
 
-    ## Example usage
+    ## Example network delete request
 
+    ### See
+
+    ./examples/network_delete.py
     """
 
     def __init__(self):

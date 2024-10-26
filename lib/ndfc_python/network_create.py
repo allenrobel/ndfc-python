@@ -1,12 +1,16 @@
 """
-Name: network_create.py
-Description:
+# Name
 
-Create networks
+network_create.py
 
-The JSON payload constructed by this class is shown below.
+# Description
 
-network = {
+Send network create POST requests to the controller
+
+# Payload Example
+
+```json
+{
     'displayName': 'MyNetwork_30000',
     'fabric': 'My_VxLAN_Fabric',
     'networkExtensionTemplate': 'Default_Network_Extension_Universal',
@@ -51,6 +55,7 @@ network = {
     'source': None,
     'vrf': 'Customer-001'
 }
+```
 """
 
 import inspect
@@ -67,40 +72,15 @@ from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 @Properties.add_results
 class NetworkCreate:
     """
+    # Summary
+
     Create networks
 
-    Example create operation:
+    ## Example network create request
 
-    from ndfc_python.log_v2 import Log
-    from ndfc_python.ndfc import NDFC
-    from ndfc_python.ndfc_credentials import NdfcCredentials
-    from ndfc_python.ndfc_device_info import NdfcDeviceInfo
+    ### See
 
-    try:
-        log = Log()
-        log.commit()
-    except ValueError as error:
-        MSG = "Error while instantiating Log(). "
-        MSG += f"Error detail: {error}"
-        print(MSG)
-        exit(1)
-
-    nc = NdfcCredentials()
-    ndfc = NDFC()
-    ndfc.domain = nc.nd_domain
-    ndfc.username = nc.username
-    ndfc.password = nc.password
-    ndfc.ip4 = nc.ndfc_ip
-    ndfc.login()
-
-    instance = NdfcNetwork()
-    instance.ndfc = ndfc
-    instance.fabric = 'foo'
-    instance.network_id = 30000
-    instance.vlan_id = 3000
-    instance.vrf = 'foo_vrf'
-    instance.create()
-
+    ./examples/network_create.py
     """
 
     def __init__(self):
@@ -164,15 +144,16 @@ class NetworkCreate:
         These are keys for which the caller does not have to provide a value
         unless they specifically want to change them.
         """
-        self._payload_default[
-            "networkExtensionTemplate"
-        ] = "Default_Network_Extension_Universal"
+        # fmt: off
+        self._payload_default["networkExtensionTemplate"] = "Default_Network_Extension_Universal"
         self._payload_default["networkTemplate"] = "Default_Network_Universal"
+        # fmt: on
 
     def _init_template_config_set(self):
         """
         set of all keys in the template Default_Network_Universal
         """
+        # fmt: off
         self._template_config_set.add("dhcpServerAddr1")
         self._template_config_set.add("dhcpServerAddr2")
         self._template_config_set.add("dhcpServerAddr3")
@@ -205,6 +186,7 @@ class NetworkCreate:
         self._template_config_set.add("vrfDhcp2")
         self._template_config_set.add("vrfDhcp3")
         self._template_config_set.add("vrfName")
+        # fmt: on
 
     def _init_template_config_default(self):
         """
@@ -212,6 +194,7 @@ class NetworkCreate:
         for which the caller does not need to provide a value
         unless they want to change them.
         """
+        # fmt: off
         self._template_config_default["enableL3OnBorder"] = False
         self._template_config_default["enableL3OnBorderVpcBgw"] = False
         self._template_config_default["isLayer2Only"] = False
@@ -222,6 +205,7 @@ class NetworkCreate:
         self._template_config_default["tag"] = "12345"
         self._template_config_default["trmEnabled"] = False
         self._template_config_default["trmV6Enabled"] = False
+        # fmt: on
 
     def _init_template_config_set_mandatory(self):
         """
@@ -274,37 +258,32 @@ class NetworkCreate:
         """
         see _map_payload_param()
         """
+        # fmt: off
         self._payload_mapping_dict = {}
         self._payload_mapping_dict["displayName"] = "display_name"
         self._payload_mapping_dict["fabric"] = "fabric_name"
-        self._payload_mapping_dict[
-            "networkExtensionTemplate"
-        ] = "network_extension_template"
+        self._payload_mapping_dict["networkExtensionTemplate"] = "network_extension_template"
         self._payload_mapping_dict["networkId"] = "network_id"
         self._payload_mapping_dict["networkName"] = "network_name"
         self._payload_mapping_dict["networkTemplate"] = "network_template"
-        self._payload_mapping_dict[
-            "serviceNetworkTemplate"
-        ] = "service_network_template"
+        self._payload_mapping_dict["serviceNetworkTemplate"] = "service_network_template"
         self._payload_mapping_dict["source"] = "source"
         self._payload_mapping_dict["vrf"] = "vrf_name"
+        # fmt: on
 
     def _init_template_config_mapping_dict(self):
         """
         see _map_template_config_param()
         """
+        # fmt: off
         self._template_config_mapping_dict = {}
         self._template_config_mapping_dict["dhcpServerAddr1"] = "dhcp_server_addr_1"
         self._template_config_mapping_dict["dhcpServerAddr2"] = "dhcp_server_addr_2"
         self._template_config_mapping_dict["dhcpServerAddr3"] = "dhcp_server_addr_3"
         self._template_config_mapping_dict["enableL3OnBorder"] = "enable_l3_on_border"
-        self._template_config_mapping_dict[
-            "enableL3OnBorderVpcBgw"
-        ] = "enable_l3_on_border_vpc_bgw"
+        self._template_config_mapping_dict["enableL3OnBorderVpcBgw"] = "enable_l3_on_border_vpc_bgw"
         self._template_config_mapping_dict["gatewayIpAddress"] = "gateway_ip_address"
-        self._template_config_mapping_dict[
-            "gatewayIpV6Address"
-        ] = "gateway_ipv6_address"
+        self._template_config_mapping_dict["gatewayIpV6Address"] = "gateway_ipv6_address"
         self._template_config_mapping_dict["intfDescription"] = "intf_description"
         self._template_config_mapping_dict["isLayer2Only"] = "is_layer2_only"
         self._template_config_mapping_dict["loopbackId"] = "loopback_id"
@@ -318,21 +297,18 @@ class NetworkCreate:
         self._template_config_mapping_dict["secondaryGW4"] = "secondary_gw_4"
         self._template_config_mapping_dict["segmentId"] = "segment_id"
         self._template_config_mapping_dict["suppressArp"] = "suppress_arp"
-        self._template_config_mapping_dict[
-            "SVI_NETFLOW_MONITOR"
-        ] = "svi_netflow_monitor"
+        self._template_config_mapping_dict["SVI_NETFLOW_MONITOR"] = "svi_netflow_monitor"
         self._template_config_mapping_dict["tag"] = "tag"
         self._template_config_mapping_dict["trmEnabled"] = "trm_enabled"
         self._template_config_mapping_dict["trmV6Enabled"] = "trm_v6_enabled"
         self._template_config_mapping_dict["vlanId"] = "vlan_id"
         self._template_config_mapping_dict["vlanName"] = "vlan_name"
-        self._template_config_mapping_dict[
-            "VLAN_NETFLOW_MONITOR"
-        ] = "vlan_netflow_monitor"
+        self._template_config_mapping_dict["VLAN_NETFLOW_MONITOR"] = "vlan_netflow_monitor"
         self._template_config_mapping_dict["vrf"] = "vrf_name"
         self._template_config_mapping_dict["vrfDhcp"] = "vrf_dhcp"
         self._template_config_mapping_dict["vrfDhcp2"] = "vrf_dhcp_2"
         self._template_config_mapping_dict["vrfDhcp3"] = "vrf_dhcp_3"
+        # fmt: on
 
     def _map_payload_param(self, param):
         """
@@ -392,14 +368,14 @@ class NetworkCreate:
                 msg += f"{self._map_payload_param(param)} "
                 msg += f"before calling {self.class_name}.commit()"
                 raise ValueError(msg)
+        # fmt: off
         for param in self._template_config_set_mandatory:
             if self.template_config[param] == "":
                 msg = f"{self.class_name}.{method_name}: "
-                msg += (
-                    f"Call {self.class_name}.{self._map_template_config_param(param)} "
-                )
+                msg += f"Call {self.class_name}.{self._map_template_config_param(param)} "
                 msg += f"before calling {self.class_name}.commit()"
                 raise ValueError(msg)
+        # fmt: on
 
         if self.fabric_exists() is False:
             msg = f"{self.class_name}.{method_name}: "

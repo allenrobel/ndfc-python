@@ -27,14 +27,10 @@ class Validations:
         pattern = re.compile(r"^\s*(\d+\.\d+\.\d+\.\d+)\/(\d+)\s*$")
         self.re_ipv4_with_mask = pattern
         self.re_ethernet_module_port = re.compile(r"^[Ee]thernet\d+\/\d+$")
-        self.re_ethernet_module_port_subinterface = re.compile(
-            r"^[Ee]thernet\d+\/\d+\.\d+$"
-        )
+        self.re_ethernet_module_port_subinterface = re.compile(r"^[Ee]thernet\d+\/\d+\.\d+$")
         pattern = re.compile(r"^[Ee]thernet\d+\/\d+\/\d+$")
         self.re_ethernet_module_port_subport = pattern
-        self.re_ethernet_module_port_subport_subinterface = re.compile(
-            r"^[Ee]thernet\d+\/\d+\/\d+\.\d+$"
-        )
+        self.re_ethernet_module_port_subport_subinterface = re.compile(r"^[Ee]thernet\d+\/\d+\/\d+\.\d+$")
         self.re_loopback_interface = re.compile(r"^[Ll]oopback\d+$")
         self.re_management_interface = re.compile(r"^[Mm]gmt\d+$")
         self.re_nve_interface = re.compile(r"^[Nn]ve\d+$")
@@ -44,9 +40,7 @@ class Validations:
         self.re_port_channel_subinterface = pattern
 
         # 0011.22aa.bbcc
-        self.re_mac_format_a = re.compile(
-            r"^[0-9a-fA-F]{4}\.[0-9a-fA-F]{4}\.[0-9a-fA-F]{4}$"
-        )
+        self.re_mac_format_a = re.compile(r"^[0-9a-fA-F]{4}\.[0-9a-fA-F]{4}\.[0-9a-fA-F]{4}$")
         # 00:11:22:aa:bb:cc
         pattern = re.compile(r"^([0-9a-fA-F]{2}\:){5}[0-9a-fA-F]{2}$")
         self.re_mac_format_b = pattern
@@ -1054,10 +1048,7 @@ class Validations:
         without throwing an exception.
         """
         if not isinstance(params, dict):
-            msg = (
-                "expected params to be a python dict()."
-                f" got type {type(params)}, value {params}."
-            )
+            msg = "expected params to be a python dict()." f" got type {type(params)}, value {params}."
             raise TypeError(msg)
         mandatory_keys = ("value", "min", "max")
         for key in mandatory_keys:
