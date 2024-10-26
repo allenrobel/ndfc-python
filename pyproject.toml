@@ -1,14 +1,14 @@
 [tool.black]
-line-length = 180
+line-length = 120
 
 [tool.flake8]
 # E123, E125 skipped as they are invalid PEP-8.
 show-source = true
 ignore = "E123,E125,E203,E402,E501,E741,F401,F811,F841,W503"
-max-line-length = 180
+max-line-length = 120
 
 [tool.isort]
-line_length = 180
+line_length = 120
 profile = "black"
 extend_skip = [".md", ".json", ".yaml", ".txt"]
 skip_glob = ["docs/*"]
@@ -16,4 +16,4 @@ use_parentheses = true
 
 [tool.pylint.main]
 disable = ["too-many-instance-attributes", "too-many-lines", "too-many-public-methods", "wrong-import-order"]
-max-line-length = 180
+max-line-length = 120

@@ -22,6 +22,7 @@ class Validations:
 
         self._ndfc_fabric_name_length = 64
 
+        # fmt: off
         self.re_digits = re.compile(r"^\d+$")
         self.re_ipv4 = re.compile(r"^\s*\d+\.\d+\.\d+\.\d+\s*$")
         pattern = re.compile(r"^\s*(\d+\.\d+\.\d+\.\d+)\/(\d+)\s*$")
@@ -111,6 +112,7 @@ class Validations:
         self._valid["vpc_peer_keep_alive_option"] = set()
         self._valid["vpc_peer_keep_alive_option"].add("management")
         self._valid["vpc_peer_keep_alive_option"].add("loopback")
+        # fmt: on
 
     def is_within_integer_range(self, param, range_min, range_max):
         """
@@ -1048,7 +1050,8 @@ class Validations:
         without throwing an exception.
         """
         if not isinstance(params, dict):
-            msg = "expected params to be a python dict()." f" got type {type(params)}, value {params}."
+            msg = "expected params to be a python dict()."
+            msg += f" got type {type(params)}, value {params}."
             raise TypeError(msg)
         mandatory_keys = ("value", "min", "max")
         for key in mandatory_keys:
