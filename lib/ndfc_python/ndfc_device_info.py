@@ -448,9 +448,7 @@ class NdfcDeviceInfo:
         """
         method_name = inspect.stack()[0][3]
         try:
-            self._raw_fabric_info = self.ndfc.get(
-                self.ndfc.url_control_fabrics, self.ndfc.make_headers()
-            )
+            self._raw_fabric_info = self.ndfc.get(self.ndfc.url_control_fabrics, self.ndfc.make_headers())
         except NdfcRequestError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += "Unable to populate fabric "

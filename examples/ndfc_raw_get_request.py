@@ -48,9 +48,7 @@ url_fabrics = f"{url_base}"
 url_fabrics += "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics"
 
 url_image_platform = f"{url_base}"
-url_image_platform += (
-    "/appcenter/cisco/ndfc/api/v1/imagemanagement/rest/policymgnt/platforms"
-)
+url_image_platform += "/appcenter/cisco/ndfc/api/v1/imagemanagement/rest/policymgnt/platforms"
 
 try:
     # Use one of the above example URLs

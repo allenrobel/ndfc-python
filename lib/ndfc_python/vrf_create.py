@@ -8,9 +8,8 @@ import json
 import logging
 from ipaddress import AddressValueError
 
-from plugins.module_utils.common.properties import Properties
-
 from ndfc_python.validations import Validations
+from plugins.module_utils.common.properties import Properties
 
 
 @Properties.add_rest_send

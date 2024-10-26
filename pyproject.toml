@@ -1,0 +1,14 @@
+[tool.black]
+line-length = 180
+
+[tool.flake8]
+# E123, E125 skipped as they are invalid PEP-8.
+show-source = true
+ignore = "E123,E125,E203,E402,E501,E741,F401,F811,F841,W503"
+max-line-length = 180
+
+[tool.isort]
+line_length = 180
+profile = "black"
+extend_skip = [".md", ".json", ".yaml", ".txt"]
+skip_glob = ["docs/*"]
