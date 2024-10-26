@@ -52,7 +52,7 @@ jobs:
       # Run Linter against code base #
       ################################
       - name: Lint Code Base
-        uses: github/super-linter/slim@v5
+        uses: github/super-linter/slim@v6
         env:
           VALIDATE_JSCPD: false
           VALIDATE_ALL_CODEBASE: false
