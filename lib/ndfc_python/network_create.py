@@ -144,13 +144,16 @@ class NetworkCreate:
         These are keys for which the caller does not have to provide a value
         unless they specifically want to change them.
         """
+        # fmt: off
         self._payload_default["networkExtensionTemplate"] = "Default_Network_Extension_Universal"
         self._payload_default["networkTemplate"] = "Default_Network_Universal"
+        # fmt: on
 
     def _init_template_config_set(self):
         """
         set of all keys in the template Default_Network_Universal
         """
+        # fmt: off
         self._template_config_set.add("dhcpServerAddr1")
         self._template_config_set.add("dhcpServerAddr2")
         self._template_config_set.add("dhcpServerAddr3")
@@ -183,6 +186,7 @@ class NetworkCreate:
         self._template_config_set.add("vrfDhcp2")
         self._template_config_set.add("vrfDhcp3")
         self._template_config_set.add("vrfName")
+        # fmt: on
 
     def _init_template_config_default(self):
         """
@@ -190,6 +194,7 @@ class NetworkCreate:
         for which the caller does not need to provide a value
         unless they want to change them.
         """
+        # fmt: off
         self._template_config_default["enableL3OnBorder"] = False
         self._template_config_default["enableL3OnBorderVpcBgw"] = False
         self._template_config_default["isLayer2Only"] = False
@@ -200,6 +205,7 @@ class NetworkCreate:
         self._template_config_default["tag"] = "12345"
         self._template_config_default["trmEnabled"] = False
         self._template_config_default["trmV6Enabled"] = False
+        # fmt: on
 
     def _init_template_config_set_mandatory(self):
         """
@@ -252,6 +258,7 @@ class NetworkCreate:
         """
         see _map_payload_param()
         """
+        # fmt: off
         self._payload_mapping_dict = {}
         self._payload_mapping_dict["displayName"] = "display_name"
         self._payload_mapping_dict["fabric"] = "fabric_name"
@@ -262,11 +269,13 @@ class NetworkCreate:
         self._payload_mapping_dict["serviceNetworkTemplate"] = "service_network_template"
         self._payload_mapping_dict["source"] = "source"
         self._payload_mapping_dict["vrf"] = "vrf_name"
+        # fmt: on
 
     def _init_template_config_mapping_dict(self):
         """
         see _map_template_config_param()
         """
+        # fmt: off
         self._template_config_mapping_dict = {}
         self._template_config_mapping_dict["dhcpServerAddr1"] = "dhcp_server_addr_1"
         self._template_config_mapping_dict["dhcpServerAddr2"] = "dhcp_server_addr_2"
@@ -299,6 +308,7 @@ class NetworkCreate:
         self._template_config_mapping_dict["vrfDhcp"] = "vrf_dhcp"
         self._template_config_mapping_dict["vrfDhcp2"] = "vrf_dhcp_2"
         self._template_config_mapping_dict["vrfDhcp3"] = "vrf_dhcp_3"
+        # fmt: on
 
     def _map_payload_param(self, param):
         """
