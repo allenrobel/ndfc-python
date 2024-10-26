@@ -368,12 +368,14 @@ class NetworkCreate:
                 msg += f"{self._map_payload_param(param)} "
                 msg += f"before calling {self.class_name}.commit()"
                 raise ValueError(msg)
+        # fmt: off
         for param in self._template_config_set_mandatory:
             if self.template_config[param] == "":
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"Call {self.class_name}.{self._map_template_config_param(param)} "
                 msg += f"before calling {self.class_name}.commit()"
                 raise ValueError(msg)
+        # fmt: on
 
         if self.fabric_exists() is False:
             msg = f"{self.class_name}.{method_name}: "
