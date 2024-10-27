@@ -1,6 +1,6 @@
 # Running the example scripts
 
-An example configuration file for each script is located in 
+An example configuration file for each script is located in
 `examples/config/config_<script_name>`,
 
 Some example configuration files contain only a subset of available parameters.
