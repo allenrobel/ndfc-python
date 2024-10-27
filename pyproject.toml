@@ -14,7 +14,7 @@ force_grid_wrap = 0
 line_length = 180
 multi_line_output = 3
 skip_glob = ["docs/*"]
-use_parentheses = true
+use_parentheses = false
 
 [tool.pylint.main]
 disable = ["too-many-instance-attributes", "too-many-lines", "too-many-public-methods", "wrong-import-order"]
