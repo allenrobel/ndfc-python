@@ -29,7 +29,7 @@ Library                 | Description
 [NdfcReachability]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_reachability.py
 [NetworkCreate]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/network_create.py
 [NetworkDelete]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/network_delete.py
-[ReadConfig]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_python_config.py
+[ReadConfig]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/read_config.py
 [VrfCreate]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/vrf_create.py
 [Validations]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/validations.py
 [YamlReader]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/yaml_reader.py
