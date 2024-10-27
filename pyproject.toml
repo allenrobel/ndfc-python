@@ -10,9 +10,9 @@ max-line-length = 180
 [tool.isort]
 ensure_newline_before_comments = true
 extend_skip = [".md", ".json", ".yaml", ".txt"]
-force_grid_wrap = 0
+force_grid_wrap = false
 line_length = 180
-multi_line_output = 3
+multi_line_output = 0
 skip_glob = ["docs/*"]
 use_parentheses = false
 
