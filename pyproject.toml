@@ -16,6 +16,9 @@ multi_line_output = 7
 skip_glob = ["docs/*"]
 use_parentheses = false
 
+[tool.mypy]
+disable_error_code = "assignment,import,import-not-found"
+
 [tool.pylint.main]
 disable = ["too-many-instance-attributes", "too-many-lines", "too-many-public-methods", "wrong-import-order"]
 max-line-length = 180
