@@ -73,7 +73,9 @@ from ndfc_python.read_config import ReadConfig
 from ndfc_python.validators import FabricDetailsConfigValidator
 
 # fmt: off
-from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import EpFabricDetails
+from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import (
+    EpFabricDetails,
+)
 
 # fmt: on
 from plugins.module_utils.common.response_handler import ResponseHandler
