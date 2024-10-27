@@ -1,0 +1,4 @@
+---
+config:
+  fabric_name: MyFabric
+  network_name: MyNet

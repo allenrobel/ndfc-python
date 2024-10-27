@@ -7,12 +7,12 @@ Create a network.
 ## Usage
 
 ``` bash
-./network_create.py --config config_network_create.yaml
+./network_create.py --config config/config_network_create.yaml
 ```
 
 ## Example Config File
 
-``` yaml title="config_network_create.yaml"
+``` yaml title="config/config_network_create.yaml"
 ---
 config:
   fabric_name: MyFabric

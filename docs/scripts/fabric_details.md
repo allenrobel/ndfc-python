@@ -11,18 +11,18 @@ export NDFC_DOMAIN=local
 export NDFC_IP4=10.1.1.1
 export NDFC_PASSWORD=MySecret
 export NDFC_USERNAME=admin
-./fabric_details.py --config config_fabric_details.yaml
+./fabric_details.py --config config/config_fabric_details.yaml
 ```
 
 Environment variables (all, or a subset) can be overridden on the command line.
 
 ``` bash
-./fabric_details.py --config config_fabric_details.yaml --username admin --password MySecret --domain local --ip4 10.1.1.1
+./fabric_details.py --config config/config_fabric_details.yaml --username admin --password MySecret --domain local --ip4 10.1.1.1
 ```
 
 ## Example Config File
 
-``` yaml title="config_fabric_details.yaml"
+``` yaml title="config/config_fabric_details.yaml"
 ---
 config:
   fabric_name: MyFabric

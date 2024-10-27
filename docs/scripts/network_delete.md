@@ -7,12 +7,12 @@ Delete a network.
 ## Usage
 
 ``` bash
-./network_delete.py --config config_network_delete.yaml
+./network_delete.py --config config/config_network_delete.yaml
 ```
 
 ## Example Config File
 
-``` yaml title="config_network_delete.yaml"
+``` yaml title="config/config_network_delete.yaml"
 ---
 config:
   fabric_name: MyFabric
@@ -40,7 +40,7 @@ Error deleting network. Error detail: NetworkDelete.commit: networkName MyNet do
 ### Failure - Fabric does not exist
 
 ``` bash
-(.venv) AROBEL-M-G793% ./network_delete.py --config config_network_delete.yaml
+(.venv) AROBEL-M-G793% ./network_delete.py --config prod/config_network_delete.yaml
 Error deleting network. Error detail: NetworkDelete.commit: fabric_name MyFabric does not exist on the controller.
 (.venv) AROBEL-M-G793%
 ```

@@ -1,5 +1,12 @@
 # Using Ansible Vault
 
+We've temporarily removed support for
+[Ansible Vault](https://docs.ansible.com/ansible/latest/vault_guide/vault.html)
+in the example scripts. It'll return later (probably as the same command-line
+option that Ansible itself uses, i.e. `--vault-password-file`)
+
+<!---
+
 ndfc-python can be modified to work with Ansible Vault, per below.
 
 ## Ansible Python Libraries
@@ -122,3 +129,4 @@ device_username: admin
 ``` yaml
 ndfc_ip: 192.168.1.1
 ```
+-->
