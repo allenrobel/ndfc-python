@@ -116,8 +116,8 @@ try:
     ndfc_config.commit()
 except ValueError as error:
     msg = f"Exiting: Error detail: {error}"
-    log.error(msg)
     print(msg)
+    log.error(msg)
     sys.exit()
 
 try:
@@ -136,8 +136,8 @@ try:
     ndfc_sender.commit()
 except ValueError as error:
     msg = f"Exiting.  Error detail: {error}"
-    log.error(msg)
     print(msg)
+    log.error(msg)
     sys.exit(1)
 
 ep_fabric_details = EpFabricDetails()
@@ -154,11 +154,13 @@ try:
 except ValueError as error:
     msg = "Problem querying the controller. "
     msg += f"Error detail: {error}"
+    print(msg)
     log.error(msg)
     sys.exit(1)
 
 if rest_send.response_current["MESSAGE"] == "Not Found":
     msg = f"Fabric {ep_fabric_details.fabric_name} does not exist on the controller"
+    print(msg)
     log.error(msg)
     sys.exit(1)
 

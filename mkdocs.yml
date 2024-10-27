@@ -74,6 +74,7 @@ nav:
       - Using Ansible Vault: setup/using-ansible-vault.md
   - Scripts:
       - device_info.py: scripts/device_info.md
+      - fabric_details.py: scripts/fabric_details.md
       - network_create.py: scripts/network_create.md
       - network_delete.py: scripts/network_delete.md
   - Classes:
