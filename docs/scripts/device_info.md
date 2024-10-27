@@ -7,12 +7,12 @@ Returns switch information.
 ## Usage
 
 ``` bash
-./device_info.py --config config_device_info.yaml
+./device_info.py --config conifig/config_device_info.yaml
 ```
 
 ## Example Config File
 
-``` yaml title="config_device_info.yaml"
+``` yaml title="config/config_device_info.yaml"
 ---
 config:
   switch_ip4: 10.1.1.1
