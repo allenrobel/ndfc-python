@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Name: example_ndfc_login.py
+Name: fabric_details.py
 Description:
 
 Return fabric information for FABRIC_NAME.
@@ -70,15 +70,16 @@ from ndfc_python.parsers.parser_loglevel import parser_loglevel
 # console logging.  The copy in the DCNM Ansible Collection specifically
 # disallows console logging.
 from ndfc_python.read_config import ReadConfig
+from ndfc_python.validators import FabricDetailsConfigValidator
 
 # fmt: off
-from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import (
-    EpFabricDetails,
-)
+from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import EpFabricDetails
 
 # fmt: on
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
+from plugins.module_utils.common.results import Results
+from pydantic import ValidationError
 
 
 def setup_parser() -> argparse.Namespace:
@@ -105,11 +106,29 @@ def setup_parser() -> argparse.Namespace:
 
 
 args = setup_parser()
-
-
 NdfcPythonLogger()
 log = logging.getLogger("ndfc_python.main")
 log.setLevel = args.loglevel
+
+try:
+    ndfc_config = ReadConfig()
+    ndfc_config.filename = args.config
+    ndfc_config.commit()
+except ValueError as error:
+    msg = f"Exiting: Error detail: {error}"
+    log.error(msg)
+    print(msg)
+    sys.exit()
+
+try:
+    config = FabricDetailsConfigValidator(**ndfc_config.contents)
+except ValidationError as error:
+    msg = f"{error}"
+    log.error(msg)
+    print(msg)
+    sys.exit(1)
+
+params = json.loads(config.model_dump_json()).get("config", {})
 
 try:
     ndfc_sender = NdfcPythonSender()
@@ -118,24 +137,16 @@ try:
 except ValueError as error:
     msg = f"Exiting.  Error detail: {error}"
     log.error(msg)
+    print(msg)
     sys.exit(1)
 
-try:
-    ndfc_config = ReadConfig()
-    ndfc_config.filename = args.config
-    ndfc_config.commit()
-    config = ndfc_config.contents["config"]
-except ValueError as error:
-    msg = f"Exiting: Error detail: {error}"
-    log.error(msg)
-    sys.exit()
-
 ep_fabric_details = EpFabricDetails()
-ep_fabric_details.fabric_name = config.get("fabric_name")
+ep_fabric_details.fabric_name = params.get("fabric_name")
 
 rest_send = RestSend({})
 rest_send.sender = ndfc_sender.sender
 rest_send.response_handler = ResponseHandler()
+rest_send.results = Results()
 rest_send.path = ep_fabric_details.path
 rest_send.verb = ep_fabric_details.verb
 try:

@@ -9,6 +9,16 @@ from typing import Optional
 from pydantic import BaseModel, IPvAnyInterface, PositiveInt
 
 
+class FabricDetailsConfig(BaseModel):
+    """
+    # Summary
+
+    Base validator for FabricDetails arguments
+    """
+
+    fabric_name: str
+
+
 class NetworkCreateConfig(BaseModel):
     """
     # Summary
@@ -34,6 +44,16 @@ class NetworkDeleteConfig(BaseModel):
 
     fabric_name: str
     network_name: str
+
+
+class FabricDetailsConfigValidator(BaseModel):
+    """
+    # Summary
+
+    Wrap base validator in a dict
+    """
+
+    config: FabricDetailsConfig
 
 
 class NetworkCreateConfigValidator(BaseModel):
