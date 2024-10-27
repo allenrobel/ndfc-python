@@ -12,7 +12,7 @@ ensure_newline_before_comments = true
 extend_skip = [".md", ".json", ".yaml", ".txt"]
 force_grid_wrap = false
 line_length = 180
-multi_line_output = 0
+multi_line_output = 7
 skip_glob = ["docs/*"]
 use_parentheses = false
 
