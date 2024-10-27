@@ -13,7 +13,6 @@ extend_skip = [".md", ".json", ".yaml", ".txt"]
 force_grid_wrap = 0
 line_length = 180
 multi_line_output = 3
-profile = "black"
 skip_glob = ["docs/*"]
 use_parentheses = true
 
