@@ -1,7 +1,6 @@
 ---
-MD013: false                  # Very long lines in some of the example script output that we want to preserve
-MD004: false                  # ul-style, * is allowed by material
-MD007: false                  # ul-indent, material not indenting with 2 spaces
-MD040: false                  # Allow ``` blocks with no language specified
-MD046: false                  # Disable Expected: indented; Actual: fenced
-
+MD013: false  # Very long lines in some of the example script output that we want to preserve
+MD004: false  # ul-style, * is allowed by material
+MD007: false  # ul-indent, material not indenting with 2 spaces
+MD040: false  # Allow ``` blocks with no language specified
+MD046: false  # Disable Expected: indented; Actual: fenced
