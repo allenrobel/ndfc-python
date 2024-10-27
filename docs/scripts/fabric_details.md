@@ -395,6 +395,6 @@ Fabric MyFabric does not exist on the controller
 
 ``` bash
 (.venv) AROBEL-M-G793% ./fabric_details.py --config prod/config_fabric_details.yaml --username SomeRandomDude
-Exiting.  Error detail: NdfcPythonSender.commit: Unable to login to the controller. Error detail: Sender.update_token: Unable to parse token from response: {'RETURN_CODE': 401, 'DATA': {'error': 'Invalid Username/Password'}, 'MESSAGE': 'Unauthorized', 'METHOD': 'POST', 'REQUEST_PATH': 'https://172.22.150.244/login'}
+Exiting.  Error detail: NdfcPythonSender.commit: Unable to login to the controller. Error detail: Sender.update_token: Unable to parse token from response: {'RETURN_CODE': 401, 'DATA': {'error': 'Invalid Username/Password'}, 'MESSAGE': 'Unauthorized', 'METHOD': 'POST', 'REQUEST_PATH': 'https://10.1.1.1/login'}
 (.venv) AROBEL-M-G793%
 ```
