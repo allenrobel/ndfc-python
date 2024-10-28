@@ -52,7 +52,9 @@ except ValueError as error:
     print(msg)
     sys.exit(1)
 
-print(f"domain {avc.nd_domain}")
-print(f"username {avc.username}")
-print(f"password {avc.password}")
-print(f"ndfc_ip {avc.ndfc_ip}")
+print(f"nd_domain {avc.nd_domain}")
+print(f"nd_ip4 {avc.nd_ip4}")
+print(f"nd_password {avc.nd_password}")
+print(f"nd_username {avc.nd_username}")
+print(f"nxos_password {avc.nxos_password}")
+print(f"nxos_username {avc.nxos_username}")

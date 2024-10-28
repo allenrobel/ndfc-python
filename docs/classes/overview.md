@@ -2,26 +2,24 @@
 
 ``*`` indicates that a class has not yet been updated to work with RestSend().
 
-Library                 | Description
------------------------ | -----------
-[Log]                   | Create the base ndfc_python logging object
-[NdfcCredentials]       | Read the caller's Ansible Vault and provides the credentials therein to the other libraries
-[NdfcDeviceInfo]        | ``*`` Retrieve information about a switch
-[NdfcDiscover]          | Discover device
-[NdfcPolicy]            | ``*`` Create / delete policies
-[NdfcPythonLogger]      | Configure logging for ``ndfc-python`` scripts
-[NdfcPythonSender]      | Instantiate and configure the Sender() class
-[NdfcReachability]      | ``*`` Test switch reachability (from NDFC controller perspective).
-[NetworkCreate]         | Create networks
-[NetworkDelete]         | Delete networks
-[ReadConfig]            | Returns the contents of a YAML file as a dictionary, given a path to the file
-[VrfCreate]             | Create VRFs
-[Validations]           | Validation methods used by the other classes (deprecated)
-[YamlReader]            | Read a YAML file and return its contents as a python dict
+Library                   | Description
+--------------------------| -----------
+[Log]                     | Create the base ndfc_python logging object
+[AnsibleVaultCredentials] | Read an Ansible Vault and provide properties for credentials
+[NdfcDiscover]            | Discover device
+[NdfcPolicy]              | ``*`` Create / delete policies
+[NdfcPythonLogger]        | Configure logging for ``ndfc-python`` scripts
+[NdfcPythonSender]        | Instantiate and configure the Sender() class
+[NdfcReachability]        | ``*`` Test switch reachability (from NDFC controller perspective).
+[NetworkCreate]           | Create networks
+[NetworkDelete]           | Delete networks
+[ReadConfig]              | Returns the contents of a YAML file as a dictionary, given a path to the file
+[VrfCreate]               | Create VRFs
+[Validations]             | Validation methods used by the other classes (deprecated)
+[YamlReader]              | Read a YAML file and return its contents as a python dict
 
 [Log]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/log_v2.py
-[NdfcCredentials]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_credentials.py
-[NdfcDeviceInfo]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_device_info.py
+[AnsibleVaultCredentials]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ansible_vault_credentials.py
 [NdfcDiscover]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_discover.py
 [NdfcPolicy]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_policy.py
 [NdfcPythonLogger]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_python_logger.py
