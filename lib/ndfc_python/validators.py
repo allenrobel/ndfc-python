@@ -1,7 +1,7 @@
 """
 # Summary
 
-Validators for input class properties.
+Validators for class input properties.
 """
 
 from typing import Optional
@@ -46,6 +46,17 @@ class NetworkDeleteConfig(BaseModel):
     network_name: str
 
 
+class ReachabilityConfig(BaseModel):
+    """
+    # Summary
+
+    Base validator for Reachability arguments
+    """
+
+    fabric_name: str
+    seed_ip: str
+
+
 class FabricDetailsConfigValidator(BaseModel):
     """
     # Summary
@@ -74,3 +85,13 @@ class NetworkDeleteConfigValidator(BaseModel):
     """
 
     config: NetworkDeleteConfig
+
+
+class ReachabilityConfigValidator(BaseModel):
+    """
+    # Summary
+
+    Wrap base validator in a dict
+    """
+
+    config: ReachabilityConfig
