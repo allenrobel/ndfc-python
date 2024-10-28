@@ -64,5 +64,6 @@ jobs:
           PYTHON_FLAKE8_CONFIG_FILE: .github/linters/flake8.ini
           PYTHON_ISORT_CONFIG_FILE: pyproject.toml
           PYTHON_MYPY_CONFIG_FILE: pyproject.toml
+          PYTHON_PYINK_CONFIG_FILE: pyproject.toml
           PYTHON_PYLINT_CONFIG_FILE: pyproject.toml
           PYTHON_RUFF_CONFIG_FILE: pyproject.toml
