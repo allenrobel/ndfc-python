@@ -78,6 +78,7 @@ nav:
       - fabric_details.py: scripts/fabric_details.md
       - network_create.py: scripts/network_create.md
       - network_delete.py: scripts/network_delete.md
+      - reachability.py: scripts/reachability.md
   - Classes:
       - Overview: classes/overview.md
       - Log: classes/Log.md
