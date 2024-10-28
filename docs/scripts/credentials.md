@@ -53,7 +53,8 @@ nd_password MySuperSecretNdPassword
 nd_username admin
 nxos_password MySuperSecretNxosPassword
 nxos_username admin
-(.venv) AROBEL-M-G793%```
+(.venv) AROBEL-M-G793%
+```
 
 ### Failure - Ansible Vault missing expected content
 
