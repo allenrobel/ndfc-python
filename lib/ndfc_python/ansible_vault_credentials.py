@@ -53,6 +53,7 @@ class AnsibleVaultCredentials:
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
         self._ansible_vault = None
+        self.credentials = {}
 
         self.mandatory_vault_keys = set()
         self.mandatory_vault_keys.add("ansible_user")
