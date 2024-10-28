@@ -43,9 +43,9 @@ log = logging.getLogger("ndfc_python.main")
 log.setLevel = args.loglevel
 
 try:
-    avc = CredentialsAnsibleVault()
-    avc.ansible_vault = args.ansible_vault
-    avc.commit()
+    cav = CredentialsAnsibleVault()
+    cav.ansible_vault = args.ansible_vault
+    cav.commit()
 except ValueError as error:
     msg = "Perhaps an incorrect vault password was entered? "
     msg += f"Error detail: {error}"
@@ -53,9 +53,9 @@ except ValueError as error:
     print(msg)
     sys.exit(1)
 
-print(f"nd_domain {avc.nd_domain}")
-print(f"nd_ip4 {avc.nd_ip4}")
-print(f"nd_password {avc.nd_password}")
-print(f"nd_username {avc.nd_username}")
-print(f"nxos_password {avc.nxos_password}")
-print(f"nxos_username {avc.nxos_username}")
+print(f"nd_domain {cav.nd_domain}")
+print(f"nd_ip4 {cav.nd_ip4}")
+print(f"nd_password {cav.nd_password}")
+print(f"nd_username {cav.nd_username}")
+print(f"nxos_password {cav.nxos_password}")
+print(f"nxos_username {cav.nxos_username}")
