@@ -61,7 +61,7 @@ nxos_username admin
 ``` bash
 (.venv) AROBEL-M-G793% ./credentials.py --ansible-vault $HOME/.ansible/vault
 Vault password:
-AnsibleVaultCredentials.commit: Exiting. ansible_vault is missing key nd_password. vault file: /Users/arobel/.ansible/vault
+CredentialsAnsibleVault.commit: Exiting. ansible_vault is missing key nd_password. vault file: /Users/arobel/.ansible/vault
 (.venv) AROBEL-M-G793%
 ```
 
@@ -70,7 +70,7 @@ AnsibleVaultCredentials.commit: Exiting. ansible_vault is missing key nd_passwor
 ``` bash
 (.venv) AROBEL-M-G793% ./credentials.py --ansible-vault /tmp/not_an_ansible_vault
 Vault password: user enters password
-AnsibleVaultCredentials.commit: Exiting. Unable to load credentials in  /tmp/not_an_ansible_vault. Exception detail: Unable to retrieve file contents
+CredentialsAnsibleVault.commit: Exiting. Unable to load credentials in  /tmp/not_an_ansible_vault. Exception detail: Unable to retrieve file contents
 Could not find or access '/tmp/not_an_ansible_vault' on the Ansible Controller.
 If you are using a module and expect the file to exist on the remote, see the remote_src option
 (.venv) AROBEL-M-G793%

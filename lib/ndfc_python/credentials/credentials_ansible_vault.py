@@ -34,9 +34,10 @@ import logging
 from ansible.cli import CLI
 from ansible.errors import AnsibleFileNotFound, AnsibleParserError
 from ansible.parsing.dataloader import DataLoader
+from ansible.parsing.vault import AnsibleVaultError, AnsibleVaultPasswordError
 
 
-class AnsibleVaultCredentials:
+class CredentialsAnsibleVault:
     """
     Unencrypt NDFC and other credentials and provide to the user via properties
     after asking for the ansible vault password.
@@ -76,31 +77,44 @@ class AnsibleVaultCredentials:
             data = loader.load_from_file(self.ansible_vault)
         except AnsibleFileNotFound as error:
             msg = f"{self.class_name}.{method_name}: "
-            msg += "Exiting. Unable to load credentials in "
+            msg += "Unable to load credentials in "
             msg += f" {self.ansible_vault}. "
-            msg += f"Exception detail: {error}"
+            msg += f"Exception detail: AnsibleFileNotFound: {error}"
             raise ValueError(msg) from error
         except AnsibleParserError as error:
             msg = f"{self.class_name}.{method_name}: "
-            msg += "Exiting. Unable to load credentials in "
+            msg += "Unable to load credentials in "
             msg += f" {self.ansible_vault}. "
-            msg += f"Exception detail: {error}"
+            msg += f"Exception detail: AnsibleParserError: {error}"
             raise ValueError(msg) from error
+        except AnsibleVaultPasswordError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "Unable to load credentials in "
+            msg += f" {self.ansible_vault}. "
+            msg += f"Exception detail: AnsibleVaultPasswordError: {error}"
+            raise ValueError(msg) from error
+
 
         for key in self.mandatory_vault_keys:
             if key not in data:
                 msg = f"{self.class_name}.{method_name}: "
-                msg += f"Exiting. ansible_vault is missing key {key}. "
+                msg += f"ansible_vault is missing key {key}. "
                 msg += f"vault file: {self.ansible_vault}"
                 raise ValueError(msg)
 
-        self.credentials = {}
-        self.credentials["nd_domain"] = str(data["nd_domain"])
-        self.credentials["nd_ip4"] = str(data["nd_ip4"])
-        self.credentials["nd_password"] = str(data["nd_password"])
-        self.credentials["nd_username"] = str(data["nd_username"])
-        self.credentials["nxos_password"] = str(data["nxos_password"])
-        self.credentials["nxos_username"] = str(data["nxos_username"])
+        try:
+            self.credentials = {}
+            self.credentials["nd_domain"] = str(data["nd_domain"])
+            self.credentials["nd_ip4"] = str(data["nd_ip4"])
+            self.credentials["nd_password"] = str(data["nd_password"])
+            self.credentials["nd_username"] = str(data["nd_username"])
+            self.credentials["nxos_password"] = str(data["nxos_password"])
+            self.credentials["nxos_username"] = str(data["nxos_username"])
+        except AnsibleVaultError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "Perhaps an incorrect Ansible Vault password was entered? "
+            msg += f"Error detail: AnsibleVaultError: {error}"
+            raise ValueError(error) from error
 
     @property
     def ansible_vault(self):

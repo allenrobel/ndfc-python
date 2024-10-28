@@ -9,7 +9,7 @@ import argparse
 import logging
 import sys
 
-from ndfc_python.ansible_vault_credentials import AnsibleVaultCredentials
+from ndfc_python.credentials.credentials_ansible_vault import CredentialsAnsibleVault
 from ndfc_python.ndfc_python_logger import NdfcPythonLogger
 from ndfc_python.parsers.parser_ansible_vault import parser_ansible_vault
 from ndfc_python.parsers.parser_loglevel import parser_loglevel
@@ -43,11 +43,12 @@ log = logging.getLogger("ndfc_python.main")
 log.setLevel = args.loglevel
 
 try:
-    avc = AnsibleVaultCredentials()
+    avc = CredentialsAnsibleVault()
     avc.ansible_vault = args.ansible_vault
     avc.commit()
 except ValueError as error:
-    msg = f"{error}"
+    msg = "Perhaps an incorrect vault password was entered? "
+    msg += f"Error detail: {error}"
     log.error(msg)
     print(msg)
     sys.exit(1)
