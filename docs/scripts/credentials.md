@@ -4,22 +4,35 @@
 
 Read credentials specific to `ndfc-python` from an Ansible Vault file and print them.
 
-The following keys are expected to be in the Ansible Vault.
+## Expected keys
 
-- nd_domain
-  - Nexus Dashboard login domain
-- nd_ip4
-  - Nexus Dashboard IPv4 address
-- nd_password
-  - Nexus Dashboard password
-- nd_username
-  - Nexus Dashboard username
-- nxos_password
-  - NX-OS switches password
-  - Used for Nexus Dashboard Fabric Contoller switch discovery
-- nxos_username
-  - NX-OS switches username
-  - Used for Nexus Dashboard Fabric Contoller switch discovery
+The following keys are expected to be present in the Ansible Vault.
+An error will result if these are not present.
+
+### nd_domain
+
+Nexus Dashboard login domain
+
+### nd_ip4
+
+Nexus Dashboard IPv4 address
+### nd_password
+
+Nexus Dashboard password
+
+### nd_username
+
+Nexus Dashboard username
+
+### nxos_password
+
+NX-OS switches password.
+Used for Nexus Dashboard Fabric Contoller switch discovery
+
+### nxos_username
+
+NX-OS switches username.
+Used for Nexus Dashboard Fabric Contoller switch discovery
 
 ## Example Usage
 
