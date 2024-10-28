@@ -1,15 +1,58 @@
 #!/usr/bin/env python
 """
-Name: example_ndfc_credentials.py
+Name: credentials.py
 Description:
 
-Print the user's credentials after asking for their ansible vault password
+Print Ansible Vault credentials.
 """
-from ndfc_python.ndfc_credentials import NdfcCredentials
+import argparse
+import logging
+import sys
 
-nc = NdfcCredentials()
+from ndfc_python.ansible_vault_credentials import AnsibleVaultCredentials
+from ndfc_python.ndfc_python_logger import NdfcPythonLogger
+from ndfc_python.parsers.parser_ansible_vault import parser_ansible_vault
+from ndfc_python.parsers.parser_loglevel import parser_loglevel
 
-print(f"domain {nc.nd_domain}")
-print(f"username {nc.username}")
-print(f"password {nc.password}")
-print(f"ndfc_ip {nc.ndfc_ip}")
+
+def setup_parser() -> argparse.Namespace:
+    """
+    ### Summary
+
+    Setup script-specific parser
+
+    Returns:
+        argparse.Namespace
+    """
+    parser = argparse.ArgumentParser(
+        parents=[parser_loglevel, parser_ansible_vault],
+        description="DESCRIPTION: Display credentials from an Ansible Vault.",
+    )
+    return parser.parse_args()
+
+
+args = setup_parser()
+
+if args.ansible_vault is None:
+    msg = "Usage: credentials.py --ansible-vault /path/to/ansible/vault"
+    print(msg)
+    sys.exit(1)
+
+NdfcPythonLogger()
+log = logging.getLogger("ndfc_python.main")
+log.setLevel = args.loglevel
+
+try:
+    avc = AnsibleVaultCredentials()
+    avc.ansible_vault = args.ansible_vault
+    avc.commit()
+except ValueError as error:
+    msg = f"{error}"
+    log.error(msg)
+    print(msg)
+    sys.exit(1)
+
+print(f"domain {avc.nd_domain}")
+print(f"username {avc.username}")
+print(f"password {avc.password}")
+print(f"ndfc_ip {avc.ndfc_ip}")

@@ -19,6 +19,8 @@ Install with:
 
 pip install ansible
 
+2. ANSIBLE_VAULT
+
 2. NdfcLoadConfig()
 
 In this repo at lib/ndfc_python/ndfc_config.py
@@ -35,12 +37,11 @@ import sys
 from ansible.cli import CLI
 from ansible.errors import AnsibleFileNotFound, AnsibleParserError
 from ansible.parsing.dataloader import DataLoader
-from ndfc_python.ndfc_config import NdfcLoadConfig
 
 OUR_VERSION = 106
 
 
-class NdfcCredentials:
+class AnsibleVaultCredentials:
     """
     Unencrypt NDFC and other credentials and provide to the user via properties
     after asking for the ansible vault password.
@@ -50,53 +51,54 @@ class NdfcCredentials:
         self.lib_version = OUR_VERSION
         self.class_name = self.__class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
-        self._init_mandatory_keys()
-        self.cred_obj = NdfcLoadConfig()
-        self.load_credentials()
 
-    def _init_mandatory_keys(self):
-        """
-        Initialize a set containing all mandatory keys
-        """
-        self.mandatory_keys = set()
-        self.mandatory_keys.add("ansible_user")
-        self.mandatory_keys.add("ansible_password")
-        self.mandatory_keys.add("ndfc_ip")
-        self.mandatory_keys.add("nd_domain")
-        self.mandatory_keys.add("discover_username")
-        self.mandatory_keys.add("discover_password")
+        self._ansible_vault = None
 
-    def load_credentials(self):
+        self.mandatory_vault_keys = set()
+        self.mandatory_vault_keys.add("ansible_user")
+        self.mandatory_vault_keys.add("ansible_password")
+        self.mandatory_vault_keys.add("ndfc_ip")
+        self.mandatory_vault_keys.add("nd_domain")
+        self.mandatory_vault_keys.add("discover_username")
+        self.mandatory_vault_keys.add("discover_password")
+
+    def commit(self):
         """
         Load user credentials from ansible vault.  This asked for the ansible
         vault password.
         """
         method_name = inspect.stack()[0][3]
+
+        if self.ansible_vault is None:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "set instance.ansible_vault before calling commit."
+            raise ValueError(msg)
+
         try:
             loader = DataLoader()
             secrets = CLI.setup_vault_secrets(loader=loader, vault_ids=None)
             loader.set_vault_secrets(secrets)
-            data = loader.load_from_file(self.cred_obj.config["ansible_vault"])
+            data = loader.load_from_file(self.ansible_vault)
         except AnsibleFileNotFound as exception:
             msg = f"{self.class_name}.{method_name}: "
             msg += "Exiting. Unable to load credentials in "
-            msg += f" {self.cred_obj.config['ansible_vault']}. "
+            msg += f" {self.ansible_vault}. "
             msg += f"Exception detail: {exception}"
             self.log.debug(msg)
             sys.exit(1)
         except AnsibleParserError as exception:
             msg = f"{self.class_name}.{method_name}: "
             msg += "Exiting. Unable to load credentials in "
-            msg += f" {self.cred_obj.config['ansible_vault']}. "
+            msg += f" {self.ansible_vault}. "
             msg += f"Exception detail: {exception}"
             self.log.debug(msg)
             sys.exit(1)
 
-        for key in self.mandatory_keys:
+        for key in self.mandatory_vault_keys:
             if key not in data:
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"Exiting. ansible_vault is missing key {key}. "
-                msg += f"value file: {self.cred_obj.config['ansible_vault']}"
+                msg += f"vault file: {self.ansible_vault}"
                 self.log.debug(msg)
                 sys.exit(1)
         self.credentials = {}
@@ -106,6 +108,17 @@ class NdfcCredentials:
         self.credentials["ndfc_ip"] = str(data["ndfc_ip"])
         self.credentials["discover_username"] = str(data["discover_username"])
         self.credentials["discover_password"] = str(data["discover_password"])
+
+    @property
+    def ansible_vault(self):
+        """
+        Path to the Ansible Vault file.
+        """
+        return self._ansible_vault
+
+    @ansible_vault.setter
+    def ansible_vault(self, value):
+        self._ansible_vault = value
 
     @property
     def discover_username(self):
