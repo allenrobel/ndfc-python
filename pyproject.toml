@@ -19,6 +19,8 @@ use_parentheses = false
 [tool.mypy]
 disable_error_code = "assignment,import,import-not-found"
 
-[tool.pylint.main]
-disable = ["too-many-instance-attributes", "too-many-lines", "too-many-public-methods", "wrong-import-order"]
+[tool.pylint."messages control"]
+disable = ["fixme", "invalid-name", "import-error", "missing-module-docstring", "too-few-public-methods", "too-many-instance-attributes", "too-many-lines", "too-many-public-methods", "too-many-statements"]
+
+[tool.pylint.format]
 max-line-length = 180
