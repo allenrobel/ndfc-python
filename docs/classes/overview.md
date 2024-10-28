@@ -4,8 +4,8 @@
 
 Library                   | Description
 --------------------------| -----------
+[CredentialsAnsibleVault] | Read an Ansible Vault and provide properties for credentials
 [Log]                     | Create the base ndfc_python logging object
-[AnsibleVaultCredentials] | Read an Ansible Vault and provide properties for credentials
 [NdfcDiscover]            | Discover device
 [NdfcPolicy]              | ``*`` Create / delete policies
 [NdfcPythonLogger]        | Configure logging for ``ndfc-python`` scripts
@@ -18,8 +18,8 @@ Library                   | Description
 [Validations]             | Validation methods used by the other classes (deprecated)
 [YamlReader]              | Read a YAML file and return its contents as a python dict
 
+[CredentialsAnsibleVault]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/credentials/credentials_ansible_vault.py
 [Log]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/log_v2.py
-[AnsibleVaultCredentials]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ansible_vault_credentials.py
 [NdfcDiscover]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_discover.py
 [NdfcPolicy]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_policy.py
 [NdfcPythonLogger]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_python_logger.py

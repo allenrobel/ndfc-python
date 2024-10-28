@@ -94,7 +94,6 @@ class CredentialsAnsibleVault:
             msg += f"Exception detail: AnsibleVaultPasswordError: {error}"
             raise ValueError(msg) from error
 
-
         for key in self.mandatory_vault_keys:
             if key not in data:
                 msg = f"{self.class_name}.{method_name}: "
