@@ -10,13 +10,13 @@ Retrieve reachability information for a switch.
 
 ### `ValueError`
 
-  * `fabric_name` does not exist on the controller.
-  * `nxos_password` is not set prior to calling `commit`.
-  * `nxos_username` is not set prior to calling `commit`.
-  * `rest_send` is not set prior to calling `commit`.
-  * `results` is not set prior to calling `commit`.
-  * `seed_ip` does not exist in fabric `fabric_name`.
-  * An error occurred when sending the `POST` request to the controller.
+* `fabric_name` does not exist on the controller.
+* `nxos_password` is not set prior to calling `commit`.
+* `nxos_username` is not set prior to calling `commit`.
+* `rest_send` is not set prior to calling `commit`.
+* `results` is not set prior to calling `commit`.
+* `seed_ip` does not exist in fabric `fabric_name`.
+* An error occurred when sending the `POST` request to the controller.
 
 ## Properties
 

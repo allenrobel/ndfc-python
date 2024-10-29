@@ -10,13 +10,13 @@ Delete a network
 
 ### `ValueError`
 
-  * `rest_send` is not set prior to calling `commit`.
-  * `results` is not set prior to calling `commit`.
-  * `network_name` is not set prior to calling `commit`.
-  * `fabric_name` is not set prior to calling `commit`.
-  * `fabric_name` does not exist on the controller.
-  * `network_name` does not exist in fabric `fabric_name`.
-  * An error occurred when sending the `DELETE` request to the controller.
+* `rest_send` is not set prior to calling `commit`.
+* `results` is not set prior to calling `commit`.
+* `network_name` is not set prior to calling `commit`.
+* `fabric_name` is not set prior to calling `commit`.
+* `fabric_name` does not exist on the controller.
+* `network_name` does not exist in fabric `fabric_name`.
+* An error occurred when sending the `DELETE` request to the controller.
 
 ## Properties
 

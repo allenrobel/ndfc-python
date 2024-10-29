@@ -14,13 +14,13 @@ NdfcPythonLogger()
 
 ### `ValueError`
 
-  * An error is encountered reading the logging config file.
-  * An error is encountered parsing the logging config file.
-  * No formatters are found in the logging config file that are associated with the configured handlers.
+* An error is encountered reading the logging config file.
+* An error is encountered parsing the logging config file.
+* No formatters are found in the logging config file that are associated with the configured handlers.
 
 ### `TypeError`
 
-  * `develop` is not a boolean.
+* `develop` is not a boolean.
 
 ## Methods
 
@@ -107,7 +107,7 @@ log.info("Logger created.")
 
 To disable for all children, unset the environment variable.
 
-```bash
+``` bash title="Disable logging for all ndfc_python child loggers"
 unset NDFC_LOGGING_CONFIG
 ```
 
@@ -158,7 +158,7 @@ def main():
 
 ### Example use in a class
 
-```py title="Example use in a class"
+``` py title="Example use in a class"
 class MyClass:
     def __init__(self):
         self.class_name = self.__class__.__name__
