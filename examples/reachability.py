@@ -5,6 +5,7 @@ Description:
 
 Test for device reachability (from controller perspective)
 """
+# pylint: disable=duplicate-code
 import argparse
 import json
 import logging

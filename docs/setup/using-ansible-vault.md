@@ -2,8 +2,15 @@
 
 We've temporarily removed support for
 [Ansible Vault](https://docs.ansible.com/ansible/latest/vault_guide/vault.html)
-in the example scripts. It'll return later (probably as the same command-line
-option that Ansible itself uses, i.e. `--vault-password-file`)
+from some of the example scripts while we work on a unified approach to handling
+credentials. Ansible Vault support will return later (probably as a command-line
+option `--ansible-vault` and environment variable, maybe something like
+`NDFC_PYTHON_ANSIBLE_VAULT`)
+
+## Scripts which support Ansible Vault
+
+* [credentials.py](../scripts/credentials.md)
+* [reachability.py](../scripts/reachability.md)
 
 <!---
 

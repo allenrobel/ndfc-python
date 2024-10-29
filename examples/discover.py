@@ -19,10 +19,10 @@ Usage
 
     Environment variables read by Sender()
 
-    export NDFC_DOMAIN=local
-    export NDFC_IP4=10.1.1.1
-    export NDFC_PASSWORD=MyNdfcPassword
-    export NDFC_USERNAME=MyNdfcUsername
+    export ND_DOMAIN=local
+    export ND_IP4=10.1.1.1
+    export ND_PASSWORD=MyNdfcPassword
+    export ND_USERNAME=MyNdfcUsername
 
 2. Script variables
 
@@ -35,6 +35,7 @@ Usage
 
 
 """
+# pylint: disable=duplicate-code
 import logging
 import sys
 

@@ -6,6 +6,7 @@ Description:
 Load the configuration file pointed to by the environment variable NDFC_CONFIG_FILE,
 and print the parameters and values contained therein.
 """
+# pylint: disable=duplicate-code
 
 from ndfc_python.ndfc_config import NdfcLoadConfig
 

@@ -12,10 +12,10 @@ Either set the following environment variables or use the command line
 options to set the credentials for your Nexus Dashboard controller.
 
 ``` bash title="Set environment variables"
-export NDFC_DOMAIN=local
-export NDFC_IP4=10.1.1.1
-export NDFC_PASSWORD=MyNdfcPassword
-export NDFC_USERNAME=admin
+export ND_DOMAIN=local
+export ND_IP4=10.1.1.1
+export ND_PASSWORD=MyNdfcPassword
+export ND_USERNAME=admin
 ```
 
 ``` bash title="If the above environment variables are set"
@@ -23,7 +23,7 @@ export NDFC_USERNAME=admin
 ```
 
 ``` bash title="If the above environment variables are not set"
-./rest_get_request.py --domain local --password MyNdfcPassword --username admin --ip4 10.1.1.1
+./rest_get_request.py --nd-domain local --nd-password MyNdfcPassword --nd-username admin --nd-ip4 10.1.1.1
 ```
 
 ### Logging
@@ -402,7 +402,7 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 ### Failure - Login credentials are invalid
 
 ``` bash title="Invalid login credentials"
-(.venv) AROBEL-M-G793% ./rest_get_request.py --domain local --username admin --password TotallyIncorrectPassword --ip4 10.1.1.1
+(.venv) AROBEL-M-G793% ./rest_get_request.py --nd-domain local --nd-username admin --nd-password TotallyIncorrectPassword --nd-ip4 10.1.1.1
 Exiting.  Error detail: NdfcPythonSender.commit: Unable to login to the controller. Error detail: Sender.update_token: Unable to parse token from response: {'RETURN_CODE': 401, 'DATA': {'error': 'Invalid Username/Password'}, 'MESSAGE': 'Unauthorized', 'METHOD': 'POST', 'REQUEST_PATH': 'https://10.1.1.1/login'}
 (.venv) AROBEL-M-G793%
 ```
