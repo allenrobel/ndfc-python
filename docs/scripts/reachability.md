@@ -42,6 +42,15 @@ Used for Nexus Dashboard Fabric Contoller switch discovery
 NX-OS switches username.
 Used for Nexus Dashboard Fabric Contoller switch discovery
 
+## Example configuration file
+
+``` yaml title="Example configuraion file"
+---
+config:
+  fabric_name: MyFabric
+  seed_ip: 10.1.1.2
+```
+
 ## Example Usage
 
 ``` bash

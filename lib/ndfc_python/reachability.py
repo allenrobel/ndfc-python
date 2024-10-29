@@ -284,14 +284,17 @@ class Reachability:
         self.payload["maxHops"] = param
 
     @property
-    def password(self):
+    def nxos_password(self):
         """
-        return the current payload value of password
+        The password credential for the NX-OS switch which the controller
+        uses for switch discovery.
+
+        Required before calling commit.
         """
         return self.payload["password"]
 
-    @password.setter
-    def password(self, param):
+    @nxos_password.setter
+    def nxos_password(self, param):
         self.payload["password"] = param
 
     @property
@@ -353,14 +356,17 @@ class Reachability:
         self.payload["snmpV3AuthProtocol"] = param
 
     @property
-    def username(self):
+    def nxos_username(self):
         """
-        return the current payload value of username
+        The username credential for the NX-OS switch which the controller
+        uses for switch discovery.
+
+        Required before calling commit.
         """
         return self.payload["username"]
 
-    @username.setter
-    def username(self, param):
+    @nxos_username.setter
+    def nxos_username(self, param):
         self.payload["username"] = param
 
     # Controller response accessors
