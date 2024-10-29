@@ -76,6 +76,7 @@ nav:
       - credentials.py: scripts/credentials.md
       - device_info.py: scripts/device_info.md
       - fabric_details.py: scripts/fabric_details.md
+      - ndfc_raw_get_request.py: scripts/ndfc_raw_get_request.md
       - network_create.py: scripts/network_create.md
       - network_delete.py: scripts/network_delete.md
       - reachability.py: scripts/reachability.md
