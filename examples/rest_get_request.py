@@ -2,11 +2,11 @@
 """
 # Name
 
-ndfc_raw_get_request.py
+rest_get_request.py
 
 # Description
 
-Send a raw GET request to the controller.
+Send a REST GET request to the controller.
 
 # NOTES
 
@@ -20,9 +20,12 @@ export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible-dc
 
 2. Optional, enable logging by setting the following environment variable.
 
+NDFC_LOGGING_CONFIG should point to a valid logging dictConfig file.
+
+https://docs.python.org/3/library/logging.config.html#logging.config.dictConfig
+
 ``` bash
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
-```
 
 3. Edit rest_send.path in the script below.
 
@@ -30,6 +33,7 @@ The value should be a valid NDFC REST API endpoint.  A couple example endpoints
 are provided for you to try (ep_fabrics, and ep_issu)
 
 """
+# pylint: disable=duplicate-code
 import argparse
 import json
 import logging
@@ -63,7 +67,7 @@ def setup_parser() -> argparse.Namespace:
             parser_controller_password,
             parser_controller_username,
         ],
-        description="DESCRIPTION: Send a raw GET request to the controller.",
+        description="DESCRIPTION: Send a REST GET request to the controller.",
     )
     return parser.parse_args()
 
@@ -72,8 +76,6 @@ args = setup_parser()
 NdfcPythonLogger()
 log = logging.getLogger("ndfc_python.main")
 log.setLevel = args.loglevel
-
-log = logging.getLogger("ndfc_python.main")
 
 # By default, sender reads environment variables for its ND credentials.
 # These can be overridden on the command line.  Run the script with --help
