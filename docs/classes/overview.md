@@ -10,7 +10,7 @@ Library                   | Description
 [NdfcPolicy]              | ``*`` Create / delete policies
 [NdfcPythonLogger]        | Configure logging for ``ndfc-python`` scripts
 [NdfcPythonSender]        | Instantiate and configure the Sender() class
-[NdfcReachability]        | ``*`` Test switch reachability (from NDFC controller perspective).
+[Reachability]            | Switch reachability information (from controller perspective).
 [NetworkCreate]           | Create networks
 [NetworkDelete]           | Delete networks
 [ReadConfig]              | Returns the contents of a YAML file as a dictionary, given a path to the file
@@ -24,9 +24,9 @@ Library                   | Description
 [NdfcPolicy]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_policy.py
 [NdfcPythonLogger]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_python_logger.py
 [NdfcPythonSender]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_python_sender.py
-[NdfcReachability]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/ndfc_reachability.py
 [NetworkCreate]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/network_create.py
 [NetworkDelete]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/network_delete.py
+[Reachability]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/reachability.py
 [ReadConfig]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/read_config.py
 [VrfCreate]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/vrf_create.py
 [Validations]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/validations.py
