@@ -69,6 +69,7 @@ nav:
   - Setup:
       - Clone the repositories: setup/clone-the-repositories.md
       - Update your PYTHONPATH: setup/update-your-pythonpath.md
+      - Set Credentials: setup/set-credentials.md
       - Enable logging: setup/enable-logging.md
       - Running the example scripts: setup/running-the-example-scripts.md
       - Using Ansible Vault: setup/using-ansible-vault.md
