@@ -35,7 +35,6 @@ is set.
 
 [dictConfig](https://docs.python.org/3/library/logging.config.html#logging.config.dictConfig)
 
-
 ``` bash title="Enable logging"
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
 ```

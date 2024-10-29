@@ -35,7 +35,6 @@ is set.
 
 [dictConfig](https://docs.python.org/3/library/logging.config.html#logging.config.dictConfig)
 
-
 ``` bash title="Enable logging"
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
 ```
@@ -401,7 +400,7 @@ Exiting.  Error detail: NdfcPythonSender.commit: Unable to login to the controll
 (.venv) AROBEL-M-G793%
 ```
 
-### Failure - Fabric already exists.
+### Failure - Fabric already exists
 
 ``` bash title="Fabric already exists"
 (.venv) AROBEL-M-G793% ./rest_post_request.py
