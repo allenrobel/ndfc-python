@@ -32,6 +32,7 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
    image policy named MyPolicy.  Edit the script per your needs.
 
 """
+# pylint: disable=duplicate-code
 import argparse
 import json
 import logging

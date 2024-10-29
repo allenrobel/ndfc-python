@@ -33,6 +33,7 @@ The value should be a valid NDFC REST API endpoint.  A couple example endpoints
 are provided for you to try (ep_fabrics, and ep_issu)
 
 """
+# pylint: disable=duplicate-code
 import argparse
 import json
 import logging
