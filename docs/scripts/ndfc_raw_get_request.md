@@ -2,7 +2,7 @@
 
 ## Description
 
-Senda GET request to the controller.
+Send a GET request to the controller.
 
 ## Usage
 
