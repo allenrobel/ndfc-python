@@ -1,10 +1,12 @@
-# ndfc_raw_get_request.py
+# rest_get_request.py
 
 ## Description
 
 Send a GET request to the controller.
 
 ## Usage
+
+### Credentials
 
 Either set the following environment variables or use the command line
 options to set the credentials for your Nexus Dashboard controller.
@@ -17,11 +19,25 @@ export NDFC_USERNAME=admin
 ```
 
 ``` bash title="If the above environment variables are set"
-./ndfc_raw_get_request.py
+./rest_get_request.py
 ```
 
 ``` bash title="If the above environment variables are not set"
-./ndfc_raw_get_request.py --domain local --password MyNdfcPassword --username admin --ip4 10.1.1.1
+./rest_get_request.py --domain local --password MyNdfcPassword --username admin --ip4 10.1.1.1
+```
+
+### Logging
+
+Logging is optional, and is disabled unless the following environment variable
+is set.
+
+`NDFC_LOGGING_CONFIG` should point to a valid logging dictConfig file.
+
+[dictConfig](https://docs.python.org/3/library/logging.config.html#logging.config.dictConfig)
+
+
+``` bash title="Enable logging"
+export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
 ```
 
 ## Example output
@@ -29,7 +45,7 @@ export NDFC_USERNAME=admin
 ### Success
 
 ``` bash title="Successful request"
-(.venv) AROBEL-M-G793% ./ndfc_raw_get_request.py
+(.venv) AROBEL-M-G793% ./rest_get_request.py
 {
     "RETURN_CODE": 200,
     "DATA": [
@@ -387,7 +403,7 @@ export NDFC_USERNAME=admin
 ### Failure - Login credentials are invalid
 
 ``` bash title="Invalid login credentials"
-(.venv) AROBEL-M-G793% ./ndfc_raw_get_request.py --domain local --username admin --password TotallyIncorrectPassword --ip4 10.1.1.1
+(.venv) AROBEL-M-G793% ./rest_get_request.py --domain local --username admin --password TotallyIncorrectPassword --ip4 10.1.1.1
 Exiting.  Error detail: NdfcPythonSender.commit: Unable to login to the controller. Error detail: Sender.update_token: Unable to parse token from response: {'RETURN_CODE': 401, 'DATA': {'error': 'Invalid Username/Password'}, 'MESSAGE': 'Unauthorized', 'METHOD': 'POST', 'REQUEST_PATH': 'https://10.1.1.1/login'}
 (.venv) AROBEL-M-G793%
 ```
@@ -395,7 +411,7 @@ Exiting.  Error detail: NdfcPythonSender.commit: Unable to login to the controll
 ### Failure - Endpoint `/foo/endpoint` does not exist
 
 ``` bash title="Invalid endpoint"
-(.venv) AROBEL-M-G793% ./ndfc_raw_get_request.py
+(.venv) AROBEL-M-G793% ./rest_get_request.py
 {
     "RETURN_CODE": 404,
     "DATA": {
