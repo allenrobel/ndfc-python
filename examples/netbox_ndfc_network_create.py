@@ -45,9 +45,9 @@ try:
 except ImportError:
     unable_to_import.append("requests")
 try:
+    from ndfc_python.credentials.credentials_ansible_vault import NdfcCredentials
     from ndfc_python.log_v2 import Log
     from ndfc_python.ndfc import NDFC, NdfcRequestError
-    from ndfc_python.credentials.credentials_ansible_vault import NdfcCredentials
     from ndfc_python.ndfc_network import NdfcNetwork
 except ImportError:
     unable_to_import.append("ndfc-python")

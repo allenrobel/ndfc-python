@@ -5,6 +5,4 @@ parser_help += "If missing, the environment variable ND_IP4 is used. "
 
 parser_controller_ip4 = argparse.ArgumentParser(add_help=False)
 optional = parser_controller_ip4.add_argument_group(title="OPTIONAL ARGS")
-optional.add_argument(
-    "--nd-ip4", dest="controller_ip4", required=False, help=f"{parser_help}"
-)
+optional.add_argument("--nd-ip4", dest="controller_ip4", required=False, help=f"{parser_help}")

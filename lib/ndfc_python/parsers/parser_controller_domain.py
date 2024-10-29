@@ -5,6 +5,4 @@ parser_help += "If missing, the environment variable ND_DOMAIN is used. "
 
 parser_controller_domain = argparse.ArgumentParser(add_help=False)
 optional = parser_controller_domain.add_argument_group(title="OPTIONAL ARGS")
-optional.add_argument(
-    "--nd-domain", dest="controller_domain", required=False, help=f"{parser_help}"
-)
+optional.add_argument("--nd-domain", dest="controller_domain", required=False, help=f"{parser_help}")
