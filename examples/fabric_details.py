@@ -13,13 +13,13 @@ Usage:
     # The following contains the path to your Ansible Vault.  Not needed if you
     # are not using Ansible Vault.
     export NDFC_PYTHON_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/config/config.yml
-    export NDFC_USERNAME=admin
-    export NDFC_PASSWORD=MyPassword
-    export NDFC_DOMAIN=local
-    export NDFC_IP4=10.1.1.1
+    export ND_USERNAME=admin
+    export ND_PASSWORD=MyPassword
+    export ND_DOMAIN=local
+    export ND_IP4=10.1.1.1
 
-1a. Alternately, you can override NDFC_USERNAME, NDFC_PASSWORD,
-    NDFC_DOMAIN, and NDFC_IP4 within the script.  Examples:
+1a. Alternately, you can override ND_USERNAME, ND_PASSWORD,
+    ND_DOMAIN, and ND_IP4 within the script.  Examples:
 
     Explicitly setting these:
 
@@ -32,12 +32,12 @@ Usage:
 
 2a. If you'd rather use Ansible Vault, modify the script to include:
 
-    nc = NdfcCredentials()
+    cav = CredentialsAnsibleVault()
     sender = Sender()
-    sender.username = nc.username
-    sender.password = nc.password
-    sender.domain = nc.nd_domain
-    sender.ip4 = nc.ndfc_ip
+    sender.username = cav.nd_username
+    sender.password = cav.nd_password
+    sender.domain = cav.nd_domain
+    sender.ip4 = cav.nd_ip4
     sender.login()
 
 
@@ -52,6 +52,7 @@ Usage:
 3. Set the FABRIC_NAME variable in the script below.
 
 """
+# pylint: disable=duplicate-code
 import argparse
 import json
 import logging

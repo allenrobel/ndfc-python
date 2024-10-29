@@ -7,17 +7,17 @@ Returns fabric details.
 ## Usage
 
 ``` bash
-export NDFC_DOMAIN=local
-export NDFC_IP4=10.1.1.1
-export NDFC_PASSWORD=MySecret
-export NDFC_USERNAME=admin
+export ND_DOMAIN=local
+export ND_IP4=10.1.1.1
+export ND_PASSWORD=MySecret
+export ND_USERNAME=admin
 ./fabric_details.py --config config/config_fabric_details.yaml
 ```
 
 Environment variables (all, or a subset) can be overridden on the command line.
 
 ``` bash
-./fabric_details.py --config config/config_fabric_details.yaml --username admin --password MySecret --domain local --ip4 10.1.1.1
+./fabric_details.py --config config/config_fabric_details.yaml --nd-username admin --nd-password MySecret --nd-domain local --nd-ip4 10.1.1.1
 ```
 
 ## Example Config File
@@ -394,7 +394,7 @@ Fabric MyFabric does not exist on the controller
 #### Invalid credentials
 
 ``` bash
-(.venv) AROBEL-M-G793% ./fabric_details.py --config prod/config_fabric_details.yaml --username SomeRandomDude
+(.venv) AROBEL-M-G793% ./fabric_details.py --config prod/config_fabric_details.yaml --nd-username SomeRandomDude
 Exiting.  Error detail: NdfcPythonSender.commit: Unable to login to the controller. Error detail: Sender.update_token: Unable to parse token from response: {'RETURN_CODE': 401, 'DATA': {'error': 'Invalid Username/Password'}, 'MESSAGE': 'Unauthorized', 'METHOD': 'POST', 'REQUEST_PATH': 'https://10.1.1.1/login'}
 (.venv) AROBEL-M-G793%
 ```

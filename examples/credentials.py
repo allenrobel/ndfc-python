@@ -5,6 +5,7 @@ Description:
 
 Print Ansible Vault credentials.
 """
+# pylint: disable=duplicate-code
 import argparse
 import logging
 import sys

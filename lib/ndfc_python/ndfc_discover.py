@@ -101,10 +101,10 @@ class NdfcDiscover:
 
     Environment variables read by Sender()
 
-    NDFC_DOMAIN=local
-    NDFC_IP4=10.1.1.1
-    NDFC_PASSWORD=MyNdfcPassword
-    NDFC_USERNAME=MyNdfcUsername
+    ND_DOMAIN=local
+    ND_IP4=10.1.1.1
+    ND_PASSWORD=MyNdfcPassword
+    ND_USERNAME=MyNdfcUsername
 
 
     from ndfc_python.log_v2 import Log

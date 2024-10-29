@@ -51,18 +51,18 @@ class NdfcPythonSender:
         If not set, Sender() will read Nexus Dashboard credentials from
         environment variables:
 
-        - NDFC_DOMAIN : The login domain for the Nexus Dashboard controller
-        - NDFC_IP4 : The IPv4 address of the Nexus Dashboard controller
-        - NDFC_PASSWORD : The login password for the Nexus Dashboard controller
-        - NDFC_USERNAME : The login username for the Nexus Dashboard controller
+        - ND_DOMAIN : The login domain for the Nexus Dashboard controller
+        - ND_IP4 : The IPv4 address of the Nexus Dashboard controller
+        - ND_PASSWORD : The login password for the Nexus Dashboard controller
+        - ND_USERNAME : The login username for the Nexus Dashboard controller
 
         If set, it must be an argparse.Namespace instance containing one or
         more of:
 
-        - ndfc_domain : The login domain for the Nexus Dashboard controller
-        - ndfc_ip4 : The IPv4 address of the Nexus Dashboard controller
-        - ndfc_password : The login password for the Nexus Dashboard controller
-        - ndfc_username : The login username for the Nexus Dashboard controller
+        - nd_domain : The login domain for the Nexus Dashboard controller
+        - nd_ip4 : The IPv4 address of the Nexus Dashboard controller
+        - nd_password : The login password for the Nexus Dashboard controller
+        - nd_username : The login username for the Nexus Dashboard controller
         """
         return self._args
 
@@ -98,25 +98,25 @@ class NdfcPythonSender:
             # environment variable.
             try:
                 if self.args.controller_domain is not None:
-                    # override NDFC_DOMAIN env variable
+                    # override ND_DOMAIN env variable
                     self.sender.domain = self.args.controller_domain
             except AttributeError:
                 pass
             try:
                 if self.args.controller_ip4 is not None:
-                    # override NDFC_IP4 env variable
+                    # override ND_IP4 env variable
                     self.sender.ip4 = self.args.controller_ip4
             except AttributeError:
                 pass
             try:
                 if self.args.controller_password is not None:
-                    # override NDFC_PASSWORD env variable
+                    # override ND_PASSWORD env variable
                     self.sender.password = self.args.controller_password
             except AttributeError:
                 pass
             try:
                 if self.args.controller_username is not None:
-                    # override NDFC_USERNAME env variable
+                    # override ND_USERNAME env variable
                     self.sender.username = self.args.controller_username
             except AttributeError:
                 pass

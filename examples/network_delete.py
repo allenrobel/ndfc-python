@@ -15,6 +15,7 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 
 2. Edit the network values in the script below.
 """
+# pylint: disable=duplicate-code
 import argparse
 import json
 import logging

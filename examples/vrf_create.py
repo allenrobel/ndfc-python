@@ -2,7 +2,7 @@
 """
 # Name
 
-vrf_add.py
+vrf_create.py
 
 # Description
 
@@ -10,7 +10,7 @@ Add a vrf to a fabric
 
 #Usage
 
-Edit ``examples/config_vrf_add.yaml`` appropriately for your setup.
+Edit ``examples/config_vrf_create.yaml`` appropriately for your setup.
 
 ```yaml
 config:
@@ -22,19 +22,20 @@ config:
 ```
 
 If you've set the standard ndfc-python Nexus Dashboard credentials
-environment variables (NDFC_DOMAIN, NDFC_IP4, NDFC_PASSWORD, NDFC_USERNAME)
+environment variables (ND_DOMAIN, ND_IP4, ND_PASSWORD, ND_USERNAME)
 then you're good to go.
 
 ```bash
-./vrf_add.py --config config_vrf_add.yaml
+./vrf_create.py --config config_vrf_create.yaml
 ```
 
 If you haven't set the standard ndfc-python Nexus Dashboard credentials
 environment variables, you can override them like so:
 
 ```bash
-./vrf_add.py --config device_info_config.yaml --username admin --password MyPassword --domain local --ip4 10.1.1.2
+./vrf_create.py --config device_info_config.yaml --nd-username admin --nd-password MyPassword --nd-domain local --nd-ip4 10.1.1.2
 """
+# pylint: disable=duplicate-code
 import argparse
 import logging
 import sys

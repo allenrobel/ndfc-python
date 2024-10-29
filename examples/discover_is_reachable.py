@@ -17,10 +17,10 @@ you override them on the command line (use --help for details):
 
 Environment variables read by Sender()
 
-export NDFC_DOMAIN=local
-export NDFC_IP4=10.1.1.1
-export NDFC_PASSWORD=MyNdfcPassword
-export NDFC_USERNAME=MyNdfcUsername
+export ND_DOMAIN=local
+export ND_IP4=10.1.1.1
+export ND_PASSWORD=MyNdfcPassword
+export ND_USERNAME=MyNdfcUsername
 
 
 ## 2. Edit config file
@@ -41,6 +41,7 @@ config:
 
 ./discover_is_reachable.py --config discover_config.yaml
 """
+# pylint: disable=duplicate-code
 import argparse
 import logging
 import sys

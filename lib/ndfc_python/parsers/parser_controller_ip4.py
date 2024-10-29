@@ -1,10 +1,10 @@
 import argparse
 
 parser_help = "IPv4 address for the Nexus Dashboard controller. "
-parser_help += "If missing, the environment variable NDFC_IP4 is used. "
+parser_help += "If missing, the environment variable ND_IP4 is used. "
 
 parser_controller_ip4 = argparse.ArgumentParser(add_help=False)
 optional = parser_controller_ip4.add_argument_group(title="OPTIONAL ARGS")
 optional.add_argument(
-    "--ip4", dest="controller_ip4", required=False, help=f"{parser_help}"
+    "--nd-ip4", dest="controller_ip4", required=False, help=f"{parser_help}"
 )
