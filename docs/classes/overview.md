@@ -1,5 +1,13 @@
 # Classes
 
+As we work to modify code in the `ansible-dcnm` repository to remove direct
+dependencies on Ansible, we will leverage that code here.  `ndfc-python`
+serves secondarily as a testing ground for new code that may eventually
+find its way into `ansible-dcnm`.  The code behind the `dcnm_network`,
+`dcnm_vrf`, and `dcnm_policy` Ansible modules is currently tied at the
+hip to Ansible, so we are currently unable to leverage it.  We're using
+the libraries below for now.
+
 ``*`` indicates that a class has not yet been updated to work with RestSend().
 
 Library                   | Description
@@ -10,9 +18,9 @@ Library                   | Description
 [NdfcPolicy]              | ``*`` Create / delete policies
 [NdfcPythonLogger]        | Configure logging for ``ndfc-python`` scripts
 [NdfcPythonSender]        | Instantiate and configure the Sender() class
-[Reachability]            | Switch reachability information (from controller perspective).
 [NetworkCreate]           | Create networks
 [NetworkDelete]           | Delete networks
+[Reachability]            | Switch reachability information (from controller perspective).
 [ReadConfig]              | Returns the contents of a YAML file as a dictionary, given a path to the file
 [VrfCreate]               | Create VRFs
 [Validations]             | Validation methods used by the other classes (deprecated)
