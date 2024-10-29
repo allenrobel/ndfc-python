@@ -35,8 +35,15 @@ def setup_parser() -> argparse.Namespace:
 
     Setup script-specific parser
 
-    Returns:
-        argparse.Namespace
+    ### Returns
+
+    argparse.Namespace
+
+    ### NOTES
+
+    -   parser_controller_* are not currently used.  They'll be used later when
+        we modify our libraries to support a combination of credential sources.
+        For now, this script accepts only Ansible Vault as a credential source.
     """
     parser = argparse.ArgumentParser(
         parents=[
@@ -123,8 +130,8 @@ try:
     # instance.overlay_mode = "cli"
     instance.preserve_config = False
     instance.max_hops = 0
-    instance.username = cav.nxos_username
-    instance.password = cav.nxos_password
+    instance.nxos_username = cav.nxos_username
+    instance.nxos_password = cav.nxos_password
     instance.commit()
 except ValueError as error:
     msg = f"Exiting. Error detail: {error}"

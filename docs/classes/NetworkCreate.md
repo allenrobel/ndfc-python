@@ -8,19 +8,19 @@ Create a network
 
 ## Raises
 
-- `ValueError`
+### `ValueError`
 
-    * `rest_send` is not set prior to calling `commit`.
-    * `results` is not set prior to calling `commit`.
-    * `network_name` is not set prior to calling `commit`.
-    * `fabric_name` is not set prior to calling `commit`.
-    * `network_id` is not set prior to calling `commit`.
-    * `vlan_id` is not set prior to calling `commit`.
-    * `vrf_name` is not set prior to calling `commit`.
-    * `fabric_name` does not exist on the controller.
-    * `vrf_name` does not exist in fabric `fabric_name`.
-    * `network_name` already exists in fabric `fabric_name`.
-    * An error occurred when sending the `POST` request to the controller.
+* `rest_send` is not set prior to calling `commit`.
+* `results` is not set prior to calling `commit`.
+* `network_name` is not set prior to calling `commit`.
+* `fabric_name` is not set prior to calling `commit`.
+* `network_id` is not set prior to calling `commit`.
+* `vlan_id` is not set prior to calling `commit`.
+* `vrf_name` is not set prior to calling `commit`.
+* `fabric_name` does not exist on the controller.
+* `vrf_name` does not exist in fabric `fabric_name`.
+* `network_name` already exists in fabric `fabric_name`.
+* An error occurred when sending the `POST` request to the controller.
 
 ## Properties
 
