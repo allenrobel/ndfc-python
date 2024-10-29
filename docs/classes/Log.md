@@ -12,15 +12,15 @@ NdfcPythonLogger()
 
 ## Raises
 
-- `ValueError`
+### `ValueError`
 
-    * An error is encountered reading the logging config file.
-    * An error is encountered parsing the logging config file.
-    * No formatters are found in the logging config file that are associated with the configured handlers.
+  * An error is encountered reading the logging config file.
+  * An error is encountered parsing the logging config file.
+  * No formatters are found in the logging config file that are associated with the configured handlers.
 
-- `TypeError`
+### `TypeError`
 
-    * `develop` is not a boolean.
+  * `develop` is not a boolean.
 
 ## Methods
 
