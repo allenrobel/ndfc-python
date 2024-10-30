@@ -2,7 +2,8 @@
 
 ## Description
 
-Test for device reachability (from controller perspective).
+Display reachability (from controller perspective) information for one or more
+devices.
 
 For now, this script requires Ansible to be installed since it uses Ansible
 Vault for credentials.

@@ -2,7 +2,7 @@
 
 ## Description
 
-Delete a network.
+Delete one or more networks.
 
 ## Usage
 

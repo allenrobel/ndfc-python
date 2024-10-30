@@ -2,7 +2,7 @@
 
 ## Description
 
-Send a GET request to the controller.
+Send a POST request to the controller.
 
 ## Usage
 
@@ -44,7 +44,7 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 ### Success
 
 ``` bash title="Successful request"
-(.venv) AROBEL-M-G793% ./rest_get_request.py
+(.venv) AROBEL-M-G793% ./rest_post_request.py
 {
     "RETURN_CODE": 200,
     "DATA": {
