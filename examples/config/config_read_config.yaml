@@ -1,5 +1,6 @@
 ---
 config:
-  switch_ip4: 10.1.1.1
-  fabric_name: MyFabric
-
+  - fabric_name: MyFabric1
+    switch_ip4: 10.1.1.1
+  - fabric_name: MyFabric2
+    switch_ip4: 10.2.1.1

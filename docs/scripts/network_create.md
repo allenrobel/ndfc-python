@@ -2,7 +2,7 @@
 
 ## Description
 
-Create a network.
+Create one or more networks.
 
 ## Usage
 
@@ -15,13 +15,20 @@ Create a network.
 ``` yaml title="config/config_network_create.yaml"
 ---
 config:
-  fabric_name: MyFabric
-  network_name: MyNet
-  enable_ir: True
-  gateway_ip_address: 10.1.1.1/24
-  network_id: 30005
-  vlan_id: 3005
-  vrf_name: MyVrf
+  - fabric_name: MyFabric1
+    network_name: MyNet1
+    enable_ir: True
+    gateway_ip_address: 10.5.1.1/24
+    network_id: 30005
+    vlan_id: 3005
+    vrf_name: MyVrf1
+  - fabric_name: MyFabric1
+    network_name: MyNet2
+    enable_ir: True
+    gateway_ip_address: 10.6.1.1/24
+    network_id: 30006
+    vlan_id: 3006
+    vrf_name: MyVrf1
 ```
 
 ## Example output
@@ -30,7 +37,8 @@ config:
 
 ``` bash
 (.venv) AROBEL-M-G793% ./network_create.py --config prod/config_network_create.yaml
-Network MyNet with id 30005 created in fabric MyFabric
+Network MyNet1 with id 30005 created in fabric MyFabric1
+Network MyNet2 with id 30006 created in fabric MyFabric1
 (.venv) AROBEL-M-G793%
 ```
 
@@ -38,6 +46,6 @@ Network MyNet with id 30005 created in fabric MyFabric
 
 ``` bash
 (.venv) AROBEL-M-G793% ./network_create.py --config prod/config_network_create.yaml
-Error creating network. Error detail: NetworkCreate.commit: networkId 30005 already exists in fabric MyFabric. Delete it before calling NetworkCreate.commit
+Error creating network. Error detail: NetworkCreate.commit: networkId 30005 already exists in fabric MyFabric1. Delete it before calling NetworkCreate.commit
 (.venv) AROBEL-M-G793%
 ```

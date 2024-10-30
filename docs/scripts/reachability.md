@@ -48,8 +48,10 @@ Used for Nexus Dashboard Fabric Contoller switch discovery
 ``` yaml title="Example configuraion file"
 ---
 config:
-  fabric_name: MyFabric
-  seed_ip: 10.1.1.2
+  - fabric_name: MyFabric1
+    seed_ip: 10.1.1.2
+  - fabric_name: MyFabric1
+    seed_ip: 10.1.1.3
 ```
 
 ## Example Usage
@@ -65,24 +67,42 @@ config:
 ``` bash
 (.venv) AROBEL-M-G793% ./reachability.py --config prod/config_reachability.yaml --ansible-vault $HOME/.ansible/vault
 Vault password:
-auth: True
-device_index: cvd-1314-leaf(FDO211218FV)
-hop_count: 0
-ip_addr: 172.22.150.105
-known: True
-last_change: None
-platform: N9K-C93180YC-EX
-reachable: True
-selectable: False
-serial_number: FDO211218FV
-status_reason: already managed in f1
-switch_role: None
+sys_name: cvd-1313-leaf
+  auth: True
+  device_index: cvd-1313-leaf(FDO211218HH)
+  hop_count: 0
+  ip_addr: 10.1.1.2
+  known: True
+  last_change: None
+  platform: N9K-C93180YC-EX
+  reachable: True
+  selectable: False
+  serial_number: FDO123456AB
+  status_reason: already managed in MyFabric1
+  switch_role: None
+  valid: True
+  vdc_id: 0
+  vdc_mac: None
+  vendor: Cisco
+  version: 10.3(1)
 sys_name: cvd-1314-leaf
-valid: True
-vdc_id: 0
-vdc_mac: None
-vendor: Cisco
-version: 10.2(5)
+  auth: True
+  device_index: cvd-1314-leaf(FDO211218FV)
+  hop_count: 0
+  ip_addr: 10.1.1.3
+  known: True
+  last_change: None
+  platform: N9K-C93180YC-EX
+  reachable: True
+  selectable: False
+  serial_number: FDO123456CD
+  status_reason: already managed in MyFabric1
+  switch_role: None
+  valid: True
+  vdc_id: 0
+  vdc_mac: None
+  vendor: Cisco
+  version: 10.2(5)
 (.venv) AROBEL-M-G793%
 ```
 
@@ -111,6 +131,6 @@ If you are using a module and expect the file to exist on the remote, see the re
 ```bash
 (.venv) AROBEL-M-G793% ./reachability.py --config prod/config_reachability.yaml --ansible-vault $HOME/.ansible/vault
 Vault password:
-Exiting. Error detail: Reachability.commit: fabric_name MyFabric does not exist on the controller.
+Exiting. Error detail: Reachability.commit: fabric_name MyFabric1 does not exist on the controller.
 (.venv) AROBEL-M-G793%
 ```

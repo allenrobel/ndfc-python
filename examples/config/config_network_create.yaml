@@ -1,9 +1,16 @@
 ---
 config:
-  fabric_name: MyFabric
-  network_name: MyNet
-  enable_ir: True
-  gateway_ip_address: 10.1.1.1/24
-  network_id: 30005
-  vlan_id: 3005
-  vrf_name: MyVrf
+  - fabric_name: MyFabric1
+    network_name: MyNet1
+    enable_ir: True
+    gateway_ip_address: 10.1.1.1/24
+    network_id: 30005
+    vlan_id: 3005
+    vrf_name: MyVrf1
+  - fabric_name: MyFabric1
+    network_name: MyNet2
+    enable_ir: True
+    gateway_ip_address: 10.2.1.1/24
+    network_id: 30006
+    vlan_id: 3006
+    vrf_name: MyVrf2

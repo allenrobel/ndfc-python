@@ -34,6 +34,7 @@ You can override the environment variables like so:
 """
 # pylint: disable=duplicate-code
 import argparse
+import json
 import logging
 import sys
 
@@ -42,10 +43,31 @@ from ndfc_python.ndfc_python_sender import NdfcPythonSender
 from ndfc_python.parsers.parser_config import parser_config
 from ndfc_python.parsers.parser_loglevel import parser_loglevel
 from ndfc_python.read_config import ReadConfig
+from ndfc_python.validators import DeviceInfoConfigValidator
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
 from plugins.module_utils.common.switch_details import SwitchDetails
+from pydantic import ValidationError
+
+
+def device_info(inst):
+    """
+    Given an instance of SwitchDetails, which has its filter set
+    to a switch ip address, print information about the switch.
+    """
+    try:
+        print(f"ipv4_address {inst.filter}")
+        print(f"  serial_number: {inst.serial_number}")
+        print(f"  fabric_name: {inst.fabric_name}")
+        print(f"  status: {inst.status}")
+        print(f"  model: {inst.model}")
+        # etc, see additional properties in SwitchDetails()
+    except ValueError as error:
+        errmsg = "Unable to get switch details. "
+        errmsg += f"Error details: {error}"
+        log.error(errmsg)
+        print(errmsg)
 
 
 def setup_parser() -> argparse.Namespace:
@@ -62,13 +84,12 @@ def setup_parser() -> argparse.Namespace:
             parser_config,
             parser_loglevel,
         ],
-        description="DESCRIPTION: Print information about a switch.",
+        description="DESCRIPTION: Print information about one or more switches.",
     )
     return parser.parse_args()
 
 
 args = setup_parser()
-
 NdfcPythonLogger()
 log = logging.getLogger("ndfc_python.main")
 log.setLevel = args.loglevel
@@ -94,6 +115,14 @@ except ValueError as error:
     print(msg)
     sys.exit()
 
+try:
+    validator = DeviceInfoConfigValidator(**ndfc_config.contents)
+except ValidationError as error:
+    msg = f"{error}"
+    log.error(msg)
+    print(msg)
+    sys.exit(1)
+
 rest_send = RestSend({})
 rest_send.sender = ndfc_sender.sender
 rest_send.response_handler = ResponseHandler()
@@ -110,15 +139,8 @@ except ValueError as error:
     print(msg)
     sys.exit(1)
 
-instance.filter = config.get("switch_ip4")
-try:
-    print(f"fabric_name: {instance.fabric_name}")
-    print(f"serial_number: {instance.serial_number}")
-    print(f"status: {instance.status}")
-    print(f"model: {instance.model}")
-    # etc, see additional properties in SwitchDetails()
-except ValueError as error:
-    msg = "Unable to get switch details. "
-    msg += f"Error details: {error}"
-    log.error(msg)
-    print(msg)
+params_list = json.loads(validator.model_dump_json()).get("config", {})
+
+for params in params_list:
+    instance.filter = params.get("switch_ip4")
+    device_info(instance)

@@ -2,7 +2,7 @@
 
 ## Description
 
-Returns fabric details.
+Returns fabric details for one or more fabrics.
 
 ## Usage
 
@@ -25,7 +25,8 @@ Environment variables (all, or a subset) can be overridden on the command line.
 ``` yaml title="config/config_fabric_details.yaml"
 ---
 config:
-  fabric_name: MyFabric
+  - fabric_name: MyFabric1
+  - fabric_name: MyFabric2
 ```
 
 ## Sample output
@@ -387,7 +388,7 @@ config:
 
 ``` bash
 (.venv) AROBEL-M-G793% ./fabric_details.py --config prod/config_fabric_details.yaml
-Fabric MyFabric does not exist on the controller
+Fabric MyFabric1 does not exist on the controller
 (.venv) AROBEL-M-G793%
 ```
 

@@ -44,6 +44,8 @@ except ValueError as error:
 
 contents = ndfc_config.contents
 print(f"contents: {contents}")
-config = contents.get("config", {})
-for option in config:
-    print(f"option: {option} = {config[option]}")
+params_list = contents.get("config", {})
+for params in params_list:
+    for option in params:
+        print(f"option: {option} = {params[option]}")
+    print("")

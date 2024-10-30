@@ -42,6 +42,27 @@ from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
+def network_delete(config):
+    """
+    Given a network configuration, delete the network.
+    """
+    try:
+        instance.fabric_name = config.get("fabric_name")
+        instance.network_name = config.get("network_name")
+        instance.commit()
+    except ValueError as error:
+        errmsg = "Error deleting network. "
+        errmsg += f"Error detail: {error}"
+        log.error(errmsg)
+        print(errmsg)
+        return
+
+    result_msg = f"Network {instance.network_name} "
+    result_msg += f"deleted from fabric {instance.fabric_name}"
+    log.info(result_msg)
+    print(result_msg)
+
+
 def setup_parser() -> argparse.Namespace:
     """
     ### Summary
@@ -81,14 +102,12 @@ except ValueError as error:
     sys.exit(1)
 
 try:
-    config = NetworkDeleteConfigValidator(**ndfc_config.contents)
+    validator = NetworkDeleteConfigValidator(**ndfc_config.contents)
 except ValidationError as error:
     msg = f"{error}"
     log.error(msg)
     print(msg)
     sys.exit(1)
-
-params = json.loads(config.model_dump_json()).get("config", {})
 
 try:
     ndfc_sender = NdfcPythonSender()
@@ -104,20 +123,11 @@ rest_send = RestSend({})
 rest_send.sender = ndfc_sender.sender
 rest_send.response_handler = ResponseHandler()
 
-try:
-    instance = NetworkDelete()
-    instance.rest_send = rest_send
-    instance.results = Results()
-    instance.fabric_name = params.get("fabric_name")
-    instance.network_name = params.get("network_name")
-    instance.commit()
-except ValueError as error:
-    msg = "Error deleting network. "
-    msg += f"Error detail: {error}"
-    log.error(msg)
-    print(msg)
-    sys.exit(1)
+instance = NetworkDelete()
+instance.rest_send = rest_send
+instance.results = Results()
 
-msg = f"Network {instance.network_name} "
-msg += f"deleted from fabric {instance.fabric_name}"
-print(msg)
+params_list = json.loads(validator.model_dump_json()).get("config", {})
+
+for params in params_list:
+    network_delete(params)

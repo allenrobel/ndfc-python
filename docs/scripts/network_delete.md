@@ -15,8 +15,10 @@ Delete a network.
 ``` yaml title="config/config_network_delete.yaml"
 ---
 config:
-  fabric_name: MyFabric
-  network_name: MyNet
+  - fabric_name: MyFabric1
+    network_name: MyNet1
+  - fabric_name: MyFabric1
+    network_name: MyNet2
 ```
 
 ## Example output
@@ -25,7 +27,8 @@ config:
 
 ``` bash
 (.venv) AROBEL-M-G793% ./network_delete.py --config prod/config_network_delete.yaml
-Network MyNet deleted from fabric MyFabric
+Network MyNet1 deleted from fabric MyFabric1
+Network MyNet2 deleted from fabric MyFabric1
 (.venv) AROBEL-M-G793%
 ```
 
@@ -33,7 +36,8 @@ Network MyNet deleted from fabric MyFabric
 
 ``` bash
 (.venv) AROBEL-M-G793% ./network_delete.py --config prod/config_network_delete.yaml
-Error deleting network. Error detail: NetworkDelete.commit: networkName MyNet does not exist in fabric MyFabric.
+Error deleting network. Error detail: NetworkDelete.commit: networkName MyNet1 does not exist in fabric MyFabric1.
+Error deleting network. Error detail: NetworkDelete.commit: networkName MyNet2 does not exist in fabric MyFabric1.
 (.venv) AROBEL-M-G793%
 ```
 
@@ -41,6 +45,6 @@ Error deleting network. Error detail: NetworkDelete.commit: networkName MyNet do
 
 ``` bash
 (.venv) AROBEL-M-G793% ./network_delete.py --config prod/config_network_delete.yaml
-Error deleting network. Error detail: NetworkDelete.commit: fabric_name MyFabric does not exist on the controller.
+Error deleting network. Error detail: NetworkDelete.commit: fabric_name MyFabric1 does not exist on the controller.
 (.venv) AROBEL-M-G793%
 ```
