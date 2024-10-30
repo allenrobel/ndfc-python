@@ -43,6 +43,9 @@ from pydantic import ValidationError
 
 
 def network_delete(config):
+    """
+    Given a network configuration, delete the network.
+    """
     try:
         instance = NetworkDelete()
         instance.rest_send = rest_send

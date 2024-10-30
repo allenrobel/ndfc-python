@@ -84,6 +84,9 @@ from pydantic import ValidationError
 
 
 def fabric_info(config):
+    """
+    Given a fabric configuration, print details about the fabric.
+    """
     ep_fabric_details = EpFabricDetails()
     ep_fabric_details.fabric_name = config.get("fabric_name")
 

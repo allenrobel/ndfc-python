@@ -63,6 +63,9 @@ from pydantic import ValidationError
 
 
 def vrf_create(config):
+    """
+    Given a VRF configuration, create the VRF.
+    """
     try:
         instance = VrfCreate()
         instance.rest_send = rest_send

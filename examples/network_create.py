@@ -43,6 +43,9 @@ from pydantic import ValidationError
 
 
 def network_create(config):
+    """
+    Given a network configuration, create the network.
+    """
     try:
         instance = NetworkCreate()
         instance.rest_send = rest_send
