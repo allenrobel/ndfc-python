@@ -83,6 +83,34 @@ from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
+def fabric_info(config):
+    ep_fabric_details = EpFabricDetails()
+    ep_fabric_details.fabric_name = config.get("fabric_name")
+
+    rest_send = RestSend({})
+    rest_send.sender = ndfc_sender.sender
+    rest_send.response_handler = ResponseHandler()
+    rest_send.results = Results()
+    rest_send.path = ep_fabric_details.path
+    rest_send.verb = ep_fabric_details.verb
+    try:
+        rest_send.commit()
+    except ValueError as error:
+        msg = "Problem querying the controller. "
+        msg += f"Error detail: {error}"
+        print(msg)
+        log.error(msg)
+        sys.exit(1)
+
+    if rest_send.response_current["MESSAGE"] == "Not Found":
+        msg = f"Fabric {ep_fabric_details.fabric_name} does not exist on the controller"
+        print(msg)
+        log.info(msg)
+
+    msg = f"{json.dumps(rest_send.response_current['DATA'], indent=4, sort_keys=True)}"
+    print(msg)
+
+
 def setup_parser() -> argparse.Namespace:
     """
     ### Summary
@@ -101,7 +129,7 @@ def setup_parser() -> argparse.Namespace:
             parser_controller_password,
             parser_controller_username,
         ],
-        description="DESCRIPTION: Print the reachability status of a switch.",
+        description="DESCRIPTION: Print details about one or more fabrics.",
     )
     return parser.parse_args()
 
@@ -129,8 +157,6 @@ except ValidationError as error:
     print(msg)
     sys.exit(1)
 
-params = json.loads(config.model_dump_json()).get("config", {})
-
 try:
     ndfc_sender = NdfcPythonSender()
     ndfc_sender.args = args
@@ -141,29 +167,7 @@ except ValueError as error:
     log.error(msg)
     sys.exit(1)
 
-ep_fabric_details = EpFabricDetails()
-ep_fabric_details.fabric_name = params.get("fabric_name")
+params_list = json.loads(config.model_dump_json()).get("config", {})
 
-rest_send = RestSend({})
-rest_send.sender = ndfc_sender.sender
-rest_send.response_handler = ResponseHandler()
-rest_send.results = Results()
-rest_send.path = ep_fabric_details.path
-rest_send.verb = ep_fabric_details.verb
-try:
-    rest_send.commit()
-except ValueError as error:
-    msg = "Problem querying the controller. "
-    msg += f"Error detail: {error}"
-    print(msg)
-    log.error(msg)
-    sys.exit(1)
-
-if rest_send.response_current["MESSAGE"] == "Not Found":
-    msg = f"Fabric {ep_fabric_details.fabric_name} does not exist on the controller"
-    print(msg)
-    log.error(msg)
-    sys.exit(1)
-
-msg = f"{json.dumps(rest_send.response_current['DATA'], indent=4, sort_keys=True)}"
-print(msg)
+for params in params_list:
+    fabric_info(params)

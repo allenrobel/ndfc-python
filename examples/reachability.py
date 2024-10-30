@@ -30,6 +30,41 @@ from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
+def reachability(config):
+    """
+    Given a reachability config, print reachability information for
+    all switches in the config.
+    """
+    try:
+        instance.seed_ip = config.get("seed_ip")
+        instance.fabric_name = config.get("fabric_name")
+        instance.commit()
+    except ValueError as error:
+        errmsg = f"Exiting. Error detail: {error}"
+        log.error(errmsg)
+        print(errmsg)
+        return
+
+    print(f"sys_name: {instance.sys_name}")
+    print(f"  auth: {instance.auth}")
+    print(f"  device_index: {instance.device_index}")
+    print(f"  hop_count: {instance.hop_count}")
+    print(f"  ip_addr: {instance.ip_addr}")
+    print(f"  known: {instance.known}")
+    print(f"  last_change: {instance.last_change}")
+    print(f"  platform: {instance.platform}")
+    print(f"  reachable: {instance.reachable}")
+    print(f"  selectable: {instance.selectable}")
+    print(f"  serial_number: {instance.serial_number}")
+    print(f"  status_reason: {instance.status_reason}")
+    print(f"  switch_role: {instance.switch_role}")
+    print(f"  valid: {instance.valid}")
+    print(f"  vdc_id: {instance.vdc_id}")
+    print(f"  vdc_mac: {instance.vdc_mac}")
+    print(f"  vendor: {instance.vendor}")
+    print(f"  version: {instance.version}")
+
+
 def setup_parser() -> argparse.Namespace:
     """
     ### Summary
@@ -84,14 +119,12 @@ except ValueError as error:
     sys.exit(1)
 
 try:
-    config = ReachabilityConfigValidator(**ndfc_config.contents)
+    validator = ReachabilityConfigValidator(**ndfc_config.contents)
 except ValidationError as error:
     msg = f"{error}"
     log.error(msg)
     print(msg)
     sys.exit(1)
-
-params = json.loads(config.model_dump_json()).get("config", {})
 
 try:
     ndfc_sender = NdfcPythonSender()
@@ -121,9 +154,8 @@ try:
     instance = Reachability()
     instance.rest_send = rest_send
     instance.results = Results()
-    instance.seed_ip = params.get("seed_ip")
-    instance.fabric_name = params.get("fabric_name")
-
+    instance.nxos_username = cav.nxos_username
+    instance.nxos_password = cav.nxos_password
     # For EasyFabric, if overlay_mode is "config-profile" (the default),
     # it's recommended that preserve_config be set to False.  If it's
     # desired to preserve the config, then set overlay_mode to "cli"
@@ -131,30 +163,13 @@ try:
     # instance.overlay_mode = "cli"
     instance.preserve_config = False
     instance.max_hops = 0
-    instance.nxos_username = cav.nxos_username
-    instance.nxos_password = cav.nxos_password
-    instance.commit()
 except ValueError as error:
     msg = f"Exiting. Error detail: {error}"
     log.error(msg)
     print(msg)
     sys.exit(1)
 
-print(f"auth: {instance.auth}")
-print(f"device_index: {instance.device_index}")
-print(f"hop_count: {instance.hop_count}")
-print(f"ip_addr: {instance.ip_addr}")
-print(f"known: {instance.known}")
-print(f"last_change: {instance.last_change}")
-print(f"platform: {instance.platform}")
-print(f"reachable: {instance.reachable}")
-print(f"selectable: {instance.selectable}")
-print(f"serial_number: {instance.serial_number}")
-print(f"status_reason: {instance.status_reason}")
-print(f"switch_role: {instance.switch_role}")
-print(f"sys_name: {instance.sys_name}")
-print(f"valid: {instance.valid}")
-print(f"vdc_id: {instance.vdc_id}")
-print(f"vdc_mac: {instance.vdc_mac}")
-print(f"vendor: {instance.vendor}")
-print(f"version: {instance.version}")
+params_list = json.loads(validator.model_dump_json()).get("config", {})
+
+for params in params_list:
+    reachability(params)

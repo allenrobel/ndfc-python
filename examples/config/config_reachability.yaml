@@ -1,4 +1,6 @@
 ---
 config:
-  fabric_name: MyFabric
-  seed_ip: 10.1.1.2
+  - fabric_name: MyFabric1
+    seed_ip: 10.1.1.2
+  - fabric_name: MyFabric1
+    seed_ip: 10.1.1.3

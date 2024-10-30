@@ -1,4 +1,6 @@
 ---
 config:
-  fabric_name: MyFabric
-  network_name: MyNet
+  - fabric_name: MyFabric1
+    network_name: MyNet1
+  - fabric_name: MyFabric1
+    network_name: MyNet2

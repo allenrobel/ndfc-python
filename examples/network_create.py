@@ -42,6 +42,31 @@ from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
+def network_create(config):
+    try:
+        instance = NetworkCreate()
+        instance.rest_send = rest_send
+        instance.results = Results()
+        instance.fabric_name = config.get("fabric_name")
+        instance.network_name = config.get("network_name")
+        instance.enable_ir = config.get("enable_ir")
+        instance.gateway_ip_address = config.get("gateway_ip_address")
+        instance.network_id = config.get("network_id")
+        instance.vlan_id = config.get("vlan_id")
+        instance.vrf_name = config.get("vrf_name")
+        instance.commit()
+    except ValueError as error:
+        msg = "Error creating network. "
+        msg += f"Error detail: {error}"
+        log.error(msg)
+        print(msg)
+        return
+
+    msg = f"Network {instance.network_name} with id {instance.network_id} "
+    msg += f"created in fabric {instance.fabric_name}"
+    print(msg)
+
+
 def setup_parser() -> argparse.Namespace:
     """
     ### Summary
@@ -88,8 +113,6 @@ except ValidationError as error:
     print(msg)
     sys.exit(1)
 
-params = json.loads(config.model_dump_json()).get("config", {})
-
 try:
     ndfc_sender = NdfcPythonSender()
     ndfc_sender.args = args
@@ -104,25 +127,7 @@ rest_send = RestSend({})
 rest_send.sender = ndfc_sender.sender
 rest_send.response_handler = ResponseHandler()
 
-try:
-    instance = NetworkCreate()
-    instance.rest_send = rest_send
-    instance.results = Results()
-    instance.fabric_name = params.get("fabric_name")
-    instance.network_name = params.get("network_name")
-    instance.enable_ir = params.get("enable_ir")
-    instance.gateway_ip_address = params.get("gateway_ip_address")
-    instance.network_id = params.get("network_id")
-    instance.vlan_id = params.get("vlan_id")
-    instance.vrf_name = params.get("vrf_name")
-    instance.commit()
-except ValueError as error:
-    msg = "Error creating network. "
-    msg += f"Error detail: {error}"
-    log.error(msg)
-    print(msg)
-    sys.exit(1)
+params_list = json.loads(config.model_dump_json()).get("config", {})
 
-msg = f"Network {instance.network_name} with id {instance.network_id} "
-msg += f"created in fabric {instance.fabric_name}"
-print(msg)
+for params in params_list:
+    network_create(params)

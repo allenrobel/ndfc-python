@@ -37,6 +37,7 @@ environment variables, you can override them like so:
 """
 # pylint: disable=duplicate-code
 import argparse
+import json
 import logging
 import sys
 
@@ -53,10 +54,29 @@ from ndfc_python.parsers.parser_loglevel import parser_loglevel
 # console logging.  The copy in the DCNM Ansible Collection specifically
 # disallows console logging.
 from ndfc_python.read_config import ReadConfig
+from ndfc_python.validators import VrfCreateConfigValidator
 from ndfc_python.vrf_create import VrfCreate
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
+from pydantic import ValidationError
+
+
+def vrf_create(config):
+    try:
+        instance = VrfCreate()
+        instance.rest_send = rest_send
+        instance.results = Results()
+        instance.display_name = config.get("vrf_display_name")
+        instance.fabric_name = config.get("fabric_name")
+        instance.vrf_id = config.get("vrf_id")
+        instance.vrf_name = config.get("vrf_name")
+        instance.vrf_vlan_id = config.get("vrf_vlan_id")
+        instance.commit()
+    except ValueError as error:
+        msg = "Error creating vrf. "
+        msg += f"Error detail: {error}"
+        log.error(msg)
 
 
 def setup_parser() -> argparse.Namespace:
@@ -108,21 +128,19 @@ except ValueError as error:
     log.error(msg)
     sys.exit()
 
+try:
+    config = VrfCreateConfigValidator(**ndfc_config.contents)
+except ValidationError as error:
+    msg = f"{error}"
+    log.error(msg)
+    print(msg)
+    sys.exit(1)
+
 rest_send = RestSend({})
 rest_send.sender = ndfc_sender.sender
 rest_send.response_handler = ResponseHandler()
 
-try:
-    instance = VrfCreate()
-    instance.rest_send = rest_send
-    instance.results = Results()
-    instance.display_name = config.get("vrf_display_name")
-    instance.fabric_name = config.get("fabric_name")
-    instance.vrf_id = config.get("vrf_id")
-    instance.vrf_name = config.get("vrf_name")
-    instance.vrf_vlan_id = config.get("vrf_vlan_id")
-    instance.commit()
-except ValueError as error:
-    msg = "Error creating vrf. "
-    msg += f"Error detail: {error}"
-    log.error(msg)
+params_list = json.loads(config.model_dump_json()).get("config", {})
+
+for params in params_list:
+    vrf_create(params)

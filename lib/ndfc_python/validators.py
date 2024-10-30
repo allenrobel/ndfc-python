@@ -4,9 +4,19 @@
 Validators for class input properties.
 """
 
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, IPvAnyInterface, PositiveInt
+
+
+class DeviceInfoConfig(BaseModel):
+    """
+    # Summary
+
+    Base validator for DeviceInfo arguments
+    """
+
+    switch_ip4: str
 
 
 class FabricDetailsConfig(BaseModel):
@@ -57,41 +67,75 @@ class ReachabilityConfig(BaseModel):
     seed_ip: str
 
 
+class VrfCreateConfig(BaseModel):
+    """
+    # Summary
+
+    Base validator for VrfCreate arguments
+    """
+
+    fabric_name: str
+    vrf_display_name: str
+    vrf_id: int
+    vrf_name: str
+    vrf_vlan_id: int
+
+
+class DeviceInfoConfigValidator(BaseModel):
+    """
+    # Summary
+
+    config is a list of DeviceInfoConfig
+    """
+
+    config: List[DeviceInfoConfig]
+
+
 class FabricDetailsConfigValidator(BaseModel):
     """
     # Summary
 
-    Wrap base validator in a dict
+    config is a list of FabricDetailsConfig
     """
 
-    config: FabricDetailsConfig
+    config: List[FabricDetailsConfig]
 
 
 class NetworkCreateConfigValidator(BaseModel):
     """
     # Summary
 
-    Wrap base validator in a dict
+    config is a list of NetworkCreateConfig
     """
 
-    config: NetworkCreateConfig
+    config: List[NetworkCreateConfig]
 
 
 class NetworkDeleteConfigValidator(BaseModel):
     """
     # Summary
 
-    Wrap base validator in a dict
+    config is a list of NetworkDeleteConfig
     """
 
-    config: NetworkDeleteConfig
+    config: List[NetworkDeleteConfig]
 
 
 class ReachabilityConfigValidator(BaseModel):
     """
     # Summary
 
-    Wrap base validator in a dict
+    config is a list of ReachabilityConfig
     """
 
-    config: ReachabilityConfig
+    config: List[ReachabilityConfig]
+
+
+class VrfCreateConfigValidator(BaseModel):
+    """
+    # Summary
+
+    config is a list of VrfCreateConfig
+    """
+
+    config: List[VrfCreateConfig]
