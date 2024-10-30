@@ -3,6 +3,8 @@ Name: ndfc_vrf.py
 Description: Create VRFs
 """
 
+# We use isort for import linting
+# pylint: disable=wrong-import-order
 import inspect
 import json
 import logging
@@ -207,6 +209,14 @@ class VrfCreate:
             msg += f"Unable to send {self.rest_send.verb} request to the controller. "
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
+
+        if self.rest_send.result_current.get("success") is False:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "RestSend returned an unsuccessful result "
+            msg += f"{self.rest_send.result_current}. "
+            msg += "More detail (if any): "
+            msg += f"{self.rest_send.response_current.get('DATA', {}).get('message')}"
+            raise ValueError(msg)
         # pylint: enable=no-member
 
     def vrf_exists_in_fabric(self):
@@ -234,11 +244,11 @@ class VrfCreate:
         for item_d in self.rest_send.response_current["DATA"]:
             if "fabric" not in item_d:
                 continue
-            if "vrfName" not in item_d:
+            if "vrfId" not in item_d:
                 continue
             if item_d["fabric"] != self.fabric_name:
                 continue
-            if item_d["vrfName"] != self.vrf_name:
+            if item_d["vrfId"] != self.vrf_id:
                 continue
             return True
         # pylint: enable=no-member
