@@ -12,6 +12,17 @@ Vault for credentials.
 We plan to rework this to support other credential sources soon, including
 environment variables and command line options.
 
+## Example configuration file
+
+``` yaml title="Example configuraion file"
+---
+config:
+  - fabric_name: MyFabric1
+    seed_ip: 10.1.1.2
+  - fabric_name: MyFabric1
+    seed_ip: 10.1.1.3
+```
+
 ## Expected Ansible Vault keys
 
 The following keys are expected to be present in the Ansible Vault.
@@ -42,17 +53,6 @@ Used for Nexus Dashboard Fabric Contoller switch discovery
 
 NX-OS switches username.
 Used for Nexus Dashboard Fabric Contoller switch discovery
-
-## Example configuration file
-
-``` yaml title="Example configuraion file"
----
-config:
-  - fabric_name: MyFabric1
-    seed_ip: 10.1.1.2
-  - fabric_name: MyFabric1
-    seed_ip: 10.1.1.3
-```
 
 ## Example Usage
 
