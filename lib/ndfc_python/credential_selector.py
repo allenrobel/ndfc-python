@@ -37,6 +37,7 @@ import argparse
 import inspect
 import logging
 from os import environ
+from typing import Any
 
 from ndfc_python.credentials.credentials_ansible_vault import CredentialsAnsibleVault
 
@@ -132,11 +133,12 @@ class CredentialSelector:
         self.class_name = self.__class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
-        self._script_args = None
-        self._credential_name = None
         self._ansible_vault_instance = None
+        self._credential_name = None
+        self._credential_value = None
+        self._script_args = None
 
-    def get_value(self, instance):
+    def get_value(self, instance) -> str | None:
         """
         # Summary
 
@@ -147,6 +149,16 @@ class CredentialSelector:
         -   Return the value of self.credential_name if found in
             instance
         -   Return None otherwise.
+
+        ## Attribues
+
+        - nd_domain
+        - nd_ip4
+        - nd_ip6 (currently not used)
+        - nd_password
+        - nd_username
+        - nxos_password
+        - nxos_username
 
         ## Raises
 
@@ -174,7 +186,7 @@ class CredentialSelector:
             return None
         return value
 
-    def script_arg_value(self):
+    def script_arg_value(self) -> str | None:
         """
         # Summary
 
@@ -188,7 +200,7 @@ class CredentialSelector:
         """
         return self.get_value(self.script_args)
 
-    def environment_value(self):
+    def environment_value(self) -> str | None:
         """
         # Summary
 
@@ -218,7 +230,10 @@ class CredentialSelector:
 
         None
         """
-        return environ.get(self.credential_name.upper())
+        # This confuses pylint 3.2.6 on Github which reports the following:
+        # E1101: Instance of 'CredentialSelector' has no 'upper' member (no-member)
+        # pylint 3.3.1 locally doesn't complain.
+        return environ.get(self.credential_name.upper())  # pylint: disable=no-member
 
     def ansible_vault_value(self):
         """
@@ -233,7 +248,7 @@ class CredentialSelector:
             return None
         return self.get_value(self._ansible_vault_instance)
 
-    def instantiate_ansible_vault(self):
+    def instantiate_ansible_vault(self) -> None:
         """
         # Summary
 
@@ -251,25 +266,31 @@ class CredentialSelector:
         -   If an error occurred when reading the Ansible Vault
         """
         method_name = inspect.stack()[0][3]
-        print(f"ZZZ {self.class_name}.{method_name} ENTERED")
-
         ansible_vault = None
         try:
             ansible_vault = self.script_args.ansible_vault
         except AttributeError:
-            print(f"ZZZ {self.class_name}.{method_name}: early return AttributeError")
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "early return AttributeError"
+            self.log.debug(msg)
             return
         if ansible_vault is None:
-            print(f"ZZZ {self.class_name}.{method_name}: early return ansible_vault is None")
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "early return ansible_vault is None"
+            self.log.debug(msg)
             return
-        print(f"ZZZ {self.class_name}.{method_name} got ansible_vault {ansible_vault}. forging ahead")
 
         # If we've already read the vault, do nothing.
         if self._ansible_vault_instance is not None:
-            print(f"ZZZ {self.class_name}.{method_name} early return. Vault already instantiated")
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "early return _ansible_vault_instance already set"
+            self.log.debug(msg)
             return
 
-        print(f"ZZZ {self.class_name}.{method_name} trying to instantiate")
+        msg = f"{self.class_name}.{method_name}: "
+        msg += "instantiating _ansible_vault_instance"
+        self.log.debug(msg)
+
         try:
             self._ansible_vault_instance = CredentialsAnsibleVault()
             self._ansible_vault_instance.ansible_vault = ansible_vault
@@ -279,9 +300,8 @@ class CredentialSelector:
             msg += "Perhaps an incorrect vault password was entered? "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
-        print(f"ZZZ {self.class_name}.{method_name} DONE instantiate")
 
-    def commit(self):
+    def commit(self) -> None:
         """
         # Summary
 
@@ -322,18 +342,18 @@ class CredentialSelector:
             raise ValueError(msg)
 
     @property
-    def credential_name(self):
+    def credential_name(self) -> str:
         """
         The name of the credential for which a value is desired.
         """
         return self._credential_name
 
     @credential_name.setter
-    def credential_name(self, value):
+    def credential_name(self, value: str):
         self._credential_name = value
 
     @property
-    def credential_value(self):
+    def credential_value(self) -> Any:
         """
         The value of credential_name.
         """
@@ -344,7 +364,7 @@ class CredentialSelector:
         self._credential_value = value
 
     @property
-    def script_args(self):
+    def script_args(self) -> argparse.Namespace:
         """
         # Summary
 
@@ -383,6 +403,6 @@ class CredentialSelector:
         if not isinstance(value, argparse.Namespace):
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{method_name} must be an instance of argparse.Namespace"
-            # Yes, should be TypeError, but using ValueError for simplicity.
+            # Yes, should be TypeError. Using ValueError for simplicity.
             raise ValueError(msg)
         self._script_args = value
