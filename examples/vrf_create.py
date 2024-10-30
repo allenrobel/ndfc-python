@@ -76,10 +76,17 @@ def vrf_create(config):
         instance.vrf_name = config.get("vrf_name")
         instance.vrf_vlan_id = config.get("vrf_vlan_id")
         instance.commit()
-    except ValueError as error:
-        msg = "Error creating vrf. "
-        msg += f"Error detail: {error}"
-        log.error(msg)
+    except (TypeError, ValueError) as error:
+        errmsg = f"Error creating vrf {instance.vrf_name}. "
+        errmsg += f"Error detail: {error}"
+        log.error(errmsg)
+        print(errmsg)
+        return
+
+    result_msg = f"Created vrf {instance.vrf_name} "
+    result_msg += f"in fabric {instance.fabric_name}"
+    log.info(result_msg)
+    print(result_msg)
 
 
 def setup_parser() -> argparse.Namespace:
@@ -119,20 +126,21 @@ try:
 except ValueError as error:
     msg = f"Exiting.  Error detail: {error}"
     log.error(msg)
+    print(msg)
     sys.exit(1)
 
 try:
     ndfc_config = ReadConfig()
     ndfc_config.filename = args.config
     ndfc_config.commit()
-    config = ndfc_config.contents["config"]
 except ValueError as error:
     msg = f"Exiting: Error detail: {error}"
     log.error(msg)
+    print(msg)
     sys.exit()
 
 try:
-    config = VrfCreateConfigValidator(**ndfc_config.contents)
+    validator = VrfCreateConfigValidator(**ndfc_config.contents)
 except ValidationError as error:
     msg = f"{error}"
     log.error(msg)
@@ -142,8 +150,10 @@ except ValidationError as error:
 rest_send = RestSend({})
 rest_send.sender = ndfc_sender.sender
 rest_send.response_handler = ResponseHandler()
+rest_send.timeout = 2
+rest_send.send_interval = 5
 
-params_list = json.loads(config.model_dump_json()).get("config", {})
+params_list = json.loads(validator.model_dump_json()).get("config", {})
 
 for params in params_list:
     vrf_create(params)
