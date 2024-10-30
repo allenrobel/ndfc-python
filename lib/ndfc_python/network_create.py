@@ -1085,11 +1085,11 @@ class NetworkCreate:
         """
         return the current template_config value of vrfDhcp2
         """
-        return self.template_config["vrfDhcp2"]
+        return self.template_config.get("vrfDhcp2")
 
     @vrf_dhcp_2.setter
     def vrf_dhcp_2(self, value):
-        return self.template_config.get("vrfDhcp2")
+        self.template_config["vrfDhcp2"] = value
 
     @property
     def vrf_dhcp_3(self):
