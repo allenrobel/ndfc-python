@@ -59,15 +59,16 @@ def network_create(config):
         instance.vrf_name = config.get("vrf_name")
         instance.commit()
     except ValueError as error:
-        msg = "Error creating network. "
-        msg += f"Error detail: {error}"
-        log.error(msg)
-        print(msg)
+        errmsg = "Error creating network. "
+        errmsg += f"Error detail: {error}"
+        log.error(errmsg)
+        print(errmsg)
         return
 
-    msg = f"Network {instance.network_name} with id {instance.network_id} "
-    msg += f"created in fabric {instance.fabric_name}"
-    print(msg)
+    result_msg = f"Network {instance.network_name} with id {instance.network_id} "
+    result_msg += f"created in fabric {instance.fabric_name}"
+    log.info(result_msg)
+    print(result_msg)
 
 
 def setup_parser() -> argparse.Namespace:
@@ -109,7 +110,7 @@ except ValueError as error:
     sys.exit(1)
 
 try:
-    config = NetworkCreateConfigValidator(**ndfc_config.contents)
+    validator = NetworkCreateConfigValidator(**ndfc_config.contents)
 except ValidationError as error:
     msg = f"{error}"
     log.error(msg)
@@ -129,8 +130,10 @@ except ValueError as error:
 rest_send = RestSend({})
 rest_send.sender = ndfc_sender.sender
 rest_send.response_handler = ResponseHandler()
+rest_send.timeout = 2
+rest_send.send_interval = 5
 
-params_list = json.loads(config.model_dump_json()).get("config", {})
+params_list = json.loads(validator.model_dump_json()).get("config", {})
 
 for params in params_list:
     network_create(params)

@@ -366,14 +366,14 @@ class NetworkCreate:
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"Call {self.class_name}."
                 msg += f"{self._map_payload_param(param)} "
-                msg += f"before calling {self.class_name}.commit()"
+                msg += f"before calling {self.class_name}.commit"
                 raise ValueError(msg)
         # fmt: off
         for param in self._template_config_set_mandatory:
             if self.template_config[param] == "":
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"Call {self.class_name}.{self._map_template_config_param(param)} "
-                msg += f"before calling {self.class_name}.commit()"
+                msg += f"before calling {self.class_name}.commit"
                 raise ValueError(msg)
         # fmt: on
 
@@ -387,14 +387,14 @@ class NetworkCreate:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"vrf {self.vrf_name} does not exist in fabric "
             msg += f"{self.fabric_name}. Create it before calling "
-            msg += f"{self.class_name}.{method_name}"
+            msg += f"{self.class_name}.commit"
             raise ValueError(msg)
 
         if self.network_id_exists_in_fabric() is True:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"networkId {self.network_id} already exists "
             msg += f"in fabric {self.fabric_name}. Delete it before calling "
-            msg += f"{self.class_name}.{method_name}"
+            msg += f"{self.class_name}.commit"
             raise ValueError(msg)
 
     def fabric_exists(self):
@@ -536,7 +536,7 @@ class NetworkCreate:
         """
         return the current payload value of display_name
         """
-        return self.payload["displayName"]
+        return self.payload.get("displayName")
 
     @display_name.setter
     def display_name(self, value):
@@ -547,7 +547,7 @@ class NetworkCreate:
         """
         return the current payload value of fabric
         """
-        return self.payload["fabric"]
+        return self.payload.get("fabric")
 
     @fabric_name.setter
     def fabric_name(self, value):
@@ -558,7 +558,7 @@ class NetworkCreate:
         """
         return the current payload value of network_extension_template
         """
-        return self.payload["networkExtensionTemplate"]
+        return self.payload.get("networkExtensionTemplate")
 
     @network_extension_template.setter
     def network_extension_template(self, value):
@@ -569,7 +569,7 @@ class NetworkCreate:
         """
         return the current payload value of networkId
         """
-        return self.payload["networkId"]
+        return self.payload.get("networkId")
 
     @network_id.setter
     def network_id(self, value):
@@ -580,7 +580,7 @@ class NetworkCreate:
         """
         return the current payload value of networkName
         """
-        return self.payload["networkName"]
+        return self.payload.get("networkName")
 
     @network_name.setter
     def network_name(self, value):
@@ -591,7 +591,7 @@ class NetworkCreate:
         """
         return the current payload value of networkTemplate
         """
-        return self.payload["networkTemplate"]
+        return self.payload.get("networkTemplate")
 
     @network_template.setter
     def network_template(self, value):
@@ -602,7 +602,7 @@ class NetworkCreate:
         """
         return the current payload value of serviceNetworkTemplate
         """
-        return self.payload["serviceNetworkTemplate"]
+        return self.payload.get("serviceNetworkTemplate")
 
     @service_network_template.setter
     def service_network_template(self, value):
@@ -613,7 +613,7 @@ class NetworkCreate:
         """
         return the current payload value of source
         """
-        return self.payload["source"]
+        return self.payload.get("source")
 
     @source.setter
     def source(self, value):
@@ -624,7 +624,7 @@ class NetworkCreate:
         """
         return the current payload value of vrf
         """
-        return self.payload["vrf"]
+        return self.payload.get("vrf")
 
     @vrf_name.setter
     def vrf_name(self, value):
@@ -636,7 +636,7 @@ class NetworkCreate:
         """
         return the current template_config value of dhcpServerAddr1
         """
-        return self.template_config["dhcpServerAddr1"]
+        return self.template_config.get("dhcpServerAddr1")
 
     @dhcp_server_addr_1.setter
     def dhcp_server_addr_1(self, value):
@@ -647,7 +647,7 @@ class NetworkCreate:
         """
         return the current template_config value of dhcpServerAddr2
         """
-        return self.template_config["dhcpServerAddr2"]
+        return self.template_config.get("dhcpServerAddr2")
 
     @dhcp_server_addr_2.setter
     def dhcp_server_addr_2(self, value):
@@ -658,7 +658,7 @@ class NetworkCreate:
         """
         return the current template_config value of dhcpServerAddr3
         """
-        return self.template_config["dhcpServerAddr3"]
+        return self.template_config.get("dhcpServerAddr3")
 
     @dhcp_server_addr_3.setter
     def dhcp_server_addr_3(self, value):
@@ -669,7 +669,7 @@ class NetworkCreate:
         """
         return the current template_config value of enableL3OnBorder
         """
-        return self.template_config["enableL3OnBorder"]
+        return self.template_config.get("enableL3OnBorder")
 
     @enable_l3_on_border.setter
     def enable_l3_on_border(self, value):
@@ -687,7 +687,7 @@ class NetworkCreate:
         """
         return the current template_config value of enableL3OnBorderVpcBgw
         """
-        return self.template_config["enableL3OnBorderVpcBgw"]
+        return self.template_config.get("enableL3OnBorderVpcBgw")
 
     @enable_l3_on_border_vpc_bgw.setter
     def enable_l3_on_border_vpc_bgw(self, value):
@@ -705,7 +705,7 @@ class NetworkCreate:
         """
         return the current template_config value of gatewayIpAddress
         """
-        return self.template_config["gatewayIpAddress"]
+        return self.template_config.get("gatewayIpAddress")
 
     @gateway_ip_address.setter
     def gateway_ip_address(self, value):
@@ -727,7 +727,7 @@ class NetworkCreate:
 
         Example: 2001:db8::1/64,2001:db9::1/64
         """
-        return self.template_config["gatewayIpV6Address"]
+        return self.template_config.get("gatewayIpV6Address")
 
     @gateway_ipv6_address.setter
     def gateway_ipv6_address(self, value):
@@ -745,7 +745,7 @@ class NetworkCreate:
         """
         return the current template_config value of igmpVersion
         """
-        return self.template_config["igmpVersion"]
+        return self.template_config.get("igmpVersion")
 
     @igmp_version.setter
     def igmp_version(self, value):
@@ -762,7 +762,7 @@ class NetworkCreate:
         """
         return the current template_config value of intfDescription
         """
-        return self.template_config["intfDescription"]
+        return self.template_config.get("intfDescription")
 
     @intf_description.setter
     def intf_description(self, value):
@@ -773,7 +773,7 @@ class NetworkCreate:
         """
         return the current template_config value of isLayer2Only
         """
-        return self.template_config["isLayer2Only"]
+        return self.template_config.get("isLayer2Only")
 
     @is_layer2_only.setter
     def is_layer2_only(self, value):
@@ -791,7 +791,7 @@ class NetworkCreate:
         """
         return the current template_config value of loopbackId
         """
-        return self.template_config["loopbackId"]
+        return self.template_config.get("loopbackId")
 
     @loopback_id.setter
     def loopback_id(self, value):
@@ -803,7 +803,7 @@ class NetworkCreate:
         """
         return the current template_config value of mcastGroup
         """
-        return self.template_config["mcastGroup"]
+        return self.template_config.get("mcastGroup")
 
     @mcast_group.setter
     def mcast_group(self, value):
@@ -821,7 +821,7 @@ class NetworkCreate:
         """
         return the current template_config value of mtu
         """
-        return self.template_config["mtu"]
+        return self.template_config.get("mtu")
 
     @mtu.setter
     def mtu(self, value):
@@ -843,7 +843,7 @@ class NetworkCreate:
         """
         return the current template_config value of nveId
         """
-        return self.template_config["nveId"]
+        return self.template_config.get("nveId")
 
     @nve_id.setter
     def nve_id(self, value):
@@ -861,7 +861,7 @@ class NetworkCreate:
         """
         return the current template_config value of rtBothAuto
         """
-        return self.template_config["rtBothAuto"]
+        return self.template_config.get("rtBothAuto")
 
     @rt_both_auto.setter
     def rt_both_auto(self, value):
@@ -879,7 +879,7 @@ class NetworkCreate:
         """
         return the current template_config value of secondaryGW1
         """
-        return self.template_config["secondaryGW1"]
+        return self.template_config.get("secondaryGW1")
 
     @secondary_gw_1.setter
     def secondary_gw_1(self, value):
@@ -897,7 +897,7 @@ class NetworkCreate:
         """
         return the current template_config value of secondaryGW2
         """
-        return self.template_config["secondaryGW2"]
+        return self.template_config.get("secondaryGW2")
 
     @secondary_gw_2.setter
     def secondary_gw_2(self, value):
@@ -915,7 +915,7 @@ class NetworkCreate:
         """
         return the current template_config value of secondaryGW3
         """
-        return self.template_config["secondaryGW3"]
+        return self.template_config.get("secondaryGW3")
 
     @secondary_gw_3.setter
     def secondary_gw_3(self, value):
@@ -933,7 +933,7 @@ class NetworkCreate:
         """
         return the current template_config value of secondaryGW4
         """
-        return self.template_config["secondaryGW4"]
+        return self.template_config.get("secondaryGW4")
 
     @secondary_gw_4.setter
     def secondary_gw_4(self, value):
@@ -951,7 +951,7 @@ class NetworkCreate:
         """
         return the current template_config value of segmentId
         """
-        return self.template_config["segmentId"]
+        return self.template_config.get("segmentId")
 
     @segment_id.setter
     def segment_id(self, value):
@@ -963,7 +963,7 @@ class NetworkCreate:
         """
         return the current template_config value of suppressArp
         """
-        return self.template_config["suppressArp"]
+        return self.template_config.get("suppressArp")
 
     @suppress_arp.setter
     def suppress_arp(self, value):
@@ -981,7 +981,7 @@ class NetworkCreate:
         """
         return the current template_config value of SVI_NETFLOW_MONITOR
         """
-        return self.template_config["SVI_NETFLOW_MONITOR"]
+        return self.template_config.get("SVI_NETFLOW_MONITOR")
 
     @svi_netflow_monitor.setter
     def svi_netflow_monitor(self, value):
@@ -992,7 +992,7 @@ class NetworkCreate:
         """
         return the current template_config value of tag
         """
-        return self.template_config["tag"]
+        return self.template_config.get("tag")
 
     @tag.setter
     def tag(self, value):
@@ -1004,7 +1004,7 @@ class NetworkCreate:
         """
         return the current template_config value of trmEnabled
         """
-        return self.template_config["trmEnabled"]
+        return self.template_config.get("trmEnabled")
 
     @trm_enabled.setter
     def trm_enabled(self, value):
@@ -1022,7 +1022,7 @@ class NetworkCreate:
         """
         return the current template_config value of trmV6Enabled
         """
-        return self.template_config["trmV6Enabled"]
+        return self.template_config.get("trmV6Enabled")
 
     @trm_v6_enabled.setter
     def trm_v6_enabled(self, value):
@@ -1040,7 +1040,7 @@ class NetworkCreate:
         """
         return the current template_config value of vlanId
         """
-        return self.template_config["vlanId"]
+        return self.template_config.get("vlanId")
 
     @vlan_id.setter
     def vlan_id(self, value):
@@ -1052,7 +1052,7 @@ class NetworkCreate:
         """
         return the current template_config value of vlanName
         """
-        return self.template_config["vlanName"]
+        return self.template_config.get("vlanName")
 
     @vlan_name.setter
     def vlan_name(self, value):
@@ -1063,7 +1063,7 @@ class NetworkCreate:
         """
         return the current template_config value of VLAN_NETFLOW_MONITOR
         """
-        return self.template_config["VLAN_NETFLOW_MONITOR"]
+        return self.template_config.get("VLAN_NETFLOW_MONITOR")
 
     @vlan_netflow_monitor.setter
     def vlan_netflow_monitor(self, value):
@@ -1074,7 +1074,7 @@ class NetworkCreate:
         """
         return the current template_config value of vrfDhcp
         """
-        return self.template_config["vrfDhcp"]
+        return self.template_config.get("vrfDhcp")
 
     @vrf_dhcp.setter
     def vrf_dhcp(self, value):
@@ -1089,14 +1089,14 @@ class NetworkCreate:
 
     @vrf_dhcp_2.setter
     def vrf_dhcp_2(self, value):
-        self.template_config["vrfDhcp2"] = value
+        return self.template_config.get("vrfDhcp2")
 
     @property
     def vrf_dhcp_3(self):
         """
         return the current template_config value of vrfDhcp3
         """
-        return self.template_config["vrfDhcp3"]
+        return self.template_config.get("vrfDhcp3")
 
     @vrf_dhcp_3.setter
     def vrf_dhcp_3(self, value):

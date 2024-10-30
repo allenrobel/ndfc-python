@@ -83,35 +83,31 @@ from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
-def fabric_info(config):
+def fabric_details(config):
     """
     Given a fabric configuration, print details about the fabric.
     """
-    ep_fabric_details = EpFabricDetails()
     ep_fabric_details.fabric_name = config.get("fabric_name")
 
-    rest_send = RestSend({})
-    rest_send.sender = ndfc_sender.sender
-    rest_send.response_handler = ResponseHandler()
-    rest_send.results = Results()
     rest_send.path = ep_fabric_details.path
     rest_send.verb = ep_fabric_details.verb
     try:
         rest_send.commit()
     except ValueError as error:
-        msg = "Problem querying the controller. "
-        msg += f"Error detail: {error}"
-        print(msg)
-        log.error(msg)
-        sys.exit(1)
+        errmsg = "Problem querying the controller. "
+        errmsg += f"Error detail: {error}"
+        print(errmsg)
+        log.error(errmsg)
+        return
 
     if rest_send.response_current["MESSAGE"] == "Not Found":
-        msg = f"Fabric {ep_fabric_details.fabric_name} does not exist on the controller"
-        print(msg)
-        log.info(msg)
+        result_msg = f"Fabric {ep_fabric_details.fabric_name} does not exist on the controller"
+        print(result_msg)
+        log.info(result_msg)
+        return
 
-    msg = f"{json.dumps(rest_send.response_current['DATA'], indent=4, sort_keys=True)}"
-    print(msg)
+    result_msg = f"{json.dumps(rest_send.response_current['DATA'], indent=4, sort_keys=True)}"
+    print(result_msg)
 
 
 def setup_parser() -> argparse.Namespace:
@@ -153,7 +149,7 @@ except ValueError as error:
     sys.exit()
 
 try:
-    config = FabricDetailsConfigValidator(**ndfc_config.contents)
+    validator = FabricDetailsConfigValidator(**ndfc_config.contents)
 except ValidationError as error:
     msg = f"{error}"
     log.error(msg)
@@ -170,7 +166,13 @@ except ValueError as error:
     log.error(msg)
     sys.exit(1)
 
-params_list = json.loads(config.model_dump_json()).get("config", {})
+ep_fabric_details = EpFabricDetails()
+rest_send = RestSend({})
+rest_send.sender = ndfc_sender.sender
+rest_send.response_handler = ResponseHandler()
+rest_send.results = Results()
+
+params_list = json.loads(validator.model_dump_json()).get("config", {})
 
 for params in params_list:
-    fabric_info(params)
+    fabric_details(params)
