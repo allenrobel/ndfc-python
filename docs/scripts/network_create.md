@@ -44,7 +44,6 @@ export ND_USERNAME=admin
 # output not shown
 ```
 
-
 ## Example output
 
 ### Success
