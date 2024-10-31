@@ -82,6 +82,7 @@ nav:
       - reachability.py: scripts/reachability.md
       - rest_get_request.py: scripts/rest_get_request.md
       - rest_post_request.py: scripts/rest_post_request.md
+      - vrf_create.py: scripts/vrf_create.md
   - Classes:
       - Overview: classes/overview.md
       - CredentialSelector: classes/CredentialSelector.md

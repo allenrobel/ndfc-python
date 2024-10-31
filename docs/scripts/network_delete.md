@@ -4,13 +4,7 @@
 
 Delete one or more networks.
 
-## Usage
-
-``` bash
-./network_delete.py --config config/config_network_delete.yaml
-```
-
-## Example Config File
+## Example configuration file
 
 ``` yaml title="config/config_network_delete.yaml"
 ---
@@ -19,6 +13,25 @@ config:
     network_name: MyNet1
   - fabric_name: MyFabric1
     network_name: MyNet2
+```
+
+## Example Usage
+
+The example below uses environment variables for credentials, so requires
+only the `--config` argument.  See [Running the Example Scripts]
+for details around specifying credentials from the command line, from
+environment variables, from Ansible Vault, or a combination of these
+credentials sources.
+
+[Running the Example Scripts]: ../setup/running-the-example-scripts.md
+
+``` bash
+export ND_DOMAIN=local
+export ND_IP4=10.1.1.1
+export ND_PASSWORD=MySecret
+export ND_USERNAME=admin
+./network_delete.py --config config/config_network_delete.yaml
+# output not shown
 ```
 
 ## Example output
