@@ -45,5 +45,5 @@ py311) ~ % cd $HOME/ndfc-python/examples
 
 ## See also
 
-[List of ndfc-python credentials](./set-credentials.md)
-[Using Ansible Vault](./using-ansible-vault.md)
+- [List of ndfc-python credentials](./set-credentials.md)
+- [Using Ansible Vault](./using-ansible-vault.md)
