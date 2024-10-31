@@ -5,14 +5,6 @@
 Display reachability (from controller perspective) information for one or more
 devices.
 
-For now, this script requires Ansible to be installed since it uses Ansible
-Vault for credentials.
-
-`pip install ansible`
-
-We plan to rework this to support other credential sources soon, including
-environment variables and command line options.
-
 ## Example configuration file
 
 ``` yaml title="Example configuraion file"
@@ -24,50 +16,26 @@ config:
     seed_ip: 10.1.1.3
 ```
 
-## Expected Ansible Vault keys
-
-The following keys are expected to be present in the Ansible Vault.
-An error will result if these are not present.
-
-### nd_domain
-
-Nexus Dashboard login domain
-
-### nd_ip4
-
-Nexus Dashboard IPv4 address
-
-### nd_password
-
-Nexus Dashboard password
-
-### nd_username
-
-Nexus Dashboard username
-
-### nxos_password
-
-NX-OS switches password.
-Used for Nexus Dashboard Fabric Contoller switch discovery
-
-### nxos_username
-
-NX-OS switches username.
-Used for Nexus Dashboard Fabric Contoller switch discovery
-
 ## Example Usage
 
-``` bash
-./reachability.py --config/config_reachability.yaml --ansible-vault $HOME/.ansible/vault
-```
+The example below uses environment variables for credentials, so requires
+only the `--config` argument.  See [Running the Example Scripts]
+for details around specifying credentials from the command line, from
+environment variables, from Ansible Vault, or a combination of these
+credentials sources.
 
-## Sample output
+[Running the Example Scripts]: ../setup/running-the-example-scripts.md
 
-### Success
-
-``` bash
-(.venv) AROBEL-M-G793% ./reachability.py --config prod/config_reachability.yaml --ansible-vault $HOME/.ansible/vault
-Vault password:
+``` bash title="Example usage"
+export ND_DOMAIN=local
+export ND_IP4=10.1.1.1
+export ND_PASSWORD=MyNdPassword
+export ND_USERNAME=admin
+export NXOS_PASSWORD=MyNxosPassword
+export NXOS_USERNAME=admin
+cd $HOME/repos/ndfc-python/examples
+./reachability.py --config/config_reachability.yaml
+# output not shown
 sys_name: cvd-1313-leaf
   auth: True
   device_index: cvd-1313-leaf(FDO211218HH)
@@ -86,28 +54,43 @@ sys_name: cvd-1313-leaf
   vdc_mac: None
   vendor: Cisco
   version: 10.3(1)
-sys_name: cvd-1314-leaf
+```
+
+## Sample output
+
+### Success
+
+``` bash title="Success"
+export ND_DOMAIN=local
+export ND_IP4=10.1.1.1
+export ND_PASSWORD=MyNdPassword
+export ND_USERNAME=admin
+export NXOS_PASSWORD=MyNxosPassword
+export NXOS_USERNAME=admin
+cd $HOME/repos/ndfc-python/examples
+./reachability.py --config/config_reachability.yaml
+# output not shown
+sys_name: cvd-1313-leaf
   auth: True
-  device_index: cvd-1314-leaf(FDO211218FV)
+  device_index: cvd-1313-leaf(FDO211218HH)
   hop_count: 0
-  ip_addr: 10.1.1.3
+  ip_addr: 10.1.1.2
   known: True
   last_change: None
   platform: N9K-C93180YC-EX
   reachable: True
   selectable: False
-  serial_number: FDO123456CD
+  serial_number: FDO123456AB
   status_reason: already managed in MyFabric1
   switch_role: None
   valid: True
   vdc_id: 0
   vdc_mac: None
   vendor: Cisco
-  version: 10.2(5)
-(.venv) AROBEL-M-G793%
+  version: 10.3(1)
 ```
 
-### Failure - Ansible Vault missing expected content
+### Failure - Missing credential
 
 ``` bash
 (.venv) AROBEL-M-G793% ./reachability.py --config prod/config_reachability.yaml --ansible-vault $HOME/.ansible/vault

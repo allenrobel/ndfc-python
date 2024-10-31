@@ -4,7 +4,24 @@
 
 Returns fabric details for one or more fabrics.
 
-## Usage
+## Example configuration file
+
+``` yaml title="config/config_fabric_details.yaml"
+---
+config:
+  - fabric_name: MyFabric1
+  - fabric_name: MyFabric2
+```
+
+## Example Usage
+
+The example below uses environment variables for credentials, so requires
+only the `--config` argument.  See [Running the Example Scripts]
+for details around specifying credentials from the command line, from
+environment variables, from Ansible Vault, or a combination of these
+credentials sources.
+
+[Running the Example Scripts]: ../setup/running-the-example-scripts.md
 
 ``` bash
 export ND_DOMAIN=local
@@ -12,21 +29,7 @@ export ND_IP4=10.1.1.1
 export ND_PASSWORD=MySecret
 export ND_USERNAME=admin
 ./fabric_details.py --config config/config_fabric_details.yaml
-```
-
-Environment variables (all, or a subset) can be overridden on the command line.
-
-``` bash
-./fabric_details.py --config config/config_fabric_details.yaml --nd-username admin --nd-password MySecret --nd-domain local --nd-ip4 10.1.1.1
-```
-
-## Example Config File
-
-``` yaml title="config/config_fabric_details.yaml"
----
-config:
-  - fabric_name: MyFabric1
-  - fabric_name: MyFabric2
+# output not shown
 ```
 
 ## Sample output
