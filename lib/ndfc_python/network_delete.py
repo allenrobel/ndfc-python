@@ -9,6 +9,9 @@ Send network delete DELETE requests to the controller
 
 """
 
+# We are using isort for import sorting.
+# pylint: disable=wrong-import-order
+
 import inspect
 import logging
 

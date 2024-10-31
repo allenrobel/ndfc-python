@@ -41,11 +41,12 @@ import sys
 
 from ndfc_python.ndfc_python_logger import NdfcPythonLogger
 from ndfc_python.ndfc_python_sender import NdfcPythonSender
-from ndfc_python.parsers.parser_controller_domain import parser_controller_domain
-from ndfc_python.parsers.parser_controller_ip4 import parser_controller_ip4
-from ndfc_python.parsers.parser_controller_password import parser_controller_password
-from ndfc_python.parsers.parser_controller_username import parser_controller_username
+from ndfc_python.parsers.parser_ansible_vault import parser_ansible_vault
 from ndfc_python.parsers.parser_loglevel import parser_loglevel
+from ndfc_python.parsers.parser_nd_domain import parser_nd_domain
+from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
+from ndfc_python.parsers.parser_nd_password import parser_nd_password
+from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 
@@ -61,11 +62,12 @@ def setup_parser() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(
         parents=[
+            parser_ansible_vault,
             parser_loglevel,
-            parser_controller_domain,
-            parser_controller_ip4,
-            parser_controller_password,
-            parser_controller_username,
+            parser_nd_domain,
+            parser_nd_ip4,
+            parser_nd_password,
+            parser_nd_username,
         ],
         description="DESCRIPTION: Send a REST GET request to the controller.",
     )

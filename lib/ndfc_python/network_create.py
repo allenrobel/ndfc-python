@@ -58,6 +58,7 @@ Send network create POST requests to the controller
 ```
 """
 
+# pylint: disable=wrong-import-order
 import inspect
 import json
 import logging

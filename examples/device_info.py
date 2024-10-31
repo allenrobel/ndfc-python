@@ -40,8 +40,13 @@ import sys
 
 from ndfc_python.ndfc_python_logger import NdfcPythonLogger
 from ndfc_python.ndfc_python_sender import NdfcPythonSender
+from ndfc_python.parsers.parser_ansible_vault import parser_ansible_vault
 from ndfc_python.parsers.parser_config import parser_config
 from ndfc_python.parsers.parser_loglevel import parser_loglevel
+from ndfc_python.parsers.parser_nd_domain import parser_nd_domain
+from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
+from ndfc_python.parsers.parser_nd_password import parser_nd_password
+from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
 from ndfc_python.validators import DeviceInfoConfigValidator
 from plugins.module_utils.common.response_handler import ResponseHandler
@@ -81,7 +86,12 @@ def setup_parser() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(
         parents=[
+            parser_ansible_vault,
             parser_config,
+            parser_nd_domain,
+            parser_nd_ip4,
+            parser_nd_password,
+            parser_nd_username,
             parser_loglevel,
         ],
         description="DESCRIPTION: Print information about one or more switches.",
