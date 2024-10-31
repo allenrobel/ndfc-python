@@ -17,7 +17,8 @@ pip install ansible
 Next, you'll need to edit your Ansible Vault file to add your Nexus Dashboard Controller
 credentials (username, password, login domain) and ip address, as well as the username
 and password for your NX-OS switches.  NX-OS credentials are used by, for example,
-[reachability.py](../../examples/reachability.py) which uses them for switch discovery.
+[reachability.py](https://github.com/allenrobel/ndfc-python/blob/main/examples/reachability.py)
+which uses them for switch discovery.
 
 It is recommended (but not mandatory) that you encrypt all passwords.  Below is one way to do this.
 
