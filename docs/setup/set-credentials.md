@@ -93,9 +93,9 @@ To indicate to the script that an Ansible Vault should be used
 as credential source, use the following command line argument.
 It should point to a valid Ansible Vault file.
 
-### --ansible-vault $HOME/.ansible/vault
+### --ansible-vault
 
-``` bash "Use Ansible Vault as a credential source"
+``` bash title="Use Ansible Vault as a credential source"
 ./my_script.py --ansible-vault $HOME/.ansible/vault
 ```
 
