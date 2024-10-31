@@ -22,14 +22,14 @@ and return the value of the credential from that source.
 
 #### credential_name
 
-The name of the credential for which to retrieve the value.  See
+The name of the credential from which to retrieve the value.  See
 [Credentials](../setup/set-credentials.md) for the list of supported
 credential names.
 
 #### script_args
 
 An instance of `parser.parse_args()` (from Python's `argparse` library)
-containing one or more [Credentials](../setup/set-credentials.md).
+containing zero or more [Credentials](../setup/set-credentials.md).
 
 If `script_args` contains `ansible_vault` i.e. the user passed
 `--ansible-vault /path/to/vault` on the script command-line, then
@@ -62,5 +62,5 @@ good example in that it demonstrates how to read and use `nxos_password` and
 
 ## See also
 
-[Credentials](../setup/set-credentials.md)
-[Running the example scripts](../setup/running-the-example-scripts.md)
+- [Credentials](../setup/set-credentials.md)
+- [Running the example scripts](../setup/running-the-example-scripts.md)
