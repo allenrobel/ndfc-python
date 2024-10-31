@@ -47,11 +47,20 @@ among command-line arguments, environment variables, and Ansible Vault
 (if the `--ansible-vault` location is passed to the script).  It
 prioritizes them as follows:
 
-1.  Command line argument(s)
-2.  Environment variable(s)
-3.  Ansible Vault (assuming the `--ansible-vault` argument is used and points
-    to a valid vault file)
+1. Command line argument(s)
+2. Environment variable(s)
+3. Ansible Vault (assuming the `--ansible-vault` argument is used and points
+   to a valid vault file)
 
-## Usage example:
+## Usage example
 
-See most any script in `./examples/*.py` for example usage.
+See most any script in `./examples/*.py` for example usage. [Reachability] is a
+good example in that it demonstrates how to read and use `nxos_password` and
+`nxos_username` in addition to the Nexus Dashboard credentials.
+
+[Reachability]: https://github.com/allenrobel/ndfc-python/blob/main/lib/ndfc_python/reachability.py
+
+## See also
+
+[Credentials](../setup/set-credentials.md)
+[Running the example scripts](../setup/running-the-example-scripts.md)
