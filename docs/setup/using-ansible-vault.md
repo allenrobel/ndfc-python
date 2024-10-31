@@ -1,6 +1,6 @@
 # Using Ansible Vault
 
-Most `ndfc-python` scripts now include a `--ansible-vault` command line argument.
+Most `ndfc-python` scripts now include an `--ansible-vault` command line argument.
 When this argument is present, you'll be asked for your vault password, and the
 script will read the vault for any of the credentials it needs.
 
