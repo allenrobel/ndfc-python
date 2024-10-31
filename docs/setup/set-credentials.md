@@ -83,7 +83,6 @@ Used for Nexus Dashboard Fabric Contoller switch discovery
 Username for NX-OS switches.
 Used for Nexus Dashboard Fabric Contoller switch discovery
 
-
 ## Ansible Vault
 
 Lastly, for most example scripts, you can read the credentials from
