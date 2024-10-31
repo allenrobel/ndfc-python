@@ -52,6 +52,7 @@ class NdfcPythonSender:
         self._credential_names.append("nxos_password")
         self._credential_names.append("nxos_username")
         self._sender = Sender()
+        self._login = True
         self._nd_domain = None
         self._nd_ip4 = None
         self._nd_password = None
@@ -146,6 +147,8 @@ class NdfcPythonSender:
         """
         method_name = inspect.stack()[0][3]
         self.set_sender_credentials()
+        if self.login is False:
+            return
         try:
             self.sender.login()
         except ValueError as error:
@@ -201,3 +204,24 @@ class NdfcPythonSender:
         Return the NX-OS username.
         """
         return self._nxos_username
+
+    @property
+    def login(self):
+        """
+        # Summary
+        Login to the controller when commit is called.
+
+        # Raises
+        None
+
+        # Type
+        bool
+
+        # Default
+        True
+        """
+        return self._login
+
+    @login.setter
+    def login(self, value):
+        self._login = value
