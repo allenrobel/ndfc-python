@@ -11,16 +11,17 @@ import json
 import logging
 import sys
 
-from ndfc_python.credentials.credentials_ansible_vault import CredentialsAnsibleVault
 from ndfc_python.ndfc_python_logger import NdfcPythonLogger
 from ndfc_python.ndfc_python_sender import NdfcPythonSender
 from ndfc_python.parsers.parser_ansible_vault import parser_ansible_vault
 from ndfc_python.parsers.parser_config import parser_config
-from ndfc_python.parsers.parser_controller_domain import parser_controller_domain
-from ndfc_python.parsers.parser_controller_ip4 import parser_controller_ip4
-from ndfc_python.parsers.parser_controller_password import parser_controller_password
-from ndfc_python.parsers.parser_controller_username import parser_controller_username
 from ndfc_python.parsers.parser_loglevel import parser_loglevel
+from ndfc_python.parsers.parser_nd_domain import parser_nd_domain
+from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
+from ndfc_python.parsers.parser_nd_password import parser_nd_password
+from ndfc_python.parsers.parser_nd_username import parser_nd_username
+from ndfc_python.parsers.parser_nxos_password import parser_nxos_password
+from ndfc_python.parsers.parser_nxos_username import parser_nxos_username
 from ndfc_python.reachability import Reachability
 from ndfc_python.read_config import ReadConfig
 from ndfc_python.validators import ReachabilityConfigValidator
@@ -86,10 +87,12 @@ def setup_parser() -> argparse.Namespace:
             parser_ansible_vault,
             parser_config,
             parser_loglevel,
-            parser_controller_domain,
-            parser_controller_ip4,
-            parser_controller_password,
-            parser_controller_username,
+            parser_nd_domain,
+            parser_nd_ip4,
+            parser_nd_password,
+            parser_nd_username,
+            parser_nxos_password,
+            parser_nxos_username,
         ],
         description="DESCRIPTION: Display reachability information for a switch.",
     )
@@ -97,12 +100,6 @@ def setup_parser() -> argparse.Namespace:
 
 
 args = setup_parser()
-
-# TODO: 2024-10-28 Modify once we've added support for ENV, CLI credential sources.
-if args.ansible_vault is None:
-    msg = "Usage: reachability.py --ansible-vault /path/to/ansible/vault"
-    print(msg)
-    sys.exit(1)
 
 NdfcPythonLogger()
 log = logging.getLogger("ndfc_python.main")
@@ -137,16 +134,6 @@ except ValueError as error:
     sys.exit(1)
 
 try:
-    cav = CredentialsAnsibleVault()
-    cav.ansible_vault = args.ansible_vault
-    cav.commit()
-except ValueError as error:
-    msg = f"Exiting. Error detail: {error}"
-    log.error(msg)
-    print(msg)
-    sys.exit(1)
-
-try:
     rest_send = RestSend({})
     rest_send.sender = ndfc_sender.sender
     rest_send.response_handler = ResponseHandler()
@@ -154,8 +141,8 @@ try:
     instance = Reachability()
     instance.rest_send = rest_send
     instance.results = Results()
-    instance.nxos_username = cav.nxos_username
-    instance.nxos_password = cav.nxos_password
+    instance.nxos_username = ndfc_sender.nxos_username
+    instance.nxos_password = ndfc_sender.nxos_password
     # For EasyFabric, if overlay_mode is "config-profile" (the default),
     # it's recommended that preserve_config be set to False.  If it's
     # desired to preserve the config, then set overlay_mode to "cli"

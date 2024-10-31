@@ -1,7 +1,11 @@
+# We are using isort for import sorting.
+# pylint: disable=wrong-import-order
+
 import argparse  # used for validating args
 import inspect
 import logging
 
+from ndfc_python.credential_selector import CredentialSelector
 from plugins.module_utils.common.sender_requests import Sender
 
 
@@ -40,7 +44,20 @@ class NdfcPythonSender:
         self.class_name = self.__class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
         self._args = None
+        self._credential_names = []
+        self._credential_names.append("nd_domain")
+        self._credential_names.append("nd_ip4")
+        self._credential_names.append("nd_password")
+        self._credential_names.append("nd_username")
+        self._credential_names.append("nxos_password")
+        self._credential_names.append("nxos_username")
         self._sender = Sender()
+        self._nd_domain = None
+        self._nd_ip4 = None
+        self._nd_password = None
+        self._nd_username = None
+        self._nxos_password = None
+        self._nxos_username = None
 
     @property
     def args(self):
@@ -83,6 +100,41 @@ class NdfcPythonSender:
         """
         return self._sender
 
+    def set_sender_credentials(self) -> None:
+        """
+        # Summary
+
+        Use CredentialSelector to get Nexus Dashboard credentials from
+        environment variables, args, or an Ansible Vault.
+        """
+        method_name = inspect.stack()[0][3]
+        cs = CredentialSelector()
+        cs.script_args = self.args
+        for credential in self._credential_names:
+            cs.credential_name = credential
+            try:
+                cs.commit()
+            except ValueError as error:
+                msg = f"{self.class_name}.{method_name}: "
+                msg += f"Got error {error}"
+                raise ValueError(msg) from error
+            if credential == "nd_domain":
+                self.sender.domain = cs.credential_value
+                self._nd_domain = cs.credential_value
+            if credential == "nd_ip4":
+                self.sender.ip4 = cs.credential_value
+                self._nd_ip4 = cs.credential_value
+            if credential == "nd_password":
+                self.sender.password = cs.credential_value
+                self._nd_password = cs.credential_value
+            if credential == "nd_username":
+                self.sender.username = cs.credential_value
+                self._nd_username = cs.credential_value
+            if credential == "nxos_password":
+                self._nxos_password = cs.credential_value
+            if credential == "nxos_username":
+                self._nxos_username = cs.credential_value
+
     def commit(self) -> None:
         """
         # Summary
@@ -93,33 +145,7 @@ class NdfcPythonSender:
             -   sender.login() is not successful
         """
         method_name = inspect.stack()[0][3]
-        if self.args is not None:
-            # If args contains any of the following, override the corresponding
-            # environment variable.
-            try:
-                if self.args.controller_domain is not None:
-                    # override ND_DOMAIN env variable
-                    self.sender.domain = self.args.controller_domain
-            except AttributeError:
-                pass
-            try:
-                if self.args.controller_ip4 is not None:
-                    # override ND_IP4 env variable
-                    self.sender.ip4 = self.args.controller_ip4
-            except AttributeError:
-                pass
-            try:
-                if self.args.controller_password is not None:
-                    # override ND_PASSWORD env variable
-                    self.sender.password = self.args.controller_password
-            except AttributeError:
-                pass
-            try:
-                if self.args.controller_username is not None:
-                    # override ND_USERNAME env variable
-                    self.sender.username = self.args.controller_username
-            except AttributeError:
-                pass
+        self.set_sender_credentials()
         try:
             self.sender.login()
         except ValueError as error:
@@ -127,3 +153,51 @@ class NdfcPythonSender:
             msg += "Unable to login to the controller. "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
+
+    @property
+    def nd_domain(self):
+        """
+        # Summary
+        Return the Nexus Dashboard domain.
+        """
+        return self._nd_domain
+
+    @property
+    def nd_ip4(self):
+        """
+        # Summary
+        Return the Nexus Dashboard IPv4 address.
+        """
+        return self._nd_ip4
+
+    @property
+    def nd_password(self):
+        """
+        # Summary
+        Return the Nexus Dashboard password.
+        """
+        return self._nd_password
+
+    @property
+    def nd_username(self):
+        """
+        # Summary
+        Return the Nexus Dashboard username.
+        """
+        return self._nd_username
+
+    @property
+    def nxos_password(self):
+        """
+        # Summary
+        Return the NX-OS password.
+        """
+        return self._nxos_password
+
+    @property
+    def nxos_username(self):
+        """
+        # Summary
+        Return the NX-OS username.
+        """
+        return self._nxos_username

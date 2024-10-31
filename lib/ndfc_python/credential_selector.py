@@ -1,5 +1,5 @@
 """
-# credentials_selector.py
+# credential_selector.py
 
 ## Summary
 
@@ -270,26 +270,13 @@ class CredentialSelector:
         try:
             ansible_vault = self.script_args.ansible_vault
         except AttributeError:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += "early return AttributeError"
-            self.log.debug(msg)
             return
         if ansible_vault is None:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += "early return ansible_vault is None"
-            self.log.debug(msg)
             return
 
         # If we've already read the vault, do nothing.
         if self._ansible_vault_instance is not None:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += "early return _ansible_vault_instance already set"
-            self.log.debug(msg)
             return
-
-        msg = f"{self.class_name}.{method_name}: "
-        msg += "instantiating _ansible_vault_instance"
-        self.log.debug(msg)
 
         try:
             self._ansible_vault_instance = CredentialsAnsibleVault()

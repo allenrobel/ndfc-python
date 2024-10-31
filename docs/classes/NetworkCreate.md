@@ -412,10 +412,10 @@ from ndfc_python.ndfc_python_logger import NdfcPythonLogger
 from ndfc_python.ndfc_python_sender import NdfcPythonSender
 from ndfc_python.network_create import NetworkCreate
 from ndfc_python.parsers.parser_config import parser_config
-from ndfc_python.parsers.parser_controller_domain import parser_controller_domain
-from ndfc_python.parsers.parser_controller_ip4 import parser_controller_ip4
-from ndfc_python.parsers.parser_controller_password import parser_controller_password
-from ndfc_python.parsers.parser_controller_username import parser_controller_username
+from ndfc_python.parsers.parser_nd_domain import parser_nd_domain
+from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
+from ndfc_python.parsers.parser_nd_password import parser_nd_password
+from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.parsers.parser_loglevel import parser_loglevel
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
@@ -435,10 +435,10 @@ def setup_parser() -> argparse.Namespace:
         parents=[
             parser_config,
             parser_loglevel,
-            parser_controller_domain,
-            parser_controller_ip4,
-            parser_controller_password,
-            parser_controller_username,
+            parser_nd_domain,
+            parser_nd_ip4,
+            parser_nd_password,
+            parser_nd_username,
         ],
         description="DESCRIPTION: Create a network.",
     )
