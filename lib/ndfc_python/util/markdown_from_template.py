@@ -54,6 +54,7 @@ class MarkdownFromTemplate:
         self._contents = None
         self._markdown_file = None
         self._property_map = {}
+        self._property_map_file = None
         self._template_file = None
 
     def load_property_map(self):
