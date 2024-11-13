@@ -97,23 +97,23 @@ except ControllerResponseError as error:
 
 padding = 10
 print("Controller information:")
-print(f"{controller_version.version :<15} Full version")
-print(f"{controller_version.version_major :<15} Major version")
-print(f"{controller_version.version_minor :<15} Minor version")
-print(f"{controller_version.version_patch :<15} Patch version")
+print(f"{controller_version.version:<15} Full version")
+print(f"{controller_version.version_major:<15} Major version")
+print(f"{controller_version.version_minor:<15} Minor version")
+print(f"{controller_version.version_patch:<15} Patch version")
 if controller_version.dev is not None:
-    print(f"{str(controller_version.dev) :<15} Development version")
+    print(f"{str(controller_version.dev):<15} Development version")
 if controller_version.uuid is not None:
-    print(f"{controller_version.uuid :<15} UUID")
+    print(f"{controller_version.uuid:<15} UUID")
 if controller_version.mode is not None:
-    print(f"{controller_version.mode :<15} Mode")
+    print(f"{controller_version.mode:<15} Mode")
 if controller_version.is_upgrade_inprogress is not None:
-    print(f"{str(controller_version.is_upgrade_inprogress) :<15} Upgrade in progress")
+    print(f"{str(controller_version.is_upgrade_inprogress):<15} Upgrade in progress")
 if controller_version.is_media_controller is not None:
-    print(f"{str(controller_version.is_media_controller) :<15} Media Controller")
+    print(f"{str(controller_version.is_media_controller):<15} Media Controller")
 if controller_version.is_ha_enabled is not None:
-    print(f"{str(controller_version.is_ha_enabled) :<15} High Availability enabled")
+    print(f"{str(controller_version.is_ha_enabled):<15} High Availability enabled")
 if controller_version.install is not None:
-    print(f"{controller_version.install :<15} Install")
+    print(f"{controller_version.install:<15} Install")
 print("Raw response:")
 print(json.dumps(controller_version.response_data, indent=4, sort_keys=True))
