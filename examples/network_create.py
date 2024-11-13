@@ -1,19 +1,41 @@
 #!/usr/bin/env python3
 """
-Name: network_create.py
-Description: Create a network
+# network_create.py
 
-NOTES:
+## Description
 
-1.  Set the following environment variables before running this script
-    (edit appropriately for your setup)
+Create a network
 
+## Usage
+
+1.  Modify PYTHONPATH appropriately for your setup before running this script
+
+``` bash
 export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible-dcnm
+```
 
-Optional, to enable logging:
+2. Optional, to enable logging.
+
+``` bash
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
+```
 
-2. Edit the network values in the script below.
+3. Edit ./examples/config/config_network_create.yaml with desired network values
+
+4. Set credentials via script command line, environment variables, or Ansible Vault
+
+5. Run the script (below we're using command line for credentials)
+
+``` bash
+./examples/network_create.py \
+    --config ./examples/config/config_network_create.yaml \
+    --nd-domain local \
+    --nd-ip4 10.1.1.1 \
+    --nd-password password \
+    --nd-username admin
+
+```
+
 """
 # pylint: disable=duplicate-code
 import argparse
