@@ -10,5 +10,6 @@ optional.add_argument(
     "--nxos-password",
     dest="nxos_password",
     required=False,
+    default="foo",
     help=f"{parser_help}",
 )
