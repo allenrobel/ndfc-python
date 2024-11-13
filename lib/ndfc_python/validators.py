@@ -4,6 +4,7 @@
 Validators for class input properties.
 """
 
+from enum import Enum
 from typing import List, Optional
 
 from pydantic import BaseModel, IPvAnyInterface, PositiveInt
@@ -27,6 +28,29 @@ class FabricDetailsConfig(BaseModel):
     """
 
     fabric_name: str
+
+
+class MaintenanceModeConfig(BaseModel):
+    """
+    # Summary
+
+    Base validator for MaintenanceMode arguments
+    """
+
+    class ModeEnum(str, Enum):
+        """
+        # Summary
+
+        Enum for MaintenanceModeConfig.mode
+        """
+
+        maintenance = "maintenance"
+        normal = "normal"
+
+    ip_address: str
+    deploy: Optional[bool] = True
+    wait_for_mode_change: Optional[bool] = True
+    mode: ModeEnum
 
 
 class NetworkCreateConfig(BaseModel):
@@ -99,6 +123,16 @@ class FabricDetailsConfigValidator(BaseModel):
     """
 
     config: List[FabricDetailsConfig]
+
+
+class MaintenanceModeConfigValidator(BaseModel):
+    """
+    # Summary
+
+    config is a list of MaintenanceModeConfig
+    """
+
+    config: List[MaintenanceModeConfig]
 
 
 class NetworkCreateConfigValidator(BaseModel):

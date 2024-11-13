@@ -190,3 +190,14 @@ Maintenance mode change can take up to 5 minutes. Patience is a virtue.
 Exiting.  Error detail: Merged.get_have: Error while retrieving switch info. Error detail: SwitchDetails._get: Switch with ip_address 10.1.1.8 does not exist on the controller.
 (.venv) AROBEL-M-G793%
 ```
+
+### Invalid config file
+
+``` bash title="config file contains incorrect value for mode"
+(.venv) AROBEL-M-G793% ./maintenance_mode.py --config prod/config_maintenance_mode.yaml
+1 validation error for MaintenanceModeConfigValidator
+config.0.mode
+  Input should be 'maintenance' or 'normal' [type=enum, input_value='normally', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.9/v/enum
+(.venv) AROBEL-M-G793%
+```
