@@ -74,6 +74,7 @@ nav:
       - Running the example scripts: setup/running-the-example-scripts.md
       - Using Ansible Vault: setup/using-ansible-vault.md
   - Scripts:
+      - controller_info.py: scripts/controller_info.md
       - credentials.py: scripts/credentials.md
       - device_info.py: scripts/device_info.md
       - fabric_details.py: scripts/fabric_details.md

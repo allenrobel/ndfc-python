@@ -10,5 +10,6 @@ optional.add_argument(
     "--nxos-username",
     dest="nxos_username",
     required=False,
+    default="admin",
     help=f"{parser_help}",
 )
