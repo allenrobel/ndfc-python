@@ -1,0 +1,10 @@
+---
+config:
+    - ip_address: 10.1.1.2
+      deploy: true
+      wait_for_mode_change: true
+      mode: normal
+    - ip_address: 10.1.1.3
+      deploy: true
+      wait_for_mode_change: true
+      mode: maintenance
