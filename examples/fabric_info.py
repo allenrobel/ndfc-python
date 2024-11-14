@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Name: fabric_details.py
+Name: fabric_info.py
 Description:
 
 Return fabric information for FABRIC_NAME.
@@ -72,7 +72,7 @@ from ndfc_python.parsers.parser_nd_username import parser_nd_username
 # console logging.  The copy in the DCNM Ansible Collection specifically
 # disallows console logging.
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators import FabricDetailsConfigValidator
+from ndfc_python.validators.fabric_info import FabricInfoConfigValidator
 
 # fmt: off
 from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import EpFabricDetails
@@ -84,9 +84,9 @@ from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
-def fabric_details(config):
+def fabric_info(config):
     """
-    Given a fabric configuration, print details about the fabric.
+    Given a fabric configuration, print information about the fabric.
     """
     ep_fabric_details.fabric_name = config.get("fabric_name")
 
@@ -130,7 +130,7 @@ def setup_parser() -> argparse.Namespace:
             parser_nd_username,
             parser_loglevel,
         ],
-        description="DESCRIPTION: Print details about one or more fabrics.",
+        description="DESCRIPTION: Print information about one or more fabrics.",
     )
     return parser.parse_args()
 
@@ -151,7 +151,7 @@ except ValueError as error:
     sys.exit()
 
 try:
-    validator = FabricDetailsConfigValidator(**ndfc_config.contents)
+    validator = FabricInfoConfigValidator(**ndfc_config.contents)
 except ValidationError as error:
     msg = f"{error}"
     log.error(msg)
@@ -177,4 +177,4 @@ rest_send.results = Results()
 params_list = json.loads(validator.model_dump_json()).get("config", {})
 
 for params in params_list:
-    fabric_details(params)
+    fabric_info(params)

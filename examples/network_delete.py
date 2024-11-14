@@ -31,12 +31,8 @@ from ndfc_python.parsers.parser_nd_domain import parser_nd_domain
 from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
-
-# We are using our local copy of log_v2.py which is modified to allow
-# console logging.  The copy in the DCNM Ansible Collection specifically
-# disallows console logging.
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators import NetworkDeleteConfigValidator
+from ndfc_python.validators.network_delete import NetworkDeleteConfigValidator
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
