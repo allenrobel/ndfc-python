@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-# maintenance_mode.py
+# maintenance_mode_info.py
 
 ## Description
 
-Enable or disable maintenance mode for a switch or switches.
+Query maintenance mode status for a switch or switches.
 
 ## Usage
 
@@ -20,15 +20,15 @@ export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible-dc
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
 ```
 
-3. Edit ./examples/config/config_maintenance_mode.yaml with desired values
+3. Edit ./examples/config/config_maintenance_mode_info.yaml with desired values
 
 4. Set credentials via script command line, environment variables, or Ansible Vault
 
 5. Run the script (below we're using command line for credentials)
 
 ``` bash
-./examples/maintenance_mode.py \
-    --config ./examples/config/config_maintenance_mode.yaml \
+./examples/maintenance_mode_info.py \
+    --config ./examples/config/config_maintenance_mode_info.yaml \
     --nd-domain local \
     --nd-ip4 10.1.1.1 \
     --nd-password password \
@@ -38,7 +38,6 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 
 """
 import argparse
-import copy
 import inspect
 import json
 import logging
@@ -56,8 +55,7 @@ from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.parsers.parser_nxos_password import parser_nxos_password
 from ndfc_python.parsers.parser_nxos_username import parser_nxos_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators import MaintenanceModeConfigValidator
-from plugins.module_utils.common.maintenance_mode import MaintenanceMode
+from ndfc_python.validators import MaintenanceModeInfoConfigValidator
 from plugins.module_utils.common.maintenance_mode_info import MaintenanceModeInfo
 from plugins.module_utils.common.properties import Properties
 from plugins.module_utils.common.response_handler import ResponseHandler
@@ -67,9 +65,9 @@ from pydantic import ValidationError
 
 
 @Properties.add_rest_send
-class Merged:
+class Query:
     """
-    Handle merged state
+    Handle query state
 
     ### Raises
     -   ``ValueError`` if Common().__init__() raises ``ValueError``
@@ -85,14 +83,12 @@ class Merged:
 
         method_name = inspect.stack()[0][3]
 
-        msg = f"ENTERED Merged.{method_name}: "
+        msg = f"ENTERED Query.{method_name}: "
         self.log.debug(msg)
 
         self._rest_send = None
         self.have = {}
-        self.need = []
         self._want = None
-        self.maintenance_mode = None
 
     def get_have(self):
         """
@@ -158,149 +154,17 @@ class Merged:
             raise ValueError(msg) from error
         self.have = instance.info
 
-    def fabric_deployment_disabled(self) -> None:
-        """
-        ### Summary
-        Handle the following cases:
-        -   switch migration mode is ``migration``
-        -   fabric is in read-only mode (IS_READ_ONLY is True)
-        -   fabric is in freeze mode (Deployment Disable)
-
-        ### Raises
-        -   ``ValueError`` if any of the above cases are true
-        """
-        method_name = inspect.stack()[0][3]
-        for ip_address, value in self.have.items():
-            fabric_name = value.get("fabric_name")
-            mode = value.get("mode")
-            serial_number = value.get("serial_number")
-            fabric_deployment_disabled = value.get("fabric_deployment_disabled")
-            fabric_freeze_mode = value.get("fabric_freeze_mode")
-            fabric_read_only = value.get("fabric_read_only")
-
-            additional_info = "Additional info: "
-            additional_info += f"hosting_fabric: {fabric_name}, "
-            additional_info += "fabric_deployment_disabled: "
-            additional_info += f"{fabric_deployment_disabled}, "
-            additional_info += "fabric_freeze_mode: "
-            additional_info += f"{fabric_freeze_mode}, "
-            additional_info += "fabric_read_only: "
-            additional_info += f"{fabric_read_only}, "
-            additional_info += f"maintenance_mode: {mode}. "
-
-            if mode == "migration":
-                msg = f"{self.class_name}.{method_name}: "
-                msg += "Switch maintenance mode is in migration state for the "
-                msg += "switch with "
-                msg += f"ip_address {ip_address}, "
-                msg += f"serial_number {serial_number}. "
-                msg += "This indicates that the switch configuration is not "
-                msg += "compatible with the switch role in the hosting "
-                msg += "fabric.  The issue might be resolved by initiating a "
-                msg += "fabric Recalculate & Deploy on the controller. "
-                msg += "Failing that, the switch configuration might need to "
-                msg += "be manually modified to match the switch role in the "
-                msg += "hosting fabric. "
-                msg += additional_info
-                raise ValueError(msg)
-
-            if fabric_read_only is True:
-                msg = f"{self.class_name}.{method_name}: "
-                msg += "The hosting fabric is in read-only mode for the "
-                msg += f"switch with ip_address {ip_address}, "
-                msg += f"serial_number {serial_number}. "
-                msg += "The issue can be resolved for LAN_Classic fabrics by "
-                msg += "unchecking 'Fabric Monitor Mode' in the fabric "
-                msg += "settings on the controller. "
-                msg += additional_info
-                raise ValueError(msg)
-
-            if fabric_freeze_mode is True:
-                msg = f"{self.class_name}.{method_name}: "
-                msg += "The hosting fabric is in "
-                msg += "'Deployment Disable' state for the switch with "
-                msg += f"ip_address {ip_address}, "
-                msg += f"serial_number {serial_number}. "
-                msg += "Review the 'Deployment Enable / Deployment Disable' "
-                msg += "setting on the controller at: "
-                msg += "Fabric Controller > Overview > "
-                msg += "Topology > <fabric> > Actions > More, and change "
-                msg += "the setting to 'Deployment Enable'. "
-                msg += additional_info
-                raise ValueError(msg)
-
-    def get_need(self):
-        """
-        ### Summary
-        Build self.need for merged state.
-
-        ### Raises
-        -   ``ValueError`` if the switch is not found on the controller.
-
-        ### self.need structure
-        ```json
-        [
-            {
-                "deploy": false,
-                "fabric_name": "MyFabric",
-                "ip_address": "172.22.150.2",
-                "mode": "maintenance",
-                "serial_number": "FCI1234567"
-                "wait_for_mode_change": true
-            },
-            {
-                "deploy": true,
-                "fabric_name": "YourFabric",
-                "ip_address": "172.22.150.3",
-                "mode": "normal",
-                "serial_number": "HMD2345678"
-                "wait_for_mode_change": true
-            }
-        ]
-        """
-        method_name = inspect.stack()[0][3]
-        self.need = []
-        for want in self.want:
-            ip_address = want.get("ip_address", None)
-            if ip_address not in self.have:
-                msg = f"{self.class_name}.{method_name}: "
-                msg += f"Switch {ip_address} not found on the controller."
-                raise ValueError(msg)
-
-            serial_number = self.have[ip_address]["serial_number"]
-            fabric_name = self.have[ip_address]["fabric_name"]
-            if want.get("mode") != self.have[ip_address]["mode"]:
-                need = want
-                need.update({"deploy": want.get("deploy")})
-                need.update({"fabric_name": fabric_name})
-                need.update({"ip_address": ip_address})
-                need.update({"mode": want.get("mode")})
-                need.update({"serial_number": serial_number})
-                need.update({"wait_for_mode_change": want.get("wait_for_mode_change")})
-                self.need.append(copy.copy(need))
-
-    def patience(self) -> None:
-        """
-        ### Summary
-        Print a message to the console for operations that can take
-        a long time to complete.
-        """
-        msg = "Maintenance mode change can take up to 5 minutes. "
-        msg += "Patience is a virtue."
-        self.log.debug(msg)
-        print(msg)
-
     def commit(self):
         """
         ### Summary
-        Commit the merged state request
+        Query the switches in self.want that exist on the controller
+        and update ``self.results`` with the query results.
 
         ### Raises
         -   ``ValueError`` if:
                 -   ``rest_send`` is not set.
                 -   ``get_want()`` raises ``ValueError``
                 -   ``get_have()`` raises ``ValueError``
-                -   ``send_need()`` raises ``ValueError``
         """
         method_name = inspect.stack()[0][3]
         msg = f"{self.class_name}.{method_name}: entered"
@@ -322,49 +186,23 @@ class Merged:
         try:
             self.get_have()
         except ValueError as error:
-            raise ValueError(error) from error
-
-        self.fabric_deployment_disabled()
-
-        self.get_need()
-
-        try:
-            self.send_need()
-        except ValueError as error:
             msg = f"{self.class_name}.{method_name}: "
-            msg += "Error while sending maintenance mode request. "
+            msg += "Error while retrieving switch information "
+            msg += "from the controller. "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
 
-    def send_need(self) -> None:
-        """
-        ### Summary
-        Build and send the payload to modify maintenance mode.
-
-        ### Raises
-        -   ``ValueError`` if MaintenanceMode() raises either
-            ``TypeError`` or ``ValueError``
-
-        """
-        method_name = inspect.stack()[0][3]  # pylint: disable=unused-variable
-
-        if len(self.need) == 0:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += "No switches to modify."
-            self.log.debug(msg)
-            return
-
-        self.patience()
-        try:
-            # TODO: For now, we need to pass params to MaintenanceMode.
-            # This will be changed in a future ansible-dcnm release.
-            self.maintenance_mode = MaintenanceMode(self.rest_send.params)
-            self.maintenance_mode.rest_send = self.rest_send
-            self.maintenance_mode.results = self.rest_send.results
-            self.maintenance_mode.config = self.need
-            self.maintenance_mode.commit()
-        except (TypeError, ValueError) as error:
-            raise ValueError(error) from error
+        # If we got this far, the requests were successful.
+        self.rest_send.results.action = "maintenance_mode_info"
+        self.rest_send.results.changed = False
+        self.rest_send.results.diff_current = self.have
+        self.rest_send.results.failed = False
+        self.rest_send.results.response_current = {"MESSAGE": "MaintenanceModeInfo OK."}
+        self.rest_send.results.response_current.update({"METHOD": "NA"})
+        self.rest_send.results.response_current.update({"REQUEST_PATH": "NA"})
+        self.rest_send.results.response_current.update({"RETURN_CODE": 200})
+        self.rest_send.results.result_current = {"changed": False, "success": True}
+        self.rest_send.results.register_task_result()
 
     @property
     def want(self):
@@ -399,7 +237,7 @@ def setup_parser() -> argparse.Namespace:
         argparse.Namespace
     """
     description = "DESCRIPTION: "
-    description += "Enable or disable maintenance mode on one or more switches."
+    description += "Query the maintenance mode state of one or more switches."
     parser = argparse.ArgumentParser(
         parents=[
             parser_ansible_vault,
@@ -433,7 +271,7 @@ except ValueError as error:
     sys.exit(1)
 
 try:
-    validator = MaintenanceModeConfigValidator(**ndfc_config.contents)
+    validator = MaintenanceModeInfoConfigValidator(**ndfc_config.contents)
 except ValidationError as error:
     err_msg = f"{error}"
     log.error(err_msg)
@@ -459,7 +297,7 @@ rest_send.response_handler = ResponseHandler()
 rest_send.results = Results()
 
 try:
-    task = Merged()
+    task = Query()
     task.rest_send = rest_send  # pylint: disable=attribute-defined-outside-init
     task.want = ndfc_config.contents["config"]
     task.commit()

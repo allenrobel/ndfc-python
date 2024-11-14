@@ -51,3 +51,13 @@ ipv4_address 10.1.1.3
 Unable to get switch details. Error details: SwitchDetails._get: Switch with ip_address 10.1.1.2 does not exist on the controller.
 (.venv) AROBEL-M-G793%
 ```
+
+### Invalid ip address in config file
+
+``` bash title="Invalid switch_ip4 value in --config"
+(.venv) AROBEL-M-G793% ./device_info.py --config prod/config_device_info.yaml
+1 validation error for DeviceInfoConfigValidator
+config.0.switch_ip4
+  Input is not a valid IPv4 address [type=ip_v4_address, input_value='foo', input_type=str]
+(.venv) AROBEL-M-G793%
+```
