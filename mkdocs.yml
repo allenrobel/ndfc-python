@@ -77,7 +77,7 @@ nav:
       - controller_info.py: scripts/controller_info.md
       - credentials.py: scripts/credentials.md
       - device_info.py: scripts/device_info.md
-      - fabric_details.py: scripts/fabric_details.md
+      - fabric_info.py: scripts/fabric_info.md
       - maintenance_mode.py: scripts/maintenance_mode.md
       - maintenance_mode_info.py: scripts/maintenance_mode_info.md
       - network_create.py: scripts/network_create.md
