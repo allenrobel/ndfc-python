@@ -79,6 +79,7 @@ nav:
       - device_info.py: scripts/device_info.md
       - fabric_details.py: scripts/fabric_details.md
       - maintenance_mode.py: scripts/maintenance_mode.md
+      - maintenance_mode_info.py: scripts/maintenance_mode_info.md
       - network_create.py: scripts/network_create.md
       - network_delete.py: scripts/network_delete.md
       - reachability.py: scripts/reachability.md

@@ -5,9 +5,10 @@ Validators for class input properties.
 """
 
 from enum import Enum
+from ipaddress import IPv4Address, IPv4Interface
 from typing import List, Optional
 
-from pydantic import BaseModel, IPvAnyInterface, PositiveInt
+from pydantic import BaseModel, PositiveInt
 
 
 class DeviceInfoConfig(BaseModel):
@@ -17,7 +18,7 @@ class DeviceInfoConfig(BaseModel):
     Base validator for DeviceInfo arguments
     """
 
-    switch_ip4: str
+    switch_ip4: IPv4Address
 
 
 class FabricDetailsConfig(BaseModel):
@@ -47,10 +48,20 @@ class MaintenanceModeConfig(BaseModel):
         maintenance = "maintenance"
         normal = "normal"
 
-    ip_address: str
+    ip_address: IPv4Address
     deploy: Optional[bool] = True
     wait_for_mode_change: Optional[bool] = True
     mode: ModeEnum
+
+
+class MaintenanceModeInfoConfig(BaseModel):
+    """
+    # Summary
+
+    Base validator for MaintenanceModeInfo arguments
+    """
+
+    ip_address: IPv4Address
 
 
 class NetworkCreateConfig(BaseModel):
@@ -61,7 +72,7 @@ class NetworkCreateConfig(BaseModel):
     """
 
     fabric_name: str
-    gateway_ip_address: Optional[IPvAnyInterface] = None
+    gateway_ip_address: Optional[IPv4Interface] = None
     is_layer2_only: Optional[bool] = None
     network_id: PositiveInt
     network_name: str
@@ -88,7 +99,7 @@ class ReachabilityConfig(BaseModel):
     """
 
     fabric_name: str
-    seed_ip: str
+    seed_ip: IPv4Address
 
 
 class VrfCreateConfig(BaseModel):
@@ -133,6 +144,16 @@ class MaintenanceModeConfigValidator(BaseModel):
     """
 
     config: List[MaintenanceModeConfig]
+
+
+class MaintenanceModeInfoConfigValidator(BaseModel):
+    """
+    # Summary
+
+    config is a list of MaintenanceModeInfoConfig
+    """
+
+    config: List[MaintenanceModeInfoConfig]
 
 
 class NetworkCreateConfigValidator(BaseModel):
