@@ -55,7 +55,7 @@ from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.parsers.parser_nxos_password import parser_nxos_password
 from ndfc_python.parsers.parser_nxos_username import parser_nxos_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators import MaintenanceModeInfoConfigValidator
+from ndfc_python.validators.maintenance_mode import MaintenanceModeInfoConfigValidator
 from plugins.module_utils.common.maintenance_mode_info import MaintenanceModeInfo
 from plugins.module_utils.common.properties import Properties
 from plugins.module_utils.common.response_handler import ResponseHandler

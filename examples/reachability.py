@@ -24,7 +24,7 @@ from ndfc_python.parsers.parser_nxos_password import parser_nxos_password
 from ndfc_python.parsers.parser_nxos_username import parser_nxos_username
 from ndfc_python.reachability import Reachability
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators import ReachabilityConfigValidator
+from ndfc_python.validators.reachability import ReachabilityConfigValidator
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
