@@ -37,7 +37,7 @@ export ND_USERNAME=admin
 ### Success
 
 ``` bash title="Successful query for two switches"
-(.venv) AROBEL-M-G793% ./maintenance_mode.py --config prod/config_maintenance_mode.yaml
+(.venv) AROBEL-M-G793% ./maintenance_mode_info.py --config prod/config_maintenance_mode_info.yaml
 {
     "changed": false,
     "diff": [
@@ -97,7 +97,7 @@ export ND_USERNAME=admin
 ### Switch does not exist on the controller
 
 ``` bash title="Switch does not exist"
-(.venv) AROBEL-M-G793% ./maintenance_mode.py --config prod/config_maintenance_mode.yaml
+(.venv) AROBEL-M-G793% ./maintenance_mode_info.py --config prod/config_maintenance_mode_info.yaml
 Exiting.  Error detail: Query.commit: Error while retrieving switch information from the controller. Error detail: Query.get_have: Error while retrieving switch info. Error detail: SwitchDetails._get: Switch with ip_address 10.1.1.8 does not exist on the controller.
 (.venv) AROBEL-M-G793%
 ```
