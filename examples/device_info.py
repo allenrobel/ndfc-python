@@ -105,16 +105,6 @@ log = logging.getLogger("ndfc_python.main")
 log.setLevel = args.loglevel
 
 try:
-    ndfc_sender = NdfcPythonSender()
-    ndfc_sender.args = args
-    ndfc_sender.commit()
-except ValueError as error:
-    msg = f"Exiting.  Error detail: {error}"
-    log.error(msg)
-    print(msg)
-    sys.exit(1)
-
-try:
     ndfc_config = ReadConfig()
     ndfc_config.filename = args.config
     ndfc_config.commit()
@@ -129,6 +119,16 @@ try:
     validator = DeviceInfoConfigValidator(**ndfc_config.contents)
 except ValidationError as error:
     msg = f"{error}"
+    log.error(msg)
+    print(msg)
+    sys.exit(1)
+
+try:
+    ndfc_sender = NdfcPythonSender()
+    ndfc_sender.args = args
+    ndfc_sender.commit()
+except ValueError as error:
+    msg = f"Exiting.  Error detail: {error}"
     log.error(msg)
     print(msg)
     sys.exit(1)

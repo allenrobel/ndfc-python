@@ -311,7 +311,7 @@ except ValueError as error:
 task.rest_send.results.build_final_result()  # type: ignore[attr-defined]
 # pylint: disable=unsupported-membership-test
 if True in task.rest_send.results.failed:  # type: ignore[attr-defined]
-    err_msg = "unable to set maintenance mode"
+    err_msg = "unable to query maintenance mode"
     log.error(err_msg)
     print(err_msg)
 print(json.dumps(task.rest_send.results.final_result, indent=4, sort_keys=True))  # type: ignore[attr-defined]
