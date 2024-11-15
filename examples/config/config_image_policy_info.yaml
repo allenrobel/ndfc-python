@@ -1,0 +1,4 @@
+---
+config:
+    - name: MY_IMAGE_POLICY
+    - name: YOUR_IMAGE_POLICY
