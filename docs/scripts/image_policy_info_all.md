@@ -112,7 +112,6 @@ export ND_USERNAME=admin
 (.venv) AROBEL-M-G793%
 ```
 
-
 ### No image policies exist on the controller
 
 ``` bash title="No image policies exist"
