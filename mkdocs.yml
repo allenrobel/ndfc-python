@@ -78,6 +78,8 @@ nav:
       - credentials.py: scripts/credentials.md
       - device_info.py: scripts/device_info.md
       - fabric_info.py: scripts/fabric_info.md
+      - image_policy_info.py: scripts/image_policy_info.md
+      - image_policy_info_all.py: scripts/image_policy_info_all.md
       - maintenance_mode.py: scripts/maintenance_mode.md
       - maintenance_mode_info.py: scripts/maintenance_mode_info.md
       - network_create.py: scripts/network_create.md
