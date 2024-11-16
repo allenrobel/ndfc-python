@@ -40,8 +40,8 @@ theme:
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: black
-      accent: indigo
+      primary: blue grey
+      accent: deep orange
       toggle:
         icon: material/toggle-switch-off
         name: Switch to system preference
