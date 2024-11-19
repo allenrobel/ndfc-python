@@ -24,13 +24,34 @@ greatest priority.
 1. credential_name
 2. argparse parser.parse_args() instance
 
-Usage:
+## Usage example
 
-from ndfc_python.ndfc_config import CredentialSelector
-cs = CredentialsSelector()
-cs.script_args = parser.parse_args()
-cs.credential_name = "nd_password"
-print(f"Would select value: {cs.credential_value}")
+This examples assumes that `ND_PASSWORD` environment variable is not set,
+so the value is taken from `args` (the argparse namespace representing
+the value from the script command line).
+
+``` python
+    import argparse
+    from ndfc_python.credential_selector import CredentialSelector
+
+    parser = argparse.ArgumentParser(add_help=False)
+    optional = parser.add_argument_group(title="OPTIONAL ARGS")
+    optional.add_argument(
+        "--nd-password",
+        dest="nd_password",
+        required=False,
+        help="Nexus Dashboard password",
+    )
+    args = parser.parse_args()
+    args.nd_password = "MyPassword"
+
+    cs = CredentialSelector()
+    cs.script_args = args
+    cs.credential_name = "nd_password"
+    cs.commit()
+    print(f"Would select value: {cs.credential_value}")
+```
+
 """
 
 import argparse
