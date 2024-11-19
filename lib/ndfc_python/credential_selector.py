@@ -30,7 +30,7 @@ from ndfc_python.ndfc_config import CredentialSelector
 cs = CredentialsSelector()
 cs.script_args = parser.parse_args()
 cs.credential_name = "nd_password"
-print(f"cs.credential_value")
+print(f"Would select value: {cs.credential_value}")
 """
 
 import argparse
