@@ -24,7 +24,7 @@ class ImagePolicyCreateConfig(BaseModel):
     """
     # Summary
 
-    Base validator for ImagePolicyCreate arguments
+    Base validator for ImagePolicyCreate and ImagePolicyReplace arguments
     """
 
     name: str
