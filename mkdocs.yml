@@ -40,8 +40,8 @@ theme:
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: black
-      accent: indigo
+      primary: blue grey
+      accent: deep orange
       toggle:
         icon: material/toggle-switch-off
         name: Switch to system preference
@@ -78,6 +78,7 @@ nav:
       - credentials.py: scripts/credentials.md
       - device_info.py: scripts/device_info.md
       - fabric_info.py: scripts/fabric_info.md
+      - image_policy_create.py: scripts/image_policy_create.md
       - image_policy_info.py: scripts/image_policy_info.md
       - image_policy_info_all.py: scripts/image_policy_info_all.md
       - maintenance_mode.py: scripts/maintenance_mode.md
