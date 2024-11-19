@@ -79,6 +79,7 @@ nav:
       - device_info.py: scripts/device_info.md
       - fabric_info.py: scripts/fabric_info.md
       - image_policy_create.py: scripts/image_policy_create.md
+      - image_policy_delete.py: scripts/image_policy_delete.md
       - image_policy_info.py: scripts/image_policy_info.md
       - image_policy_info_all.py: scripts/image_policy_info_all.md
       - maintenance_mode.py: scripts/maintenance_mode.md

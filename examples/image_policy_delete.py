@@ -39,120 +39,37 @@ from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.parsers.parser_nxos_password import parser_nxos_password
 from ndfc_python.parsers.parser_nxos_username import parser_nxos_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.image_policy_create import ImagePolicyCreateConfigValidator
-from plugins.module_utils.common.merge_dicts_v2 import MergeDicts
+from ndfc_python.validators.image_policy_delete import ImagePolicyDeleteConfigValidator
 from plugins.module_utils.common.properties import Properties
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
-from plugins.module_utils.image_policy.create import ImagePolicyCreateBulk
-from plugins.module_utils.image_policy.image_policies import ImagePolicies
+from plugins.module_utils.image_policy.delete import ImagePolicyDelete
 from plugins.module_utils.image_policy.payload import Config2Payload
-from plugins.module_utils.image_policy.update import ImagePolicyUpdateBulk
 from pydantic import ValidationError
 
 
 @Properties.add_rest_send
-class Merged:
+class Deleted:
     """
-    # Summary
-
-    Handle merged state
-
-    # Raises
-
-    -   ``ValueError`` if:
-        -   ``params`` is missing ``config`` key.
-        -   ``commit()`` is issued before setting mandatory properties
+    Handle deleted state
     """
 
-    def __init__(self, params) -> None:
+    def __init__(self):
         self.class_name = self.__class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
         method_name = inspect.stack()[0][3]
 
-        msg = f"ENTERED Merged.{method_name}: "
-        self.log.debug(msg)
+        self.state = "deleted"
+        self.check_mode = False
 
-        self._rest_send = None
-        self.have = ImagePolicies()
-        self.need: list[dict[Any, Any]] = []
-        self._want: dict[Any, Any] = {}
-
-        self.state = "merged"
-        self.check_mode = params.get("check_mode")
-
-        self.create = ImagePolicyCreateBulk()
-        self.update = ImagePolicyUpdateBulk()
-
-        # new policies to be created
-        self.need_create: list = []
-        # existing policies to be updated
-        self.need_update: list = []
+        self.delete = ImagePolicyDelete()
 
         msg = f"ENTERED {self.class_name}().{method_name}: "
-        self.log.debug(msg)
-
-    def get_have(self) -> None:
-        """
-        Caller: main()
-
-        self.have consists of the current image policies on the controller
-        """
-        method_name = inspect.stack()[0][3]
-        msg = f"ENTERED {self.class_name}.{method_name}"
-        self.log.debug(msg)
-
-        self.have = ImagePolicies()
-        # pylint: disable=no-member
-        self.have.results = self.rest_send.results  # type: ignore[attr-defined]
-        self.have.rest_send = self.rest_send  # type: ignore[attr-defined]
-        self.have.refresh()
-        # pylint: enable=no-member
-
-    def get_need(self):
-        """
-        # Summary
-
-        Build self.need for merged state
-
-        # Description
-
-        -   Populate self.need_create with items from self.want that are
-            not in self.have
-        -   Populate self.need_update with updated policies.  Policies are
-            updated as follows:
-                -   If a policy is in both self.want amd self.have, and they
-                    contain differences, merge self.want into self.have,
-                    with self.want keys taking precedence and append the
-                    merged policy to self.need_update.
-                -   If a policy is in both self.want and self.have, and they
-                    are identical, do not append the policy to self.need_update
-                    (i.e. do nothing).
-        """
-        method_name = inspect.stack()[0][3]
-        msg = f"ENTERED {self.class_name}.{method_name}: "
         msg += f"state: {self.state}, "
         msg += f"check_mode: {self.check_mode}"
         self.log.debug(msg)
-
-        for want in self.want.get("config"):
-            self.have.policy_name = want.get("policyName")
-
-            # Policy does not exist on the controller so needs to be created.
-            if self.have.policy is None:
-                self.need_create.append(copy.deepcopy(want))
-                continue
-
-            # The policy exists on the controller.  Merge want parameters with
-            # the controller's parameters and add the merged parameters to the
-            # need_update list if they differ from the want parameters.
-            have = copy.deepcopy(self.have.policy)
-            merged, needs_update = self._merge_policies(have, want)
-
-            if needs_update is True:
-                self.need_update.append(copy.deepcopy(merged))
 
     def get_want(self) -> None:
         """
@@ -188,7 +105,8 @@ class Merged:
 
     def commit(self) -> None:
         """
-        Commit the merged state requests
+        If config is present, delete all policies in self.want that exist on the controller
+        If config is not present, delete all policies on the controller
         """
         method_name = inspect.stack()[0][3]
         msg = f"ENTERED {self.class_name}.{method_name}: "
@@ -201,88 +119,35 @@ class Merged:
             msg += f"rest_send must be set before calling {method_name}."
             raise ValueError(msg)
 
+        self.rest_send.params["state"] = self.state  # type: ignore[attr-defined]
         self.rest_send.results.state = self.state  # type: ignore[attr-defined]
         self.rest_send.results.check_mode = self.check_mode  # type: ignore[attr-defined]
 
+        self.rest_send.results.state = self.state  # type: ignore[attr-defined]
+        self.rest_send.results.check_mode = self.check_mode  # type: ignore[attr-defined]
+        self.delete.policy_names = self.get_policies_to_delete()
+        self.delete.results = self.rest_send.results  # type: ignore[attr-defined]
+        self.delete.rest_send = self.rest_send  # type: ignore[attr-defined]
+        self.delete.params = self.rest_send.params  # type: ignore[attr-defined]
+        self.delete.commit()
+
+    def get_policies_to_delete(self) -> list[str]:
+        """
+        Return a list of policy names to delete
+
+        -   In config is present, return list of image policy names
+            in self.want.
+        -   If want["config"] is not present, return ["delete_all_image_policies"],
+            which ``ImagePolicyDelete()`` interprets as "delete all image
+            policies on the controller".
+        """
+        if self.want.get("config") is None:
+            return ["delete_all_image_policies"]
         self.get_want()
-        self.get_have()
-        self.get_need()
-        self.send_need_create()
-        self.send_need_update()
-
-    def _prepare_for_merge(self, have: dict, want: dict) -> tuple[dict[Any, Any], dict[Any, Any]]:
-        """
-        ### Summary
-        -   Remove fields in "have" that are not part of a request payload i.e.
-            imageName and ref_count.
-        -   The controller returns "N9K/N3K" for the platform, but it expects
-            "N9K" in the payload.  We change "N9K/N3K" to "N9K" in have so that
-            the compare works.
-        -   Remove all fields that are not set in both "have" and "want"
-        """
-        # Remove keys that the controller adds which are not part
-        # of a request payload.
-        for key in ["imageName", "ref_count", "platformPolicies"]:
-            have.pop(key, None)
-
-        # Change "N9K/N3K" to "N9K" in "have" to match the request payload.
-        if have.get("platform", None) == "N9K/N3K":
-            have["platform"] = "N9K"
-
-        return (have, want)
-
-    def _merge_policies(self, have: dict, want: dict) -> tuple[dict[Any, Any], bool]:
-        """
-        ### Summary
-        Merge the parameters in want with the parameters in have.
-        """
-        method_name = inspect.stack()[0][3]
-        (have, want) = self._prepare_for_merge(have, want)
-
-        # Merge the parameters in want with the parameters in have.
-        # The parameters in want take precedence.
-        try:
-            merge = MergeDicts()
-            merge.dict1 = have
-            merge.dict2 = want
-            merge.commit()
-        except (TypeError, ValueError) as error:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += "Error during MergeDicts(). "
-            msg += f"Error detail: {error}"
-            raise ValueError(msg) from error
-        merged = copy.deepcopy(merge.dict_merged)
-
-        needs_update = False
-
-        if have != merged:
-            needs_update = True
-
-        return (merged, needs_update)
-
-    def send_need_create(self) -> None:
-        """
-        ### Summary
-        Create the policies in self.need_create
-
-        """
-        self.create.results = self.rest_send.results  # type: ignore[attr-defined]
-        self.create.payloads = self.need_create
-        self.create.rest_send = self.rest_send  # type: ignore[attr-defined]
-        self.create.params = self.rest_send.params  # type: ignore[attr-defined]
-        self.create.commit()
-
-    def send_need_update(self) -> None:
-        """
-        ### Summary
-        Update the policies in self.need_update
-
-        """
-        self.update.results = self.rest_send.results  # type: ignore[attr-defined]
-        self.update.payloads = self.need_update
-        self.update.rest_send = self.rest_send  # type: ignore[attr-defined]
-        self.update.params = self.rest_send.params  # type: ignore[attr-defined]
-        self.update.commit()
+        policy_names_to_delete = []
+        for want in self.want.get("config", {}):
+            policy_names_to_delete.append(want["policyName"])
+        return policy_names_to_delete
 
     @property
     def want(self) -> dict:
@@ -317,7 +182,7 @@ def setup_parser() -> argparse.Namespace:
         argparse.Namespace
     """
     description = "DESCRIPTION: "
-    description += "Create/update image policies on one or more switches."
+    description += "Delete image policies on one or more switches."
     parser = argparse.ArgumentParser(
         parents=[
             parser_ansible_vault,
@@ -355,7 +220,7 @@ def main():
         sys.exit(1)
 
     try:
-        validated_config = ImagePolicyCreateConfigValidator(**ndfc_config.contents)
+        validated_config = ImagePolicyDeleteConfigValidator(**ndfc_config.contents)
     except ValidationError as error:
         err_msg = f"{error}"
         log.error(err_msg)
@@ -374,7 +239,7 @@ def main():
 
     params = {}
     params["check_mode"] = False
-    params["state"] = "merged"
+    params["state"] = "deleted"
     rest_send = RestSend(params)
     rest_send.send_interval = 3
     rest_send.timeout = 9
@@ -383,7 +248,7 @@ def main():
     rest_send.results = Results()
 
     try:
-        task = Merged(params)
+        task = Deleted()
         # pylint: disable=attribute-defined-outside-init
         task.rest_send = rest_send  # type: ignore[attr-defined]
         task.want = json.loads(validated_config.model_dump_json())
@@ -397,7 +262,7 @@ def main():
     task.rest_send.results.build_final_result()  # type: ignore[attr-defined]
     # pylint: disable=unsupported-membership-test
     if True in task.rest_send.results.failed:  # type: ignore[attr-defined]
-        err_msg = "unable to create/update image policies"
+        err_msg = "unable to delete image policies"
         log.error(err_msg)
         print(err_msg)
     print(json.dumps(task.rest_send.results.final_result, indent=4, sort_keys=True))  # type: ignore[attr-defined]
