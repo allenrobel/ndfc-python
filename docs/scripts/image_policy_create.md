@@ -181,7 +181,7 @@ export ND_USERNAME=admin
 }
 ```
 
-### No changes to image policies are required.
+### No changes to image policies are required
 
 ``` bash title="Image policies no not require changes"
 (.venv) AROBEL-M-G793% ./image_policy_create.py --config prod/config_image_policy_create.yaml

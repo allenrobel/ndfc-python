@@ -1,7 +1,7 @@
 from typing import List, Optional
-from typing_extensions import TypedDict
 
 from pydantic import BaseModel
+from typing_extensions import TypedDict
 
 
 class ImagePolicyPackages(TypedDict):
@@ -9,15 +9,15 @@ class ImagePolicyPackages(TypedDict):
     # Summary
 
     Dictionary containing the following keys
-    
+
     - install
         - List of packages to install
     - uninstall
         - List of packages to uninstall
     """
 
-    install: Optional[List[str]] = None
-    uninstall: Optional[List[str]] = None
+    install: Optional[List[str]]
+    uninstall: Optional[List[str]]
 
 
 class ImagePolicyCreateConfig(BaseModel):
@@ -35,6 +35,7 @@ class ImagePolicyCreateConfig(BaseModel):
     platform: str
     release: str
     type: Optional[str] = "PLATFORM"
+
 
 class ImagePolicyCreateConfigValidator(BaseModel):
     """
