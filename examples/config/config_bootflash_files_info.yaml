@@ -1,0 +1,10 @@
+---
+config:
+  targets:
+    - filepath: bootflash:/*.log
+      supervisor: active
+    - filepath: bootflash:/*.yaml
+      supervisor: active
+  switches:
+  - ip_address: 10.1.1.2
+  - ip_address: 10.1.1.3
