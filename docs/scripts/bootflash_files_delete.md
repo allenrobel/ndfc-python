@@ -19,6 +19,7 @@ Examples:
 - `*:/*.txt` delete all `.txt` files from all flash devices on the specified supervisor
 -  `bootflash:/scanner-202411??.log` delete all scanner log files whose name implies Nov 20224
 
+
 ``` yaml title="config/config_bootflash_files_delete.yaml"
 ---
 config:
