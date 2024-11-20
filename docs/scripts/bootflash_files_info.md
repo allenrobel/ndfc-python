@@ -7,7 +7,17 @@ List files from flash devices on one or more switches.
 ## Example configuration file
 
 The configuration below lists all files with `.log` and `.yaml` extensions
-on switches 10.1.1.2 and 10.1.1.3.
+from the bootflash device on the active supervisor of switches 10.1.1.2 and
+10.1.1.3.
+
+The configuration file structure is identical to [bootflash_files_delete](./bootflash_files_delete.md)
+
+`filepath` can be any file glob.
+
+Examples:
+
+- `*:/*.txt` list all `.txt` files from all flash devices on the specified supervisor
+-  `bootflash:/scanner-202411??.log` list all scanner log files whose name implies Nov 20224
 
 ``` yaml title="config/config_bootflash_files_info.yaml"
 ---

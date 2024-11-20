@@ -74,6 +74,7 @@ nav:
       - Running the example scripts: setup/running-the-example-scripts.md
       - Using Ansible Vault: setup/using-ansible-vault.md
   - Scripts:
+      - bootflash_files_delete.py: scripts/bootflash_files_delete.md
       - bootflash_files_info.py: scripts/bootflash_files_info.md
       - controller_info.py: scripts/controller_info.md
       - credentials.py: scripts/credentials.md

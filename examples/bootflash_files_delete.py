@@ -40,6 +40,7 @@ from ndfc_python.parsers.parser_nxos_password import parser_nxos_password
 from ndfc_python.parsers.parser_nxos_username import parser_nxos_username
 from ndfc_python.read_config import ReadConfig
 from ndfc_python.validators.bootflash_files_info import BootflashFilesInfoConfigValidator
+from plugins.module_utils.bootflash.bootflash_files import BootflashFiles
 from plugins.module_utils.bootflash.bootflash_info import BootflashInfo
 from plugins.module_utils.bootflash.convert_target_to_params import ConvertTargetToParams
 from plugins.module_utils.common.properties import Properties
@@ -56,7 +57,7 @@ class Common:
     Common methods for all states
     """
 
-    def __init__(self, params):
+    def __init__(self, params) -> None:
         self.class_name = self.__class__.__name__
         method_name = inspect.stack()[0][3]
 
@@ -68,7 +69,7 @@ class Common:
         # to avoid Results() being null in main() if we hit an
         # error here.
         self.results = Results()
-        self.results.state = "query"
+        self.results.state = "deleted"
         self.results.check_mode = False
 
         self.params = params
@@ -133,7 +134,7 @@ class Common:
         self.results = Results()
         self.results.state = self.state
         self.results.check_mode = self.check_mode
-        self.want = []
+        self.want: list[Any] = []
 
         msg = f"ENTERED Common().{method_name}: "
         msg += f"state: {self.state}, "
@@ -223,10 +224,10 @@ class Common:
             self.want.append(copy.deepcopy(switch))
 
 
-class Query(Common):
+class Deleted(Common):
     """
     ### Summary
-    Handle query state.
+    Handle deleted state
 
     ### Raises
     -   ValueError if:
@@ -235,12 +236,7 @@ class Query(Common):
 
     def __init__(self, params):
         self.class_name = self.__class__.__name__
-
-        self.log = logging.getLogger(f"dcnm.{self.class_name}")
-
-        self.action = "bootflash_info"
         method_name = inspect.stack()[0][3]
-
         try:
             super().__init__(params)
         except (TypeError, ValueError) as error:
@@ -249,38 +245,116 @@ class Query(Common):
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
 
+        self.bootflash_files = BootflashFiles()
+        self.files_to_delete = {}
+
         msg = f"ENTERED {self.class_name}().{method_name}: "
         msg += f"state: {self.state}, "
         msg += f"check_mode: {self.check_mode}"
         self.log.debug(msg)
 
-    def register_null_result(self) -> None:
+    def populate_files_to_delete(self, switch) -> None:
         """
         ### Summary
-        Register a null result when there are no switches to query.
+        Populate the ``files_to_delete`` dictionary with files
+        the user intends to delete.
 
         ### Raises
-        None
+        -   ``ValueError`` if:
+            -    ``supervisor`` is not one of:
+                    -   active
+                    -   standby
+
+        ### ``files_to_delete`` Structure
+        files_to_delete is a dictionary containing
+        -   key: switch ip address.
+        -   value: a list of dictionaries containing the files to delete.
+
+        ### ``files_to_delete`` Example
+        ```json
+        {
+            "10.1.1.2": [
+                {
+                    "date": "2024-08-05 19:23:24",
+                    "device_name": "cvd-1211-spine",
+                    "filepath": "bootflash:/foo.txt",
+                    "ip_address": "10.1.1.2",
+                    "serial_number": "FOX12345ABC",
+                    "size": "2",
+                    "supervisor": "active"
+                }
+            ]
+        }
+        ```
         """
-        response_dict: dict[Any, Any] = {}
-        response_dict["0.0.0.0"] = {}
-        response_dict["0.0.0.0"]["DATA"] = "No switches to query."
-        response_dict["0.0.0.0"]["MESSAGE"] = "OK"
-        response_dict["0.0.0.0"]["RETURN_CODE"] = 200
-        result_dict: dict[Any, Any] = {}
-        result_dict["0.0.0.0"] = {}
-        result_dict["0.0.0.0"]["found"] = False
-        result_dict["0.0.0.0"]["success"] = True
-        self.results.response_current = response_dict
-        self.results.result_current = result_dict
-        self.results.action = self.action
-        self.results.register_task_result()
+        method_name = inspect.stack()[0][3]
+        self.bootflash_info.filter_switch = switch["ip_address"]
+        if switch["ip_address"] not in self.files_to_delete:
+            self.files_to_delete[switch["ip_address"]] = []
+
+        for target in switch["targets"]:
+            self.bootflash_info.filter_filepath = target.get("filepath")
+            try:
+                self.bootflash_info.filter_supervisor = target.get("supervisor")
+            except ValueError as error:
+                msg = f"{self.class_name}.{method_name}: "
+                msg += "Error assigning BootflashInfo.filter_supervisor. "
+                msg += f"Error detail: {error}"
+                raise ValueError(msg) from error
+            self.files_to_delete[switch["ip_address"]].extend(self.bootflash_info.matches)
+
+    def update_bootflash_files(self, ip_address, target) -> None:
+        """
+        ### Summary
+        Call ``BootflashFiles().add_file()`` to add the file associated with
+        ``ip_address`` and ``target`` to the list of files to be deleted.
+
+        ### Raises
+        -    ``TypeError`` if:
+                -   ``target`` is not a dictionary.
+        -    ``ValueError`` if:
+                -   ``BootflashFiles().add_file`` raises ``ValueError``.
+        """
+        method_name = inspect.stack()[0][3]
+
+        try:
+            self.convert_target_to_params.target = target
+            self.convert_target_to_params.commit()
+        except ValueError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "Error converting target to params. "
+            msg += f"Error detail: {error}"
+            raise ValueError(msg) from error
+
+        try:
+            self.bootflash_files.filename = self.convert_target_to_params.filename
+            self.bootflash_files.filepath = self.convert_target_to_params.filepath
+            self.bootflash_files.ip_address = ip_address
+            self.bootflash_files.partition = self.convert_target_to_params.partition
+            self.bootflash_files.supervisor = self.convert_target_to_params.supervisor
+            # we want to use the target as the diff, rather than the
+            # payload, because it contains better information than
+            # the payload. See BootflashFiles() class docstring and
+            # BootflashFiles().target property docstring.
+            self.bootflash_files.target = target
+        except (TypeError, ValueError) as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "Error assigning BootflashFiles properties. "
+            msg += f"Error detail: {error}"
+            raise ValueError(msg) from error
+
+        try:
+            self.bootflash_files.add_file()
+        except ValueError as error:
+            msg = f"{self.class_name}.{inspect.stack()[0][3]}: "
+            msg += "Error adding file to bootflash_files. "
+            msg += f"Error detail: {error}"
+            raise ValueError(msg) from error
 
     def commit(self) -> None:
         """
         ### Summary
-        query the bootflash on all switches in self.switches
-        and register the results.
+        Delete the specified files if they exist.
 
         ### Raises
         None.  While this method does not directly raise exceptions, it
@@ -289,59 +363,41 @@ class Query(Common):
         -   ControllerResponseError
         -   TypeError
         -   ValueError
-
         """
-        method_name = inspect.stack()[0][3]
-        msg = f"ENTERED {self.class_name}.{method_name}: "
-        msg += f"state: {self.state}, "
-        msg += f"check_mode: {self.check_mode}"
-        self.log.debug(msg)
-
-        self.results.state = self.state
-        self.results.check_mode = self.check_mode
-
-        # Populate and validate self.switches
+        # Populate self.switches
         self.get_want()
 
-        if len(self.switches) == 0:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += "No switches to query."
-            self.log.debug(msg)
-            self.register_null_result()
-            return
-
         # Prepare BootflashInfo()
-        self.bootflash_info.results = self.results
+        self.bootflash_info.results = Results()
+        # pylint: disable=no-member
         self.bootflash_info.rest_send = self.rest_send  # type: ignore[attr-defined]
         self.bootflash_info.switch_details = SwitchDetails()
 
         # Retrieve bootflash contents for the user's switches.
-        switches_to_query = []
+        switch_list = []
         for switch in self.switches:
-            switches_to_query.append(switch["ip_address"])
-        self.bootflash_info.switches = switches_to_query
+            switch_list.append(switch["ip_address"])
+        self.bootflash_info.switches = switch_list
         self.bootflash_info.refresh()
 
-        # Update results (result and response)
-        self.results.response_current = self.bootflash_info.response_dict
-        self.results.result_current = self.bootflash_info.result_dict
+        # Prepare BootflashFiles()
+        self.results.state = self.state
+        self.results.check_mode = self.check_mode
+        self.bootflash_files.results = self.results
+        self.bootflash_files.rest_send = self.rest_send  # type: ignore[attr-defined]
+        self.bootflash_files.switch_details = SwitchDetails()
+        self.bootflash_files.switch_details.results = Results()
 
-        # Update results (diff)
-        # Use the file info from the controller as the diff.
-        diff_current: dict[Any, Any] = {}
+        # Update BootflashFiles() with the files to delete
+        self.files_to_delete = {}
         for switch in self.switches:
-            ip_address = switch.get("ip_address")
-            self.bootflash_info.filter_switch = ip_address
-            if ip_address not in diff_current:
-                diff_current[ip_address] = []
+            self.populate_files_to_delete(switch)
+        for ip_address, targets in self.files_to_delete.items():
+            for target in targets:
+                self.update_bootflash_files(ip_address, target)
 
-            for target in switch["targets"]:
-                self.bootflash_info.filter_filepath = target.get("filepath")
-                self.bootflash_info.filter_supervisor = target.get("supervisor")
-                diff_current[ip_address].extend(self.bootflash_info.matches)
-
-        self.results.diff_current = diff_current
-        self.results.register_task_result()
+        # Delete the files
+        self.bootflash_files.commit()
 
 
 def setup_parser() -> argparse.Namespace:
@@ -411,7 +467,7 @@ def main():
 
     params = {}
     params["check_mode"] = False
-    params["state"] = "query"
+    params["state"] = "deleted"
     params["config"] = json.loads(validated_config.model_dump_json())
 
     rest_send = RestSend(params)
@@ -422,7 +478,7 @@ def main():
     rest_send.results = Results()
 
     try:
-        task = Query(params)
+        task = Deleted(params)
         # pylint: disable=attribute-defined-outside-init
         task.rest_send = rest_send  # type: ignore[attr-defined]
         task.commit()
@@ -435,7 +491,7 @@ def main():
     task.results.build_final_result()  # type: ignore[attr-defined]
     # pylint: disable=unsupported-membership-test
     if True in task.results.failed:  # type: ignore[attr-defined]
-        err_msg = "unable to query bootflash files"
+        err_msg = "unable to delete bootflash files"
         log.error(err_msg)
         print(err_msg)
     print(json.dumps(task.results.final_result, indent=4, sort_keys=True))  # type: ignore[attr-defined]
