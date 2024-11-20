@@ -4,6 +4,29 @@
 
 Delete files from flash devices on one or more switches.
 
+## Configuration parameters
+
+### targets
+
+A list of dictionaries containing the keys `filepath` and `supervisor`
+
+#### filepath
+
+Can be any file glob (obviously, some are dangerous!).
+
+##### filepath examples
+
+- `*:/*.txt` delete all `.txt` files from all flash devices on the specified supervisor
+-  `bootflash:/scanner-202411??.log` delete all scanner log files whose name implies Nov 20224
+
+#### supervisor
+
+The supervisor containing the filepath.  Can be one of `active` or `standby`.
+
+### switches
+
+A list of switch ipv4 addresses.
+
 ## Example configuration file
 
 The configuration below deletes all files with `.log` and `.yaml` extensions
@@ -11,14 +34,6 @@ from the bootflash device on the active supervisor of switches 10.1.1.2 and
 10.1.1.3.
 
 The configuration file structure is identical to [bootflash_files_info](./bootflash_files_info.md)
-
-`filepath` can be any file glob (obviously, some are dangerous!).
-
-Examples:
-
-- `*:/*.txt` delete all `.txt` files from all flash devices on the specified supervisor
--  `bootflash:/scanner-202411??.log` delete all scanner log files whose name implies Nov 20224
-
 
 ``` yaml title="config/config_bootflash_files_delete.yaml"
 ---
