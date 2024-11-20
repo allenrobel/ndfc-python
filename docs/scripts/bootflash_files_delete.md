@@ -16,12 +16,17 @@ Can be any file glob (obviously, some are dangerous!).
 
 ##### filepath examples
 
-- `*:/*.txt` delete all `.txt` files from all flash devices on the specified supervisor
--  `bootflash:/scanner-202411??.log` delete all scanner log files whose name implies Nov 20224
+###### *:/*.txt
+
+Delete all `.txt` files from all flash devices on the specified supervisor
+
+###### bootflash:/202411??.log
+
+Delete all log files whose name implies dates in Nov 2024.
 
 #### supervisor
 
-The supervisor containing the filepath.  Can be one of `active` or `standby`.
+The supervisor containing the filepath.  One of `active` or `standby`.
 
 ### switches
 
