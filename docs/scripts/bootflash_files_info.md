@@ -16,7 +16,7 @@ Can be any file glob (obviously, some are dangerous!).
 
 ##### filepath examples
 
-###### *:/*.txt
+###### \*:/*.txt
 
 List all `.txt` files from all flash devices on the specified supervisor
 
