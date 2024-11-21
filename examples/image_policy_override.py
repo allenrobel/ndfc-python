@@ -24,7 +24,7 @@ import json
 import logging
 import sys
 
-from ndfc_python.image_policy import Replaced
+from ndfc_python.image_policy import Overridden
 from ndfc_python.ndfc_python_logger import NdfcPythonLogger
 from ndfc_python.ndfc_python_sender import NdfcPythonSender
 from ndfc_python.parsers.parser_ansible_vault import parser_ansible_vault
@@ -53,7 +53,7 @@ def setup_parser() -> argparse.Namespace:
         argparse.Namespace
     """
     description = "DESCRIPTION: "
-    description += "Replace image policies on one or more switches."
+    description += "Create/update image policies on one or more switches."
     parser = argparse.ArgumentParser(
         parents=[
             parser_ansible_vault,
@@ -73,9 +73,7 @@ def setup_parser() -> argparse.Namespace:
 
 def main():
     """
-    Replace any policies on the controller that are in the config file with
-    the configuration given in the config file.  Policies not listed in the
-    config file are not modified and are not deleted.
+    main entry point for module execution
     """
     args = setup_parser()
     NdfcPythonLogger()
@@ -112,7 +110,7 @@ def main():
 
     params = {}
     params["check_mode"] = False
-    params["state"] = "replaced"
+    params["state"] = "overridden"
     params["config"] = json.loads(validated_config.model_dump_json())
 
     rest_send = RestSend(params)
@@ -122,7 +120,7 @@ def main():
     rest_send.response_handler = ResponseHandler()
 
     try:
-        task = Replaced(params)
+        task = Overridden(params)
         task.rest_send = rest_send
         task.commit()
     except ValueError as error:
@@ -134,7 +132,7 @@ def main():
     task.results.build_final_result()
     # pylint: disable=unsupported-membership-test
     if True in task.results.failed:
-        err_msg = "unable to replace image policy configuration(s)"
+        err_msg = "unable to override one or more image policies"
         log.error(err_msg)
         print(err_msg)
     print(json.dumps(task.results.final_result, indent=4, sort_keys=True))
