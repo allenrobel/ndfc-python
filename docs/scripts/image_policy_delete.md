@@ -116,3 +116,11 @@ export ND_USERNAME=admin
 }
 (.venv) AROBEL-M-G793%
 ```
+
+### One or more image policies have device(s) attached
+
+``` bash title="Image policies have non-zero ref_count"
+(.venv) AROBEL-M-G793% ./image_policy_delete.py --config prod/config_image_policy_delete.yaml
+Exiting.  Error detail: ImagePolicyDelete._get_policies_to_delete: ImagePolicyDelete._verify_image_policy_ref_count: One or more policies have devices attached. Detach these policies from all devices first using the dcnm_image_upgrade module, with state == deleted. policy_name: KR5M, ref_count: 1.
+(.venv) AROBEL-M-G793%
+```
