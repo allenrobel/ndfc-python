@@ -1,0 +1,10 @@
+---
+config:
+  - fabric_name: MyFabric1
+    vrf_names:
+    - MyVrf1
+    - MyVrf2
+  - fabric_name: MyFabric2
+    vrf_names:
+    - MyVrf3
+    - MyVrf4

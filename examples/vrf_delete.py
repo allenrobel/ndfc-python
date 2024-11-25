@@ -2,23 +2,27 @@
 """
 # Name
 
-vrf_create.py
+vrf_delete.py
 
 # Description
 
-Add a vrf to a fabric
+Delete one or more VRFs from a fabric
 
-#Usage
+# Usage
 
-Edit ``examples/config/config_vrf_create.yaml`` appropriately for your setup.
+Edit ``examples/config/config_vrf_delete.yaml`` appropriately for your setup.
 
 ```yaml
+---
 config:
-  fabric_name: MyFabric
-  vrf_display_name: MyVrf
-  vrf_id: 50055
-  vrf_name: MyVrf
-  vrf_vlan_id: 2006
+  - fabric_name: MyFabric_1
+    vrf_names:
+    - MyVrf1
+    - MyVrf2
+  - fabric_name: MyFabric_2
+    vrf_names:
+    - MyVrf3
+    - MyVrf4
 ```
 
 If you've set the standard ndfc-python Nexus Dashboard credentials
@@ -26,14 +30,14 @@ environment variables (ND_DOMAIN, ND_IP4, ND_PASSWORD, ND_USERNAME)
 then you're good to go.
 
 ```bash
-./vrf_create.py --config config/config_vrf_create.yaml
+./vrf_delete.py --config config_vrf_create.yaml
 ```
 
 If you haven't set the standard ndfc-python Nexus Dashboard credentials
 environment variables, you can override them like so:
 
 ```bash
-./vrf_create.py --config config/config_vrf_create.yaml --nd-username admin --nd-password MyPassword --nd-domain local --nd-ip4 10.1.1.2
+./vrf_delete.py --config config/config_vrf_create.yaml --nd-username admin --nd-password MyPassword --nd-domain local --nd-ip4 10.1.1.2
 """
 # pylint: disable=duplicate-code
 import argparse
@@ -51,37 +55,36 @@ from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.vrf_create import VrfCreateConfigValidator
-from ndfc_python.vrf_create import VrfCreate
+from ndfc_python.validators.vrf_delete import VrfDeleteConfigValidator
+from ndfc_python.vrf_delete import VrfDelete
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
-def vrf_create(config):
+def vrf_delete(config):
     """
-    Given a VRF configuration, create the VRF.
+    Given a VRF configuration, delete the VRF.
     """
     try:
-        instance = VrfCreate()
+        instance = VrfDelete()
         instance.rest_send = rest_send
         instance.results = Results()
-        instance.display_name = config.get("vrf_display_name")
         instance.fabric_name = config.get("fabric_name")
-        instance.vrf_id = config.get("vrf_id")
-        instance.vrf_name = config.get("vrf_name")
-        instance.vrf_vlan_id = config.get("vrf_vlan_id")
+        instance.vrf_names = config.get("vrf_names")
         instance.commit()
     except (TypeError, ValueError) as error:
-        errmsg = f"Error creating vrf {instance.vrf_name}. "
+        errmsg = f"Error deleting vrfs {instance.vrf_names} "
+        errmsg += f"from fabric {instance.fabric_name}. "
         errmsg += f"Error detail: {error}"
         log.error(errmsg)
         print(errmsg)
         return
 
-    result_msg = f"Created vrf {instance.vrf_name} "
-    result_msg += f"in fabric {instance.fabric_name}"
+    vrf_names = ",".join(sorted(instance.vrf_names))
+    result_msg = f"Deleted vrfs {vrf_names} "
+    result_msg += f"from fabric {instance.fabric_name}"
     log.info(result_msg)
     print(result_msg)
 
@@ -138,7 +141,7 @@ except ValueError as error:
     sys.exit()
 
 try:
-    validator = VrfCreateConfigValidator(**ndfc_config.contents)
+    validator = VrfDeleteConfigValidator(**ndfc_config.contents)
 except ValidationError as error:
     msg = f"{error}"
     log.error(msg)
@@ -154,4 +157,4 @@ rest_send.send_interval = 5
 params_list = json.loads(validator.model_dump_json()).get("config", {})
 
 for params in params_list:
-    vrf_create(params)
+    vrf_delete(params)

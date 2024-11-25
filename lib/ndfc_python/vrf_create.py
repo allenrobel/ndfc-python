@@ -1,5 +1,5 @@
 """
-Name: ndfc_vrf.py
+Name: vrf_create.py
 Description: Create VRFs
 """
 
@@ -241,14 +241,10 @@ class VrfCreate:
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
 
-        for item_d in self.rest_send.response_current["DATA"]:
-            if "fabric" not in item_d:
+        for item in self.rest_send.response_current["DATA"]:
+            if item.get("fabric") != self.fabric_name:
                 continue
-            if "vrfId" not in item_d:
-                continue
-            if item_d["fabric"] != self.fabric_name:
-                continue
-            if item_d["vrfId"] != self.vrf_id:
+            if item.get("vrfId") != self.vrf_id:
                 continue
             return True
         # pylint: enable=no-member
