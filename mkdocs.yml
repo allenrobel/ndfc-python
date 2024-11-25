@@ -94,6 +94,7 @@ nav:
       - rest_get_request.py: scripts/rest_get_request.md
       - rest_post_request.py: scripts/rest_post_request.md
       - vrf_create.py: scripts/vrf_create.md
+      - vrf_delete.py: scripts/vrf_delete.md
   - Classes:
       - Overview: classes/overview.md
       - CredentialSelector: classes/CredentialSelector.md
