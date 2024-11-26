@@ -68,7 +68,7 @@ are set, the Ansible vault file is used.
 Vault password:
 The following credentials would be used:
   nd_domain local
-  nd_ip4 172.22.150.244
+  nd_ip4 10.1.1.1
   nd_password FooPassword
   nd_username admin
   nxos_password BarPassword
