@@ -246,6 +246,9 @@ class Deleted(Common):
 
         self.log = logging.getLogger(f"dcnm.{self.class_name}")
 
+        self.fabric_details = FabricDetailsByName()
+        self.fabric_summary = FabricSummary()
+
         msg = "ENTERED Deleted(): "
         msg += f"state: {self.results.state}, "
         msg += f"check_mode: {self.results.check_mode}"
@@ -267,12 +270,10 @@ class Deleted(Common):
         msg = f"ENTERED: {self.class_name}.{method_name}"
         self.log.debug(msg)
 
-        self.fabric_details = FabricDetailsByName()
         # pylint: disable=no-member
         self.fabric_details.rest_send = self.rest_send
         self.fabric_details.results = Results()
 
-        self.fabric_summary = FabricSummary()
         self.fabric_summary.rest_send = self.rest_send
         self.fabric_summary.results = Results()
 
@@ -586,6 +587,7 @@ class Query(Common):
         self._implemented_states.add("query")
 
         self.log = logging.getLogger(f"dcnm.{self.class_name}")
+        self.fabric_details = FabricDetailsByName()
 
         msg = "ENTERED Query(): "
         msg += f"state: {self.state}, "
@@ -604,7 +606,6 @@ class Query(Common):
             -   The controller returns an error when attempting to
                 query the fabrics.
         """
-        self.fabric_details = FabricDetailsByName()
         # pylint: disable=no-member
         self.fabric_details.rest_send = self.rest_send
         self.fabric_details.results = Results()
