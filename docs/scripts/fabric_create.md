@@ -18,8 +18,7 @@ config:
     REPLICATION_MODE: Ingress
     VRF_VLAN_RANGE: 2000-2299
   - FABRIC_NAME: YourFabric
-    FABRIC_TYPE: LAN_Classic
-    BGP_AS: 65003
+    FABRIC_TYPE: LAN_CLASSIC
 ```
 
 ## Example Usage
@@ -170,8 +169,7 @@ config:
     REPLICATION_MODE: Multicast
     VRF_VLAN_RANGE: 2000-2299
   - FABRIC_NAME: YourFabric
-    FABRIC_TYPE: LAN_Classic
-    BGP_AS: 65003
+    FABRIC_TYPE: LAN_CLASSIC
 ```
 
 ``` bash title="User config changed some MyFabric parameters"

@@ -14,6 +14,7 @@ see [dcnm_fabric](https://allenrobel.github.io/dcnm-docpoc/modules/dcnm_fabric/)
 config:
   - FABRIC_NAME: MyFabric
     FABRIC_TYPE: VXLAN_EVPN
+    BGP_AS: 65002
     REPLICATION_MODE: Ingress
   - FABRIC_NAME: YourFabric
     FABRIC_TYPE: LAN_Classic
@@ -48,6 +49,7 @@ export ND_USERNAME=admin
 config:
   - FABRIC_NAME: MyFabric
     FABRIC_TYPE: VXLAN_EVPN
+    BGP_AS: 65002
     REPLICATION_MODE: Multicast
   - FABRIC_NAME: YourFabric
     FABRIC_TYPE: LAN_Classic
@@ -248,7 +250,7 @@ config:
   - FABRIC_NAME: MyFabric
     REPLICATION_MODE: Multicast
     FABRIC_TYPE: VXLAN_EVPN
-    BGP_AS: 65004
+    BGP_AS: 65002
     DEPLOY: False
   - FABRIC_NAME: YourFabric
     FABRIC_TYPE: LAN_CLASSIC
