@@ -8,7 +8,7 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 
 `NDFC_LOGGING_CONFIG` should point to a standard Pyton logging configuration file.  There is an example file in this repository at ``lib/ndfc_python/logging_config.json``.  Below is the contents.
 
-``` json "Example logging configuration file"
+``` json title="Example logging configuration file"
 {
   "version": 1,
   "formatters": {
