@@ -17,7 +17,7 @@ config:
     BGP_AS: 65002
     REPLICATION_MODE: Ingress
   - FABRIC_NAME: YourFabric
-    FABRIC_TYPE: LAN_Classic
+    FABRIC_TYPE: LAN_CLASSIC
     IS_READ_ONLY: False
 ```
 
@@ -52,7 +52,7 @@ config:
     BGP_AS: 65002
     REPLICATION_MODE: Multicast
   - FABRIC_NAME: YourFabric
-    FABRIC_TYPE: LAN_Classic
+    FABRIC_TYPE: LAN_CLASSIC
     IS_READ_ONLY: False
 ```
 
