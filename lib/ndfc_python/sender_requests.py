@@ -40,14 +40,14 @@ except ImportError:
     HAS_URLLIB3 = False
 
 if HAS_REQUESTS is False:
-    msg = "requests is not installed. "
-    msg += "install with e.g. pip install requests"
-    raise ImportError(msg)
+    msg_outer = "requests is not installed. "
+    msg_outer += "install with e.g. pip install requests"
+    raise ImportError(msg_outer)
 
 if HAS_URLLIB3 is False:
-    msg = "urllib3 is not installed. "
-    msg += "install with e.g. pip install urllib3"
-    raise ImportError(msg)
+    msg_outer = "urllib3 is not installed. "
+    msg_outer += "install with e.g. pip install urllib3"
+    raise ImportError(msg_outer)
 
 
 class Sender:
@@ -136,9 +136,12 @@ class Sender:
         self._rbac = None
         self._response = None
         self._token = None
-        self._url = None
+        self.last_url = None
+        self.return_code = None
+        self.url = None
         self._username = environ.get("ND_USERNAME", "admin")
         self._verb = None
+        self.TIMEOUT = 10 # seconds
 
     def _verify_commit_parameters(self):
         """
@@ -204,9 +207,7 @@ class Sender:
         try:
             if self.payload is None:
                 self.log.debug(msg)
-                response = requests.request(
-                    self.verb, self.url, headers=self.get_headers(), verify=False
-                )
+                response = requests.request(self.verb, self.url, headers=self.get_headers(), verify=False, timeout=self.TIMEOUT)
             else:
                 msg_payload = copy.copy(self.payload)
                 if "userPasswd" in msg_payload:
@@ -220,6 +221,7 @@ class Sender:
                     headers=self.get_headers(),
                     data=json.dumps(self.payload),
                     verify=False,
+                    timeout=self.TIMEOUT,
                 )
         except requests.exceptions.ConnectionError as error:
             msg = f"{self.class_name}.{method_name}: "
@@ -230,7 +232,12 @@ class Sender:
         self.gen_response(response)
 
     def get_headers(self):
-        headers = dict()
+        """Get the headers to include in the request.
+
+        Returns:
+            dict: The headers to include in the request.
+        """
+        headers = {}
         headers["Cookie"] = f"AuthCookie={self.token}"
         headers["AuthCookie"] = self.token
         headers["Content-Type"] = "application/json"
@@ -254,6 +261,11 @@ class Sender:
         raise ValueError(msg)
 
     def get_url(self):
+        """Get the URL to use for the request.
+
+        Raises:
+            ValueError: If the path is not set.
+        """
         method_name = inspect.stack()[0][3]
         if self.path is None:
             msg = f"{self.class_name}.{method_name}: "
@@ -270,12 +282,22 @@ class Sender:
         self.log.debug(msg)
 
     def add_history_rc(self, x):
+        """Add a return code to the history.
+
+        Args:
+            x (int): The return code to add.
+        """
         self._history_rc.appendleft(x)
 
     def add_history_path(self):
+        """Add a request path to the history.
+        """
         self._history_path.appendleft(self.url)
 
     def update_status(self):
+        """
+        Update the status of the sender.
+        """
         self.last_rc = self.return_code
         self.last_url = self.url
         self.add_history_rc(self.return_code)
@@ -297,13 +319,13 @@ class Sender:
             msg += f"Set new token to {self.token}"
             self.log.debug(msg)
 
-        response_dict = dict()
+        response_dict = {}
         self.return_code = response.status_code
         response_dict["RETURN_CODE"] = response.status_code
         try:
             response_dict["DATA"] = json.loads(response.text)
         except json.JSONDecodeError:
-            data = dict()
+            data = {}
             data["INVALID_JSON"] = response.text
             response_dict["DATA"] = data
         response_dict["MESSAGE"] = response.reason
@@ -312,9 +334,13 @@ class Sender:
         self.response = copy.deepcopy(response_dict)
 
     def login(self):
+        """
+        Log in to the server.
+        """
         if self.__logged_in is True:
             return
         _raise = False
+        msg = ""
         if self.username is None:
             msg = "call Sender.username before calling Sender.login()"
             _raise = True
@@ -325,17 +351,20 @@ class Sender:
             msg = "call Sender.domain before calling Sender.login()"
             _raise = True
         if _raise is True:
-            self.log.debug(msg)
+            if msg != "":
+                self.log.debug(msg)
+                raise ValueError(msg)
+            msg = "Unknown error.  Check if all mandatory fields are set."
             raise ValueError(msg)
         self.__logged_in = "Pending"
         self.path = "/login"
         self.get_url()
-        payload = dict()
+        payload = {}
         payload["userName"] = self.username
         payload["userPasswd"] = self.password
         payload["domain"] = self.domain
         self.payload = copy.copy(payload)
-        headers = dict()
+        headers = {}
         headers["Content-Type"] = "application/json"
         self.headers = copy.copy(headers)
         self.verb = "POST"
@@ -344,6 +373,9 @@ class Sender:
         self.__logged_in = True
 
     def update_token(self):
+        """
+        Update the authentication token.
+        """
         method_name = inspect.stack()[0][3]
         msg = f"{self.class_name}.{method_name}: "
         msg += "ENTERED"
@@ -360,18 +392,21 @@ class Sender:
             raise ValueError(msg) from error
 
     def refresh_login(self):
+        """
+        Refresh the login session.
+        """
         method_name = inspect.stack()[0][3]
         msg = f"{self.class_name}.{method_name}: "
         msg += "ENTERED"
         self.log.debug(msg)
         self.path = "/refresh"
         self.get_url()
-        payload = dict()
+        payload = {}
         payload["userName"] = self.username
         payload["userPasswd"] = self.password
         payload["domain"] = self.domain
         self.payload = payload
-        headers = dict()
+        headers = {}
         headers["Content-Type"] = "application/json"
         headers["Cookie"] = f"AuthCookie={self.jwttoken}"
         headers["Authorization"] = self.token
@@ -381,6 +416,14 @@ class Sender:
 
     @property
     def domain(self):
+        """
+        The domain to use for the request.
+
+        Raises:
+            ValueError: If the domain is not set.
+        """
+        if self._domain is None:
+            raise ValueError("Domain is not set.")
         return self._domain
 
     @domain.setter
@@ -389,6 +432,14 @@ class Sender:
 
     @property
     def headers(self):
+        """
+        The headers to use for the request.
+
+        Raises:
+            ValueError: If the headers are not set.
+        """
+        if self._headers is None:
+            raise ValueError("Headers are not set.")
         return self._headers
 
     @headers.setter
@@ -397,19 +448,30 @@ class Sender:
 
     @property
     def history_pretty_print(self):
-        self.log.debug("")
-        self.log.debug("History (last 50 calls, most recent on top)")
-        self.log.debug("{:<11s} {:<70s}".format("RESULT_CODE", "Path"))
-        self.log.debug("{:<11s} {:<70s}".format("-" * 11, "-" * 70))
+        """
+        Get a pretty-printed string of the request history.
+        """
+        msg = ""
+        msg += "History (last 50 calls, most recent on top)\n"
+        msg += f'{"RESULT_CODE":<11} {"Path":<70}\n'
+        msg += f'{"-" * 11:<11} {"-" * 70:<70}\n'
+        self.log.debug(msg)
         for rc, path in zip(self.history_rc, self.history_path):
-            self.log.debug("{:<11d} {:<70s}".format(rc, path))
+            msg = f'{rc:<11} {path:<70}'
+            self.log.debug(msg)
 
     @property
     def history_rc(self):
+        """
+        Get the history of return codes.
+        """
         return list(self._history_rc)
 
     @property
     def history_path(self):
+        """
+        Get the history of request paths.
+        """
         return list(self._history_path)
 
     @property
@@ -425,6 +487,14 @@ class Sender:
 
     @property
     def ip4(self):
+        """
+        The IPv4 address to use for the request.
+
+        Raises:
+            ValueError: If the IPv4 address is not set.
+        """
+        if self._ip4 is None:
+            raise ValueError("IPv4 address is not set.")
         return self._ip4
 
     @ip4.setter
@@ -433,6 +503,14 @@ class Sender:
 
     @property
     def ip6(self):
+        """
+        The IPv6 address to use for the request.
+
+        Raises:
+            ValueError: If the IPv6 address is not set.
+        """
+        if self._ip6 is None:
+            raise ValueError("IPv6 address is not set.")
         return self._ip6
 
     @ip6.setter
@@ -441,6 +519,14 @@ class Sender:
 
     @property
     def jwttoken(self):
+        """
+        The JWT token to use for the request.
+
+        Raises:
+            ValueError: If the JWT token is not set.
+        """
+        if self._jwttoken is None:
+            raise ValueError("JWT token is not set.")
         return self._jwttoken
 
     @jwttoken.setter
@@ -449,6 +535,9 @@ class Sender:
 
     @property
     def last_rc(self):
+        """
+        Get the last return code.
+        """
         return self._last_rc
 
     @last_rc.setter
@@ -457,6 +546,9 @@ class Sender:
 
     @property
     def __logged_in(self):
+        """
+        Check if the user is logged in.
+        """
         return self._logged_in
 
     @__logged_in.setter
@@ -465,6 +557,14 @@ class Sender:
 
     @property
     def password(self):
+        """
+        The password to use for the request.
+
+        Raises:
+            ValueError: If the password is not set.
+        """
+        if self._password is None:
+            raise ValueError("Password is not set.")
         return self._password
 
     @password.setter
@@ -511,6 +611,9 @@ class Sender:
 
     @property
     def rbac(self):
+        """
+        Get the RBAC (Role-Based Access Control) settings.
+        """
         return self._rbac
 
     @rbac.setter
@@ -544,6 +647,14 @@ class Sender:
 
     @property
     def username(self):
+        """
+        The username to use for the request.
+
+        Raises:
+            ValueError: If the username is not set.
+        """
+        if self._username is None:
+            raise ValueError("Username is not set.")
         return self._username
 
     @username.setter
@@ -552,6 +663,14 @@ class Sender:
 
     @property
     def verb(self):
+        """
+        The HTTP verb to use for the request.
+
+        Raises:
+            ValueError: If the verb is not set.
+        """
+        if self._verb is None:
+            raise ValueError("HTTP verb is not set.")
         return self._verb
 
     @verb.setter
@@ -560,8 +679,16 @@ class Sender:
 
     @property
     def token(self):
-        return self._token
+        """
+        The JWT token to use for the request.
+
+        Raises:
+            ValueError: If the JWT token is not set.
+        """
+        if self._jwttoken is None:
+            raise ValueError("JWT token is not set.")
+        return self._jwttoken
 
     @token.setter
     def token(self, value):
-        self._token = value
+        self._jwttoken = value
