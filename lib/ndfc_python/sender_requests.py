@@ -141,7 +141,7 @@ class Sender:
         self.url = None
         self._username = environ.get("ND_USERNAME", "admin")
         self._verb = None
-        self.TIMEOUT = 10 # seconds
+        self.TIMEOUT = 10  # seconds
 
     def _verify_commit_parameters(self):
         """
@@ -290,8 +290,7 @@ class Sender:
         self._history_rc.appendleft(x)
 
     def add_history_path(self):
-        """Add a request path to the history.
-        """
+        """Add a request path to the history."""
         self._history_path.appendleft(self.url)
 
     def update_status(self):
@@ -457,7 +456,7 @@ class Sender:
         msg += f'{"-" * 11:<11} {"-" * 70:<70}\n'
         self.log.debug(msg)
         for rc, path in zip(self.history_rc, self.history_path):
-            msg = f'{rc:<11} {path:<70}'
+            msg = f"{rc:<11} {path:<70}"
             self.log.debug(msg)
 
     @property
