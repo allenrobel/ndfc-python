@@ -120,9 +120,26 @@ for fabric in fabrics:
         rest_send.verb = "POST"
         rest_send.payload = {}  # No payload required
         rest_send.commit()
-        msg = f"Triggered Recalculate and Deploy for fabric '{fabric_name}':\n{json.dumps(rest_send.response_current, indent=4)}"
-        log.info(msg)
-        print(msg)
+        response = rest_send.response_current
+        # Check for backend error with templateDO null
+        if (
+            isinstance(response, dict)
+            and response.get("RETURN_CODE") == 500
+            and isinstance(response.get("DATA"), dict)
+            and "templateDO" in str(response["DATA"])
+        ):
+            user_msg = (
+                f"ERROR: NDFC backend returned 500 Internal Server Error for fabric '{fabric_name}'.\n"
+                "This usually means that the VRF(s) are not yet attached to any switch(es) in the fabric.\n"
+                "Please attach the VRF(s) to at least one switch in the fabric before running this script.\n"
+                f"Raw response:\n{json.dumps(response, indent=4)}"
+            )
+            log.error(user_msg)
+            print(user_msg)
+        else:
+            msg = f"Triggered Recalculate and Deploy for fabric '{fabric_name}':\n{json.dumps(response, indent=4)}"
+            log.info(msg)
+            print(msg)
     except (TypeError, ValueError) as error:
         msg = f"Error triggering Recalculate and Deploy for fabric '{fabric_name}'. Error detail: {error}"
         log.error(msg)
