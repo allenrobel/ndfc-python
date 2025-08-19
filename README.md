@@ -75,7 +75,6 @@ pip install --upgrade pip
 ## 8. Install uv
 
 ```bash
-pip install --upgrade pip
 pip install uv
 ```
 
