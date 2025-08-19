@@ -128,7 +128,7 @@ If you see the following error.
 ERROR: Ansible requires the locale encoding to be UTF-8; Detected ISO8859-1
 ```
 
-You can fix it by updating a couple enviroment variables.
+You can fix it by updating a couple environment variables.
 
 On macOS
 
