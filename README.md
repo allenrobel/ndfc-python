@@ -120,7 +120,64 @@ cd examples
 ./login.py
 ```
 
-## 13. Run a script that requires a config file
+## 13. Potential Ansible locale error
+
+If you see the following error.
+
+```bash
+ERROR: Ansible requires the locale encoding to be UTF-8; Detected ISO8859-1
+```
+
+You can fix it by updating a couple environment variables.
+
+On macOS
+
+```bash
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+```
+
+On Ubuntu
+
+Check if the locales are installed.
+
+```bash
+(ndfc-python) arobel@glide:~/repos/ndfc-python$ locale -a | grep -i utf
+C.utf8
+en_US.utf8
+(ndfc-python) arobel@glide:~/repos/ndfc-python$
+```
+
+If not, generate them.
+
+```bash
+sudo locale-gen en_US.UTF-8
+```
+
+Verify your locale is set.  If any of the following environment variables are set to something else,
+change them with `export VAR="en_US.UTF-8"`
+
+```bash
+(ndfc-python) arobel@glide:~/repos/ndfc-python$ locale
+LANG=en_US.UTF-8
+LANGUAGE=
+LC_CTYPE="en_US.UTF-8"
+LC_NUMERIC="en_US.UTF-8"
+LC_TIME="en_US.UTF-8"
+LC_COLLATE="en_US.UTF-8"
+LC_MONETARY="en_US.UTF-8"
+LC_MESSAGES="en_US.UTF-8"
+LC_PAPER="en_US.UTF-8"
+LC_NAME="en_US.UTF-8"
+LC_ADDRESS="en_US.UTF-8"
+LC_TELEPHONE="en_US.UTF-8"
+LC_MEASUREMENT="en_US.UTF-8"
+LC_IDENTIFICATION="en_US.UTF-8"
+LC_ALL=
+(ndfc-python) arobel@glide:~/repos/ndfc-python$
+```
+
+## 14. Run a script that requires a config file
 
 Many of the scripts take a config file.
 
