@@ -136,7 +136,7 @@ cd examples
 vi $HOME/repos/ndfc-python/examples/config/config_vrf_create.yaml
 ```
 
-Below is the content fo this file.
+Below is the content of this file.
 
 ```yaml
 ---
