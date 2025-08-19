@@ -6,7 +6,7 @@ import inspect
 import logging
 
 from ndfc_python.credential_selector import CredentialSelector
-from plugins.module_utils.common.sender_requests import Sender
+from ndfc_python.sender_requests import Sender
 
 
 class NdfcPythonSender:
