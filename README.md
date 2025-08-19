@@ -130,7 +130,7 @@ ERROR: Ansible requires the locale encoding to be UTF-8; Detected ISO8859-1
 
 You can fix it by updating a couple enviroment variables.
 
-On MacOS
+On macOS
 
 ```bash
 export LC_ALL=en_US.UTF-8
