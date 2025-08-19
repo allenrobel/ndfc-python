@@ -1,6 +1,7 @@
 export ND_IP4=192.168.7.7
 export ND_PASSWORD=SecretPassword
 export ND_USERNAME=admin
+export ND_DOMAIN=local
 export NXOS_PASSWORD=SecretPassword
 export NXOS_USERNAME=admin
 export ANSIBLE_HOME=$HOME/repos/ansible

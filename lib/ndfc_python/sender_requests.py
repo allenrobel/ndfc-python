@@ -519,12 +519,7 @@ class Sender:
     def jwttoken(self):
         """
         The JWT token to use for the request.
-
-        Raises:
-            ValueError: If the JWT token is not set.
         """
-        if self._jwttoken is None:
-            raise ValueError("JWT token is not set.")
         return self._jwttoken
 
     @jwttoken.setter
@@ -679,12 +674,7 @@ class Sender:
     def token(self):
         """
         The JWT token to use for the request.
-
-        Raises:
-            ValueError: If the JWT token is not set.
         """
-        if self._jwttoken is None:
-            raise ValueError("JWT token is not set.")
         return self._jwttoken
 
     @token.setter
