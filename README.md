@@ -84,7 +84,7 @@ uv sync
 ## 10. Set required environment variables
 
 ```bash
-# Edit $HOME/repos/ndfc-python/env/02-nd.sh
+# Edit $HOME/repos/ndfc-python/env/02-nd
 # Change the following to match your environment
 # ND_IP4=<your Nexus Dashboard IPv4 address>
 # ND_USERNAME=<your Nexus Dashboard username, typically admin>
@@ -96,7 +96,7 @@ uv sync
 #
 # Once 02-nd.sh is edited, source the env.sh file
 
-source $HOME/repos/ndfc-python/env/env.sh
+source $HOME/repos/ndfc-python/env/env
 ```
 
 ## 11. Optionally, enable logging
@@ -110,7 +110,7 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 ```bash
 cd $HOME/repos/ndfc-python
 source .venv/bin/activate
-source env/env.sh
+source env/env
 cd examples
 ./login.py
 ```
