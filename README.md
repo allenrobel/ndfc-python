@@ -108,7 +108,9 @@ source $HOME/repos/ndfc-python/env/env
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
 ```
 
-## 12. Run one of the scripts. Let's try the login script
+## 12. Run a script that does not take any arguments
+
+Let's try the login script since it does not require any arguments.
 
 ```bash
 cd $HOME/repos/ndfc-python
@@ -117,3 +119,133 @@ source env/env
 cd examples
 ./login.py
 ```
+
+## 13. Run a script that requires a config file
+
+Many of the scripts take a config file.
+
+Example config files are located in `$HOME/repos/ndfc-python/examples/config/*.yaml`
+
+Let's edit a config that creates a VRF.
+
+```bash
+cd $HOME/repos/ndfc-python
+source .venv/bin/activate
+source env/env
+cd examples
+vi $HOME/repos/ndfc-python/examples/config/config_vrf_create.yaml
+```
+
+Below is the content of this file.
+
+```yaml
+---
+config:
+  - fabric_name: MyFabric1
+    vrf_display_name: MyVrf1
+    vrf_id: 50005
+    vrf_name: MyVrf1
+    vrf_vlan_id: 3005
+  - fabric_name: MyFabric1
+    vrf_display_name: MyVrf2
+    vrf_id: 50006
+    vrf_name: MyVrf2
+    vrf_vlan_id: 3006
+```
+
+Above, we are creating two VRFs in MyFabric1.
+
+Modify this to match your environment by changing each item's parameters.
+
+Since my local environment contains two child fabrics within a multi-site domain fabric,
+the VRFs need to be created in the parent MSD fabric, rather than the child fabrics.
+
+![Topology](./images/readme-topo.png)
+
+Below are the edits for my environment.
+
+```yaml
+---
+config:
+  - fabric_name: MSD
+    vrf_display_name: ndfc-python-vrf1
+    vrf_id: 50005
+    vrf_name: ndfc-python-vrf1
+    vrf_vlan_id: 3005
+  - fabric_name: MSD
+    vrf_display_name: ndfc-python-vrf2
+    vrf_id: 50006
+    vrf_name: ndfc-python-vrf2
+    vrf_vlan_id: 3006
+```
+
+Save the file and then execute the associated script.
+
+First, we'll have a look at the help facility that all scripts provide.
+
+```bash
+cd $HOME/repos/ndfc-python/examples
+(ndfc-python) arobel@Allen-M4 examples % ./vrf_create.py --help
+usage: vrf_create.py [-h] [-v ANSIBLE_VAULT] -c CONFIG [-l {INFO,WARNING,ERROR,DEBUG}] [--nd-domain ND_DOMAIN] [--nd-ip4 ND_IP4] [--nd-password ND_PASSWORD] [--nd-username ND_USERNAME]
+
+DESCRIPTION: Create a vrf.
+
+options:
+  -h, --help            show this help message and exit
+
+OPTIONAL ARGS:
+  -v, --ansible-vault ANSIBLE_VAULT
+                        Absolute path to an Ansible Vault. e.g. /home/myself/.ansible/vault.
+  --nd-domain ND_DOMAIN
+                        Login domain for the Nexus Dashboard controller. If missing, the environment variable ND_DOMAIN or Ansible Vault is used.
+  --nd-ip4 ND_IP4       IPv4 address for the Nexus Dashboard controller. If missing, the environment variable ND_IP4 or Ansible Vault is used.
+  --nd-password ND_PASSWORD
+                        Password for the Nexus Dashboard controller. If missing, the environment variable ND_PASSWORD or Ansible Vault is used.
+  --nd-username ND_USERNAME
+                        Username for the Nexus Dashboard controller. If missing, the environment variable ND_USERNAME or Ansible Vault is used.
+
+MANDATORY ARGS:
+  -c, --config CONFIG   Absolute path to a YAML configuration file. e.g. /home/myself/myfile.yaml
+
+DEFAULT ARGS:
+  -l, --loglevel {INFO,WARNING,ERROR,DEBUG}
+                        Logging level
+(ndfc-python) arobel@Allen-M4 examples %
+```
+
+From above, we see that we can override, on a script-by-script basis, the environment variables we configured earlier.
+
+We also see that the `--config` argument is mandatory.  This points to the config file we just edited.  Let's use our
+existing environment variables and provide only the `--config` argument.
+
+- `./vrf_create.py --config $HOME/repos/ndfc-python/examples/config/config_vrf_create.yaml`
+
+Let's first disable debugging for shorter output.
+
+```bash
+(ndfc-python) arobel@Allen-M4 examples % unset NDFC_LOGGING_CONFIG
+(ndfc-python) arobel@Allen-M4 examples %
+```
+
+Here is the current set of VRFs in the MSD fabric in my setup.
+
+![VRFs created](./images/readme-pre-vrf-script.png)
+
+Now let's run the script.
+
+```bash
+(ndfc-python) arobel@Allen-M4 examples % ./vrf_create.py --config $HOME/repos/ndfc-python/examples/config/config_vrf_create.yaml
+Created vrf ndfc-python-vrf1 in fabric MSD
+Created vrf ndfc-python-vrf2 in fabric MSD
+(ndfc-python) arobel@Allen-M4 examples %
+```
+
+![VRFs created](./images/readme-post-vrf-script.png)
+
+## 14. Script Documentation
+
+Follow the link below to access the documentation for the above VRF script.
+
+The other scripts are similarly documented on the same page.
+
+[Script Documentation](https://allenrobel.github.io/ndfc-python/scripts/vrf_create/)
