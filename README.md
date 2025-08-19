@@ -66,19 +66,26 @@ arobel@AROBEL-M-G793 ndfc-python % source .venv/bin/activate
 (ndfc-python) AROBEL-M-G793%
 ```
 
-## 7. Install uv
+## 7. upgrade pip
 
 ```bash
+pip install --upgrade pip
+```
+
+## 8. Install uv
+
+```bash
+pip install --upgrade pip
 pip install uv
 ```
 
-## 8. Use uv to install the other dependencies
+## 9. Use uv to install the other dependencies
 
 ```bash
 uv sync
 ```
 
-## 9. Set required environment variables
+## 10. Set required environment variables
 
 ```bash
 # Edit $HOME/repos/ndfc-python/env/02-nd
@@ -96,13 +103,13 @@ uv sync
 source $HOME/repos/ndfc-python/env/env
 ```
 
-## 10. Optionally, enable logging
+## 11. Optionally, enable logging
 
 ```bash
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
 ```
 
-## 11. Run one of the scripts. Let's try the login script
+## 12. Run one of the scripts. Let's try the login script
 
 ```bash
 cd $HOME/repos/ndfc-python
