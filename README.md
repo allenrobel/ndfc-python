@@ -39,7 +39,7 @@ mkdir ansible/collections/ansible_collections
 mkdir ansible/collections/ansible_collections/cisco
 cd ansible/collections/ansible_collections/cisco
 git clone https://github.com/CiscoDevNet/ansible-dcnm.git
-# We need to rename the resulting directory from ansible-dcnn to dcnm
+# We need to rename the resulting directory from ansible-dcnm to dcnm
 mv ansible-dcnm dcnm
 ```
 
@@ -51,7 +51,10 @@ mv ansible-dcnm dcnm
 
 ```bash
 cd $HOME/repos/ndfc-python
+# If python is in your path
 python -m venv .venv --prompt ndfc-python
+# If python is NOT in your path, and it was installed on MacOS
+/Library/Frameworks/Python.framework/Versions/3.13/bin/python3 -m venv .venv --prompt ndfc-python
 ```
 
 ## 6. Source the virtual environment
@@ -75,13 +78,7 @@ pip install uv
 uv sync
 ```
 
-## 9. Install the Nexus Dashboard (aka DCNM) Ansible collection
-
-```bash
-uv sync
-```
-
-## 10. Set required environment variables
+## 9. Set required environment variables
 
 ```bash
 # Edit $HOME/repos/ndfc-python/env/02-nd
@@ -94,12 +91,12 @@ uv sync
 #
 # NOTE: For better security, follow the steps at Github Pages link at the top of this file.
 #
-# Once 02-nd.sh is edited, source the env.sh file
+# Once 02-nd is edited, source the following file (it, in turn, sources the other files)
 
 source $HOME/repos/ndfc-python/env/env
 ```
 
-## 11. Optionally, enable logging
+## 10. Optionally, enable logging
 
 ```bash
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
