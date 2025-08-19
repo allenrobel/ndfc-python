@@ -1,4 +1,3 @@
-#!/bin/bash
 export REPO=$HOME/repos/ndfc-python
 source $REPO/env/01-venv
 source $REPO/env/02-nd
