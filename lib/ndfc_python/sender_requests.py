@@ -203,7 +203,6 @@ class Sender:
         msg += f"Calling requests: verb {self.verb}, "
         msg += f"path {self.path}, "
         msg += f"url {self.url}, "
-        # msg += f"headers {self.get_headers()}"
         try:
             if self.payload is None:
                 self.log.debug(msg)
@@ -336,7 +335,7 @@ class Sender:
         """
         Log in to the server.
         """
-        if self.__logged_in is True:
+        if self._logged_in is True:
             return
         _raise = False
         msg = ""
@@ -355,7 +354,7 @@ class Sender:
                 raise ValueError(msg)
             msg = "Unknown error.  Check if all mandatory fields are set."
             raise ValueError(msg)
-        self.__logged_in = "Pending"
+        self._logged_in = "Pending"
         self.path = "/login"
         self.get_url()
         payload = {}
@@ -369,7 +368,7 @@ class Sender:
         self.verb = "POST"
         self.commit()
         self.update_token()
-        self.__logged_in = True
+        self._logged_in = True
 
     def update_token(self):
         """
@@ -544,14 +543,14 @@ class Sender:
         self._last_rc = value
 
     @property
-    def __logged_in(self):
+    def _logged_in(self):
         """
         Check if the user is logged in.
         """
         return self._logged_in
 
-    @__logged_in.setter
-    def __logged_in(self, value):
+    @_logged_in.setter
+    def _logged_in(self, value):
         self._logged_in = value
 
     @property
