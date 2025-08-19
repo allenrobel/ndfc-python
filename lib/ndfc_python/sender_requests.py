@@ -335,7 +335,7 @@ class Sender:
         """
         Log in to the server.
         """
-        if self._logged_in is True:
+        if self.logged_in is True:
             return
         _raise = False
         msg = ""
@@ -354,7 +354,7 @@ class Sender:
                 raise ValueError(msg)
             msg = "Unknown error.  Check if all mandatory fields are set."
             raise ValueError(msg)
-        self._logged_in = "Pending"
+        self.logged_in = "Pending"
         self.path = "/login"
         self.get_url()
         payload = {}
@@ -368,7 +368,7 @@ class Sender:
         self.verb = "POST"
         self.commit()
         self.update_token()
-        self._logged_in = True
+        self.logged_in = True
 
     def update_token(self):
         """
@@ -543,14 +543,14 @@ class Sender:
         self._last_rc = value
 
     @property
-    def _logged_in(self):
+    def logged_in(self):
         """
         Check if the user is logged in.
         """
         return self._logged_in
 
-    @_logged_in.setter
-    def _logged_in(self, value):
+    @logged_in.setter
+    def logged_in(self, value):
         self._logged_in = value
 
     @property
