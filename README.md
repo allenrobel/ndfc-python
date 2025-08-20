@@ -345,7 +345,7 @@ Triggered Config Save for fabric 'MSD':
 The previous script saved the configuration.  We'll now deploy the configuration.
 
 ```bash
-(ndfc-python) arobel@Allen-M4 examples % ./config_deploy.py --config test_rnc.yaml
+(ndfc-python) arobel@Allen-M4 examples % ./config_deploy.py --config $HOME/repos/ndfc-python/examples/config/config_config_deploy.yaml
 Triggered Config Deploy for fabric 'SITE1':
 {
     "RETURN_CODE": 200,
