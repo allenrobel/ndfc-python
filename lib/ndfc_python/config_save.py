@@ -28,7 +28,6 @@ The JSON payload constructed by this class is shown below.
 
 import inspect
 import logging
-import sys
 
 from ndfc_python.validations import Validations
 from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import EpFabrics
