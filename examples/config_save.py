@@ -37,7 +37,6 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 """
 
 import argparse
-import json
 import logging
 import sys
 
@@ -127,7 +126,6 @@ for fabric in fabrics:
 
         print(f"Triggering Config Save for fabric '{fabric_name}'")
         instance.commit()
-        response = rest_send.response_current
         print(instance.status)
     except (TypeError, ValueError) as error:
         msg = f"Error triggering Config Save for fabric '{fabric_name}'. Error detail: {error}"
