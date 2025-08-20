@@ -2,11 +2,7 @@
 Name: config_deploy.py
 Description: Deploy pending Nexus Dashboard configurations to the switches.
 
-The JSON payload constructed by this class is shown below.
-
-```json
-{}
-```
+No JSON payload is required for this request.
 
 # Example controller response (rest_send.response_current):
 
@@ -71,17 +67,6 @@ class ConfigDeploy:
         """
         self.payload = {}
 
-    def _preprocess_payload(self):
-        """
-        1. Set a default value for any properties that the caller has not set
-        and that NDFC provides a default for.
-
-        2. Copy top-level property values (that need it) into their respective
-        template_config properties.
-
-        3. Any other fixup that may be required
-        """
-
     def _final_verification(self):
         """
         Any final verification steps before sending the request
@@ -112,7 +97,6 @@ class ConfigDeploy:
         Send a POST request to the controller to the config-deploy endpoint
         """
         method_name = inspect.stack()[0][3]
-        self._preprocess_payload()
         self._final_verification()
 
         if self.fabric_exists() is False:
