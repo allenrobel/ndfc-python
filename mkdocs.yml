@@ -76,6 +76,8 @@ nav:
   - Scripts:
       - bootflash_files_delete.py: scripts/bootflash_files_delete.md
       - bootflash_files_info.py: scripts/bootflash_files_info.md
+      - config_deploy.py: scripts/config_deploy.md
+      - config_save.py: scripts/config_save.md
       - controller_info.py: scripts/controller_info.md
       - credentials.py: scripts/credentials.md
       - device_info.py: scripts/device_info.md
