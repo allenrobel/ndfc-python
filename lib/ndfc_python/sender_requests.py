@@ -119,7 +119,9 @@ class Sender:
         self._implements = "sender_v1"
 
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        self.log = logging.getLogger(f"dcnm.{self.class_name}")
+        self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
+
+        self.TIMEOUT = 10  # seconds
 
         self._domain = environ.get("ND_DOMAIN", "local")
         self._headers = None
@@ -135,13 +137,14 @@ class Sender:
         self._payload = None
         self._rbac = None
         self._response = None
+        self._timeout = self.TIMEOUT
         self._token = None
         self.last_url = None
         self.return_code = None
         self.url = None
         self._username = environ.get("ND_USERNAME", "admin")
         self._verb = None
-        self.TIMEOUT = 10  # seconds
+        
 
     def _verify_commit_parameters(self):
         """
@@ -200,13 +203,16 @@ class Sender:
         self.get_url()
         msg = f"{self.class_name}.{method_name}: "
         msg += f"caller: {caller}.  "
-        msg += f"Calling requests: verb {self.verb}, "
+        msg += f"Calling requests with: "
+        msg += f"verb {self.verb}, "
         msg += f"path {self.path}, "
         msg += f"url {self.url}, "
         try:
             if self.payload is None:
                 self.log.debug(msg)
-                response = requests.request(self.verb, self.url, headers=self.get_headers(), verify=False, timeout=self.TIMEOUT)
+                msg = f"self.timeout: {self.timeout}"
+                self.log.debug(msg)
+                response = requests.request(self.verb, self.url, headers=self.get_headers(), verify=False, timeout=self.timeout)
             else:
                 msg_payload = copy.copy(self.payload)
                 if "userPasswd" in msg_payload:
@@ -214,13 +220,15 @@ class Sender:
                 msg += ", payload: "
                 msg += f"{json.dumps(msg_payload, indent=4, sort_keys=True)}"
                 self.log.debug(msg)
+                msg = f"self.timeout: {self.timeout}"
+                self.log.debug(msg)
                 response = requests.request(
                     self.verb,
                     self.url,
                     headers=self.get_headers(),
                     data=json.dumps(self.payload),
                     verify=False,
-                    timeout=self.TIMEOUT,
+                    timeout=self.timeout,
                 )
         except requests.exceptions.ConnectionError as error:
             msg = f"{self.class_name}.{method_name}: "
@@ -637,6 +645,17 @@ class Sender:
             msg += f"value {value}."
             raise TypeError(msg)
         self._response = value
+
+    @property
+    def timeout(self):
+        """
+        Get the timeout value for the request.
+        """
+        return self._timeout
+
+    @timeout.setter
+    def timeout(self, value):
+        self._timeout = value
 
     @property
     def username(self):

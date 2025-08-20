@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-# recalculate_and_deploy.py
+# config_deploy.py
 
 ## Description
 
-Trigger a Recalculate and Deploy on one or more fabrics in NDFC.
+Trigger a Config Deploy on one or more fabrics in NDFC.
 
 ## Usage
 
 1.  Modify PYTHONPATH appropriately for your setup before running this script
 
 ``` bash
-export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible-dcnm
+export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible/collections/ansible_collections/cisco/dcnm
 ```
 
 2. Optional, to enable logging.
@@ -20,15 +20,15 @@ export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible-dc
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
 ```
 
-3. Edit ./examples/config/config_recalculate_and_deploy.yaml with desired fabric names
+3. Edit ./examples/config/config_config_deploy.yaml with desired fabric names
 
 4. Set credentials via script command line, environment variables, or Ansible Vault
 
 5. Run the script (below we're using command line for credentials)
 
 ``` bash
-./examples/recalculate_and_deploy.py \
-    --config ./examples/config/config_recalculate_and_deploy.yaml \
+./examples/config_deploy.py \
+    --config ./examples/config/config_config_deploy.yaml \
     --nd-domain local \
     --nd-ip4 10.1.1.1 \
     --nd-password password \
@@ -54,6 +54,7 @@ from ndfc_python.read_config import ReadConfig
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 
+
 def setup_parser() -> argparse.Namespace:
     """
     Setup script-specific parser
@@ -68,9 +69,10 @@ def setup_parser() -> argparse.Namespace:
             parser_nd_password,
             parser_nd_username,
         ],
-        description="DESCRIPTION: Trigger Recalculate and Deploy on one or more fabrics.",
+        description="DESCRIPTION: Trigger Config Deploy on one or more fabrics.",
     )
     return parser.parse_args()
+
 
 args = setup_parser()
 NdfcPythonLogger()
@@ -90,6 +92,7 @@ except ValueError as error:
 try:
     ndfc_sender = NdfcPythonSender()
     ndfc_sender.args = args
+    ndfc_sender.timeout = 300
     ndfc_sender.commit()
 except ValueError as error:
     msg = f"Exiting.  Error detail: {error}"
@@ -100,7 +103,7 @@ except ValueError as error:
 rest_send = RestSend({})
 rest_send.sender = ndfc_sender.sender
 rest_send.response_handler = ResponseHandler()
-rest_send.timeout = 10
+rest_send.timeout = 300
 rest_send.send_interval = 2
 
 # Expecting config file like:
@@ -114,16 +117,28 @@ for fabric in fabrics:
     if not fabric_name:
         log.error("Missing fabric_name in config entry: %s", fabric)
         continue
-    path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric_name}/recalculateAndDeploy"
+    path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric_name}/config-deploy?forceShowRun=false"
     try:
         rest_send.path = path
         rest_send.verb = "POST"
         rest_send.payload = {}  # No payload required
         rest_send.commit()
-        msg = f"Triggered Recalculate and Deploy for fabric '{fabric_name}':\n{json.dumps(rest_send.response_current, indent=4)}"
-        log.info(msg)
-        print(msg)
+        response = rest_send.response_current
+        # Check for backend error with templateDO null
+        if isinstance(response, dict) and response.get("RETURN_CODE") == 500 and isinstance(response.get("DATA"), dict) and "templateDO" in str(response["DATA"]):
+            user_msg = (
+                f"ERROR: NDFC backend returned 500 Internal Server Error for fabric '{fabric_name}'.\n"
+                "This usually means that pending configuration(s) were not saved prior to running this script.\n"
+                "Execute a Config Save on the fabric before retrying (e.g. run ./examples/config_save.py).\n"
+                f"Raw response:\n{json.dumps(response, indent=4)}"
+            )
+            log.error(user_msg)
+            print(user_msg)
+        else:
+            msg = f"Triggered Config Deploy for fabric '{fabric_name}':\n{json.dumps(response, indent=4)}"
+            log.info(msg)
+            print(msg)
     except (TypeError, ValueError) as error:
-        msg = f"Error triggering Recalculate and Deploy for fabric '{fabric_name}'. Error detail: {error}"
+        msg = f"Error triggering Config Deploy for fabric '{fabric_name}'. Error detail: {error}"
         log.error(msg)
         print(msg)
