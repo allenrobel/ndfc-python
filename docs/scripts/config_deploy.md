@@ -15,7 +15,7 @@ always list the child fabrics first, followed by the parent fabric.
 
 The example below shows this scenario.
 
-``` yaml title="config/config_vrf_create.yaml"
+``` yaml title="config/config_config_deploy.yaml"
 ---
 config:
   - fabric_name: ChildFabric1
