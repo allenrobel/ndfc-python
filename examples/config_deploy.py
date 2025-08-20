@@ -102,7 +102,7 @@ except ValueError as error:
 rest_send = RestSend({})
 rest_send.sender = ndfc_sender.sender
 rest_send.response_handler = ResponseHandler()
-rest_send.timeout = 10
+rest_send.timeout = 300
 rest_send.send_interval = 2
 
 # Expecting config file like:
