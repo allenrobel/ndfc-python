@@ -60,6 +60,7 @@ class ConfigSave:
         self.validations = Validations()
         self.ep_rest_control_fabrics = EpFabrics()
 
+        self._fabric_name = None
         self._response_data = None
 
         self._init_payload()
@@ -85,6 +86,10 @@ class ConfigSave:
         """
         Any final verification steps before sending the request
         """
+        if self.fabric_name is None:
+            msg = f"{self.class_name}._final_verification: "
+            msg += "fabric_name must be set before calling commit()."
+            raise ValueError(msg)
 
     def fabric_exists(self):
         """
@@ -139,8 +144,9 @@ class ConfigSave:
 
         self._response_data = self.rest_send.response_current.get("DATA")
         if self.response_data is None:
-            msg = f"{self.class_name}.refresh() failed: response "
-            msg += "does not contain DATA key. Controller response: "
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "Controller response does not contain DATA key. "
+            msg += "Controller response: "
             msg += f"{self.rest_send.response_current}"
             raise ValueError(msg)
         # pylint: enable=no-member
@@ -162,18 +168,18 @@ class ConfigSave:
     @property
     def fabric_name(self):
         """
-        return the current payload value of fabric
+        Return the current fabric name.
         """
-        return self.payload["fabric"]
+        return self._fabric_name
 
     @fabric_name.setter
     def fabric_name(self, param):
-        self.payload["fabric"] = param
+        self._fabric_name = param
 
     @property
     def response_data(self):
         """
-        Return the data retrieved from the request
+        Return the data retrieved from the request.
         """
         return self._response_data
 
@@ -181,6 +187,6 @@ class ConfigSave:
     @property
     def status(self):
         """
-        auth key from controller response
+        Return the status from the controller response.
         """
         return self._get("status")
