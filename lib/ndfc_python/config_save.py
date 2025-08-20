@@ -160,7 +160,6 @@ class ConfigSave:
             raise ValueError(msg)
         return self.response_data.get(item)
 
-
     @property
     def fabric_name(self):
         """
