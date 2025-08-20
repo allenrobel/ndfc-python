@@ -92,6 +92,7 @@ except ValueError as error:
 try:
     ndfc_sender = NdfcPythonSender()
     ndfc_sender.args = args
+    ndfc_sender.timeout = 300
     ndfc_sender.commit()
 except ValueError as error:
     msg = f"Exiting.  Error detail: {error}"
