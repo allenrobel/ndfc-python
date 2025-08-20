@@ -4,14 +4,14 @@
 
 ## Description
 
-Trigger a Config Deploy on one or more fabrics in NDFC.
+Trigger a Nexus Dashboard Config Deploy for one or more fabrics.
 
 ## Usage
 
 1.  Modify PYTHONPATH appropriately for your setup before running this script
 
 ``` bash
-export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible/collections/ansible_collections/cisco/dcnm
+export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible-dcnm
 ```
 
 2. Optional, to enable logging.
@@ -20,7 +20,7 @@ export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible/co
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
 ```
 
-3. Edit ./examples/config/config_config_deploy.yaml with desired fabric names
+3. Edit ./examples/config/config_recalculate_and_deploy.yaml with desired fabric names
 
 4. Set credentials via script command line, environment variables, or Ansible Vault
 
@@ -37,10 +37,10 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 """
 
 import argparse
-import json
 import logging
 import sys
 
+from ndfc_python.config_deploy import ConfigDeploy
 from ndfc_python.ndfc_python_logger import NdfcPythonLogger
 from ndfc_python.ndfc_python_sender import NdfcPythonSender
 from ndfc_python.parsers.parser_ansible_vault import parser_ansible_vault
@@ -53,6 +53,7 @@ from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
+from plugins.module_utils.common.results import Results
 
 
 def setup_parser() -> argparse.Namespace:
@@ -77,7 +78,7 @@ def setup_parser() -> argparse.Namespace:
 args = setup_parser()
 NdfcPythonLogger()
 log = logging.getLogger("ndfc_python.main")
-log.setLevel(args.loglevel)
+log.setLevel(level=args.loglevel)
 
 try:
     ndfc_config = ReadConfig()
@@ -92,7 +93,7 @@ except ValueError as error:
 try:
     ndfc_sender = NdfcPythonSender()
     ndfc_sender.args = args
-    ndfc_sender.timeout = 300
+    ndfc_sender.timeout = 300  # seconds
     ndfc_sender.commit()
 except ValueError as error:
     msg = f"Exiting.  Error detail: {error}"
@@ -103,8 +104,8 @@ except ValueError as error:
 rest_send = RestSend({})
 rest_send.sender = ndfc_sender.sender
 rest_send.response_handler = ResponseHandler()
-rest_send.timeout = 300
-rest_send.send_interval = 2
+# Set the timeout higher to give Nexus Dashboard time to complete the request
+rest_send.timeout = 300  # seconds
 
 # Expecting config file like:
 # config:
@@ -117,27 +118,15 @@ for fabric in fabrics:
     if not fabric_name:
         log.error("Missing fabric_name in config entry: %s", fabric)
         continue
-    path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric_name}/config-deploy?forceShowRun=false"
     try:
-        rest_send.path = path
-        rest_send.verb = "POST"
-        rest_send.payload = {}  # No payload required
-        rest_send.commit()
-        response = rest_send.response_current
-        # Check for backend error with templateDO null
-        if isinstance(response, dict) and response.get("RETURN_CODE") == 500 and isinstance(response.get("DATA"), dict) and "templateDO" in str(response["DATA"]):
-            user_msg = (
-                f"ERROR: NDFC backend returned 500 Internal Server Error for fabric '{fabric_name}'.\n"
-                "This usually means that pending configuration(s) were not saved prior to running this script.\n"
-                "Execute a Config Save on the fabric before retrying (e.g. run ./examples/config_save.py).\n"
-                f"Raw response:\n{json.dumps(response, indent=4)}"
-            )
-            log.error(user_msg)
-            print(user_msg)
-        else:
-            msg = f"Triggered Config Deploy for fabric '{fabric_name}':\n{json.dumps(response, indent=4)}"
-            log.info(msg)
-            print(msg)
+        instance = ConfigDeploy()
+        instance.rest_send = rest_send
+        instance.results = Results()
+        instance.fabric_name = fabric_name
+
+        print(f"Triggering Config Deploy for fabric '{fabric_name}'")
+        instance.commit()
+        print(instance.status)
     except (TypeError, ValueError) as error:
         msg = f"Error triggering Config Deploy for fabric '{fabric_name}'. Error detail: {error}"
         log.error(msg)

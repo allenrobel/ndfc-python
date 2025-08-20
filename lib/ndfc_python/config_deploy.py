@@ -1,6 +1,6 @@
 """
-Name: config_save.py
-Description: Save the current configuration on the NDFC controller.
+Name: config_deploy.py
+Description: Deploy pending Nexus Dashboard configurations to the switches.
 
 No JSON payload is required for this request.
 
@@ -10,11 +10,11 @@ No JSON payload is required for this request.
 {
     "RETURN_CODE": 200,
     "DATA": {
-        "status": "Config save is completed"
+        "status": "Configuration deployment completed for fabric [SITE2]."
     },
     "MESSAGE": "OK",
     "METHOD": "POST",
-    "REQUEST_PATH": "https://192.168.7.7/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/SITE2/config-save"
+    "REQUEST_PATH": "https://192.168.7.7/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/SITE2/config-deploy?forceShowRun=false"
 }
 ```
 """
@@ -34,17 +34,17 @@ from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 @Properties.add_rest_send
 @Properties.add_results
-class ConfigSave:
+class ConfigDeploy:
     """
     # Summary
 
-    Save the current configuration on the NDFC controller.
+    Deploy pending Nexus Dashboard configurations to switches in the target fabric.
 
     # Usage example
 
     See the following script.
 
-    ./examples/config_save.py
+    ./examples/config_deploy.py
     """
 
     def __init__(self):
@@ -94,7 +94,7 @@ class ConfigSave:
 
     def commit(self):
         """
-        Send a POST request to the controller to the config-save endpoint
+        Send a POST request to the controller to the config-deploy endpoint
         """
         method_name = inspect.stack()[0][3]
         self._final_verification()
@@ -111,12 +111,12 @@ class ConfigSave:
 
         # pylint: disable=no-member
         try:
-            self.rest_send.path = f"{path.path_fabric_name}/config-save"
+            self.rest_send.path = f"{path.path_fabric_name}/config-deploy?forceShowRun=false"
             self.rest_send.payload = self.payload
             self.rest_send.verb = verb
             self.rest_send.save_settings()
             self.rest_send.retries = 1
-            # config-save can take a while
+            # config-deploy can take a while
             self.rest_send.timeout = 300
             self.rest_send.commit()
             self.rest_send.restore_settings()
