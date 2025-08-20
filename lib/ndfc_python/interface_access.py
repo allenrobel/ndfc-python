@@ -114,6 +114,7 @@ class InterfaceAccessCreate:
         self._nvpair_default["ADMIN_STATE"] = "true"
         self._nvpair_default["BPDUGUARD_ENABLED"] = "true"
         self._nvpair_default["DESC"] = ""
+        self._nvpair_default["ENABLE_NETFLOW"] = "false"
         self._nvpair_default["MTU"] = "jumbo"
         self._nvpair_default["NETFLOW_MONITOR"] = ""
         self._nvpair_default["PORTTYPE_FAST_ENABLED"] = "true"
