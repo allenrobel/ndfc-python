@@ -59,6 +59,7 @@ class NdfcPythonSender:
         self._nd_username = None
         self._nxos_password = None
         self._nxos_username = None
+        self._timeout = 10  # seconds
 
     @property
     def args(self):
@@ -150,6 +151,7 @@ class NdfcPythonSender:
         if self.login is False:
             return
         try:
+            self.sender.timeout = self.timeout
             self.sender.login()
         except ValueError as error:
             msg = f"{self.class_name}.{method_name}: "
@@ -225,3 +227,15 @@ class NdfcPythonSender:
     @login.setter
     def login(self, value):
         self._login = value
+
+    @property
+    def timeout(self):
+        """
+        Get/set the timeout value for the request.
+        """
+        return self._timeout
+
+    @timeout.setter
+    def timeout(self, value):
+        self._timeout = value
+
