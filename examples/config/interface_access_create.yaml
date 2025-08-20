@@ -1,0 +1,15 @@
+---
+config:
+  - access_vlan: ""
+    admin_state: True
+    bpduguard_enabled: True
+    desc: "Eth1/2: Connected to HO1"
+    enable_netflow: False
+    freeform_config: ""
+    interface_name: Ethernet1/2
+    mtu: jumbo
+    netflow_monitor: ""
+    porttype_fast_enabled: True
+    ptp: False
+    serial_number: 96KWEIQE2HC
+    speed: Auto
