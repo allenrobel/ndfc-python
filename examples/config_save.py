@@ -41,6 +41,7 @@ import json
 import logging
 import sys
 
+from ndfc_python.config_save import ConfigSave
 from ndfc_python.ndfc_python_logger import NdfcPythonLogger
 from ndfc_python.ndfc_python_sender import NdfcPythonSender
 from ndfc_python.parsers.parser_ansible_vault import parser_ansible_vault
@@ -53,6 +54,7 @@ from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
+from plugins.module_utils.common.results import Results
 
 
 def setup_parser() -> argparse.Namespace:
@@ -117,16 +119,16 @@ for fabric in fabrics:
     if not fabric_name:
         log.error("Missing fabric_name in config entry: %s", fabric)
         continue
-    path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/{fabric_name}/config-save"
     try:
-        rest_send.path = path
-        rest_send.verb = "POST"
-        rest_send.payload = {}  # No payload required
-        rest_send.commit()
+        instance = ConfigSave()
+        instance.rest_send = rest_send
+        instance.results = Results()
+        instance.fabric_name = fabric_name
+
+        print(f"Triggering Config Save for fabric '{fabric_name}'")
+        instance.commit()
         response = rest_send.response_current
-        msg = f"Triggered Config Save for fabric '{fabric_name}':\n{json.dumps(response, indent=4)}"
-        log.info(msg)
-        print(msg)
+        print(instance.status)
     except (TypeError, ValueError) as error:
         msg = f"Error triggering Config Save for fabric '{fabric_name}'. Error detail: {error}"
         log.error(msg)
