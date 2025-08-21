@@ -28,7 +28,11 @@ config:
 
 - access_vlan - This can take a value of an empty string if you want the interface to assume a vlan value from a network attach request.
 - admin_state - If True, the interface will be enabled (no shutdown).  If False, the interface will be disabled (shutdown).
-- freeform_config - This one needs work.  It should really be a list.  However, you can use statements like "beacon on; 
+- freeform_config - This one needs work.  It should really be a list.  However, you can separate multiple statements with semicolons.
+
+``` yaml
+freeform_config: "no link-flap error-disable count 3 interval 30 ; no beacon"
+```
 
 ## Example Usage
 

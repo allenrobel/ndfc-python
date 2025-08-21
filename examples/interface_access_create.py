@@ -97,7 +97,7 @@ def interface_access_create(config):
         print(msg)
         return
 
-    if result.get("RETURN_CODE") not in [200, 201] or result.get("DATA", {}).get("MESSAGE") != "OK":
+    if result.get("RETURN_CODE") not in [200, 201]:
         msg = f"Error creating interface {instance.intf_name} on switch {instance.serial_number}. "
         msg += f"Controller response: {result}"
         log.error(msg)
