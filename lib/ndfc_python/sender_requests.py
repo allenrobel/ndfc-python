@@ -601,13 +601,13 @@ class Sender:
 
     @payload.setter
     def payload(self, value):
-        # method_name = inspect.stack()[0][3]
-        # if not isinstance(value, dict):
-        #     msg = f"{self.class_name}.{method_name}: "
-        #     msg += f"{method_name} must be a dict. "
-        #     msg += f"Got type {type(value).__name__}, "
-        #     msg += f"value {value}."
-        #     raise TypeError(msg)
+        method_name = inspect.stack()[0][3]
+        if not isinstance(value, dict) and not isinstance(value, list):
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"{method_name} must be a list or dict. "
+            msg += f"Got type {type(value).__name__}, "
+            msg += f"value {value}."
+            raise TypeError(msg)
         self._payload = value
 
     @property
