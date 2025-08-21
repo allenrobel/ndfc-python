@@ -175,16 +175,12 @@ class NetworkAttach:
         Return True if self.fabric_name exists on the controller.
         Return False otherwise.
         """
-        method_name = inspect.stack()[0][3]
         instance = FabricDetailsByName()
         # pylint: disable=no-member
         instance.rest_send = self.rest_send
         instance.results = self.results
         # pylint: enable=no-member
         instance.refresh()
-        msg = f"{self.class_name}.{method_name}: "
-        msg += f"ZZZ self.fabric_name: {self.fabric_name}"
-        print(msg)
         instance.filter = self.fabric_name
         if instance.filtered_data is None:
             return False
@@ -256,7 +252,6 @@ class NetworkAttach:
         payload = self._build_payload()
         self._final_verification()
 
-        print(f"ZZZ {self.class_name}.{method_name}: payload: {payload}")
         # TODO: Update when we add endpoint to ansible-dcnm
         path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics"
         path += f"/{self.fabric_name}/networks/attachments"
@@ -289,6 +284,8 @@ class NetworkAttach:
     def detach_switch_ports(self) -> str:
         """
         return the current value of detachSwitchPorts
+
+        detachSwitchPorts is converted from a list to a comma-separated string in the setter.
         """
         return self.properties.get("detachSwitchPorts")
 
@@ -333,6 +330,8 @@ class NetworkAttach:
     def freeform_config(self) -> str:
         """
         return the current value of freeformConfig
+
+        freeformConfig is converted from a list to a return-separated string in the setter.
         """
         return self.properties.get("freeformConfig")
 
@@ -410,6 +409,8 @@ class NetworkAttach:
     def tor_ports(self) -> str:
         """
         return the current value of torPorts
+
+        torPorts is converted from a list to a comma-separated string in the setter.
         """
         return self.properties.get("torPorts")
 
