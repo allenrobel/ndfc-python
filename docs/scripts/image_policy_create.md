@@ -6,7 +6,7 @@ Create or update one or more image policies.
 
 ## Example configuration file
 
-``` yaml title="config/config_image_policy_create.yaml"
+``` yaml title="config/image_policy_create.yaml"
 ---
 config:
     - name: KR5M
@@ -43,7 +43,7 @@ export ND_DOMAIN=local
 export ND_IP4=10.1.1.1
 export ND_PASSWORD=MySecret
 export ND_USERNAME=admin
-./image_policy_create.py --config config/config_image_policy_create.yaml
+./image_policy_create.py --config config/image_policy_create.yaml
 # output not shown
 ```
 
@@ -52,7 +52,7 @@ export ND_USERNAME=admin
 ### Image policies created successfully
 
 ``` bash title="Image policies create success"
-(.venv) AROBEL-M-G793% ./image_policy_create.py --config prod/config_image_policy_create.yaml
+(.venv) AROBEL-M-G793% ./image_policy_create.py --config prod/image_policy_create.yaml
 {
     "changed": true,
     "diff": [
@@ -132,7 +132,7 @@ export ND_USERNAME=admin
 ### Policy already exists, but requires a change to align with user's config
 
 ``` bash title="User config contains a modified description (policyDescr)"
-(.venv) AROBEL-M-G793% ./image_policy_create.py --config prod/config_image_policy_create.yaml
+(.venv) AROBEL-M-G793% ./image_policy_create.py --config prod/image_policy_create.yaml
 {
     "changed": true,
     "diff": [
@@ -184,7 +184,7 @@ export ND_USERNAME=admin
 ### No changes to image policies are required
 
 ``` bash title="Image policies do not require changes"
-(.venv) AROBEL-M-G793% ./image_policy_create.py --config prod/config_image_policy_create.yaml
+(.venv) AROBEL-M-G793% ./image_policy_create.py --config prod/image_policy_create.yaml
 {
     "changed": false,
     "diff": [],
@@ -216,7 +216,7 @@ config:
 ```
 
 ``` bash title="install package does not exist on the controller"
-(.venv) AROBEL-M-G793% ./image_policy_create.py --config prod/config_image_policy_create.yaml
+(.venv) AROBEL-M-G793% ./image_policy_create.py --config prod/image_policy_create.yaml
 unable to create/update image policies
 {
     "changed": false,

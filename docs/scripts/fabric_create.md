@@ -9,7 +9,7 @@ Create or update one or more fabrics.
 Note, for a description of all configuration parameters for all fabric types
 see [dcnm_fabric](https://allenrobel.github.io/dcnm-docpoc/modules/dcnm_fabric/).
 
-``` yaml title="config/config_fabric_create.yaml"
+``` yaml title="config/fabric_create.yaml"
 ---
 config:
   - FABRIC_NAME: MyFabric
@@ -36,7 +36,7 @@ export ND_DOMAIN=local
 export ND_IP4=10.1.1.1
 export ND_PASSWORD=MySecret
 export ND_USERNAME=admin
-./fabric_create.py --config config/config_fabric_create.yaml
+./fabric_create.py --config config/fabric_create.yaml
 # output not shown
 ```
 
@@ -45,7 +45,7 @@ export ND_USERNAME=admin
 ### Fabrics created successfully
 
 ``` bash title="Fabrics create success"
-(.venv) AROBEL-M-G793% ./fabric_create.py --config prod/config_fabric_create.yaml
+(.venv) AROBEL-M-G793% ./fabric_create.py --config prod/fabric_create.yaml
 {
     "changed": true,
     "diff": [
@@ -117,7 +117,7 @@ export ND_USERNAME=admin
 ### Fabrics already exist, and no changes are required
 
 ``` bash title="Fabrics do not require changes"
-(.venv) AROBEL-M-G793% ./fabric_create.py --ansible-vault $HOME/.ansible/vault --config prod/config_fabric_create.yaml
+(.venv) AROBEL-M-G793% ./fabric_create.py --ansible-vault $HOME/.ansible/vault --config prod/fabric_create.yaml
 Vault password:
 {
     "changed": false,
@@ -159,7 +159,7 @@ Below, we have changed ``REPLICATION_MODE`` and `BGP_AS` for fabric `MyFabric`
 Since `SITE_ID`, by default, is assigned the value of `BGP_AS`, we need to change
 it as well if we want it to be in sync with `BGP_AS`
 
-``` yaml title="config/config_fabric_create.yaml"
+``` yaml title="config/fabric_create.yaml"
 ---
 config:
   - FABRIC_NAME: MyFabric

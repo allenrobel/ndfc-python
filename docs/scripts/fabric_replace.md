@@ -9,7 +9,7 @@ Replace the configuration for one or more fabrics.
 Note, for a description of all configuration parameters for all fabric types
 see [dcnm_fabric](https://allenrobel.github.io/dcnm-docpoc/modules/dcnm_fabric/).
 
-``` yaml title="config/config_fabric_replace.yaml"
+``` yaml title="config/fabric_replace.yaml"
 ---
 config:
   - FABRIC_NAME: MyFabric
@@ -36,7 +36,7 @@ export ND_DOMAIN=local
 export ND_IP4=10.1.1.1
 export ND_PASSWORD=MySecret
 export ND_USERNAME=admin
-./fabric_replace.py --config config/config_fabric_replace.yaml
+./fabric_replace.py --config config/fabric_replace.yaml
 # output not shown
 ```
 
@@ -44,7 +44,7 @@ export ND_USERNAME=admin
 
 ### Fabric configurations replaced successfully
 
-``` yaml title="config/config_fabric_replace.yaml"
+``` yaml title="config/fabric_replace.yaml"
 ---
 config:
   - FABRIC_NAME: MyFabric
@@ -204,7 +204,7 @@ Vault password:
 ### No changes are required
 
 ``` bash title="Fabrics do not require changes"
-(.venv) AROBEL-M-G793% ./fabric_replace.py --ansible-vault $HOME/.ansible/vault --config prod/config_fabric_replace.yaml
+(.venv) AROBEL-M-G793% ./fabric_replace.py --ansible-vault $HOME/.ansible/vault --config prod/fabric_replace.yaml
 {
     "changed": false,
     "diff": [
@@ -244,7 +244,7 @@ Vault password:
 Below, we have changed ``REPLICATION_MODE`` for `MyFabric` and
 `IS_READ_ONLY` for `YourFabric`
 
-``` yaml title="config/config_fabric_replace.yaml"
+``` yaml title="config/fabric_replace.yaml"
 ---
 config:
   - FABRIC_NAME: MyFabric

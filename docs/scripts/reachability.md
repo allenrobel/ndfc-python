@@ -34,7 +34,7 @@ export ND_USERNAME=admin
 export NXOS_PASSWORD=MyNxosPassword
 export NXOS_USERNAME=admin
 cd $HOME/repos/ndfc-python/examples
-./reachability.py --config/config_reachability.yaml
+./reachability.py --config/reachability.yaml
 # output not shown
 sys_name: cvd-1313-leaf
   auth: True
@@ -68,7 +68,7 @@ export ND_USERNAME=admin
 export NXOS_PASSWORD=MyNxosPassword
 export NXOS_USERNAME=admin
 cd $HOME/repos/ndfc-python/examples
-./reachability.py --config/config_reachability.yaml
+./reachability.py --config/reachability.yaml
 # output not shown
 sys_name: cvd-1313-leaf
   auth: True
@@ -93,7 +93,7 @@ sys_name: cvd-1313-leaf
 ### Failure - Missing credential
 
 ``` bash
-(.venv) AROBEL-M-G793% ./reachability.py --config prod/config_reachability.yaml --ansible-vault $HOME/.ansible/vault
+(.venv) AROBEL-M-G793% ./reachability.py --config prod/reachability.yaml --ansible-vault $HOME/.ansible/vault
 Vault password:
 CredentialsAnsibleVault.commit: Exiting. ansible_vault is missing key nd_password. vault file: /Users/arobel/.ansible/vault
 (.venv) AROBEL-M-G793%
@@ -102,7 +102,7 @@ CredentialsAnsibleVault.commit: Exiting. ansible_vault is missing key nd_passwor
 ### Failure - Ansible Vault file is missing
 
 ``` bash
-(.venv) AROBEL-M-G793% ./reachability.py --config prod/config_reachability.yaml --ansible-vault $HOME/does_not_exist
+(.venv) AROBEL-M-G793% ./reachability.py --config prod/reachability.yaml --ansible-vault $HOME/does_not_exist
 Vault password:
 Exiting. Error detail: CredentialsAnsibleVault.commit: Unable to load credentials in  /Users/arobel/does_not_exist. Exception detail: AnsibleFileNotFound: Unable to retrieve file contents
 Could not find or access '/Users/arobel/does_not_exist' on the Ansible Controller.
@@ -113,7 +113,7 @@ If you are using a module and expect the file to exist on the remote, see the re
 ### Failure - fabric_name does not exist on the controller
 
 ```bash
-(.venv) AROBEL-M-G793% ./reachability.py --config prod/config_reachability.yaml --ansible-vault $HOME/.ansible/vault
+(.venv) AROBEL-M-G793% ./reachability.py --config prod/reachability.yaml --ansible-vault $HOME/.ansible/vault
 Vault password:
 Exiting. Error detail: Reachability.commit: fabric_name MyFabric1 does not exist on the controller.
 (.venv) AROBEL-M-G793%

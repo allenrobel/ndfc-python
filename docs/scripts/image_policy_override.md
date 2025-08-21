@@ -15,7 +15,7 @@ match the script configuration.
 
 ## Example configuration file
 
-``` yaml title="config/config_image_policy_override.yaml"
+``` yaml title="config/image_policy_override.yaml"
 ---
 config:
     - name: KR5M
@@ -47,7 +47,7 @@ export ND_DOMAIN=local
 export ND_IP4=10.1.1.1
 export ND_PASSWORD=MySecret
 export ND_USERNAME=admin
-./image_policy_override.py --config config/config_image_policy_override.yaml
+./image_policy_override.py --config config/image_policy_override.yaml
 # output not shown
 ```
 
@@ -62,7 +62,7 @@ Image policies `KR5M` and `NR1F` on the controller are updated to match the
 configuration file.
 
 ``` bash title="Successful execution"
-(.venv) AROBEL-M-G793% ./image_policy_override.py --config prod/config_image_policy_override.yaml
+(.venv) AROBEL-M-G793% ./image_policy_override.py --config prod/image_policy_override.yaml
 {
     "changed": true,
     "diff": [
@@ -189,7 +189,7 @@ config:
 ```
 
 ``` bash title="install package does not exist on the controller"
-(.venv) AROBEL-M-G793% ./image_policy_override.py --config prod/config_image_policy_override.yaml
+(.venv) AROBEL-M-G793% ./image_policy_override.py --config prod/image_policy_override.yaml
 unable to override one or more image policies
 {
     "changed": true,

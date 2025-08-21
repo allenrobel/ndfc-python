@@ -6,7 +6,7 @@ Returns switch information for one or more switches.
 
 ## Example configuration file
 
-``` yaml title="config/config_device_info.yaml"
+``` yaml title="config/device_info.yaml"
 ---
 config:
   - switch_ip4: 10.1.1.2
@@ -28,7 +28,7 @@ export ND_DOMAIN=local
 export ND_IP4=10.1.1.1
 export ND_PASSWORD=MySecret
 export ND_USERNAME=admin
-./device_info.py --config config/config_device_info.yaml
+./device_info.py --config config/device_info.yaml
 ipv4_address 10.1.1.2
   serial_number: FDO123456AB
   fabric_name: f1
@@ -47,7 +47,7 @@ ipv4_address 10.1.1.3
 ### Switch does not exist
 
 ``` bash title="switch does not exist"
-(.venv) AROBEL-M-G793% ./device_info.py --config prod/config_device_info.yaml
+(.venv) AROBEL-M-G793% ./device_info.py --config prod/device_info.yaml
 Unable to get switch details. Error details: SwitchDetails._get: Switch with ip_address 10.1.1.2 does not exist on the controller.
 (.venv) AROBEL-M-G793%
 ```
@@ -55,7 +55,7 @@ Unable to get switch details. Error details: SwitchDetails._get: Switch with ip_
 ### Invalid ip address in config file
 
 ``` bash title="Invalid switch_ip4 value in --config"
-(.venv) AROBEL-M-G793% ./device_info.py --config prod/config_device_info.yaml
+(.venv) AROBEL-M-G793% ./device_info.py --config prod/device_info.yaml
 1 validation error for DeviceInfoConfigValidator
 config.0.switch_ip4
   Input is not a valid IPv4 address [type=ip_v4_address, input_value='foo', input_type=str]

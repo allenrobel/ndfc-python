@@ -40,7 +40,7 @@ from the bootflash device on the active supervisor of switches 10.1.1.2 and
 
 The configuration file structure is identical to [bootflash_files_info](./bootflash_files_info.md)
 
-``` yaml title="config/config_bootflash_files_delete.yaml"
+```yaml title="config/bootflash_files_delete.yaml"
 ---
 config:
   targets:
