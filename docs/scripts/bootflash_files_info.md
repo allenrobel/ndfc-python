@@ -40,7 +40,7 @@ from the bootflash device on the active supervisor of switches 10.1.1.2 and
 
 The configuration file structure is identical to [delete](./bootflash_files_delete.md)
 
-``` yaml title="config/config_bootflash_files_info.yaml"
+``` yaml title="config/bootflash_files_info.yaml"
 ---
 config:
   targets:
@@ -68,7 +68,7 @@ export ND_DOMAIN=local
 export ND_IP4=10.1.1.1
 export ND_PASSWORD=MySecret
 export ND_USERNAME=admin
-./bootflash_files_info.py --config config/config_bootflash_files_info.yaml
+./bootflash_files_info.py --config config/bootflash_files_info.yaml
 # output not shown
 ```
 
@@ -77,7 +77,7 @@ export ND_USERNAME=admin
 ### Files searched successfully
 
 ``` bash title="Successful search"
-(.venv) arobel@AROBEL-M-G793 examples % ./bootflash_files_info.py --config prod/config_bootflash_files_info.yaml
+(.venv) arobel@AROBEL-M-G793 examples % ./bootflash_files_info.py --config prod/bootflash_files_info.yaml
 {
     "changed": false,
     "diff": [
@@ -378,7 +378,7 @@ export ND_USERNAME=admin
 ### Switch does not exist on the controller
 
 ``` bash title="Switch does not exist on the controller"
-(.venv) arobel@AROBEL-M-G793 examples % ./bootflash_files_info.py --config config/config_bootflash_files_info.yaml
+(.venv) arobel@AROBEL-M-G793 examples % ./bootflash_files_info.py --config config/bootflash_files_info.yaml
 Exiting.  Error detail: BootflashInfo.refresh_bootflash_info: serial_number not found for switch 10.1.1.2. Error detail SwitchDetails._get: Switch with ip_address 10.1.1.2 does not exist on the controller.
 (.venv) arobel@AROBEL-M-G793 examples %
 ```
@@ -386,7 +386,7 @@ Exiting.  Error detail: BootflashInfo.refresh_bootflash_info: serial_number not 
 ### Files not found
 
 ``` bash title="Files not found"
-(.venv) arobel@AROBEL-M-G793 examples % ./bootflash_files_info.py --config prod/config_bootflash_files_info.yaml
+(.venv) arobel@AROBEL-M-G793 examples % ./bootflash_files_info.py --config prod/bootflash_files_info.yaml
 {
     "changed": false,
     "diff": [

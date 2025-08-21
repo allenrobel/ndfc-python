@@ -11,7 +11,7 @@ always list the child fabrics first, followed by the parent fabric.
 
 The example below shows this scenario.
 
-``` yaml title="config/config_config_save.yaml"
+``` yaml title="config/config_save.yaml"
 ---
 config:
   - fabric_name: ChildFabric1
@@ -34,7 +34,7 @@ export ND_DOMAIN=local
 export ND_IP4=10.1.1.1
 export ND_PASSWORD=MySecret
 export ND_USERNAME=admin
-./config_save.py --config config/config_config_save.yaml
+./config_save.py --config config/config_save.yaml
 # output not shown
 ```
 
@@ -43,7 +43,7 @@ export ND_USERNAME=admin
 ### Success
 
 ``` bash title="Configurations saved successfully"
-(ndfc-python) arobel@Allen-M4 examples % ./config_save.py --config test_config_save.yaml --loglevel DEBUG
+(ndfc-python) arobel@Allen-M4 examples % ./config_save.py --config config/config_save.yaml --loglevel DEBUG
 Triggered Config Save for fabric 'SITE2':
 {
     "RETURN_CODE": 200,

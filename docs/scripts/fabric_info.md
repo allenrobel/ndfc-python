@@ -6,7 +6,7 @@ Returns fabric information for one or more fabrics.
 
 ## Example configuration file
 
-``` yaml title="config/config_fabric_info.yaml"
+``` yaml title="config/fabric_info.yaml"
 ---
 config:
   - fabric_name: MyFabric1
@@ -28,7 +28,7 @@ export ND_DOMAIN=local
 export ND_IP4=10.1.1.1
 export ND_PASSWORD=MySecret
 export ND_USERNAME=admin
-./fabric_info.py --config config/config_fabric_info.yaml
+./fabric_info.py --config config/fabric_info.yaml
 # output not shown
 ```
 
@@ -37,7 +37,7 @@ export ND_USERNAME=admin
 ### Success
 
 ``` bash
-(.venv) AROBEL-M-G793% ./fabric_info.py --config prod/config_fabric_info.yaml
+(.venv) AROBEL-M-G793% ./fabric_info.py --config prod/fabric_info.yaml
 {
     "asn": "65001",
     "createdOn": 1722963281113,
@@ -390,7 +390,7 @@ export ND_USERNAME=admin
 #### Fabric does not exist
 
 ``` bash
-(.venv) AROBEL-M-G793% ./fabric_info.py --config prod/config_fabric_info.yaml
+(.venv) AROBEL-M-G793% ./fabric_info.py --config prod/fabric_info.yaml
 Fabric MyFabric1 does not exist on the controller
 (.venv) AROBEL-M-G793%
 ```
@@ -398,7 +398,7 @@ Fabric MyFabric1 does not exist on the controller
 #### Invalid credentials
 
 ``` bash
-(.venv) AROBEL-M-G793% ./fabric_info.py --config prod/config_fabric_info.yaml --nd-username SomeRandomDude
+(.venv) AROBEL-M-G793% ./fabric_info.py --config prod/fabric_info.yaml --nd-username SomeRandomDude
 Exiting.  Error detail: NdfcPythonSender.commit: Unable to login to the controller. Error detail: Sender.update_token: Unable to parse token from response: {'RETURN_CODE': 401, 'DATA': {'error': 'Invalid Username/Password'}, 'MESSAGE': 'Unauthorized', 'METHOD': 'POST', 'REQUEST_PATH': 'https://10.1.1.1/login'}
 (.venv) AROBEL-M-G793%
 ```

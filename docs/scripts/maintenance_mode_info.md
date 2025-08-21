@@ -6,7 +6,7 @@ Enable or disable maintenance mode on one or more switches.
 
 ## Example configuration file
 
-``` yaml title="config/config_maintenance_mode_info.yaml"
+``` yaml title="config/maintenance_mode_info.yaml"
 ---
 config:
     - ip_address: 10.1.1.2
@@ -28,7 +28,7 @@ export ND_DOMAIN=local
 export ND_IP4=10.1.1.1
 export ND_PASSWORD=MySecret
 export ND_USERNAME=admin
-./maintenance_mode_info.py --config config/config_maintenance_mode_info.yaml
+./maintenance_mode_info.py --config config/maintenance_mode_info.yaml
 # output not shown
 ```
 
@@ -37,7 +37,7 @@ export ND_USERNAME=admin
 ### Success
 
 ``` bash title="Successful query for two switches"
-(.venv) AROBEL-M-G793% ./maintenance_mode_info.py --config prod/config_maintenance_mode_info.yaml
+(.venv) AROBEL-M-G793% ./maintenance_mode_info.py --config prod/maintenance_mode_info.yaml
 {
     "changed": false,
     "diff": [
@@ -97,7 +97,7 @@ export ND_USERNAME=admin
 ### Switch does not exist on the controller
 
 ``` bash title="Switch does not exist"
-(.venv) AROBEL-M-G793% ./maintenance_mode_info.py --config prod/config_maintenance_mode_info.yaml
+(.venv) AROBEL-M-G793% ./maintenance_mode_info.py --config prod/maintenance_mode_info.yaml
 Exiting.  Error detail: Query.commit: Error while retrieving switch information from the controller. Error detail: Query.get_have: Error while retrieving switch info. Error detail: SwitchDetails._get: Switch with ip_address 10.1.1.8 does not exist on the controller.
 (.venv) AROBEL-M-G793%
 ```
@@ -105,7 +105,7 @@ Exiting.  Error detail: Query.commit: Error while retrieving switch information 
 ### Invalid config file
 
 ``` bash title="config file contains incorrect value for ip_address"
-(.venv) AROBEL-M-G793% ./maintenance_mode_info.py --config prod/config_maintenance_mode_info.yaml
+(.venv) AROBEL-M-G793% ./maintenance_mode_info.py --config prod/maintenance_mode_info.yaml
 1 validation error for MaintenanceModeInfoConfigValidator
 config.0.ip_address
   Input is not a valid IPv4 address [type=ip_v4_address, input_value='foo', input_type=str]

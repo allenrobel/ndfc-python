@@ -34,7 +34,7 @@ export ND_DOMAIN=local
 export ND_IP4=10.1.1.1
 export ND_PASSWORD=MySecret
 export ND_USERNAME=admin
-./vrf_delete.py --config config/config_vrf_delete.yaml
+./vrf_delete.py --config config/vrf_delete.yaml
 # output not shown
 ```
 
@@ -43,7 +43,7 @@ export ND_USERNAME=admin
 ### Success
 
 ``` bash title="VRFs deleted successfully"
-(.venv) AROBEL-M-G793% ./vrf_delete.py --config prod/config_vrf_delete.yaml
+(.venv) AROBEL-M-G793% ./vrf_delete.py --config prod/vrf_delete.yaml
 Deleted vrfs MyVrf1,MyVrf2 from fabric f1
 (.venv) AROBEL-M-G793%(.venv) AROBEL-M-G793%
 ```

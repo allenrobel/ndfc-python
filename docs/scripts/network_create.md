@@ -6,7 +6,7 @@ Create one or more networks.
 
 ## Example configuration file
 
-``` yaml title="config/config_network_create.yaml"
+``` yaml title="config/network_create.yaml"
 ---
 config:
   - fabric_name: MyFabric1
@@ -40,7 +40,7 @@ export ND_DOMAIN=local
 export ND_IP4=10.1.1.1
 export ND_PASSWORD=MySecret
 export ND_USERNAME=admin
-./network_create.py --config config/config_network_create.yaml
+./network_create.py --config config/network_create.yaml
 # output not shown
 ```
 
@@ -49,7 +49,7 @@ export ND_USERNAME=admin
 ### Success
 
 ``` bash
-(.venv) AROBEL-M-G793% ./network_create.py --config prod/config_network_create.yaml
+(.venv) AROBEL-M-G793% ./network_create.py --config prod/network_create.yaml
 Network MyNet1 with id 30005 created in fabric MyFabric1
 Network MyNet2 with id 30006 created in fabric MyFabric1
 (.venv) AROBEL-M-G793%
@@ -58,7 +58,7 @@ Network MyNet2 with id 30006 created in fabric MyFabric1
 ### Failure
 
 ``` bash
-(.venv) AROBEL-M-G793% ./network_create.py --config prod/config_network_create.yaml
+(.venv) AROBEL-M-G793% ./network_create.py --config prod/network_create.yaml
 Error creating network. Error detail: NetworkCreate.commit: networkId 30005 already exists in fabric MyFabric1. Delete it before calling NetworkCreate.commit
 (.venv) AROBEL-M-G793%
 ```

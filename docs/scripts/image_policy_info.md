@@ -28,7 +28,7 @@ export ND_DOMAIN=local
 export ND_IP4=10.1.1.2
 export ND_PASSWORD=MySecret
 export ND_USERNAME=admin
-./device_info.py --config config/config_device_info.yaml
+./device_info.py --config config/device_info.yaml
 # output not shown
 ```
 

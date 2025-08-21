@@ -6,7 +6,7 @@ Enable or disable maintenance mode on one or more switches.
 
 ## Example configuration file
 
-``` yaml title="config/config_maintenance_mode.yaml"
+``` yaml title="config/maintenance_mode.yaml"
 ---
 config:
     - ip_address: 10.1.1.2
@@ -34,7 +34,7 @@ export ND_DOMAIN=local
 export ND_IP4=10.1.1.1
 export ND_PASSWORD=MySecret
 export ND_USERNAME=admin
-./maintenance_mode.py --config config/config_maintenance_mode.yaml
+./maintenance_mode.py --config config/maintenance_mode.yaml
 # output not shown
 ```
 
@@ -43,7 +43,7 @@ export ND_USERNAME=admin
 ### Success
 
 ``` bash title="Successful mode change for two switches"
-(.venv) AROBEL-M-G793% ./maintenance_mode.py --config prod/config_maintenance_mode.yaml
+(.venv) AROBEL-M-G793% ./maintenance_mode.py --config prod/maintenance_mode.yaml
 Maintenance mode change can take up to 5 minutes. Patience is a virtue.
 {
     "changed": true,
@@ -171,7 +171,7 @@ Maintenance mode change can take up to 5 minutes. Patience is a virtue.
 ### Script is run when no changes are needed
 
 ``` bash title="Controller state already matches configuration file."
-(.venv) AROBEL-M-G793% ./maintenance_mode.py --config prod/config_maintenance_mode.yaml
+(.venv) AROBEL-M-G793% ./maintenance_mode.py --config prod/maintenance_mode.yaml
 {
     "changed": false,
     "diff": [],
@@ -186,7 +186,7 @@ Maintenance mode change can take up to 5 minutes. Patience is a virtue.
 ### Switch does not exist on the controller
 
 ``` bash title="Switch does not exist"
-(.venv) AROBEL-M-G793% ./maintenance_mode.py --config prod/config_maintenance_mode.yaml
+(.venv) AROBEL-M-G793% ./maintenance_mode.py --config prod/maintenance_mode.yaml
 Exiting.  Error detail: Merged.get_have: Error while retrieving switch info. Error detail: SwitchDetails._get: Switch with ip_address 10.1.1.8 does not exist on the controller.
 (.venv) AROBEL-M-G793%
 ```
@@ -194,7 +194,7 @@ Exiting.  Error detail: Merged.get_have: Error while retrieving switch info. Err
 ### Invalid config file
 
 ``` bash title="config file contains incorrect value for mode"
-(.venv) AROBEL-M-G793% ./maintenance_mode.py --config prod/config_maintenance_mode.yaml
+(.venv) AROBEL-M-G793% ./maintenance_mode.py --config prod/maintenance_mode.yaml
 1 validation error for MaintenanceModeConfigValidator
 config.0.mode
   Input should be 'maintenance' or 'normal' [type=enum, input_value='normally', input_type=str]

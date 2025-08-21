@@ -9,7 +9,7 @@ by the configurations provided in the configuration file.
 
 ## Example configuration file
 
-``` yaml title="config/config_image_policy_replace.yaml"
+``` yaml title="config/image_policy_replace.yaml"
 ---
 config:
     - name: KR5M
@@ -46,7 +46,7 @@ export ND_DOMAIN=local
 export ND_IP4=10.1.1.1
 export ND_PASSWORD=MySecret
 export ND_USERNAME=admin
-./image_policy_replace.py --config config/config_image_policy_replace.yaml
+./image_policy_replace.py --config config/image_policy_replace.yaml
 # output not shown
 ```
 
@@ -55,7 +55,7 @@ export ND_USERNAME=admin
 ### Image policy configurations replaced successfully
 
 ``` bash title="Successful execution"
-(.venv) AROBEL-M-G793% ./image_policy_replace.py --config prod/config_image_policy_replace.yaml
+(.venv) AROBEL-M-G793% ./image_policy_replace.py --config prod/image_policy_replace.yaml
 {
     "changed": true,
     "diff": [
@@ -135,7 +135,7 @@ export ND_USERNAME=admin
 ### Image policies do not exist on the controller
 
 ``` bash title="Image policies no not exist"
-(.venv) AROBEL-M-G793% ./image_policy_replace.py --config prod/config_image_policy_replace.yaml
+(.venv) AROBEL-M-G793% ./image_policy_replace.py --config prod/image_policy_replace.yaml
 {
     "changed": false,
     "diff": [],
@@ -167,7 +167,7 @@ config:
 ```
 
 ``` bash title="install package does not exist on the controller"
-(.venv) AROBEL-M-G793% ./image_policy_replace.py --config prod/config_image_policy_replace.yaml
+(.venv) AROBEL-M-G793% ./image_policy_replace.py --config prod/image_policy_replace.yaml
 unable to replace image policy configuration(s)
 {
     "changed": false,

@@ -8,7 +8,7 @@ Create or update one or more image policies.
 
 Delete image policies KR5M and NR1F, if they exist.
 
-``` yaml title="config/config_image_policy_delete.yaml"
+``` yaml title="config/image_policy_delete.yaml"
 ---
 config:
     - name: KR5M
@@ -30,7 +30,7 @@ export ND_DOMAIN=local
 export ND_IP4=10.1.1.1
 export ND_PASSWORD=MySecret
 export ND_USERNAME=admin
-./image_policy_delete.py --config config/config_image_policy_delete.yaml
+./image_policy_delete.py --config config/image_policy_delete.yaml
 # output not shown
 ```
 
@@ -82,7 +82,7 @@ export ND_USERNAME=admin
 ### The specified image policies do not exist
 
 ``` bash title="Image policies do not exist"
-(.venv) AROBEL-M-G793% ./image_policy_delete.py --config prod/config_image_policy_delete.yaml
+(.venv) AROBEL-M-G793% ./image_policy_delete.py --config prod/image_policy_delete.yaml
 {
     "changed": false,
     "diff": [
@@ -120,7 +120,7 @@ export ND_USERNAME=admin
 ### One or more image policies have device(s) attached
 
 ``` bash title="Image policies have non-zero ref_count"
-(.venv) AROBEL-M-G793% ./image_policy_delete.py --config prod/config_image_policy_delete.yaml
+(.venv) AROBEL-M-G793% ./image_policy_delete.py --config prod/image_policy_delete.yaml
 Exiting.  Error detail: ImagePolicyDelete._get_policies_to_delete: ImagePolicyDelete._verify_image_policy_ref_count: One or more policies have devices attached. Detach these policies from all devices first using the dcnm_image_upgrade module, with state == deleted. policy_name: KR5M, ref_count: 1.
 (.venv) AROBEL-M-G793%
 ```
