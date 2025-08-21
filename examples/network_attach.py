@@ -42,7 +42,6 @@ import argparse
 import json
 import logging
 import sys
-from logging import config
 
 from ndfc_python.ndfc_python_logger import NdfcPythonLogger
 from ndfc_python.ndfc_python_sender import NdfcPythonSender
@@ -131,9 +130,9 @@ log = logging.getLogger("ndfc_python.main")
 log.setLevel = args.loglevel
 
 try:
-    config = ReadConfig()
-    config.filename = args.config
-    config.commit()
+    user_config = ReadConfig()
+    user_config.filename = args.config
+    user_config.commit()
 except ValueError as error:
     msg = f"Exiting: Error detail: {error}"
     log.error(msg)
@@ -141,7 +140,7 @@ except ValueError as error:
     sys.exit(1)
 
 try:
-    validator = NetworkAttachConfigValidator(**config.contents)
+    validator = NetworkAttachConfigValidator(**user_config.contents)
 except ValidationError as error:
     msg = f"{error}"
     log.error(msg)
