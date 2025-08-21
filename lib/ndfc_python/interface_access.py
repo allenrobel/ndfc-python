@@ -113,6 +113,7 @@ class InterfaceAccessCreate:
         self._nvpair_default["ACCESS_VLAN"] = ""
         self._nvpair_default["ADMIN_STATE"] = "true"
         self._nvpair_default["BPDUGUARD_ENABLED"] = "true"
+        self._nvpair_default["CONF"] = ""
         self._nvpair_default["DESC"] = ""
         self._nvpair_default["ENABLE_NETFLOW"] = "false"
         self._nvpair_default["MTU"] = "jumbo"

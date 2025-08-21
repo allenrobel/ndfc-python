@@ -84,7 +84,7 @@ def interface_access_create(config):
         instance.speed = config.get("speed")
         result = instance.commit()
     except ValueError as error:
-        errmsg = "Error creating network. "
+        errmsg = "Error creating interface. "
         errmsg += f"Error detail: {error}"
         log.error(errmsg)
         print(errmsg)
@@ -121,7 +121,7 @@ def setup_parser() -> argparse.Namespace:
             parser_nd_password,
             parser_nd_username,
         ],
-        description="DESCRIPTION: Create a network.",
+        description="DESCRIPTION: Create an access-mode interface.",
     )
     return parser.parse_args()
 
