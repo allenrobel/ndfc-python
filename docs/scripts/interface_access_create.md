@@ -22,7 +22,13 @@ config:
     ptp: False
     serial_number: 96KWEIQE2HC
     speed: Auto
-  ```
+```
+
+### Configuration Paramter Notes
+
+- access_vlan - This can take a value of an empty string if you want the interface to assume a vlan value from a network attach request.
+- admin_state - If True, the interface will be enabled (no shutdown).  If False, the interface will be disabled (shutdown).
+- freeform_config - This one needs work.  It should really be a list.  However, you can use statements like "beacon on; 
 
 ## Example Usage
 
@@ -73,11 +79,11 @@ Error creating interface thernet1/2 on switch 96KWEIQE2HC. Controller response: 
 
 ### Failure - Bad configuration value for porttype_fast_enabled
 
-``` bash title="Bad interface name"
+``` bash title="Bad porttype_fast_enabled value"
 (ndfc-python) arobel@Allen-M4 examples % ./interface_access_create.py --config config/interface_access_create.yaml
 1 validation error for InterfaceAccessCreateConfigValidator
 config.0.porttype_fast_enabled
-  Input should be a valid boolean, unable to interpret input [type=bool_parsing, input_value='rue', input_type=str]
+  Input should be a valid boolean, unable to interpret input [type=bool_parsing, input_value='foo', input_type=str]
     For further information visit https://errors.pydantic.dev/2.11/v/bool_parsing
 (ndfc-python) arobel@Allen-M4 examples %
 ```
