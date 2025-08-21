@@ -20,7 +20,7 @@ export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible/co
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
 ```
 
-3. Edit ./examples/config/config_interface_access_create.yaml with desired interface values
+3. Edit ./examples/config/interface_access_create.yaml with desired interface values
 
 4. Set credentials via script command line, environment variables, or Ansible Vault
 
@@ -28,7 +28,7 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 
 ``` bash
 ./examples/interface_access_create.py \
-    --config ./examples/config/config_interface_access_create.yaml \
+    --config ./examples/config/interface_access_create.yaml \
     --nd-domain local \
     --nd-ip4 10.1.1.1 \
     --nd-password password \

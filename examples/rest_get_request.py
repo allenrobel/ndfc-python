@@ -15,17 +15,16 @@ Send a REST GET request to the controller.
 PYTHONPATH should include this repository and the ansible-dcnm repository.
 
 ``` bash
-export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible-dcnm
+export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible/collections/ansible_collections/cisco/dcnm
 ```
 
 2. Optional, enable logging by setting the following environment variable.
 
 NDFC_LOGGING_CONFIG should point to a valid logging dictConfig file.
 
-https://docs.python.org/3/library/logging.config.html#logging.config.dictConfig
-
 ``` bash
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
+```
 
 3. Edit rest_send.path in the script below.
 

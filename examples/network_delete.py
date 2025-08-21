@@ -8,12 +8,18 @@ NOTES:
 1.  Set the following environment variables before running this script
     (edit appropriately for your setup)
 
-export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible-dcnm
+``` bash
+export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible/collections/ansible_collections/cisco/dcnm
+```
 
 Optional, to enable logging:
+
+``` bash
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
+```
 
 2. Edit the network values in the script below.
+
 """
 # pylint: disable=duplicate-code
 import argparse

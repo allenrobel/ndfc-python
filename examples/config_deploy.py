@@ -11,7 +11,7 @@ Trigger a Nexus Dashboard Config Deploy for one or more fabrics.
 1.  Modify PYTHONPATH appropriately for your setup before running this script
 
 ``` bash
-export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible-dcnm
+export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible/collections/ansible_collections/cisco/dcnm
 ```
 
 2. Optional, to enable logging.
@@ -28,7 +28,7 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 
 ``` bash
 ./examples/config_deploy.py \
-    --config ./examples/config/config_config_deploy.yaml \
+    --config ./examples/config/config_deploy.yaml \
     --nd-domain local \
     --nd-ip4 10.1.1.1 \
     --nd-password password \

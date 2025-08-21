@@ -9,14 +9,17 @@ Usage:
 
 1. Set the following environment variables appropriately for your setup:
 
-    export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
-    # The following contains the path to your Ansible Vault.  Not needed if you
-    # are not using Ansible Vault.
-    export NDFC_PYTHON_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/config/config.yml
-    export ND_USERNAME=admin
-    export ND_PASSWORD=MyPassword
-    export ND_DOMAIN=local
-    export ND_IP4=10.1.1.1
+``` bash
+export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible/collections/ansible_collections/cisco/dcnm
+export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
+# The following contains the path to your Ansible Vault.  Not needed if you
+# are not using Ansible Vault.
+export NDFC_PYTHON_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/config/config.yml
+export ND_USERNAME=admin
+export ND_PASSWORD=MyPassword
+export ND_DOMAIN=local
+export ND_IP4=10.1.1.1
+```
 
 1a. Alternately, you can override ND_USERNAME, ND_PASSWORD,
     ND_DOMAIN, and ND_IP4 within the script.  Examples:
