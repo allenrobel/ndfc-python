@@ -225,7 +225,6 @@ class NetworkAttach:
         _payload = []
         _payload_item = {}
         _payload_item["networkName"] = self.network_name
-        _payload_item["lanAttachList"] = []
         _lan_attach_list_item = {}
         _lan_attach_list_item["deployment"] = self.deployment
         _lan_attach_list_item["detachSwitchPorts"] = self.detach_switch_ports
@@ -243,7 +242,9 @@ class NetworkAttach:
         _lan_attach_list_item["untagged"] = self.untagged
         _lan_attach_list_item["vlan"] = self.vlan
 
-        _payload_item["lanAttachList"].append(_lan_attach_list_item)
+        _lan_attach_list = []
+        _lan_attach_list.append(_lan_attach_list_item)
+        _payload_item["lanAttachList"] = _lan_attach_list
         _payload.append(_payload_item)
         return _payload
 
