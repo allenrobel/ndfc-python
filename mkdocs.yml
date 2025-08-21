@@ -90,6 +90,7 @@ nav:
       - image_policy_info_all.py: scripts/image_policy_info_all.md
       - image_policy_override.py: scripts/image_policy_override.md
       - image_policy_replace.py: scripts/image_policy_replace.md
+      - interface_access_create.py: scripts/interface_access_create.md
       - maintenance_mode.py: scripts/maintenance_mode.md
       - maintenance_mode_info.py: scripts/maintenance_mode_info.md
       - network_create.py: scripts/network_create.md
