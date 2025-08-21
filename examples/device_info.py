@@ -22,13 +22,13 @@ If you've set the standard Nexus Dashboard credentials environment variables
 (ND_DOMAIN, ND_IP4, ND_PASSWORD, ND_USERNAME) then you're good to go.
 
 ```bash
-./device_info.py --config device_info_config.yaml
+./device_info.py --config config/device_info.yaml
 ```
 
 You can override the environment variables like so:
 
 ```bash
-./device_info.py --config device_info_config.yaml --nd-username admin --nd-password MyPassword --nd-domain local --nd-ip4 10.1.1.2
+./device_info.py --config config/device_info.yaml --nd-username admin --nd-password MyPassword --nd-domain local --nd-ip4 10.1.1.2
 ```
 
 """

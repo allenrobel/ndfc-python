@@ -11,7 +11,7 @@ Query maintenance mode status for a switch or switches.
 1.  Modify PYTHONPATH appropriately for your setup before running this script
 
 ``` bash
-export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible-dcnm
+export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible/collections/ansible_collections/cisco/dcnm
 ```
 
 2. Optional, to enable logging.
@@ -20,7 +20,7 @@ export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible-dc
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
 ```
 
-3. Edit ./examples/config/config_maintenance_mode_info.yaml with desired values
+3. Edit ./examples/config/maintenance_mode_info.yaml with desired values
 
 4. Set credentials via script command line, environment variables, or Ansible Vault
 
@@ -28,7 +28,7 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 
 ``` bash
 ./examples/maintenance_mode_info.py \
-    --config ./examples/config/config_maintenance_mode_info.yaml \
+    --config ./examples/config/maintenance_mode_info.yaml \
     --nd-domain local \
     --nd-ip4 10.1.1.1 \
     --nd-password password \

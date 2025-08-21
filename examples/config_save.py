@@ -11,7 +11,7 @@ Trigger a Config Save on one or more fabrics in NDFC.
 1.  Modify PYTHONPATH appropriately for your setup before running this script
 
 ``` bash
-export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible-dcnm
+export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible/collections/ansible_collections/cisco/dcnm
 ```
 
 2. Optional, to enable logging.
@@ -28,7 +28,7 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 
 ``` bash
 ./examples/config_save.py \
-    --config ./examples/config/config_config_save.yaml \
+    --config ./examples/config/config_save.yaml \
     --nd-domain local \
     --nd-ip4 10.1.1.1 \
     --nd-password password \

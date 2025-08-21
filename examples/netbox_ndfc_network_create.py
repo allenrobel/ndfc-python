@@ -16,11 +16,16 @@ NOTES:
 1.  Set the following environment variables before running this script
     (edit appropriately for your setup)
 
+``` bash
 export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/netbox-tools/lib
 export NDFC_PYTHON_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/config/config.yml
+```
 
 Optional, to enable logging:
+
+``` bash
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
+```
 
 2. This example depends on the netbox-tools library which can be found here:
 
@@ -28,8 +33,10 @@ https://github.com/allenrobel/netbox-tools
 
 3.  The netbox-tools library depends on pynetbox being installed.
 
+```
 source /path/to/your/venv/bin/active
 pip install pynetbox
+```
 
 4.  You'll be asked for the Ansible Vault password twice.  Once for access
     to the NDFC controller and once for access to your Netbox instance.
