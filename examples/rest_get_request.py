@@ -31,17 +31,6 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 The value should be a valid NDFC REST API endpoint.  A couple example endpoints
 are provided for you to try (ep_fabrics, and ep_issu)
 
-https://docs.python.org/3/library/logging.config.html#logging.config.dictConfig
-
-``` bash
-export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
-```
-
-3. Edit rest_send.path in the script below.
-
-The value should be a valid NDFC REST API endpoint.  A couple example endpoints
-are provided for you to try (ep_fabrics, and ep_issu)
-
 """
 # pylint: disable=duplicate-code
 import argparse
