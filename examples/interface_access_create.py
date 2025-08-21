@@ -90,12 +90,20 @@ def interface_access_create(config):
         print(errmsg)
         return
 
-    if result["RETURN_CODE"] not in [200, 201] or result["MESSAGE"] != "OK":
+    if result.get("RETURN_CODE") == 403 and result.get("MESSAGE") == "Forbidden":
+        msg = "Controller response (403 and MESSAGE 'Forbidden') implies "
+        msg += f"that serial_number {instance.serial_number} does not exist."
+        log.error(msg)
+        print(msg)
+        return
+
+    if result.get("RETURN_CODE") not in [200, 201] or result.get("DATA").get("MESSAGE") != "OK":
         msg = f"Error creating interface {instance.intf_name} on switch {instance.serial_number}. "
         msg += f"Controller response: {result}"
         log.error(msg)
         print(msg)
         return
+
     result_msg = f"Interface {instance.intf_name} "
     result_msg += f"created on switch {instance.serial_number}"
     log.info(result_msg)
