@@ -306,37 +306,13 @@ The previous script pushed a configuration to Nexus Dashboard, but did not save 
 Let's run a script to save this configuration into Nexus Dashboard's database.
 
 ```bash
-(ndfc-python) arobel@Allen-M4 examples % ./config_save.py --config $HOME/repos/ndfc-python/examples/config/config_config_save.yaml
-Triggered Config Save for fabric 'SITE1':
-{
-    "RETURN_CODE": 200,
-    "DATA": {
-        "status": "Config save is completed"
-    },
-    "MESSAGE": "OK",
-    "METHOD": "POST",
-    "REQUEST_PATH": "https://192.168.7.7/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/SITE1/config-save"
-}
-Triggered Config Save for fabric 'SITE2':
-{
-    "RETURN_CODE": 200,
-    "DATA": {
-        "status": "Config save is completed"
-    },
-    "MESSAGE": "OK",
-    "METHOD": "POST",
-    "REQUEST_PATH": "https://192.168.7.7/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/SITE2/config-save"
-}
-Triggered Config Save for fabric 'MSD':
-{
-    "RETURN_CODE": 200,
-    "DATA": {
-        "status": "Config save is completed"
-    },
-    "MESSAGE": "OK",
-    "METHOD": "POST",
-    "REQUEST_PATH": "https://192.168.7.7/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/MSD/config-save"
-}
+(ndfc-python) arobel@Allen-M4 examples % ./config_save.py --config test_config_save.yaml
+Triggering Config Save for fabric 'SITE1'
+Config save is completed
+Triggering Config Save for fabric 'SITE2'
+Config save is completed
+Triggering Config Save for fabric 'MSD'
+Config save is completed
 (ndfc-python) arobel@Allen-M4 examples %
 ```
 
@@ -345,37 +321,13 @@ Triggered Config Save for fabric 'MSD':
 The previous script saved the configuration.  We'll now deploy the configuration.
 
 ```bash
-(ndfc-python) arobel@Allen-M4 examples % ./config_deploy.py --config $HOME/repos/ndfc-python/examples/config/config_config_deploy.yaml
-Triggered Config Deploy for fabric 'SITE1':
-{
-    "RETURN_CODE": 200,
-    "DATA": {
-        "status": "Configuration deployment completed for fabric [SITE1]."
-    },
-    "MESSAGE": "OK",
-    "METHOD": "POST",
-    "REQUEST_PATH": "https://192.168.7.7/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/SITE1/config-deploy?forceShowRun=false"
-}
-Triggered Config Deploy for fabric 'SITE2':
-{
-    "RETURN_CODE": 200,
-    "DATA": {
-        "status": "Configuration deployment completed for fabric [SITE2]."
-    },
-    "MESSAGE": "OK",
-    "METHOD": "POST",
-    "REQUEST_PATH": "https://192.168.7.7/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/SITE2/config-deploy?forceShowRun=false"
-}
-Triggered Config Deploy for fabric 'MSD':
-{
-    "RETURN_CODE": 200,
-    "DATA": {
-        "status": "Configuration deployment completed for fabric [MSD]."
-    },
-    "MESSAGE": "OK",
-    "METHOD": "POST",
-    "REQUEST_PATH": "https://192.168.7.7/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/MSD/config-deploy?forceShowRun=false"
-}
+(ndfc-python) arobel@Allen-M4 examples % ./config_deploy.py --config test_config_deploy.yaml
+Triggering Config Deploy for fabric 'SITE1'
+Configuration deployment completed for fabric [SITE1].
+Triggering Config Deploy for fabric 'SITE2'
+Configuration deployment completed for fabric [SITE2].
+Triggering Config Deploy for fabric 'MSD'
+Configuration deployment completed for fabric [MSD].
 (ndfc-python) arobel@Allen-M4 examples %
 ```
 
