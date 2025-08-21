@@ -69,7 +69,6 @@ def network_attach(cfg: dict) -> None:
         instance = NetworkAttach()
         instance.rest_send = rest_send
         instance.results = Results()
-        print(f"ZZZ network_attach: cfg {cfg}")
         instance.deployment = cfg.get("deployment")
         instance.detach_switch_ports = cfg.get("detachSwitchPorts", [])
         instance.dot1q_vlan = cfg.get("dot1qVlan")
