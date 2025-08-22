@@ -92,6 +92,15 @@ def network_attach(cfg: dict) -> None:
         print(errmsg)
         return
 
+    if instance.rest_send.response_current.get("RESULT_CODE") not in (200, 201):
+        if instance.rest_send.response_current.get("DATA", {}).get("message"):
+            errmsg = instance.rest_send.response_current.get("DATA", {}).get("message")
+        else:
+            errmsg = "Error attaching network. "
+            errmsg += f"Controller response: {instance.rest_send.response_current}"
+        log.error(errmsg)
+        print(errmsg)
+        return
     result_msg = f"Network {instance.network_name} "
     result_msg += f"attached to fabric {instance.fabric_name}, "
     result_msg += f"serial number {instance.serial_number}."
