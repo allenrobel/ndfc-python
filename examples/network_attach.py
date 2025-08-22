@@ -92,7 +92,7 @@ def network_attach(cfg: dict) -> None:
         print(errmsg)
         return
 
-    if instance.rest_send.response_current.get("RESULT_CODE") not in (200, 201):
+    if instance.rest_send.response_current.get("RETURN_CODE") not in (200, 201):
         if instance.rest_send.response_current.get("DATA", {}).get("message"):
             errmsg = instance.rest_send.response_current.get("DATA", {}).get("message")
         else:

@@ -72,58 +72,7 @@ class NetworkAttach:
         self._rest_send = None
         self._results = None
 
-        self._payload_set = set()
-        self._payload_set_mandatory = set()
-        self._payload_default = {}
         self.properties = {}
-
-        self._init_payload_set()
-        self._init_payload_default()
-        self._init_payload()
-
-    def _init_payload_set(self):
-        """
-        set of all payload keys
-        """
-        self._payload_set.add("deployment")
-        self._payload_set.add("detachSwitchPorts")
-        self._payload_set.add("dot1QVlan")
-        self._payload_set.add("extensionValues")
-        self._payload_set.add("fabric")
-        self._payload_set.add("freeformConfig")
-        self._payload_set.add("instanceValues")
-        self._payload_set.add("msoCreated")
-        self._payload_set.add("networkName")
-        self._payload_set.add("serialNumber")
-        self._payload_set.add("switchPorts")
-        self._payload_set.add("torPorts")
-        self._payload_set.add("untagged")
-        self._payload_set.add("vlan")
-
-    def _init_payload_default(self):
-        """
-        set of all default payload keys
-
-        These are keys for which the caller does not have to provide a value
-        unless they specifically want to change them.
-        """
-        # fmt: off
-        self._payload_default["deployment"] = True
-        self._payload_default["detachSwitchPorts"] = ""
-        self._payload_default["dot1QVlan"] = ""
-        self._payload_default["extensionValues"] = ""
-        self._payload_default["freeformConfig"] = ""
-        self._payload_default["instanceValues"] = ""
-        self._payload_default["msoCreated"] = False
-        self._payload_default["msoSetVlan"] = False
-        self._payload_default["switchPorts"] = ""
-        self._payload_default["torPorts"] = ""
-        self._payload_default["untagged"] = True
-        self._payload_default["vlan"] = ""
-        # fmt: on
-
-    def _init_payload(self):
-        self.payload = []
 
     def _list_to_string(self, lst: list[str]) -> str:
         """
