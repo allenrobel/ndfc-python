@@ -63,7 +63,7 @@ from pydantic import ValidationError
 
 def network_attach(cfg: dict) -> None:
     """
-    Given a network configuration, create the network.
+    Given a network-attach configuration, attach the network.
     """
     try:
         instance = NetworkAttach()
@@ -127,7 +127,7 @@ def setup_parser() -> argparse.Namespace:
             parser_nd_password,
             parser_nd_username,
         ],
-        description="DESCRIPTION: Create a network.",
+        description="DESCRIPTION: Attach a network.",
     )
     return parser.parse_args()
 
