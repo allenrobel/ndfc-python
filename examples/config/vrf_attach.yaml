@@ -1,0 +1,32 @@
+---
+config:
+  - deployment: true
+    extension_values: ""
+    fabric_name: SITE1
+    freeform_config: []
+    instance_values:
+      loopback_id: 131
+      loopback_ip_address: 10.19.0.131
+      loopback_ip_v6_address: ""
+      switch_route_target_import_evpn: ""
+      switch_route_target_export_evpn: ""
+    mso_created: false
+    mso_set_vlan: false
+    serial_number: 96KWEIQE2HC
+    vlan: 2001
+    vrf_name: ndfc-python-vrf1
+  - deployment: true
+    extension_values: ""
+    fabric_name: SITE2
+    freeform_config: []
+    instance_values:
+      loopback_id: 131
+      loopback_ip_address: 10.19.0.131
+      loopback_ip_v6_address: ""
+      switch_route_target_import_evpn: ""
+      switch_route_target_export_evpn: ""
+    mso_created: false
+    mso_set_vlan: false
+    serial_number: 9OW9132EH2M
+    vlan: 2001
+    vrf_name: ndfc-python-vrf1
