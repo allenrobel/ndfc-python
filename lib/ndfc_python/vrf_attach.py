@@ -135,34 +135,6 @@ class VrfAttach:
             return False
         return True
 
-    def network_name_exists_in_fabric(self):
-        """
-        Return True if networkName exists in the fabric.
-        Else return False
-        """
-        method_name = inspect.stack()[0][3]
-        # TODO: Update when we add endpoint to ansible-dcnm
-        path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics"
-        path += f"/{self.fabric_name}/networks"
-        verb = "GET"
-
-        # pylint: disable=no-member
-        try:
-            self.rest_send.path = path
-            self.rest_send.verb = verb
-            self.rest_send.commit()
-        except (TypeError, ValueError) as error:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"Unable to send {self.rest_send.verb} request to the controller. "
-            msg += f"Error details: {error}"
-            raise ValueError(msg) from error
-        for item in self.rest_send.response_current["DATA"]:
-            if "networkName" not in item:
-                continue
-            if item["networkName"] == self.network_name:
-                return True
-        return False
-
     def vrf_name_exists_in_fabric(self):
         """
         Return True if self.vrf exists in self.fabric_name.
@@ -245,9 +217,11 @@ class VrfAttach:
             raise ValueError(msg) from error
 
     @property
-    def deployment(self) -> bool:
+    def deployment(self) -> str:
         """
         return the current value of deployment
+
+        Note: the setter takes a bool and converts it to a lowercase string.
         """
         return self.properties.get("deployment")
 
@@ -302,9 +276,11 @@ class VrfAttach:
         self.properties["instanceValues"] = json.dumps(value)
 
     @property
-    def mso_created(self) -> bool:
+    def mso_created(self) -> str:
         """
         return the current value of msoCreated
+
+        Note: the setter takes a bool and converts it to a lowercase string.
         """
         return self.properties.get("msoCreated")
 
@@ -313,9 +289,11 @@ class VrfAttach:
         self.properties["msoCreated"] = str(value).lower()
 
     @property
-    def mso_set_vlan(self) -> bool:
+    def mso_set_vlan(self) -> str:
         """
         return the current value of msoSetVlan
+
+        Note: the setter takes a bool and converts it to a lowercase string.
         """
         return self.properties.get("msoSetVlan")
 
