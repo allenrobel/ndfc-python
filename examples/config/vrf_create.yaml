@@ -2,12 +2,11 @@
 config:
   - fabric_name: MSD
     vrf_display_name: ndfc-python-vrf1
-    vrf_id: 50005
+    vrf_id: 50001
     vrf_name: ndfc-python-vrf1
-    vrf_vlan_id: 3005
+    vrf_vlan_id: 2001
   - fabric_name: MSD
     vrf_display_name: ndfc-python-vrf2
-    vrf_id: 50006
+    vrf_id: 50002
     vrf_name: ndfc-python-vrf2
-    vrf_vlan_id: 3006
-
+    vrf_vlan_id: 2002
