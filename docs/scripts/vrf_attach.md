@@ -10,22 +10,38 @@ Attach one or more VRFs.
 ---
 config:
   - deployment: true
-    detach_switch_ports: []
-    dot1q_vlan: ""
     extension_values: ""
     fabric_name: SITE1
     freeform_config: []
-    instance_values: ""
+    instance_values:
+      loopback_id: 131
+      loopback_ip_address: 10.19.0.131
+      loopback_ip_v6_address: ""
+      switch_route_target_import_evpn: ""
+      switch_route_target_export_evpn: ""
     mso_created: false
     mso_set_vlan: false
-    vrf_name: ndfc-python-vrf1
     serial_number: 96KWEIQE2HC
-    switch_ports:
-      - Ethernet1/2
-    untagged: true
-    tor_ports: []
-    vlan: 2301
+    vlan: 2001
+    vrf_name: ndfc-python-vrf1
 ```
+
+### Configuration Notes
+
+#### instance_values
+
+- If the fabric is configured with `Per VRF Per VTEP Loopback IPv4 Auto-Provision`
+  - instance_values.loopback_id must be set
+  - instance_values.loopback_ip_address must be set to a value within the range configured in `Per VRF Per Loopback IPv4 Pool for Loopbacks`
+  - You'll find the `Per VRF Per Loopback` parameters under `Fabric Settings` -> `Resources`
+  - The same applies for `Per VRF Per VTEP Loopback IPv6 Auto-Provision`
+
+#### extension_values
+
+- We do not currently support these directly.
+- If you know what you're doing, you can pass a proper JSON string with appropriate values and it might work.
+- However, when we DO support this, a YAML dictionary will be expected (similar to `instance_values`)
+- We hope to add support in the next couple weeks e.g. by early September, 2025.
 
 ## Example Usage
 
