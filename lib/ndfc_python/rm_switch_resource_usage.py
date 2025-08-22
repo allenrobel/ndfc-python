@@ -107,7 +107,7 @@ class RmSwitchResourceUsage:
 
     def commit(self):
         """
-        Attach a vrf to a switch
+        Retrieve switch resource usage by sending a GET request to the controller.
         """
         method_name = inspect.stack()[0][3]
 
