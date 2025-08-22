@@ -159,7 +159,9 @@ class RmSwitchResourceUsage:
             msg = f"{self.class_name}.resource_usage: "
             msg += "serial_number must be set before accessing resource_usage"
             raise ValueError(msg)
-        data: list = self.rest_send.response_current.get("DATA")  # pylint: disable=no-member
+        # pylint: disable=no-member
+        data: list = self.rest_send.response_current.get("DATA")  # type: ignore[attr-defined]
+        # pylint: enable=no-member
         if self.filter == ResourcePool.ALL.value or self.filter is None:
             return data
 
