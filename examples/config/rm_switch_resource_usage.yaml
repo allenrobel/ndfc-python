@@ -1,0 +1,6 @@
+---
+config:
+  - serial_number: 9OW9132EH2M
+    pool_name: ALL
+  - serial_number: 9OW9132EH2M
+    pool_name: TOP_DOWN_VRF_VLAN
