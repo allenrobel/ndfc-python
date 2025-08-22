@@ -5,7 +5,7 @@ network_attach.py
 
 # Description
 
-Send network create POST requests to the controller
+Send network attach POST requests to the controller
 
 # Payload Example
 
@@ -134,7 +134,7 @@ class NetworkAttach:
 
     def _freeform_config_to_string(self, lst: list[str]) -> str:
         """
-        Convert the freeform config list to a return-separated string.
+        Convert the freeform config list to a newline-separated string.
         Empty list is converted to ""
         """
         return "\n".join(lst)
@@ -331,7 +331,7 @@ class NetworkAttach:
         """
         return the current value of freeformConfig
 
-        freeformConfig is converted from a list to a return-separated string in the setter.
+        freeformConfig is converted from a list to a newline-separated string in the setter.
         """
         return self.properties.get("freeformConfig")
 
