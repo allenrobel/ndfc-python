@@ -93,6 +93,7 @@ nav:
       - interface_access_create.py: scripts/interface_access_create.md
       - maintenance_mode.py: scripts/maintenance_mode.md
       - maintenance_mode_info.py: scripts/maintenance_mode_info.md
+      - network_attach.py: scripts/network_attach.md
       - network_create.py: scripts/network_create.md
       - network_delete.py: scripts/network_delete.md
       - reachability.py: scripts/reachability.md

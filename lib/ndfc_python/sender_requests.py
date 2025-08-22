@@ -144,7 +144,6 @@ class Sender:
         self.url = None
         self._username = environ.get("ND_USERNAME", "admin")
         self._verb = None
-        
 
     def _verify_commit_parameters(self):
         """
@@ -203,7 +202,7 @@ class Sender:
         self.get_url()
         msg = f"{self.class_name}.{method_name}: "
         msg += f"caller: {caller}.  "
-        msg += f"Calling requests with: "
+        msg += "Calling requests with: "
         msg += f"verb {self.verb}, "
         msg += f"path {self.path}, "
         msg += f"url {self.url}, "
@@ -602,9 +601,9 @@ class Sender:
     @payload.setter
     def payload(self, value):
         method_name = inspect.stack()[0][3]
-        if not isinstance(value, dict):
+        if not isinstance(value, dict) and not isinstance(value, list):
             msg = f"{self.class_name}.{method_name}: "
-            msg += f"{method_name} must be a dict. "
+            msg += f"{method_name} must be a list or dict. "
             msg += f"Got type {type(value).__name__}, "
             msg += f"value {value}."
             raise TypeError(msg)
