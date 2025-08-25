@@ -365,7 +365,7 @@ Switch 9OW9132EH2M resource usage. Filter: TOP_DOWN_VRF_VLAN.[
         "hierarchicalKey": "0"
     }
 ]
-(ndfc-python) arobel@Allen-M4 examples % black rm_switch_resource_usage.py
+(ndfc-python) arobel@Allen-M4 examples %
 ```
 
 ### Failure - Invalid configuration
