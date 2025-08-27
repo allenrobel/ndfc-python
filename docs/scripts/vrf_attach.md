@@ -9,19 +9,23 @@ Attach one or more VRFs.
 ``` yaml title="config/vrf_attach.yaml"
 ---
 config:
+  # Topology
   # LE1--SP1--BG1---BG2--SP2--LE2
+
+  # SITE1
+
   # BG1 - Border Gateway
   - deployment: true
     extension_values:
-      auto_vrf_lite_flag: true
-      dot1q_id: "3"
-      if_name: Ethernet1/1
-      ip_mask: "10.33.0.1/30"
-      ipv6_mask: "2010::10:33:0:1/64"
-      neighbor_asn: "65002"
-      neighbor_ip: 10.33.0.2
-      ipv6_neighbor: "2010::10:33:0:2"
-      peer_vrf_name: ndfc-python-vrf1
+      - auto_vrf_lite_flag: true
+        dot1q_id: "3"
+        if_name: Ethernet1/1
+        ip_mask: "10.33.0.1/30"
+        ipv6_mask: "2010::10:33:0:1/64"
+        neighbor_asn: "65002"
+        neighbor_ip: 10.33.0.2
+        ipv6_neighbor: "2010::10:33:0:2"
+        peer_vrf_name: ndfc-python-vrf1
     fabric_name: SITE1
     freeform_config: []
     instance_values:
@@ -33,9 +37,11 @@ config:
     serial_number: 9IMIT2HLNO2
     vlan: 2001
     vrf_name: ndfc-python-vrf1
+
   # LE1 - Leaf
   - deployment: true
-    extension_values: {}
+    extension_values:
+      - {}
     fabric_name: SITE1
     freeform_config: []
     instance_values:
@@ -48,18 +54,20 @@ config:
     vlan: 2001
     vrf_name: ndfc-python-vrf1
 
+  # SITE2
+
   # BG2 - Border Gateway
   - deployment: true
     extension_values:
-      auto_vrf_lite_flag: true
-      dot1q_id: "3"
-      if_name: Ethernet1/1
-      ip_mask: "10.33.0.2/30"
-      ipv6_mask: "2010::10:33:0:2/64"
-      neighbor_asn: "65001"
-      neighbor_ip: 10.33.0.1
-      ipv6_neighbor: "2010::10:33:0:1"
-      peer_vrf_name: ndfc-python-vrf1
+      - auto_vrf_lite_flag: true
+        dot1q_id: "3"
+        if_name: Ethernet1/1
+        ip_mask: "10.33.0.2/30"
+        ipv6_mask: "2010::10:33:0:2/64"
+        neighbor_asn: "65001"
+        neighbor_ip: 10.33.0.1
+        ipv6_neighbor: "2010::10:33:0:1"
+        peer_vrf_name: ndfc-python-vrf1
     fabric_name: SITE2
     freeform_config: []
     instance_values:
@@ -71,9 +79,11 @@ config:
     serial_number: 9Q3FOROSWIP
     vlan: 2001
     vrf_name: ndfc-python-vrf1
+
   # LE2 - Leaf
   - deployment: true
-    extension_values: {}
+    extension_values:
+      - {}
     fabric_name: SITE2
     freeform_config: []
     instance_values:

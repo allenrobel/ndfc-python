@@ -233,15 +233,16 @@ class VrfAttach:
         return self.properties.get("extensionValues")
 
     @extension_values.setter
-    def extension_values(self, value: dict) -> None:
-        inner: dict = {}
-        if value.get("IF_NAME") is None or value.get("IF_NAME") == "":
-            self.properties["extensionValues"] = json.dumps(inner)
-            return
-        inner = value.copy()
-        inner["AUTO_VRF_LITE_FLAG"] = str(inner.get("AUTO_VRF_LITE_FLAG", True)).lower()
+    def extension_values(self, value: list) -> None:
+        vrf_lite_conn_list = []
+        for item in value:
+            if item.get("IF_NAME") is None or item.get("IF_NAME") == "":
+                continue
+            vrf_lite_conn_item: dict = item.copy()
+            vrf_lite_conn_item["AUTO_VRF_LITE_FLAG"] = str(vrf_lite_conn_item.get("AUTO_VRF_LITE_FLAG", True)).lower()
+            vrf_lite_conn_list.append(vrf_lite_conn_item)
         outer = {}
-        outer["VRF_LITE_CONN"] = json.dumps({"VRF_LITE_CONN": [inner]})
+        outer["VRF_LITE_CONN"] = json.dumps({"VRF_LITE_CONN": vrf_lite_conn_list})
         outer["MULTISITE_CONN"] = json.dumps({"MULTISITE_CONN": []})
         self.properties["extensionValues"] = json.dumps(outer)
 
