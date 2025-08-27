@@ -19,12 +19,10 @@ Send vrf attach POST requests to the controller
         "lanAttachList": [
             {
                 "deployment": "true",
-                "extensionValues": "{}",
+                "extensionValues": "{\"content\":\"removed\"}",
                 "fabric": SITE1,
                 "freeformConfig": "",
                 "instanceValues": "{\"content\":\"removed\"}",
-                "msoCreated": "false",
-                "msoSetVlan": "",
                 "serialNumber": 96KWEIQE2HC,
                 "vlan": 2300,
                 "vrfName": ndfc-python-vrf1
@@ -178,8 +176,6 @@ class VrfAttach:
         _lan_attach_list_item["fabric"] = self.fabric_name
         _lan_attach_list_item["freeformConfig"] = self.freeform_config
         _lan_attach_list_item["instanceValues"] = self.instance_values
-        _lan_attach_list_item["msoCreated"] = self.mso_created
-        _lan_attach_list_item["msoSetVlan"] = self.mso_set_vlan
         _lan_attach_list_item["serialNumber"] = self.serial_number
         _lan_attach_list_item["vlan"] = self.vlan
         _lan_attach_list_item["vrfName"] = self.vrf_name
@@ -237,8 +233,17 @@ class VrfAttach:
         return self.properties.get("extensionValues")
 
     @extension_values.setter
-    def extension_values(self, value: str) -> None:
-        self.properties["extensionValues"] = value
+    def extension_values(self, value: dict) -> None:
+        if value.get("IF_NAME") is None or value.get("IF_NAME") == "":
+            inner = {}
+            self.properties["extensionValues"] = json.dumps(inner)
+            return
+        inner = value.copy()
+        inner["AUTO_VRF_LITE_FLAG"] = str(inner.get("AUTO_VRF_LITE_FLAG", True)).lower()
+        outer = {}
+        outer["VRF_LITE_CONN"] = json.dumps({"VRF_LITE_CONN": [inner]})
+        outer["MULTISITE_CONN"] = json.dumps({"MULTISITE_CONN": []})
+        self.properties["extensionValues"] = json.dumps(outer)
 
     @property
     def fabric_name(self) -> str:
@@ -274,32 +279,6 @@ class VrfAttach:
     @instance_values.setter
     def instance_values(self, value: dict) -> None:
         self.properties["instanceValues"] = json.dumps(value)
-
-    @property
-    def mso_created(self) -> str:
-        """
-        return the current value of msoCreated
-
-        Note: the setter takes a bool and converts it to a lowercase string.
-        """
-        return self.properties.get("msoCreated")
-
-    @mso_created.setter
-    def mso_created(self, value: bool) -> None:
-        self.properties["msoCreated"] = str(value).lower()
-
-    @property
-    def mso_set_vlan(self) -> str:
-        """
-        return the current value of msoSetVlan
-
-        Note: the setter takes a bool and converts it to a lowercase string.
-        """
-        return self.properties.get("msoSetVlan")
-
-    @mso_set_vlan.setter
-    def mso_set_vlan(self, value: bool) -> None:
-        self.properties["msoSetVlan"] = str(value).lower()
 
     @property
     def serial_number(self) -> str:
