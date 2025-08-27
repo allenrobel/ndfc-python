@@ -1,9 +1,9 @@
-from pydantic import field_validator, field_serializer, BaseModel, Field, PositiveInt, StrictBool
+from pydantic import BaseModel, Field, PositiveInt, StrictBool, field_serializer, field_validator
 
 from ..common.models.ipv4_cidr_host import IPv4CidrHostModel
 from ..common.models.ipv4_host import IPv4HostModel
-from ..common.models.ipv6_host import IPv6HostModel
 from ..common.models.ipv6_cidr_host import IPv6CidrHostModel
+from ..common.models.ipv6_host import IPv6HostModel
 
 
 class ExtensionValues(BaseModel):
@@ -82,6 +82,7 @@ class ExtensionValues(BaseModel):
         Serialize AUTO_VRF_LITE_FLAG to a string representation.
         """
         return str(value).lower()
+
 
 class InstanceValues(BaseModel):
     """Model for instance values in VRF attach requests."""
