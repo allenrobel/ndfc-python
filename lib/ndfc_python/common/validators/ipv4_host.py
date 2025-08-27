@@ -40,7 +40,7 @@ def validate_ipv4_host(value: str) -> bool:
         return False
 
     try:
-        __ = IPv4Address(value)  # pylint: disable=unused-variable
+        IPv4Address(value)  # pylint: disable=pointless-statement
     except AddressValueError:
         return False
 
