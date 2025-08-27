@@ -70,12 +70,10 @@ def vrf_attach(cfg: dict) -> None:
         instance.rest_send = rest_send
         instance.results = Results()
         instance.deployment = cfg.get("deployment")
-        instance.extension_values = cfg.get("extensionValues", "")
+        instance.extension_values = cfg.get("extensionValues")
         instance.fabric_name = cfg.get("fabric", "")
         instance.freeform_config = cfg.get("freeformConfig", [])
         instance.instance_values = cfg.get("instanceValues")
-        instance.mso_created = cfg.get("msoCreated", False)
-        instance.mso_set_vlan = cfg.get("msoSetVlan", False)
         instance.serial_number = cfg.get("serialNumber")
         instance.switch_ports = cfg.get("switchPorts", [])
         instance.vlan = cfg.get("vlan")

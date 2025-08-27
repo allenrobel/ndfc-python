@@ -1,32 +1,73 @@
 ---
 config:
   - deployment: true
-    extension_values: ""
+    extension_values:
+      auto_vrf_lite_flag: true
+      dot1q_id: "3"
+      if_name: Ethernet1/1
+      ip_mask: "10.33.0.1/30"
+      ipv6_mask: "2010::10:33:0:1/64"
+      neighbor_asn: "65002"
+      neighbor_ip: 10.33.0.2
+      ipv6_neighbor: "2010::10:33:0:2"
+      peer_vrf_name: ndfc-python-vrf1
     fabric_name: SITE1
     freeform_config: []
     instance_values:
-      loopback_id: 131
-      loopback_ip_address: 10.19.0.131
+      loopback_id: 111
+      loopback_ip_address: 10.19.0.141
       loopback_ip_v6_address: ""
       switch_route_target_import_evpn: ""
       switch_route_target_export_evpn: ""
-    mso_created: false
-    mso_set_vlan: false
-    serial_number: 96KWEIQE2HC
+    serial_number: 9IMIT2HLNO2
     vlan: 2001
     vrf_name: ndfc-python-vrf1
   - deployment: true
-    extension_values: ""
-    fabric_name: SITE2
+    extension_values: {}
+    fabric_name: SITE1
     freeform_config: []
     instance_values:
-      loopback_id: 131
+      loopback_id: 111
       loopback_ip_address: 10.19.0.131
       loopback_ip_v6_address: ""
       switch_route_target_import_evpn: ""
       switch_route_target_export_evpn: ""
-    mso_created: false
-    mso_set_vlan: false
+    serial_number: 96KWEIQE2HC
+    vlan: 2001
+    vrf_name: ndfc-python-vrf1
+
+  - deployment: true
+    extension_values:
+      auto_vrf_lite_flag: true
+      dot1q_id: "3"
+      if_name: Ethernet1/1
+      ip_mask: "10.33.0.2/30"
+      ipv6_mask: "2010::10:33:0:2/64"
+      neighbor_asn: "65001"
+      neighbor_ip: 10.33.0.1
+      ipv6_neighbor: "2010::10:33:0:1"
+      peer_vrf_name: ndfc-python-vrf1
+    fabric_name: SITE2
+    freeform_config: []
+    instance_values:
+      loopback_id: 111
+      loopback_ip_address: 10.19.0.142
+      loopback_ip_v6_address: ""
+      switch_route_target_import_evpn: ""
+      switch_route_target_export_evpn: ""
+    serial_number: 9Q3FOROSWIP
+    vlan: 2001
+    vrf_name: ndfc-python-vrf1
+  - deployment: true
+    extension_values: {}
+    fabric_name: SITE2
+    freeform_config: []
+    instance_values:
+      loopback_id: 111
+      loopback_ip_address: 10.19.0.132
+      loopback_ip_v6_address: ""
+      switch_route_target_import_evpn: ""
+      switch_route_target_export_evpn: ""
     serial_number: 9OW9132EH2M
     vlan: 2001
     vrf_name: ndfc-python-vrf1

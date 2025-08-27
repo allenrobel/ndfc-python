@@ -9,21 +9,83 @@ Attach one or more VRFs.
 ``` yaml title="config/vrf_attach.yaml"
 ---
 config:
+  # LE1--SP1--BG1---BG2--SP2--LE2
+  # BG1 - Border Gateway
   - deployment: true
-    extension_values: ""
+    extension_values:
+      auto_vrf_lite_flag: true
+      dot1q_id: "3"
+      if_name: Ethernet1/1
+      ip_mask: "10.33.0.1/30"
+      ipv6_mask: "2010::10:33:0:1/64"
+      neighbor_asn: "65002"
+      neighbor_ip: 10.33.0.2
+      ipv6_neighbor: "2010::10:33:0:2"
+      peer_vrf_name: ndfc-python-vrf1
     fabric_name: SITE1
     freeform_config: []
     instance_values:
-      loopback_id: 131
+      loopback_id: 111
+      loopback_ip_address: 10.19.0.141
+      loopback_ip_v6_address: ""
+      switch_route_target_import_evpn: ""
+      switch_route_target_export_evpn: ""
+    serial_number: 9IMIT2HLNO2
+    vlan: 2001
+    vrf_name: ndfc-python-vrf1
+  # LE1 - Leaf
+  - deployment: true
+    extension_values: {}
+    fabric_name: SITE1
+    freeform_config: []
+    instance_values:
+      loopback_id: 111
       loopback_ip_address: 10.19.0.131
       loopback_ip_v6_address: ""
       switch_route_target_import_evpn: ""
       switch_route_target_export_evpn: ""
-    mso_created: false
-    mso_set_vlan: false
     serial_number: 96KWEIQE2HC
     vlan: 2001
     vrf_name: ndfc-python-vrf1
+
+  # BG2 - Border Gateway
+  - deployment: true
+    extension_values:
+      auto_vrf_lite_flag: true
+      dot1q_id: "3"
+      if_name: Ethernet1/1
+      ip_mask: "10.33.0.2/30"
+      ipv6_mask: "2010::10:33:0:2/64"
+      neighbor_asn: "65001"
+      neighbor_ip: 10.33.0.1
+      ipv6_neighbor: "2010::10:33:0:1"
+      peer_vrf_name: ndfc-python-vrf1
+    fabric_name: SITE2
+    freeform_config: []
+    instance_values:
+      loopback_id: 111
+      loopback_ip_address: 10.19.0.142
+      loopback_ip_v6_address: ""
+      switch_route_target_import_evpn: ""
+      switch_route_target_export_evpn: ""
+    serial_number: 9Q3FOROSWIP
+    vlan: 2001
+    vrf_name: ndfc-python-vrf1
+  # LE2 - Leaf
+  - deployment: true
+    extension_values: {}
+    fabric_name: SITE2
+    freeform_config: []
+    instance_values:
+      loopback_id: 111
+      loopback_ip_address: 10.19.0.132
+      loopback_ip_v6_address: ""
+      switch_route_target_import_evpn: ""
+      switch_route_target_export_evpn: ""
+    serial_number: 9OW9132EH2M
+    vlan: 2001
+    vrf_name: ndfc-python-vrf1
+
 ```
 
 ### Configuration Notes
@@ -35,13 +97,6 @@ config:
   - instance_values.loopback_ip_address must be set to a value within the range configured in `Per VRF Per Loopback IPv4 Pool for Loopbacks`
   - You'll find the `Per VRF Per Loopback` parameters under `Fabric Settings` -> `Resources`
   - The same applies for `Per VRF Per VTEP Loopback IPv6 Auto-Provision`
-
-#### extension_values
-
-- We do not currently support these directly.
-- If you know what you're doing, you can pass a proper JSON string with appropriate values and it might work.
-- However, when we DO support this, a YAML dictionary will be expected (similar to `instance_values`)
-- We hope to add support in the next couple weeks e.g. by early September, 2025.
 
 ## Example Usage
 
