@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # @author: Allen Robel
-# @file: plugins/module_utils/common/validators/ipv4_host.py
+# @file: common/validators/ipv4_multicast_group_address.py
 """
-Validate IPv4 host address without a prefix
+Validate IPv4 multicast group address without a prefix
 """
 from ipaddress import AddressValueError, IPv4Address
 

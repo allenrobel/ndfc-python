@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @author: Allen Robel
-# @file: plugins/module_utils/common/models/ipv4_cidr_host.py
+# @file: common/models/ipv4_cidr_host.py
 """
 Validate CIDR-format IPv4 host address.
 """

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @author: Allen Robel
-# @file: plugins/module_utils/common/models/ipv4_host.py
+# @file: common/models/ipv4_host.py
 """
 Validate IPv4 host address.
 """
