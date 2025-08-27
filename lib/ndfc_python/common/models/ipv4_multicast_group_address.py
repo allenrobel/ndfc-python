@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # @author: Allen Robel
-# @file: common/models/ipv4_host.py
+# @file: common/models/ipv4_multicast_group_address.py
 """
-Validate IPv4 host address.
+Validate IPv4 multicast group address.
 """
 from pydantic import BaseModel, Field, field_validator
 
