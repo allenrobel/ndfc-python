@@ -99,7 +99,7 @@ class VrfAttachConfig(BaseModel):
 
     deployment: StrictBool = Field(default=True)
 
-    extensionValues: ExtensionValues | str = Field(alias="extension_values", default="")
+    extensionValues: list[ExtensionValues | str] = Field(alias="extension_values", default=[""])
     fabric: str = Field(..., alias="fabric_name")
     freeformConfig: list[str] = Field(alias="freeform_config", default=[])
     instanceValues: InstanceValues = Field(alias="instance_values", default=InstanceValues().model_dump())
