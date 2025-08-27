@@ -238,7 +238,7 @@ class VrfAttach:
             inner = {}
             self.properties["extensionValues"] = json.dumps(inner)
             return
-        inner = value.copy()
+        inner: dict = value.copy()
         inner["AUTO_VRF_LITE_FLAG"] = str(inner.get("AUTO_VRF_LITE_FLAG", True)).lower()
         outer = {}
         outer["VRF_LITE_CONN"] = json.dumps({"VRF_LITE_CONN": [inner]})

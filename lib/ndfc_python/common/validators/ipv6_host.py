@@ -41,7 +41,7 @@ def validate_ipv6_host(value: str) -> bool:
         return False
 
     try:
-        addr = IPv6Address(value)  # pylint: disable=unused-variable
+        IPv6Address(value)  # pylint: disable=pointless-statement
     except AddressValueError:
         return False
 
