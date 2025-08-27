@@ -234,8 +234,8 @@ class VrfAttach:
 
     @extension_values.setter
     def extension_values(self, value: dict) -> None:
+        inner: dict = {}
         if value.get("IF_NAME") is None or value.get("IF_NAME") == "":
-            inner = {}
             self.properties["extensionValues"] = json.dumps(inner)
             return
         inner = value.copy()
