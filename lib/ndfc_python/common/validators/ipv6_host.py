@@ -28,13 +28,12 @@ def validate_ipv6_host(value: str) -> bool:
     - value: "10.10.10.0"         -> False (is not an IPv6 address)
     - value: 1                    -> False (is not an IPv6 address)
     """
-    prefixlen: str = ""
     try:
-        __, prefixlen = value.split("/")
-    except (AttributeError, ValueError):
-        if prefixlen != "":
-            # prefixlen is not empty
+        # If value contains a '/', it's not a valid host address (has a prefix)
+        if len(value.split("/")) > 1:
             return False
+    except (AttributeError, ValueError):
+        pass
 
     if isinstance(value, int):
         # value is an int and IPv6Address accepts int as a valid address.

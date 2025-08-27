@@ -35,7 +35,7 @@ def validate_ipv4_host(value: str) -> bool:
 
     if isinstance(value, int):
         # value is an int and IPv4Address accepts int as a valid address.
-        # We don't want to acceps int, so reject it here.
+        # We don't want to accept int, so reject it here.
         return False
 
     try:
