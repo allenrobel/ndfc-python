@@ -1,0 +1,32 @@
+---
+config:
+  # SITE3 LE3
+  - deployment: true
+    detach_switch_ports: []
+    dot1q_vlan: ""
+    extension_values: ""
+    fabric_name: SITE3
+    freeform_config: []
+    instance_values: ""
+    network_name: v1n1
+    serial_number: 93M2LB9V37J
+    switch_ports:
+      - Ethernet1/2
+    untagged: true
+    tor_ports: []
+    vlan: 2301
+  # SITE4 LE4
+  - deployment: true
+    detach_switch_ports: []
+    dot1q_vlan: ""
+    extension_values: ""
+    fabric_name: SITE4
+    freeform_config: []
+    instance_values: ""
+    network_name: v1n1
+    serial_number: 9XS0QJEAI69
+    switch_ports:
+      - Ethernet1/2
+    untagged: true
+    tor_ports: []
+    vlan: 2301

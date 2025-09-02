@@ -1,0 +1,83 @@
+# SITE3 / SITE4
+---
+config:
+
+  # BG3
+  - deployment: true
+    extension_values:
+      - auto_vrf_lite_flag: true
+        dot1q_id: "3"
+        if_name: Ethernet1/1
+        ip_mask: "10.33.0.1/30"
+        ipv6_mask: "2010::10:33:0:1/64"
+        neighbor_asn: "65002"
+        neighbor_ip: 10.33.0.2
+        ipv6_neighbor: "2010::10:33:0:2"
+        peer_vrf_name: v1
+    fabric_name: SITE3
+    freeform_config: []
+    instance_values:
+      loopback_id: 111
+      loopback_ip_address: 10.19.0.141
+      loopback_ip_v6_address: ""
+      switch_route_target_import_evpn: ""
+      switch_route_target_export_evpn: ""
+    serial_number: 92RZ2OMQCNC
+    vlan: 2001
+    vrf_name: v1
+
+  # LE3
+  - deployment: true
+    extension_values:
+      - {}
+    fabric_name: SITE3
+    freeform_config: []
+    instance_values:
+      loopback_id: 111
+      loopback_ip_address: 10.19.0.131
+      loopback_ip_v6_address: ""
+      switch_route_target_import_evpn: ""
+      switch_route_target_export_evpn: ""
+    serial_number: 93M2LB9V37J
+    vlan: 2001
+    vrf_name: v1
+
+  # BG4
+  - deployment: true
+    extension_values:
+      - auto_vrf_lite_flag: true
+        dot1q_id: "3"
+        if_name: Ethernet1/1
+        ip_mask: "10.33.0.2/30"
+        ipv6_mask: "2010::10:33:0:2/64"
+        neighbor_asn: "65001"
+        neighbor_ip: 10.33.0.1
+        ipv6_neighbor: "2010::10:33:0:1"
+        peer_vrf_name: v1
+    fabric_name: SITE4
+    freeform_config: []
+    instance_values:
+      loopback_id: 111
+      loopback_ip_address: 10.19.0.142
+      loopback_ip_v6_address: ""
+      switch_route_target_import_evpn: ""
+      switch_route_target_export_evpn: ""
+    serial_number: 92BX6HD7BG0
+    vlan: 2001
+    vrf_name: v1
+
+  # LE4
+  - deployment: true
+    extension_values:
+      - {}
+    fabric_name: SITE4
+    freeform_config: []
+    instance_values:
+      loopback_id: 111
+      loopback_ip_address: 10.19.0.132
+      loopback_ip_v6_address: ""
+      switch_route_target_import_evpn: ""
+      switch_route_target_export_evpn: ""
+    serial_number: 9XS0QJEAI69
+    vlan: 2001
+    vrf_name: v1

@@ -1,0 +1,12 @@
+---
+config:
+  - fabric_name: MSD
+    vrf_display_name: v1
+    vrf_id: 50001
+    vrf_name: v1
+    vrf_vlan_id: 2001
+  - fabric_name: MSD
+    vrf_display_name: v2
+    vrf_id: 50002
+    vrf_name: v2
+    vrf_vlan_id: 2002
