@@ -62,9 +62,11 @@ def device_info(inst):
     to a switch ip address, print information about the switch.
     """
     try:
-        print(f"ipv4_address {inst.filter}")
+        print(f"{inst.logical_name}")
+        print(f"  ipv4_address {inst.filter}")
         print(f"  serial_number: {inst.serial_number}")
         print(f"  fabric_name: {inst.fabric_name}")
+        print(f"  role: {inst.role}")
         print(f"  status: {inst.status}")
         print(f"  model: {inst.model}")
         # etc, see additional properties in SwitchDetails()
