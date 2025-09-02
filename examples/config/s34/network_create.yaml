@@ -1,16 +1,18 @@
 ---
 config:
   - fabric_name: MSD
-    network_name: ndfc-python-net1
+    network_name: v1n1
     enable_ir: true
     gateway_ip_address: 192.1.1.1/24
     network_id: 30001
+    suppress_arp: false
     vlan_id: 2301
-    vrf_name: v0
+    vrf_name: v1
   - fabric_name: MSD
-    network_name: ndfc-python-net2
+    network_name: v1n2
     enable_ir: true
     gateway_ip_address: 192.2.1.1/24
     network_id: 30002
+    suppress_arp: false
     vlan_id: 2302
-    vrf_name: v0
+    vrf_name: v1
