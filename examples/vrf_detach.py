@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-# vrf_attach.py
+# vrf_detach.py
 
 ## Description
 
-Attach a VRF
+Detach a VRF from a switch
 
 ## Usage
 
@@ -20,15 +20,15 @@ export PYTHONPATH=$PYTHONPATH:$HOME/repos/ndfc-python/lib:$HOME/repos/ansible/co
 export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_config.json
 ```
 
-3. Edit ./examples/config/vrf_attach.yaml with desired VRF values
+3. Edit ./examples/config/vrf_detach.yaml with desired VRF values
 
 4. Set credentials via script command line, environment variables, or Ansible Vault
 
 5. Run the script (below we're using command line for credentials)
 
 ``` bash
-./examples/vrf_attach.py \
-    --config ./examples/config/vrf_attach.yaml \
+./examples/vrf_detach.py \
+    --config ./examples/config/vrf_detach.yaml \
     --nd-domain local \
     --nd-ip4 10.1.1.1 \
     --nd-password password \
@@ -53,49 +53,45 @@ from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.vrf_attach import VrfAttachConfigValidator
-from ndfc_python.vrf_attach import VrfAttach
+from ndfc_python.validators.vrf_detach import VrfDetachConfigValidator
+from ndfc_python.vrf_detach import VrfDetach
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
-def vrf_attach(cfg: dict) -> None:
+def vrf_detach(cfg: dict) -> None:
     """
-    Given a vrf-attach configuration, attach the VRF.
+    Given a vrf-detach configuration, detach the VRF.
     """
     try:
-        instance = VrfAttach()
+        instance = VrfDetach()
         instance.rest_send = rest_send
         instance.results = Results()
-        instance.extension_values = cfg.get("extensionValues")
         instance.fabric_name = cfg.get("fabric", "")
-        instance.freeform_config = cfg.get("freeformConfig", [])
-        instance.instance_values = cfg.get("instanceValues")
         instance.serial_number = cfg.get("serialNumber")
-        instance.switch_ports = cfg.get("switchPorts", [])
-        instance.vlan = cfg.get("vlan")
         instance.vrf_name = cfg.get("vrfName")
         instance.commit()
+        errmsg = f"Error detaching fabric {instance.fabric_name}, "
+        errmsg += f"VRF {instance.vrf_name}, "
+        errmsg += f"from serial_number {instance.serial_number}. "
+        data = instance.rest_send.response_current.get("DATA", {})
     except ValueError as error:
-        errmsg = "Error attaching VRF. "
+        errmsg = "Error detaching VRF. "
         errmsg += f"Error detail: {error}"
         log.error(errmsg)
         print(errmsg)
         return
 
-    if instance.rest_send.response_current.get("RETURN_CODE") not in (200, 201):
-        if instance.rest_send.response_current.get("DATA", {}).get("message"):
-            errmsg = instance.rest_send.response_current.get("DATA", {}).get("message")
-        else:
-            errmsg = "Error attaching VRF. "
-            errmsg += f"Controller response: {instance.rest_send.response_current}"
+    response_messages = ", ".join(data.values())
+    if instance.rest_send.response_current.get("RETURN_CODE") not in (200, 201) or "SUCCESS" not in response_messages:
+        errmsg += f"Controller response: {response_messages}"
         log.error(errmsg)
         print(errmsg)
         return
     result_msg = f"VRF {instance.vrf_name} "
-    result_msg += f"attached to fabric {instance.fabric_name}, "
+    result_msg += f"detached from fabric {instance.fabric_name}, "
     result_msg += f"serial number {instance.serial_number}."
     log.info(result_msg)
     print(result_msg)
@@ -120,7 +116,7 @@ def setup_parser() -> argparse.Namespace:
             parser_nd_password,
             parser_nd_username,
         ],
-        description="DESCRIPTION: Attach a VRF.",
+        description="DESCRIPTION: Detach a VRF from one or more switches.",
     )
     return parser.parse_args()
 
@@ -141,7 +137,7 @@ except ValueError as error:
     sys.exit(1)
 
 try:
-    validator = VrfAttachConfigValidator(**user_config.contents)
+    validator = VrfDetachConfigValidator(**user_config.contents)
 except ValidationError as error:
     msg = f"{error}"
     log.error(msg)
@@ -167,4 +163,4 @@ rest_send.send_interval = 5
 params_list = json.loads(validator.model_dump_json()).get("config", {})
 
 for params in params_list:
-    vrf_attach(params)
+    vrf_detach(params)

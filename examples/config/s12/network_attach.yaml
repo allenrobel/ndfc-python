@@ -1,8 +1,7 @@
 ---
 config:
   # SITE1 LE1
-  - deployment: true
-    detach_switch_ports: []
+  - detach_switch_ports: []
     dot1q_vlan: ""
     extension_values: ""
     fabric_name: SITE1
@@ -16,8 +15,7 @@ config:
     tor_ports: []
     vlan: 2301
   # SITE2 LE2
-  - deployment: true
-    detach_switch_ports: []
+  - detach_switch_ports: []
     dot1q_vlan: ""
     extension_values: ""
     fabric_name: SITE2

@@ -1,0 +1,23 @@
+# SITE1 / SITE2
+---
+config:
+
+  # BG1
+  - fabric_name: SITE1
+    serial_number: 9T4PSZT7L7J
+    vrf_name: v1
+
+  # LE1
+  - fabric_name: SITE1
+    serial_number: 9WPLALSNXK6
+    vrf_name: v1
+
+  # BG2
+  - fabric_name: SITE2
+    serial_number: 9Z72WV6IVJJ
+    vrf_name: v1
+
+  # LE2
+  - fabric_name: SITE2
+    serial_number: 9BO7KZF9BH5
+    vrf_name: v1

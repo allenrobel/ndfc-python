@@ -13,9 +13,10 @@ class NetworkCreateConfig(BaseModel):
 
     fabric_name: str
     gateway_ip_address: Optional[IPv4Interface] = None
-    is_layer2_only: Optional[bool] = None
+    is_layer2_only: Optional[bool] = False
     network_id: PositiveInt
     network_name: str
+    suppress_arp: Optional[bool] = True
     vlan_id: PositiveInt
     vrf_name: str
 

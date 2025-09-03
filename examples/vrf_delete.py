@@ -6,11 +6,16 @@ vrf_delete.py
 
 # Description
 
-Delete one or more VRFs from a fabric
+Delete one or more VRFs from a fabric.
 
 # Usage
 
-Edit ``examples/config/config_vrf_delete.yaml`` appropriately for your setup.
+NOTE: VRFs cannot be deleted from child fabrics.  Specify the parent fabric of a
+child fabric instead.
+
+Edit ``examples/config/vrf_delete.yaml`` appropriately for your setup.
+
+## Child Fabrics
 
 ```yaml
 ---
@@ -25,19 +30,34 @@ config:
     - MyVrf4
 ```
 
+## Parent Fabric
+
+If MyFabric_1 and MyFabric_2 are child fabrics of parent fabric MSD, then the configuration would
+look similar to below.
+
+```yaml
+---
+config:
+  - fabric_name: MSD
+    vrf_names:
+    - MyVrf1
+    - MyVrf2
+```
+
+
 If you've set the standard ndfc-python Nexus Dashboard credentials
 environment variables (ND_DOMAIN, ND_IP4, ND_PASSWORD, ND_USERNAME)
 then you're good to go.
 
 ```bash
-./vrf_delete.py --config config_vrf_create.yaml
+./vrf_delete.py --config config/vrf_delete.yaml
 ```
 
 If you haven't set the standard ndfc-python Nexus Dashboard credentials
 environment variables, you can override them like so:
 
 ```bash
-./vrf_delete.py --config config/config_vrf_create.yaml --nd-username admin --nd-password MyPassword --nd-domain local --nd-ip4 10.1.1.2
+./vrf_delete.py --config config/vrf_delete.yaml --nd-username admin --nd-password MyPassword --nd-domain local --nd-ip4 10.1.1.2
 """
 # pylint: disable=duplicate-code
 import argparse

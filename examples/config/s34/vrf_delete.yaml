@@ -1,0 +1,6 @@
+# SITE3 / SITE4
+---
+config:
+  - fabric_name: MSD
+    vrf_names:
+    - v1

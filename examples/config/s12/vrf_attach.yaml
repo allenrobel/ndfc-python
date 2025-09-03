@@ -3,8 +3,7 @@
 config:
 
   # BG1
-  - deployment: true
-    extension_values:
+  - extension_values:
       - auto_vrf_lite_flag: true
         dot1q_id: "3"
         if_name: Ethernet1/1
@@ -27,8 +26,7 @@ config:
     vrf_name: v1
 
   # LE1
-  - deployment: true
-    extension_values:
+  - extension_values:
       - {}
     fabric_name: SITE1
     freeform_config: []
@@ -43,8 +41,7 @@ config:
     vrf_name: v1
 
   # BG2
-  - deployment: true
-    extension_values:
+  - extension_values:
       - auto_vrf_lite_flag: true
         dot1q_id: "3"
         if_name: Ethernet1/1
@@ -67,8 +64,7 @@ config:
     vrf_name: v1
 
   # LE2
-  - deployment: true
-    extension_values:
+  - extension_values:
       - {}
     fabric_name: SITE2
     freeform_config: []

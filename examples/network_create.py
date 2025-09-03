@@ -74,6 +74,7 @@ def network_create(config):
         instance.enable_ir = config.get("enable_ir")
         instance.gateway_ip_address = config.get("gateway_ip_address")
         instance.network_id = config.get("network_id")
+        instance.suppress_arp = config.get("suppress_arp")
         instance.vlan_id = config.get("vlan_id")
         instance.vrf_name = config.get("vrf_name")
         instance.commit()

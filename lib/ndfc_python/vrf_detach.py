@@ -18,13 +18,9 @@ Send vrf attach POST requests to the controller
     {
         "lanAttachList": [
             {
-                "deployment": "true",
-                "extensionValues": "{\"content\":\"removed\"}",
+                "deployment": "false",
                 "fabric": SITE1,
-                "freeformConfig": "",
-                "instanceValues": "{\"content\":\"removed\"}",
                 "serialNumber": 96KWEIQE2HC,
-                "vlan": 2300,
                 "vrfName": ndfc-python-vrf1
             }
         ],
@@ -38,7 +34,6 @@ Send vrf attach POST requests to the controller
 # pylint: disable=wrong-import-order
 
 import inspect
-import json
 import logging
 
 from ndfc_python.validations import Validations
@@ -48,17 +43,17 @@ from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 @Properties.add_rest_send
 @Properties.add_results
-class VrfAttach:
+class VrfDetach:
     """
     # Summary
 
-    Attach VRFs
+    Detach VRFs
 
-    ## Example VRF attach request
+    ## Example VRF detach request
 
     ### See
 
-    ./examples/vrf_attach.py
+    ./examples/vrf_detach.py
     """
 
     def __init__(self):
@@ -71,20 +66,6 @@ class VrfAttach:
         self._results = None
 
         self.properties = {}
-
-    def _list_to_string(self, lst: list[str]) -> str:
-        """
-        Convert a list of strings to a comma-separated string.
-        Empty list is converted to ""
-        """
-        return ",".join(lst)
-
-    def _freeform_config_to_string(self, lst: list[str]) -> str:
-        """
-        Convert the freeform config list to a newline-separated string.
-        Empty list is converted to ""
-        """
-        return "\n".join(lst)
 
     def _final_verification(self):
         """
@@ -171,13 +152,9 @@ class VrfAttach:
         _payload_item = {}
         _payload_item["vrfName"] = self.vrf_name
         _lan_attach_list_item = {}
-        _lan_attach_list_item["deployment"] = True
-        _lan_attach_list_item["extensionValues"] = self.extension_values
+        _lan_attach_list_item["deployment"] = False
         _lan_attach_list_item["fabric"] = self.fabric_name
-        _lan_attach_list_item["freeformConfig"] = self.freeform_config
-        _lan_attach_list_item["instanceValues"] = self.instance_values
         _lan_attach_list_item["serialNumber"] = self.serial_number
-        _lan_attach_list_item["vlan"] = self.vlan
         _lan_attach_list_item["vrfName"] = self.vrf_name
 
         _lan_attach_list = []
@@ -213,27 +190,6 @@ class VrfAttach:
             raise ValueError(msg) from error
 
     @property
-    def extension_values(self) -> str:
-        """
-        return the current value of extensionValues
-        """
-        return self.properties.get("extensionValues")
-
-    @extension_values.setter
-    def extension_values(self, value: list) -> None:
-        vrf_lite_conn_list = []
-        for item in value:
-            if item.get("IF_NAME") is None or item.get("IF_NAME") == "":
-                continue
-            vrf_lite_conn_item: dict = item.copy()
-            vrf_lite_conn_item["AUTO_VRF_LITE_FLAG"] = str(vrf_lite_conn_item.get("AUTO_VRF_LITE_FLAG", True)).lower()
-            vrf_lite_conn_list.append(vrf_lite_conn_item)
-        outer = {}
-        outer["VRF_LITE_CONN"] = json.dumps({"VRF_LITE_CONN": vrf_lite_conn_list})
-        outer["MULTISITE_CONN"] = json.dumps({"MULTISITE_CONN": []})
-        self.properties["extensionValues"] = json.dumps(outer)
-
-    @property
     def fabric_name(self) -> str:
         """
         return the current value of fabric
@@ -245,30 +201,6 @@ class VrfAttach:
         self.properties["fabric"] = value
 
     @property
-    def freeform_config(self) -> str:
-        """
-        return the current value of freeformConfig
-
-        freeformConfig is converted from a list to a newline-separated string in the setter.
-        """
-        return self.properties.get("freeformConfig")
-
-    @freeform_config.setter
-    def freeform_config(self, value: list[str]) -> None:
-        self.properties["freeformConfig"] = self._freeform_config_to_string(value)
-
-    @property
-    def instance_values(self) -> str:
-        """
-        return the current value of instanceValues
-        """
-        return self.properties.get("instanceValues")
-
-    @instance_values.setter
-    def instance_values(self, value: dict) -> None:
-        self.properties["instanceValues"] = json.dumps(value)
-
-    @property
     def serial_number(self) -> str:
         """
         return the current value of serialNumber
@@ -278,18 +210,6 @@ class VrfAttach:
     @serial_number.setter
     def serial_number(self, value: str) -> None:
         self.properties["serialNumber"] = value
-
-    @property
-    def vlan(self) -> str:
-        """
-        return the current value of vlan
-        """
-        return self.properties.get("vlan")
-
-    @vlan.setter
-    def vlan(self, value: str) -> None:
-        self.validations.verify_vlan(value)
-        self.properties["vlan"] = value
 
     @property
     def vrf_name(self) -> str:
