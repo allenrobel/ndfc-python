@@ -47,7 +47,7 @@ class NetworkDetach:
     """
     # Summary
 
-    Attach networks
+    Detach networks
 
     ## Example network detach request
 
@@ -171,7 +171,7 @@ class NetworkDetach:
 
     def commit(self):
         """
-        Attach a network to a switch
+        Detach a network from a switch
         """
         method_name = inspect.stack()[0][3]
         payload = self._build_payload()

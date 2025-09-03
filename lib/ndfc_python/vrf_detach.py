@@ -1,11 +1,11 @@
 """
 # Name
 
-vrf_attach.py
+vrf_detach.py
 
 # Description
 
-Send vrf attach POST requests to the controller
+Send vrf detach POST requests to the controller
 
 ## Caveats
 
@@ -165,7 +165,7 @@ class VrfDetach:
 
     def commit(self):
         """
-        Attach a vrf to a switch
+        Detach a vrf from a switch
         """
         method_name = inspect.stack()[0][3]
         payload = self._build_payload()

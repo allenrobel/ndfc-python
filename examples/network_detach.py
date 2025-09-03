@@ -63,7 +63,7 @@ from pydantic import ValidationError
 
 def network_detach(cfg: dict) -> None:
     """
-    Given a network-attach configuration, attach the network.
+    Detach the network.
 
     The expected output is a dictionary with the network name and status.
 
@@ -72,6 +72,7 @@ def network_detach(cfg: dict) -> None:
         }
 
     """
+    errmsg = ""
     try:
         instance = NetworkDetach()
         instance.rest_send = rest_send
@@ -124,7 +125,7 @@ def setup_parser() -> argparse.Namespace:
             parser_nd_password,
             parser_nd_username,
         ],
-        description="DESCRIPTION: Attach a network.",
+        description="DESCRIPTION: Detach a network.",
     )
     return parser.parse_args()
 
