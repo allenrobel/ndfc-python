@@ -145,13 +145,13 @@ class VrfDelete:
             raise ValueError(msg) from error
 
         if self.rest_send.result_current.get("success") is False:  # type: ignore[attr-defined]
-            failure_list = self.rest_send.response_current.get("DATA", {}).get("failureList", [])
+            failure_list = self.rest_send.response_current.get("DATA", {}).get("failureList", []) # type: ignore[attr-defined]
             errmsg = ", ".join([item.get("message", "") for item in failure_list])
+            errmsg = re.sub(r"\t", " ", errmsg)
             msg = f"{self.class_name}.{method_name}: "
             msg += "RestSend returned an unsuccessful result "
             msg += f"{self.rest_send.result_current}. "  # type: ignore[attr-defined]
-            msg += "More detail (if any): "
-            msg += f"{re.sub("\t", " ", errmsg)}"
+            msg += f"More detail (if any): {errmsg}"
             raise ValueError(msg)
         # pylint: enable=no-member
 
