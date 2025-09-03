@@ -1,0 +1,16 @@
+---
+config:
+  # SITE1 LE1
+  - detach_switch_ports:
+      - Ethernet1/2
+    fabric_name: SITE1
+    network_name: v1n1
+    serial_number: 96KWEIQE2HC
+    vlan: 2301
+  # SITE2 LE2
+  - detach_switch_ports:
+      - Ethernet1/2
+    fabric_name: SITE2
+    network_name: v1n1
+    serial_number: 9OW9132EH2M
+    vlan: 2301

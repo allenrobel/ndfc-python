@@ -171,15 +171,13 @@ class NetworkAttach:
         _payload_item = {}
         _payload_item["networkName"] = self.network_name
         _lan_attach_list_item = {}
-        _lan_attach_list_item["deployment"] = self.deployment
+        _lan_attach_list_item["deployment"] = True
         _lan_attach_list_item["detachSwitchPorts"] = self.detach_switch_ports
         _lan_attach_list_item["dot1QVlan"] = self.dot1q_vlan
         _lan_attach_list_item["extensionValues"] = self.extension_values
         _lan_attach_list_item["fabric"] = self.fabric_name
         _lan_attach_list_item["freeformConfig"] = self.freeform_config
         _lan_attach_list_item["instanceValues"] = self.instance_values
-        _lan_attach_list_item["msoCreated"] = self.mso_created
-        _lan_attach_list_item["msoSetVlan"] = self.mso_set_vlan
         _lan_attach_list_item["networkName"] = self.network_name
         _lan_attach_list_item["serialNumber"] = self.serial_number
         _lan_attach_list_item["switchPorts"] = self.switch_ports
@@ -217,17 +215,6 @@ class NetworkAttach:
             msg += f"Unable to send {self.rest_send.verb} request to the controller. "
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
-
-    @property
-    def deployment(self) -> bool:
-        """
-        return the current value of deployment
-        """
-        return self.properties.get("deployment")
-
-    @deployment.setter
-    def deployment(self, value: bool) -> None:
-        self.properties["deployment"] = value
 
     @property
     def detach_switch_ports(self) -> str:
@@ -298,28 +285,6 @@ class NetworkAttach:
     @instance_values.setter
     def instance_values(self, value: str) -> None:
         self.properties["instanceValues"] = value
-
-    @property
-    def mso_created(self) -> bool:
-        """
-        return the current value of msoCreated
-        """
-        return self.properties.get("msoCreated")
-
-    @mso_created.setter
-    def mso_created(self, value: bool) -> None:
-        self.properties["msoCreated"] = value
-
-    @property
-    def mso_set_vlan(self) -> bool:
-        """
-        return the current value of msoSetVlan
-        """
-        return self.properties.get("msoSetVlan")
-
-    @mso_set_vlan.setter
-    def mso_set_vlan(self, value: bool) -> None:
-        self.properties["msoSetVlan"] = value
 
     @property
     def network_name(self) -> str:

@@ -97,8 +97,6 @@ class InstanceValues(BaseModel):
 class VrfAttachConfig(BaseModel):
     """Base validator for VrfAttach parameters."""
 
-    deployment: StrictBool = Field(default=True)
-
     extensionValues: list[ExtensionValues | dict] = Field(alias="extension_values", default=[])
     fabric: str = Field(..., alias="fabric_name")
     freeformConfig: list[str] = Field(alias="freeform_config", default=[])

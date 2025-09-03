@@ -8,15 +8,12 @@ class NetworkAttachConfig(BaseModel):
     Base validator for NetworkAttach arguments
     """
 
-    deployment: StrictBool = Field(default=True)
     detachSwitchPorts: list[str] = Field(alias="detach_switch_ports", default=[])
     dot1QVlan: PositiveInt | str = Field(alias="dot1q_vlan", default="")
     extensionValues: str = Field(alias="extension_values", default="")
     fabric: str = Field(..., alias="fabric_name")
     freeformConfig: list[str] = Field(alias="freeform_config", default=[])
     instanceValues: str = Field(alias="instance_values", default="")
-    msoCreated: StrictBool = Field(alias="mso_created", default=False)
-    msoSetVlan: StrictBool = Field(alias="mso_set_vlan", default=False)
     networkName: str = Field(..., alias="network_name")
     serialNumber: str = Field(..., alias="serial_number")
     switchPorts: list[str] = Field(alias="switch_ports", default=[])

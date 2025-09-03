@@ -1,34 +1,30 @@
 """
 # Name
 
-vrf_attach.py
+network_detach.py
 
 # Description
 
-Send vrf attach POST requests to the controller
-
-## Caveats
-
-- VRF Lite currently not supported
+Send network detach POST requests to the controller
 
 # Payload Example
+
+network detach operation is determined by lanAttachList[x].deployment == false
 
 ```json
 [
     {
+        "networkName": "v1n1",
         "lanAttachList": [
             {
-                "deployment": "true",
-                "extensionValues": "{\"content\":\"removed\"}",
-                "fabric": SITE1,
-                "freeformConfig": "",
-                "instanceValues": "{\"content\":\"removed\"}",
-                "serialNumber": 96KWEIQE2HC,
-                "vlan": 2300,
-                "vrfName": ndfc-python-vrf1
+                "deployment": "false",
+                "detachSwitchPorts": "Ethernet1/2",
+                "fabric": "SITE3",
+                "networkName": "v1n1",
+                "serialNumber": "12345678",
+                "vlan": "2301",
             }
-        ],
-        "vrfName": ndfc-python-vrf1
+        ]
     }
 ]
 ```
@@ -38,7 +34,6 @@ Send vrf attach POST requests to the controller
 # pylint: disable=wrong-import-order
 
 import inspect
-import json
 import logging
 
 from ndfc_python.validations import Validations
@@ -48,17 +43,17 @@ from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 @Properties.add_rest_send
 @Properties.add_results
-class VrfAttach:
+class NetworkDetach:
     """
     # Summary
 
-    Attach VRFs
+    Detach networks
 
-    ## Example VRF attach request
+    ## Example network detach request
 
     ### See
 
-    ./examples/vrf_attach.py
+    ./examples/network_detach.py
     """
 
     def __init__(self):
@@ -78,13 +73,6 @@ class VrfAttach:
         Empty list is converted to ""
         """
         return ",".join(lst)
-
-    def _freeform_config_to_string(self, lst: list[str]) -> str:
-        """
-        Convert the freeform config list to a newline-separated string.
-        Empty list is converted to ""
-        """
-        return "\n".join(lst)
 
     def _final_verification(self):
         """
@@ -110,11 +98,10 @@ class VrfAttach:
             msg += "does not exist on the controller."
             raise ValueError(msg)
 
-        if self.vrf_name_exists_in_fabric() is False:
+        if self.network_name_exists_in_fabric() is False:
             msg = f"{self.class_name}.{method_name}: "
-            msg += f"vrfName {self.vrf_name} does not exist "
-            msg += f"in fabric {self.fabric_name}. "
-            msg += f"Create it first before calling {self.class_name}.commit"
+            msg += f"networkName {self.network_name} does not exist "
+            msg += f"in fabric {self.fabric_name}."
             raise ValueError(msg)
 
     def fabric_exists(self):
@@ -133,14 +120,15 @@ class VrfAttach:
             return False
         return True
 
-    def vrf_name_exists_in_fabric(self):
+    def network_name_exists_in_fabric(self):
         """
-        Return True if self.vrf exists in self.fabric_name.
-        Else, return False
+        Return True if networkName exists in the fabric.
+        Else return False
         """
         method_name = inspect.stack()[0][3]
-        # TODO: update when this path is added to ansible-dcnm
-        path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{self.fabric_name}/vrfs"
+        # TODO: Update when we add endpoint to ansible-dcnm
+        path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics"
+        path += f"/{self.fabric_name}/networks"
         verb = "GET"
 
         # pylint: disable=no-member
@@ -153,14 +141,11 @@ class VrfAttach:
             msg += f"Unable to send {self.rest_send.verb} request to the controller. "
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
-
         for item in self.rest_send.response_current["DATA"]:
-            if item.get("fabric") != self.fabric_name:
+            if "networkName" not in item:
                 continue
-            if item.get("vrfName") != self.vrf_name:
-                continue
-            return True
-        # pylint: enable=no-member
+            if item["networkName"] == self.network_name:
+                return True
         return False
 
     def _build_payload(self) -> list[dict]:
@@ -169,16 +154,14 @@ class VrfAttach:
         """
         _payload = []
         _payload_item = {}
-        _payload_item["vrfName"] = self.vrf_name
+        _payload_item["networkName"] = self.network_name
         _lan_attach_list_item = {}
-        _lan_attach_list_item["deployment"] = True
-        _lan_attach_list_item["extensionValues"] = self.extension_values
+        _lan_attach_list_item["deployment"] = False
+        _lan_attach_list_item["detachSwitchPorts"] = self.detach_switch_ports
         _lan_attach_list_item["fabric"] = self.fabric_name
-        _lan_attach_list_item["freeformConfig"] = self.freeform_config
-        _lan_attach_list_item["instanceValues"] = self.instance_values
+        _lan_attach_list_item["networkName"] = self.network_name
         _lan_attach_list_item["serialNumber"] = self.serial_number
         _lan_attach_list_item["vlan"] = self.vlan
-        _lan_attach_list_item["vrfName"] = self.vrf_name
 
         _lan_attach_list = []
         _lan_attach_list.append(_lan_attach_list_item)
@@ -188,16 +171,15 @@ class VrfAttach:
 
     def commit(self):
         """
-        Attach a vrf to a switch
+        Detach a network from a switch
         """
         method_name = inspect.stack()[0][3]
         payload = self._build_payload()
-
         self._final_verification()
 
         # TODO: Update when we add endpoint to ansible-dcnm
         path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics"
-        path += f"/{self.fabric_name}/vrfs/attachments"
+        path += f"/{self.fabric_name}/networks/attachments"
         verb = "POST"
 
         # pylint: disable=no-member
@@ -213,25 +195,17 @@ class VrfAttach:
             raise ValueError(msg) from error
 
     @property
-    def extension_values(self) -> str:
+    def detach_switch_ports(self) -> str:
         """
-        return the current value of extensionValues
-        """
-        return self.properties.get("extensionValues")
+        return the current value of detachSwitchPorts
 
-    @extension_values.setter
-    def extension_values(self, value: list) -> None:
-        vrf_lite_conn_list = []
-        for item in value:
-            if item.get("IF_NAME") is None or item.get("IF_NAME") == "":
-                continue
-            vrf_lite_conn_item: dict = item.copy()
-            vrf_lite_conn_item["AUTO_VRF_LITE_FLAG"] = str(vrf_lite_conn_item.get("AUTO_VRF_LITE_FLAG", True)).lower()
-            vrf_lite_conn_list.append(vrf_lite_conn_item)
-        outer = {}
-        outer["VRF_LITE_CONN"] = json.dumps({"VRF_LITE_CONN": vrf_lite_conn_list})
-        outer["MULTISITE_CONN"] = json.dumps({"MULTISITE_CONN": []})
-        self.properties["extensionValues"] = json.dumps(outer)
+        detachSwitchPorts is converted from a list to a comma-separated string in the setter.
+        """
+        return self.properties.get("detachSwitchPorts")
+
+    @detach_switch_ports.setter
+    def detach_switch_ports(self, value: list[str]) -> None:
+        self.properties["detachSwitchPorts"] = self._list_to_string(value)
 
     @property
     def fabric_name(self) -> str:
@@ -245,28 +219,15 @@ class VrfAttach:
         self.properties["fabric"] = value
 
     @property
-    def freeform_config(self) -> str:
+    def network_name(self) -> str:
         """
-        return the current value of freeformConfig
-
-        freeformConfig is converted from a list to a newline-separated string in the setter.
+        return the current value of networkName
         """
-        return self.properties.get("freeformConfig")
+        return self.properties.get("networkName")
 
-    @freeform_config.setter
-    def freeform_config(self, value: list[str]) -> None:
-        self.properties["freeformConfig"] = self._freeform_config_to_string(value)
-
-    @property
-    def instance_values(self) -> str:
-        """
-        return the current value of instanceValues
-        """
-        return self.properties.get("instanceValues")
-
-    @instance_values.setter
-    def instance_values(self, value: dict) -> None:
-        self.properties["instanceValues"] = json.dumps(value)
+    @network_name.setter
+    def network_name(self, value: str) -> None:
+        self.properties["networkName"] = value
 
     @property
     def serial_number(self) -> str:
@@ -290,14 +251,3 @@ class VrfAttach:
     def vlan(self, value: str) -> None:
         self.validations.verify_vlan(value)
         self.properties["vlan"] = value
-
-    @property
-    def vrf_name(self) -> str:
-        """
-        return the current value of vrfName
-        """
-        return self.properties.get("vrfName")
-
-    @vrf_name.setter
-    def vrf_name(self, value: str) -> None:
-        self.properties["vrfName"] = value
