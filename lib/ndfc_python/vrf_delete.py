@@ -145,7 +145,7 @@ class VrfDelete:
             raise ValueError(msg) from error
 
         if self.rest_send.result_current.get("success") is False:  # type: ignore[attr-defined]
-            failure_list = self.rest_send.response_current.get("DATA", {}).get("failureList", []) # type: ignore[attr-defined]
+            failure_list = self.rest_send.response_current.get("DATA", {}).get("failureList", [])  # type: ignore[attr-defined]
             errmsg = ", ".join([item.get("message", "") for item in failure_list])
             errmsg = re.sub(r"\t", " ", errmsg)
             msg = f"{self.class_name}.{method_name}: "
