@@ -1,0 +1,14 @@
+---
+config:
+  - fabric_name: SITE1
+    seed_ip: 192.168.12.131
+  - fabric_name: SITE1
+    seed_ip: 192.168.12.141
+  - fabric_name: SITE1
+    seed_ip: 192.168.12.151
+  - fabric_name: SITE2
+    seed_ip: 192.168.12.132
+  - fabric_name: SITE2
+    seed_ip: 192.168.12.142
+  - fabric_name: SITE2
+    seed_ip: 192.168.12.152
