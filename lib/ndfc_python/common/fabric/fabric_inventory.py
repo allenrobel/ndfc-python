@@ -191,7 +191,7 @@ class FabricInventory:
     @property
     def inventory(self):
         """
-        return a list of device names in the inventory
+        return the fabric inventory dictionary
         """
         if not self._committed:
             self.commit()

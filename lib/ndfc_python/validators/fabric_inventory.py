@@ -17,7 +17,7 @@ class FabricInventoryConfigValidator(BaseModel):
     """
     # Summary
 
-    config is a list of VrfCreateConfig
+    config is a list of FabricInventoryConfig
     """
 
     config: List[FabricInventoryConfig]

@@ -98,7 +98,7 @@ def setup_parser() -> argparse.Namespace:
 args = setup_parser()
 NdfcPythonLogger()
 log = logging.getLogger("ndfc_python.main")
-log.setLevel = args.loglevel
+log.setLevel(args.loglevel)
 
 try:
     ndfc_config = ReadConfig()
@@ -108,7 +108,7 @@ except ValueError as error:
     msg = f"Exiting: Error detail: {error}"
     print(msg)
     log.error(msg)
-    sys.exit()
+    sys.exit(1)
 
 try:
     validator = FabricInventoryConfigValidator(**ndfc_config.contents)
