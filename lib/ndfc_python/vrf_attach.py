@@ -150,16 +150,16 @@ class VrfAttach:
             msg += f"in fabric {self.fabric_name}. "
             msg += f"Create it first before calling {self.class_name}.commit"
             raise ValueError(msg)
-        if self.switch_name == "":
+        if not self.switch_name:
             msg = f"{self.class_name}.{method_name}: "
             msg += "switch_name must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
-        if self.peer_switch_name != "" and self.peer_switch_name == self.switch_name:
+        if self.peer_switch_name and self.peer_switch_name == self.switch_name:
             msg = f"{self.class_name}.{method_name}: "
             msg += "peer_switch_name must be different from switch_name"
             raise ValueError(msg)
-        if self.peer_switch_name != "":
+        if self.peer_switch_name:
             if not self.fabric_switches:
                 self.populate_fabric_switches()
             if self.peer_switch_name not in self.fabric_switches:
@@ -408,7 +408,7 @@ class VrfAttach:
         _payload_item["vrfName"] = self.vrf_name
         _lan_attach_list = []
         _lan_attach_list.append(self._build_lan_attach_list_item(self.switch_name))
-        if self.peer_switch_name != "":
+        if self.peer_switch_name:
             _lan_attach_list.append(self._build_lan_attach_list_item(self.peer_switch_name))
 
         _payload_item["lanAttachList"] = _lan_attach_list

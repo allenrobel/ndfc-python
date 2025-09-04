@@ -98,7 +98,7 @@ def vrf_attach(cfg: dict) -> None:
     result_msg = f"VRF {instance.vrf_name} "
     result_msg += f"attached to fabric {instance.fabric_name}, "
     result_msg += f"switch_name {instance.switch_name}, "
-    if instance.peer_switch_name != "":
+    if instance.peer_switch_name:
         result_msg += f"peer_switch_name {instance.peer_switch_name}, "
     result_msg += f"vlan {instance.vlan}."
     log.info(result_msg)
