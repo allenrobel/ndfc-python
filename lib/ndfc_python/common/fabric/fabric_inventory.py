@@ -16,9 +16,10 @@ class FabricInventory:
     See examples/fabric_inventory.py
 
     ## Properties
-    - fabric_name (str): name of the fabric to query
-    - rest_send (RestSend): RestSend instance to use for REST calls
-    - results (Results): Results instance to use for result handling
+    - fabric_name (str): getter/setter: name of the fabric to query
+    - rest_send (RestSend): getter/setter: RestSend instance to use for REST calls
+    - devices (list): getter: list of device names in the fabric inventory
+    - inventory (dict): getter: fabric inventory dictionary, keyed on device name
     """
 
     def __init__(self):
@@ -29,6 +30,19 @@ class FabricInventory:
         self._inventory = {}
         self.api_v1 = "/appcenter/cisco/ndfc/api/v1"
         self.ep_fabrics = f"{self.api_v1}/lan-fabric/rest/control/fabrics"
+
+    def final_verification(self) -> None:
+        """
+        Verify that required properties have been set.
+        """
+        if self.fabric_name is None:
+            msg = f"{self.class_name}.final_verification: fabric_name must be set."
+            raise ValueError(msg)
+        # pylint: disable=no-member
+        if self.rest_send is None:  # type: ignore[attr-defined]
+            msg = f"{self.class_name}.final_verification: rest_send must be set."
+            raise ValueError(msg)
+        # pylint: enable=no-member
 
     def commit(self) -> None:
         """Get switches for a specific fabric.
@@ -161,6 +175,7 @@ class FabricInventory:
                 }
             }
         """
+        self.final_verification()
         verb = "GET"
         path = f"{self.ep_fabrics}/{self.fabric_name}/inventory/switchesByFabric"
         # pylint: disable=no-member
@@ -172,12 +187,32 @@ class FabricInventory:
             msg = f"Unable to send {verb} request to the controller. "
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
+        if self.rest_send.response_current.get("RETURN_CODE") not in [200, 201]:  # type: ignore[attr-defined]
+            msg = f"Unable to retrieve fabric inventory for fabric {self.fabric_name}. "
+            msg += f"Controller response: {self.rest_send.response_current}."  # type: ignore[attr-defined]
+            raise ValueError(msg)
         for switch in self.rest_send.response_current.get("DATA", []):  # type: ignore[attr-defined]
             switch_name = switch.get("logicalName")
             if switch_name is None:
                 continue
             self._inventory[switch_name] = switch
         self._committed = True
+
+    def switch_name_to_serial_number(self, switch_name: str) -> str:
+        """
+        Given a switch_name, return the associated serial number.
+        """
+        if not self._committed:
+            self.commit()
+        switch = self.inventory.get(switch_name)
+        if switch is None:
+            msg = f"Switch name {switch_name} not found in fabric {self.fabric_name}."
+            raise ValueError(msg)
+        serial_number = switch.get("serialNumber")
+        if serial_number is None:
+            msg = f"Switch name {switch_name} has no serial number in fabric {self.fabric_name}."
+            raise ValueError(msg)
+        return serial_number
 
     @property
     def devices(self):
