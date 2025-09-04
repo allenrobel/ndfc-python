@@ -1,0 +1,4 @@
+---
+config:
+  - fabric_name: SITE1
+  - fabric_name: SITE2
