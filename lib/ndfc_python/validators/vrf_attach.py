@@ -101,7 +101,8 @@ class VrfAttachConfig(BaseModel):
     fabric: str = Field(..., alias="fabric_name")
     freeformConfig: list[str] = Field(alias="freeform_config", default=[])
     instanceValues: InstanceValues = Field(alias="instance_values", default=InstanceValues().model_dump())
-    serialNumber: str = Field(..., alias="serial_number")
+    peer_switch_name: str = Field(default="")
+    switch_name: str
     vlan: PositiveInt | str = Field(default="")
     vrfName: str = Field(..., alias="vrf_name")
 

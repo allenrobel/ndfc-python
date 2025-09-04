@@ -69,14 +69,15 @@ def vrf_attach(cfg: dict) -> None:
         instance = VrfAttach()
         instance.rest_send = rest_send
         instance.results = Results()
-        instance.extension_values = cfg.get("extensionValues")
-        instance.fabric_name = cfg.get("fabric", "")
+        instance.extension_values = cfg.get("extensionValues", {})
+        instance.fabric_name = cfg.get("fabric")
         instance.freeform_config = cfg.get("freeformConfig", [])
-        instance.instance_values = cfg.get("instanceValues")
-        instance.serial_number = cfg.get("serialNumber")
-        instance.switch_ports = cfg.get("switchPorts", [])
+        instance.instance_values = cfg.get("instanceValues", {})
+        instance.switch_name = cfg.get("switch_name")
         instance.vlan = cfg.get("vlan")
         instance.vrf_name = cfg.get("vrfName")
+        # Only for vPC peer switches
+        instance.peer_switch_name = cfg.get("peer_switch_name")
         instance.commit()
     except ValueError as error:
         errmsg = "Error attaching VRF. "
@@ -96,7 +97,10 @@ def vrf_attach(cfg: dict) -> None:
         return
     result_msg = f"VRF {instance.vrf_name} "
     result_msg += f"attached to fabric {instance.fabric_name}, "
-    result_msg += f"serial number {instance.serial_number}."
+    result_msg += f"switch_name {instance.switch_name}, "
+    if instance.peer_switch_name:
+        result_msg += f"peer_switch_name {instance.peer_switch_name}, "
+    result_msg += f"vlan {instance.vlan}."
     log.info(result_msg)
     print(result_msg)
 
