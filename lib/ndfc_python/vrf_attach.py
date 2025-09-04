@@ -355,15 +355,14 @@ class VrfAttach:
         path = f"{self.api_v1}/lan-fabric/rest/control/fabrics/{self.fabric_name}/inventory/switchesByFabric"
         # pylint: disable=no-member
         try:
-            self.rest_send.path = path
-            self.rest_send.verb = verb
-            self.rest_send.commit()
+            self.rest_send.path = path  # type: ignore[attr-defined]
+            self.rest_send.verb = verb  # type: ignore[attr-defined]
+            self.rest_send.commit()  # type: ignore[attr-defined]
         except (TypeError, ValueError) as error:
             msg = f"Unable to send {verb} request to the controller. "
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
-        print(f"Response: {json.dumps(self.rest_send.response_current, sort_keys=True, indent=4)}")
-        for switch in self.rest_send.response_current.get("DATA", []):
+        for switch in self.rest_send.response_current.get("DATA", []):  # type: ignore[attr-defined]
             switch_name = switch.get("logicalName")
             if switch_name is None:
                 continue
