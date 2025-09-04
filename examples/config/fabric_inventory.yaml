@@ -1,0 +1,4 @@
+---
+config:
+  - fabric_name: MyFabric1
+  - fabric_name: MyFabric2
