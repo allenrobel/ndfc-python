@@ -20,6 +20,7 @@ class FabricInventory:
     - rest_send (RestSend): RestSend instance to use for REST calls
     - results (Results): Results instance to use for result handling
     """
+
     def __init__(self):
         self.class_name = self.__class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
