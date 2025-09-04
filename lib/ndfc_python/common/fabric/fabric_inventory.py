@@ -16,9 +16,10 @@ class FabricInventory:
     See examples/fabric_inventory.py
 
     ## Properties
-    - fabric_name (str): name of the fabric to query
-    - rest_send (RestSend): RestSend instance to use for REST calls
-    - results (Results): Results instance to use for result handling
+    - fabric_name (str): getter/setter: name of the fabric to query
+    - rest_send (RestSend): getter/setter: RestSend instance to use for REST calls
+    - devices (list): getter: list of device names in the fabric inventory
+    - inventory (dict): getter: fabric inventory dictionary, keyed on device name
     """
 
     def __init__(self):
@@ -172,6 +173,10 @@ class FabricInventory:
             msg = f"Unable to send {verb} request to the controller. "
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
+        if self.rest_send.response_current.get("RETURN_CODE") not in [200, 201]:  # type: ignore[attr-defined]
+            msg = f"Unable to retrieve fabric inventory for fabric {self.fabric_name}. "
+            msg += f"Controller response: {self.rest_send.response_current}. "
+            raise ValueError(msg)
         for switch in self.rest_send.response_current.get("DATA", []):  # type: ignore[attr-defined]
             switch_name = switch.get("logicalName")
             if switch_name is None:

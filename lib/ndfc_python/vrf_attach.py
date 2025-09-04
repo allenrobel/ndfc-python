@@ -37,10 +37,12 @@ Send vrf attach POST requests to the controller
 # We are using isort for import sorting.
 # pylint: disable=wrong-import-order
 
+import copy
 import inspect
 import json
 import logging
 
+from ndfc_python.common.fabric.fabric_inventory import FabricInventory
 from ndfc_python.validations import Validations
 from plugins.module_utils.common.properties import Properties
 from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
@@ -69,8 +71,6 @@ class VrfAttach:
         self.ep_fabrics = f"{self.api_v1}/lan-fabric/rest/top-down/fabrics"
         self.fabric_switches = {}
         self.validations = Validations()
-        self._rest_send = None
-        self._results = None
 
         self.properties = {}
 
@@ -351,22 +351,14 @@ class VrfAttach:
                 }
             }
         """
-        verb = "GET"
-        path = f"{self.api_v1}/lan-fabric/rest/control/fabrics/{self.fabric_name}/inventory/switchesByFabric"
         # pylint: disable=no-member
-        try:
-            self.rest_send.path = path  # type: ignore[attr-defined]
-            self.rest_send.verb = verb  # type: ignore[attr-defined]
-            self.rest_send.commit()  # type: ignore[attr-defined]
-        except (TypeError, ValueError) as error:
-            msg = f"Unable to send {verb} request to the controller. "
-            msg += f"Error details: {error}"
-            raise ValueError(msg) from error
-        for switch in self.rest_send.response_current.get("DATA", []):  # type: ignore[attr-defined]
-            switch_name = switch.get("logicalName")
-            if switch_name is None:
-                continue
-            self.fabric_switches[switch_name] = switch
+        instance = FabricInventory()
+        instance.fabric_name = self.fabric_name
+        instance.rest_send = self.rest_send  # type: ignore[attr-defined]
+        instance.results = self.results  # type: ignore[attr-defined]
+        instance.commit()
+        self.fabric_switches = copy.deepcopy(instance.inventory)
+        # pylint: enable=no-member
 
     def _switch_name_to_serial_number(self, switch_name: str) -> str:
         """
