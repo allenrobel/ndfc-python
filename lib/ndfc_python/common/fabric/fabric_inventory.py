@@ -175,7 +175,7 @@ class FabricInventory:
             raise ValueError(msg) from error
         if self.rest_send.response_current.get("RETURN_CODE") not in [200, 201]:  # type: ignore[attr-defined]
             msg = f"Unable to retrieve fabric inventory for fabric {self.fabric_name}. "
-            msg += f"Controller response: {self.rest_send.response_current}. "
+            msg += f"Controller response: {self.rest_send.response_current}."  # type: ignore[attr-defined]
             raise ValueError(msg)
         for switch in self.rest_send.response_current.get("DATA", []):  # type: ignore[attr-defined]
             switch_name = switch.get("logicalName")
