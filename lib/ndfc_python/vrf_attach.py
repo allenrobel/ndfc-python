@@ -69,6 +69,7 @@ class VrfAttach:
 
         self.api_v1 = "/appcenter/cisco/ndfc/api/v1"
         self.ep_fabrics = f"{self.api_v1}/lan-fabric/rest/top-down/fabrics"
+        self.fabric_inventory = FabricInventory()
         self.fabric_switches = {}
         self.validations = Validations()
 
@@ -96,8 +97,8 @@ class VrfAttach:
         if not self.fabric_switches:
             self.populate_fabric_switches()
 
-        serial_number = self._switch_name_to_serial_number(switch_name)
-        peer_serial_number = self._switch_name_to_serial_number(peer_switch_name)
+        serial_number = self.fabric_inventory.switch_name_to_serial_number(switch_name)
+        peer_serial_number = self.fabric_inventory.switch_name_to_serial_number(peer_switch_name)
         switch = self.fabric_switches.get(switch_name)
         peer_switch = self.fabric_switches.get(peer_switch_name)
 
@@ -125,6 +126,8 @@ class VrfAttach:
         final verification of all parameters
         """
         method_name = inspect.stack()[0][3]
+        if not self.fabric_switches:
+            self.populate_fabric_switches()
         # pylint: disable=no-member
         if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
@@ -160,8 +163,6 @@ class VrfAttach:
             msg += "peer_switch_name must be different from switch_name"
             raise ValueError(msg)
         if self.peer_switch_name:
-            if not self.fabric_switches:
-                self.populate_fabric_switches()
             if self.peer_switch_name not in self.fabric_switches:
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"peer_switch_name {self.peer_switch_name} "
@@ -225,156 +226,15 @@ class VrfAttach:
 
         Populates self.fabric_switches:
             dict keyed on switch_name, containing switch details.
-
-        Example:
-
-            {
-                "VP3": {
-                    "switchRoleEnum": "Leaf",
-                    "vrf": "management",
-                    "fabricTechnology": "VXLANFabric",
-                    "deviceType": "Switch_Fabric",
-                    "fabricId": 4,
-                    "name": null,
-                    "domainID": 0,
-                    "wwn": null,
-                    "membership": null,
-                    "ports": 0,
-                    "model": "N9K-C9300v",
-                    "version": null,
-                    "upTime": 0,
-                    "ipAddress": "192.168.14.153",
-                    "mgmtAddress": null,
-                    "vendor": "Cisco",
-                    "displayHdrs": null,
-                    "displayValues": null,
-                    "colDBId": 0,
-                    "fid": 0,
-                    "isLan": false,
-                    "is_smlic_enabled": false,
-                    "present": true,
-                    "licenseViolation": false,
-                    "managable": true,
-                    "mds": false,
-                    "connUnitStatus": 0,
-                    "standbySupState": 0,
-                    "activeSupSlot": 0,
-                    "unmanagableCause": "",
-                    "lastScanTime": 0,
-                    "fabricName": "SITE4",
-                    "modelType": 0,
-                    "logicalName": "VP3",
-                    "switchDbID": 30820,
-                    "uid": 0,
-                    "release": "10.3(8)",
-                    "location": null,
-                    "contact": null,
-                    "upTimeStr": "01:58:36",
-                    "upTimeNumber": 0,
-                    "network": null,
-                    "nonMdsModel": null,
-                    "numberOfPorts": 0,
-                    "availPorts": 0,
-                    "usedPorts": 0,
-                    "vsanWwn": null,
-                    "vsanWwnName": null,
-                    "swWwn": null,
-                    "swWwnName": null,
-                    "serialNumber": "9EJ4B3H5GJ3",
-                    "domain": null,
-                    "principal": null,
-                    "status": "ok",
-                    "index": 0,
-                    "licenseDetail": null,
-                    "isPmCollect": false,
-                    "sanAnalyticsCapable": false,
-                    "vdcId": 0,
-                    "vdcName": "",
-                    "vdcMac": null,
-                    "fcoeEnabled": false,
-                    "cpuUsage": 0,
-                    "memoryUsage": 0,
-                    "scope": null,
-                    "fex": false,
-                    "health": -1,
-                    "npvEnabled": false,
-                    "linkName": null,
-                    "username": null,
-                    "primaryIP": "",
-                    "primarySwitchDbID": 0,
-                    "secondaryIP": "",
-                    "secondarySwitchDbID": 0,
-                    "isEchSupport": false,
-                    "moduleIndexOffset": 9999,
-                    "sysDescr": "",
-                    "isTrapDelayed": false,
-                    "switchRole": "leaf",
-                    "mode": "Normal",
-                    "hostName": "VP3",
-                    "ipDomain": "",
-                    "systemMode": "Normal",
-                    "waitForSwitchModeChg": false,
-                    "sourceVrf": "management",
-                    "sourceInterface": "mgmt0",
-                    "protoDiscSettings": null,
-                    "operMode": null,
-                    "modules": null,
-                    "fexMap": {},
-                    "isVpcConfigured": true,
-                    "vpcDomain": 1,
-                    "role": "Primary",
-                    "peer": "VP4",
-                    "peerSerialNumber": "9XUGSGI5J1O",
-                    "peerSwitchDbId": 30780,
-                    "peerlinkState": "Peer is OK",
-                    "keepAliveState": "Peer is alive",
-                    "consistencyState": true,
-                    "sendIntf": "Eth1/1",
-                    "recvIntf": "Lo0",
-                    "interfaces": null,
-                    "elementType": null,
-                    "monitorMode": null,
-                    "freezeMode": null,
-                    "cfsSyslogStatus": 1,
-                    "isNonNexus": false,
-                    "swUUIDId": 30670,
-                    "swUUID": "DCNM-UUID-30670",
-                    "swType": null,
-                    "ccStatus": "In-Sync",
-                    "operStatus": "Minor",
-                    "intentedpeerName": "VP4",
-                    "sharedBorder": false,
-                    "isSharedBorder": false
-                },
-                "switch2": {
-                    switch_details
-                }
-            }
+            See FabricInventory.inventory for details.
         """
         # pylint: disable=no-member
-        instance = FabricInventory()
-        instance.fabric_name = self.fabric_name
-        instance.rest_send = self.rest_send  # type: ignore[attr-defined]
-        instance.results = self.results  # type: ignore[attr-defined]
-        instance.commit()
-        self.fabric_switches = copy.deepcopy(instance.inventory)
+        self.fabric_inventory.fabric_name = self.fabric_name
+        self.fabric_inventory.rest_send = self.rest_send  # type: ignore[attr-defined]
+        self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
+        self.fabric_inventory.commit()
+        self.fabric_switches = copy.deepcopy(self.fabric_inventory.inventory)
         # pylint: enable=no-member
-
-    def _switch_name_to_serial_number(self, switch_name: str) -> str:
-        """
-        Convert a switch name to a serial number.
-        """
-        if not self.fabric_switches:
-            self.populate_fabric_switches()
-        switch = self.fabric_switches.get(switch_name)
-        if switch is None:
-            msg = f"Switch name {switch_name} not found in fabric {self.fabric_name}."
-            raise ValueError(msg)
-        serial_number = switch.get("serialNumber")
-        if serial_number is None:
-            msg = f"Switch name {switch_name} has no serial number in fabric {self.fabric_name}."
-            raise ValueError(msg)
-        return serial_number
 
     def _build_lan_attach_list_item(self, switch_name: str) -> dict:
         """
@@ -386,7 +246,7 @@ class VrfAttach:
         _lan_attach_list_item["fabric"] = self.fabric_name
         _lan_attach_list_item["freeformConfig"] = self.freeform_config
         _lan_attach_list_item["instanceValues"] = self.instance_values
-        _lan_attach_list_item["serialNumber"] = self._switch_name_to_serial_number(switch_name)
+        _lan_attach_list_item["serialNumber"] = self.fabric_inventory.switch_name_to_serial_number(switch_name)
         _lan_attach_list_item["vlan"] = self.vlan
         _lan_attach_list_item["vrfName"] = self.vrf_name
         return _lan_attach_list_item
@@ -412,6 +272,9 @@ class VrfAttach:
         Attach a vrf to a switch
         """
         method_name = inspect.stack()[0][3]
+        if not self.fabric_switches:
+            self.populate_fabric_switches()
+
         payload = self._build_payload()
 
         self._final_verification()

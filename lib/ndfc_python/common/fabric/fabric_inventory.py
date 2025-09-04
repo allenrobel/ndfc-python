@@ -31,6 +31,19 @@ class FabricInventory:
         self.api_v1 = "/appcenter/cisco/ndfc/api/v1"
         self.ep_fabrics = f"{self.api_v1}/lan-fabric/rest/control/fabrics"
 
+    def final_verification(self) -> None:
+        """
+        Verify that required properties have been set.
+        """
+        if self.fabric_name is None:
+            msg = f"{self.class_name}.final_verification: fabric_name must be set."
+            raise ValueError(msg)
+        # pylint: disable=no-member
+        if self.rest_send is None:  # type: ignore[attr-defined]
+            msg = f"{self.class_name}.final_verification: rest_send must be set."
+            raise ValueError(msg)
+        # pylint: enable=no-member
+
     def commit(self) -> None:
         """Get switches for a specific fabric.
 
@@ -162,6 +175,7 @@ class FabricInventory:
                 }
             }
         """
+        self.final_verification()
         verb = "GET"
         path = f"{self.ep_fabrics}/{self.fabric_name}/inventory/switchesByFabric"
         # pylint: disable=no-member
@@ -183,6 +197,22 @@ class FabricInventory:
                 continue
             self._inventory[switch_name] = switch
         self._committed = True
+
+    def switch_name_to_serial_number(self, switch_name: str) -> str:
+        """
+        Given a switch_name, return the associated serial number.
+        """
+        if not self._committed:
+            self.commit()
+        switch = self.inventory.get(switch_name)
+        if switch is None:
+            msg = f"Switch name {switch_name} not found in fabric {self.fabric_name}."
+            raise ValueError(msg)
+        serial_number = switch.get("serialNumber")
+        if serial_number is None:
+            msg = f"Switch name {switch_name} has no serial number in fabric {self.fabric_name}."
+            raise ValueError(msg)
+        return serial_number
 
     @property
     def devices(self):
