@@ -1,0 +1,4 @@
+---
+config:
+  - fabric_name: SITE1
+    network_name: v0n0
