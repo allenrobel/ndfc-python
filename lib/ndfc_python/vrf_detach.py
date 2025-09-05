@@ -153,7 +153,13 @@ class VrfDetach:
         _lan_attach_list_item = {}
         _lan_attach_list_item["deployment"] = False
         _lan_attach_list_item["fabric"] = self.fabric_name
-        _lan_attach_list_item["serialNumber"] = self.fabric_inventory.switch_name_to_serial_number(self.switch_name)
+        try:
+            _lan_attach_list_item["serialNumber"] = self.fabric_inventory.switch_name_to_serial_number(self.switch_name)
+        except ValueError as error:
+            msg = f"{self.class_name}._build_payload: "
+            msg += f"Unable to get serial number for switch_name {self.switch_name}. "
+            msg += f"Error details: {error}"
+            raise ValueError(msg) from error
         _lan_attach_list_item["vrfName"] = self.vrf_name
 
         _lan_attach_list = []

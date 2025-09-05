@@ -85,7 +85,7 @@ def vrf_detach(cfg: dict) -> None:
         return
 
     response_messages = ", ".join(data.values())
-    if instance.rest_send.response_current.get("RETURN_CODE") not in [200, 201] or "SUCCESS" not in response_messages:
+    if instance.rest_send.response_current.get("RETURN_CODE") not in (200, 201) or "SUCCESS" not in response_messages:
         errmsg += f"Controller response: {response_messages}"
         log.error(errmsg)
         print(errmsg)
