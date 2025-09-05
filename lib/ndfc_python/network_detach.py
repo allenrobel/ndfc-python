@@ -182,12 +182,13 @@ class NetworkDetach:
         Detach a network from a switch
         """
         method_name = inspect.stack()[0][3]
-        self._final_verification()
         # pylint: disable=no-member
         self.fabric_inventory.fabric_name = self.fabric_name
         self.fabric_inventory.rest_send = self.rest_send  # type: ignore[attr-defined]
         self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
         self.fabric_inventory.commit()
+
+        self._final_verification()
 
         payload = self._build_payload()
         # TODO: Update when we add endpoint to ansible-dcnm
