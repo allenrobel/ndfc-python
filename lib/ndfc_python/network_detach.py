@@ -36,6 +36,7 @@ network detach operation is determined by lanAttachList[x].deployment == false
 import inspect
 import logging
 
+from ndfc_python.common.fabric.fabric_inventory import FabricInventory
 from ndfc_python.validations import Validations
 from plugins.module_utils.common.properties import Properties
 from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
@@ -60,6 +61,7 @@ class NetworkDetach:
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
+        self.fabric_inventory = FabricInventory()
         self.validations = Validations()
 
         self._rest_send = None
@@ -160,7 +162,13 @@ class NetworkDetach:
         _lan_attach_list_item["detachSwitchPorts"] = self.detach_switch_ports
         _lan_attach_list_item["fabric"] = self.fabric_name
         _lan_attach_list_item["networkName"] = self.network_name
-        _lan_attach_list_item["serialNumber"] = self.serial_number
+        try:
+            _lan_attach_list_item["serialNumber"] = self.fabric_inventory.switch_name_to_serial_number(self.switch_name)
+        except ValueError as error:
+            msg = f"{self.class_name}._build_payload: "
+            msg += f"Unable to get serial number for switch_name {self.switch_name}. "
+            msg += f"Error details: {error}"
+            raise ValueError(msg) from error
         _lan_attach_list_item["vlan"] = self.vlan
 
         _lan_attach_list = []
@@ -174,15 +182,19 @@ class NetworkDetach:
         Detach a network from a switch
         """
         method_name = inspect.stack()[0][3]
-        payload = self._build_payload()
         self._final_verification()
+        # pylint: disable=no-member
+        self.fabric_inventory.fabric_name = self.fabric_name
+        self.fabric_inventory.rest_send = self.rest_send  # type: ignore[attr-defined]
+        self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
+        self.fabric_inventory.commit()
 
+        payload = self._build_payload()
         # TODO: Update when we add endpoint to ansible-dcnm
         path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics"
         path += f"/{self.fabric_name}/networks/attachments"
         verb = "POST"
 
-        # pylint: disable=no-member
         try:
             self.rest_send.path = path
             self.rest_send.verb = verb
@@ -230,15 +242,15 @@ class NetworkDetach:
         self.properties["networkName"] = value
 
     @property
-    def serial_number(self) -> str:
+    def switch_name(self) -> str:
         """
-        return the current value of serialNumber
+        return the current value of switch_name
         """
-        return self.properties.get("serialNumber")
+        return self.properties.get("switch_name")
 
-    @serial_number.setter
-    def serial_number(self, value: str) -> None:
-        self.properties["serialNumber"] = value
+    @switch_name.setter
+    def switch_name(self, value: str) -> None:
+        self.properties["switch_name"] = value
 
     @property
     def vlan(self) -> str:
