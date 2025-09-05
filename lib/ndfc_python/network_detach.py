@@ -61,6 +61,9 @@ class NetworkDetach:
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
+        self.api_v1 = "/appcenter/cisco/ndfc/api/v1"
+        self.ep_fabrics = f"{self.api_v1}/lan-fabric/rest/top-down/fabrics"
+
         self.fabric_inventory = FabricInventory()
         self.validations = Validations()
 
@@ -106,6 +109,30 @@ class NetworkDetach:
             msg += f"in fabric {self.fabric_name}."
             raise ValueError(msg)
 
+        if not self.switch_name:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "switch_name must be set before calling "
+            msg += f"{self.class_name}.commit"
+            raise ValueError(msg)
+
+        if self.peer_switch_name:
+            if self.peer_switch_name == self.switch_name:
+                msg = f"{self.class_name}.{method_name}: "
+                msg += f"peer_switch_name {self.peer_switch_name} must differ "
+                msg += f"from switch_name {self.switch_name}."
+                raise ValueError(msg)
+            if self.peer_switch_name not in self.fabric_inventory.devices:
+                msg = f"{self.class_name}.{method_name}: "
+                msg += f"peer_switch_name {self.peer_switch_name} "
+                msg += f"not found in fabric {self.fabric_name}."
+                raise ValueError(msg)
+            if not self.fabric_inventory.is_vpc_peer(self.switch_name, self.peer_switch_name):
+                msg = f"{self.class_name}.{method_name}: "
+                msg += f"switch_name {self.switch_name} and "
+                msg += f"peer_switch_name {self.peer_switch_name} "
+                msg += "are not vPC peer switches."
+                raise ValueError(msg)
+
     def fabric_exists(self):
         """
         Return True if self.fabric_name exists on the controller.
@@ -150,6 +177,26 @@ class NetworkDetach:
                 return True
         return False
 
+    def _build_lan_attach_list_item(self, switch_name: str) -> dict:
+        """
+        Build and return a lanAttachList item for the given switch_name
+        """
+        method_name = inspect.stack()[0][3]
+        _lan_attach_list_item = {}
+        _lan_attach_list_item["deployment"] = False
+        _lan_attach_list_item["detachSwitchPorts"] = self.detach_switch_ports
+        _lan_attach_list_item["fabric"] = self.fabric_name
+        _lan_attach_list_item["networkName"] = self.network_name
+        try:
+            _lan_attach_list_item["serialNumber"] = self.fabric_inventory.switch_name_to_serial_number(switch_name)
+        except ValueError as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Unable to get serial number for switch_name {switch_name}. "
+            msg += f"Error details: {error}"
+            raise ValueError(msg) from error
+        _lan_attach_list_item["vlan"] = self.vlan
+        return _lan_attach_list_item
+
     def _build_payload(self) -> list[dict]:
         """
         Build and return the payload for the API request
@@ -157,22 +204,11 @@ class NetworkDetach:
         _payload = []
         _payload_item = {}
         _payload_item["networkName"] = self.network_name
-        _lan_attach_list_item = {}
-        _lan_attach_list_item["deployment"] = False
-        _lan_attach_list_item["detachSwitchPorts"] = self.detach_switch_ports
-        _lan_attach_list_item["fabric"] = self.fabric_name
-        _lan_attach_list_item["networkName"] = self.network_name
-        try:
-            _lan_attach_list_item["serialNumber"] = self.fabric_inventory.switch_name_to_serial_number(self.switch_name)
-        except ValueError as error:
-            msg = f"{self.class_name}._build_payload: "
-            msg += f"Unable to get serial number for switch_name {self.switch_name}. "
-            msg += f"Error details: {error}"
-            raise ValueError(msg) from error
-        _lan_attach_list_item["vlan"] = self.vlan
-
         _lan_attach_list = []
-        _lan_attach_list.append(_lan_attach_list_item)
+        _lan_attach_list.append(self._build_lan_attach_list_item(self.switch_name))
+        if self.peer_switch_name:
+            _lan_attach_list.append(self._build_lan_attach_list_item(self.peer_switch_name))
+
         _payload_item["lanAttachList"] = _lan_attach_list
         _payload.append(_payload_item)
         return _payload
@@ -189,11 +225,10 @@ class NetworkDetach:
         self.fabric_inventory.commit()
 
         self._final_verification()
-
         payload = self._build_payload()
+
         # TODO: Update when we add endpoint to ansible-dcnm
-        path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics"
-        path += f"/{self.fabric_name}/networks/attachments"
+        path = f"{self.ep_fabrics}/{self.fabric_name}/networks/attachments"
         verb = "POST"
 
         try:
@@ -241,6 +276,17 @@ class NetworkDetach:
     @network_name.setter
     def network_name(self, value: str) -> None:
         self.properties["networkName"] = value
+
+    @property
+    def peer_switch_name(self) -> str:
+        """
+        return the current value of peer_switch_name
+        """
+        return self.properties.get("peer_switch_name")
+
+    @peer_switch_name.setter
+    def peer_switch_name(self, value: str) -> None:
+        self.properties["peer_switch_name"] = value
 
     @property
     def switch_name(self) -> str:

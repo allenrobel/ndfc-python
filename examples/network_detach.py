@@ -86,6 +86,7 @@ def network_detach(cfg: dict) -> None:
         instance.detach_switch_ports = cfg.get("detachSwitchPorts", [])
         instance.fabric_name = cfg.get("fabric", "")
         instance.network_name = cfg.get("networkName")
+        instance.peer_switch_name = cfg.get("peer_switch_name", "")
         instance.switch_name = cfg.get("switch_name")
         instance.vlan = cfg.get("vlan")
         instance.commit()
@@ -98,13 +99,19 @@ def network_detach(cfg: dict) -> None:
 
     response_messages = ", ".join(str(v) for v in data.values())
     if instance.rest_send.response_current.get("RETURN_CODE") not in (200, 201) or "SUCCESS" not in response_messages:
-        errmsg += f"Controller response: {response_messages}"
+        if instance.rest_send.response_current.get("DATA", {}).get("message"):
+            errmsg = instance.rest_send.response_current.get("DATA", {}).get("message")
+        else:
+            errmsg += f"Controller response: {instance.rest_send.response_current}"
         log.error(errmsg)
         print(errmsg)
         return
     result_msg = f"Network {instance.network_name} "
     result_msg += f"detached from fabric {instance.fabric_name}, "
-    result_msg += f"switch_name {instance.switch_name}."
+    result_msg += f"switch_name {instance.switch_name}"
+    if instance.peer_switch_name:
+        result_msg += f", peer_switch_name {instance.peer_switch_name}"
+    result_msg += "."
     log.info(result_msg)
     print(result_msg)
 

@@ -1,3 +1,6 @@
+# For vPC peers, only one switch of the pair needs to be included.
+# The configuration for the vPC switch must include the peer_switch_name parameter.
+# See VP3 below for an example.
 ---
 config:
   - switch_name: LE1
@@ -6,9 +9,19 @@ config:
     fabric_name: SITE1
     network_name: v1n1
     vlan: 2301
+
   - switch_name: LE2
     detach_switch_ports:
       - Ethernet1/2
     fabric_name: SITE2
+    network_name: v1n1
+    vlan: 2301
+
+  # SITE4 VP3/VP4 VPC peers
+  - switch_name: VP3
+    peer_switch_name: VP4
+    detach_switch_ports:
+      - Ethernet1/2
+    fabric_name: SITE4
     network_name: v1n1
     vlan: 2301
