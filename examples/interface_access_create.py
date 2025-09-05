@@ -74,13 +74,14 @@ def interface_access_create(config):
         instance.conf = config.get("conf")
         instance.desc = config.get("desc")
         instance.enable_netflow = config.get("enable_netflow")
+        instance.fabric_name = config.get("fabric_name")
         instance.intf_name = config.get("intf_name")
         instance.if_name = config.get("intf_name")
         instance.mtu = config.get("mtu")
         instance.netflow_monitor = config.get("netflow_monitor")
         instance.porttype_fast_enabled = config.get("porttype_fast_enabled")
         instance.ptp = config.get("ptp")
-        instance.serial_number = config.get("serial_number")
+        instance.switch_name = config.get("switch_name")
         instance.speed = config.get("speed")
         result = instance.commit()
     except ValueError as error:
@@ -92,7 +93,8 @@ def interface_access_create(config):
 
     if result.get("RETURN_CODE") == 403 and result.get("MESSAGE") == "Forbidden":
         msg = "Controller response (403 and MESSAGE 'Forbidden') implies "
-        msg += f"that serial_number {instance.serial_number} does not exist."
+        msg += f"that switch_name {instance.switch_name} does not exist "
+        msg += f"in fabric {instance.fabric_name}."
         log.error(msg)
         print(msg)
         return
@@ -105,7 +107,7 @@ def interface_access_create(config):
         return
 
     result_msg = f"Interface {instance.intf_name} "
-    result_msg += f"created on switch {instance.serial_number}"
+    result_msg += f"created on switch {instance.switch_name} ({instance.serial_number})"
     log.info(result_msg)
     print(result_msg)
 

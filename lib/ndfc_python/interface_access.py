@@ -19,7 +19,7 @@ ndfc.login()
 instance = InterfaceAccessCreate()
 instance.policy = "int_access_host"
 instance.interface_type = "INTERFACE_ETHERNET"
-instance.serial_number = "FDO1234567A"
+instance.switch_name = "LE1"
 instance.if_name = "Ethernet1/2"
 instance.intf_name = "Ethernet1/2"
 instance.bpduguard_enabled = "true"
@@ -41,6 +41,7 @@ instance.commit()
 import inspect
 import logging
 
+from ndfc_python.common.fabric.fabric_inventory import FabricInventory
 from ndfc_python.ndfc import NdfcRequestError
 from plugins.module_utils.common.properties import Properties
 
@@ -54,9 +55,13 @@ class InterfaceAccessCreate:
 
     def __init__(self):
         self.class_name = __class__.__name__
+
+        self.fabric_inventory = FabricInventory()
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
         self._rest_send = None
         self._results = None
+        self._fabric_name = None
+        self._switch_name = None
         self._init_payload_set()
         self._init_payload_set_mandatory()
         self._init_payload_default()
@@ -268,6 +273,28 @@ class InterfaceAccessCreate:
         self.nvpair["SERIAL_NUMBER"] = value
 
     @property
+    def fabric_name(self) -> str:
+        """
+        return the current value of fabric_name
+        """
+        return self._fabric_name
+
+    @fabric_name.setter
+    def fabric_name(self, value: str) -> None:
+        self._fabric_name = value
+
+    @property
+    def switch_name(self) -> str:
+        """
+        return the current value of switch_name
+        """
+        return self._switch_name
+
+    @switch_name.setter
+    def switch_name(self, value: str) -> None:
+        self._switch_name = value
+
+    @property
     def speed(self):
         """return nvpair.SPEED"""
         return self.nvpair["SPEED"]
@@ -290,9 +317,23 @@ class InterfaceAccessCreate:
                 self.log.error(msg)
                 raise ValueError(msg)
 
+        if self.switch_name not in self.fabric_inventory.devices:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"switch_name {self.switch_name} not found "
+            msg += f"in fabric {self.fabric_inventory.fabric_name}"
+            self.log.error(msg)
+            raise ValueError(msg)
+
     def commit(self):
         """Commit the configuration changes to the controller."""
         method_name = inspect.stack()[0][3]
+        # pylint: disable=no-member
+        self.fabric_inventory.fabric_name = self.fabric_name
+        self.fabric_inventory.rest_send = self.rest_send  # type: ignore[attr-defined]
+        self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
+        self.fabric_inventory.commit()
+        self.serial_number = self.fabric_inventory.switch_name_to_serial_number(self.switch_name)
+
         self._final_verification()
         path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/interface"
         verb = "POST"

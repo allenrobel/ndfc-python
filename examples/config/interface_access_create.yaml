@@ -1,6 +1,8 @@
 ---
 config:
-  - access_vlan: ""
+  - switch_name: LE1
+    fabric_name: SITE1
+    access_vlan: ""
     admin_state: True
     bpduguard_enabled: True
     desc: "Eth1/2: Connected to HO1"
@@ -11,5 +13,4 @@ config:
     netflow_monitor: ""
     porttype_fast_enabled: True
     ptp: False
-    serial_number: 96KWEIQE2HC
     speed: Auto
