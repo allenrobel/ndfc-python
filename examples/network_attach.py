@@ -96,7 +96,7 @@ def network_attach(cfg: dict) -> None:
         print(errmsg)
         return
 
-    response_messages = ", ".join(data.values())
+    response_messages = ", ".join(str(v) for v in data.values())
     if instance.rest_send.response_current.get("RETURN_CODE") not in (200, 201) or "SUCCESS" not in response_messages:
         if instance.rest_send.response_current.get("DATA", {}).get("message"):
             errmsg = instance.rest_send.response_current.get("DATA", {}).get("message")
