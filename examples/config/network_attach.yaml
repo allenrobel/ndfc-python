@@ -1,6 +1,7 @@
 ---
 config:
-  - deployment: true
+  - switch_name: LE1
+    deployment: true
     detach_switch_ports: []
     dot1q_vlan: ""
     extension_values: ""
@@ -10,13 +11,13 @@ config:
     mso_created: false
     mso_set_vlan: false
     network_name: ndfc-python-net1
-    serial_number: 96KWEIQE2HC
     switch_ports:
       - Ethernet1/2
     untagged: true
     tor_ports: []
     vlan: 2301
-  - deployment: true
+  - switch_name: LE2
+    deployment: true
     detach_switch_ports: []
     dot1q_vlan: ""
     extension_values: ""
@@ -26,7 +27,6 @@ config:
     mso_created: false
     mso_set_vlan: false
     network_name: ndfc-python-net1
-    serial_number: 9OW9132EH2M
     switch_ports:
       - Ethernet1/2
     untagged: true
