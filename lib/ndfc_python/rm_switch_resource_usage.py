@@ -20,6 +20,7 @@ Payload is not required for GET requests.
 import inspect
 import logging
 
+from ndfc_python.common.fabric.fabric_inventory import FabricInventory
 from ndfc_python.validations import Validations
 from ndfc_python.validators.rm_switch_resource_usage import ResourcePool
 from plugins.module_utils.common.properties import Properties
@@ -74,11 +75,14 @@ class RmSwitchResourceUsage:
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
+        self.fabric_inventory = FabricInventory()
         self.validations = Validations()
         self.endpoint = Endpoint()
 
+        self._fabric_name = None
         self._rest_send = None
         self._results = None
+        self._switch_name = None
 
         self.properties = {}
 
@@ -91,18 +95,28 @@ class RmSwitchResourceUsage:
         if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.rest_send must be set before calling "
-            msg += f"{self.class_name}.commit"
+            msg += f"{self.class_name}.commit or accessing {self.class_name}.resource_usage"
             raise ValueError(msg)
         if self.results is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.results must be set before calling "
-            msg += f"{self.class_name}.commit"
+            msg += f"{self.class_name}.commit or accessing {self.class_name}.resource_usage"
             raise ValueError(msg)
         # pylint: enable=no-member
 
-        if self.serial_number is None:
+        if self.fabric_name in (None, ""):
             msg = f"{self.class_name}.{method_name}: "
-            msg += "serial_number must be set before calling commit."
+            msg += "fabric_name must be set before calling commit."
+            raise ValueError(msg)
+
+        if self.switch_name in (None, ""):
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "switch_name must be set before calling commit."
+            raise ValueError(msg)
+
+        if self.switch_name not in self.fabric_inventory.devices:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"switch_name {self.switch_name} not found in fabric {self.fabric_name}."
             raise ValueError(msg)
 
     def commit(self):
@@ -111,11 +125,21 @@ class RmSwitchResourceUsage:
         """
         method_name = inspect.stack()[0][3]
 
+        # pylint: disable=no-member
+        self.fabric_inventory.fabric_name = self.fabric_name
+        self.fabric_inventory.rest_send = self.rest_send  # type: ignore[attr-defined]
+        self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
+        self.fabric_inventory.commit()
+
         self._final_verification()
+        self.serial_number = self.fabric_inventory.switch_name_to_serial_number(self.switch_name)
+        if self.serial_number is None:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"switch_name {self.switch_name} not found in fabric {self.fabric_name}."
+            raise ValueError(msg)
         ep = Endpoint()
         ep.serial_number = self.serial_number
 
-        # pylint: disable=no-member
         try:
             self.rest_send.path = ep.path
             self.rest_send.verb = ep.verb
@@ -155,10 +179,7 @@ class RmSwitchResourceUsage:
     @property
     def resource_usage(self) -> list:
         """Return a list of resource usage information."""
-        if self.serial_number is None:
-            msg = f"{self.class_name}.resource_usage: "
-            msg += "serial_number must be set before accessing resource_usage"
-            raise ValueError(msg)
+        self._final_verification()
         # pylint: disable=no-member
         data: list = self.rest_send.response_current.get("DATA")  # type: ignore[attr-defined]
         # pylint: enable=no-member
@@ -196,6 +217,28 @@ class RmSwitchResourceUsage:
             if item.get("resourcePool", {}).get("poolName") == self.filter:
                 filtered_data.append(item)
         return filtered_data
+
+    @property
+    def fabric_name(self):
+        """
+        return the current payload value of fabric
+        """
+        return self._fabric_name
+
+    @fabric_name.setter
+    def fabric_name(self, value):
+        self._fabric_name = value
+
+    @property
+    def switch_name(self) -> str:
+        """
+        return the current value of switch_name
+        """
+        return self._switch_name
+
+    @switch_name.setter
+    def switch_name(self, value: str) -> None:
+        self._switch_name = value
 
     @property
     def serial_number(self) -> str:
