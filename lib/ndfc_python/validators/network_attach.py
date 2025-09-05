@@ -15,6 +15,7 @@ class NetworkAttachConfig(BaseModel):
     freeformConfig: list[str] = Field(alias="freeform_config", default=[])
     instanceValues: str = Field(alias="instance_values", default="")
     networkName: str = Field(..., alias="network_name")
+    peer_switch_name: str = Field(default="")
     switch_name: str
     switchPorts: list[str] = Field(alias="switch_ports", default=[])
     torPorts: list[str] = Field(alias="tor_ports", default=[])

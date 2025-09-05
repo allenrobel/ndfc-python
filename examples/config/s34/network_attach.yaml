@@ -1,3 +1,6 @@
+# For vPC peers, only one switch of the pair needs to be included.
+# The configuration for the vPC switch must include the peer_switch_name parameter.
+# See VP3 below for an example.
 ---
 config:
   # SITE3 LE3
@@ -14,22 +17,9 @@ config:
     untagged: true
     tor_ports: []
     vlan: 2301
-  # SITE4 VP3
+  # SITE4 VP3/VP4 VPC peers
   - switch_name: VP3
-    detach_switch_ports: []
-    dot1q_vlan: ""
-    extension_values: ""
-    fabric_name: SITE4
-    freeform_config: []
-    instance_values: ""
-    network_name: v1n1
-    switch_ports:
-      - Ethernet1/2
-    untagged: true
-    tor_ports: []
-    vlan: 2301
-  # SITE4 VP4
-  - switch_name: VP4
+    peer_switch_name: VP4
     detach_switch_ports: []
     dot1q_vlan: ""
     extension_values: ""
