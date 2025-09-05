@@ -83,6 +83,7 @@ def network_attach(cfg: dict) -> None:
         instance.freeform_config = cfg.get("freeformConfig", [])
         instance.instance_values = cfg.get("instanceValues", "")
         instance.network_name = network_name
+        instance.peer_switch_name = cfg.get("peer_switch_name", "")
         instance.switch_name = switch_name
         instance.switch_ports = cfg.get("switchPorts", [])
         instance.tor_ports = cfg.get("torPorts", [])
