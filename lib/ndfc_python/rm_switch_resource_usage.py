@@ -80,16 +80,14 @@ class RmSwitchResourceUsage:
         self.endpoint = Endpoint()
 
         self._fabric_name = None
+        self._inventory_populated = False
         self._rest_send = None
         self._results = None
         self._switch_name = None
 
         self.properties = {}
 
-    def _final_verification(self):
-        """
-        final verification of all parameters
-        """
+    def _validate_rest_send_requirements(self):
         method_name = inspect.stack()[0][3]
         # pylint: disable=no-member
         if self.rest_send is None:
@@ -102,12 +100,33 @@ class RmSwitchResourceUsage:
             msg += f"{self.class_name}.results must be set before calling "
             msg += f"{self.class_name}.commit or accessing {self.class_name}.resource_usage"
             raise ValueError(msg)
-        # pylint: enable=no-member
+
+    def _populate_fabric_inventory(self):
+        """
+        populate fabric inventory
+        """
+        method_name = inspect.stack()[0][3]
+        # pylint: disable=no-member
+        self._validate_rest_send_requirements()
 
         if self.fabric_name in (None, ""):
             msg = f"{self.class_name}.{method_name}: "
-            msg += "fabric_name must be set before calling commit."
+            msg += "fabric_name must be set before calling commit or accessing resource_usage."
             raise ValueError(msg)
+
+        self.fabric_inventory.fabric_name = self.fabric_name
+        self.fabric_inventory.rest_send = self.rest_send  # type: ignore[attr-defined]
+        self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
+        self.fabric_inventory.commit()
+        self._inventory_populated = True
+        # pylint: enable=no-member
+
+    def _final_verification(self):
+        """
+        final verification of all parameters
+        """
+        method_name = inspect.stack()[0][3]
+        self._validate_rest_send_requirements()
 
         if self.switch_name in (None, ""):
             msg = f"{self.class_name}.{method_name}: "
@@ -125,13 +144,11 @@ class RmSwitchResourceUsage:
         """
         method_name = inspect.stack()[0][3]
 
-        # pylint: disable=no-member
-        self.fabric_inventory.fabric_name = self.fabric_name
-        self.fabric_inventory.rest_send = self.rest_send  # type: ignore[attr-defined]
-        self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
-        self.fabric_inventory.commit()
-
+        if not self._inventory_populated:
+            self._populate_fabric_inventory()
         self._final_verification()
+        # pylint: disable=no-member
+
         self.serial_number = self.fabric_inventory.switch_name_to_serial_number(self.switch_name)
         if self.serial_number is None:
             msg = f"{self.class_name}.{method_name}: "
@@ -179,7 +196,9 @@ class RmSwitchResourceUsage:
     @property
     def resource_usage(self) -> list:
         """Return a list of resource usage information."""
-        self._final_verification()
+        self._validate_rest_send_requirements()
+        if not self._inventory_populated:
+            self._populate_fabric_inventory()
         # pylint: disable=no-member
         data: list = self.rest_send.response_current.get("DATA")  # type: ignore[attr-defined]
         # pylint: enable=no-member
