@@ -76,7 +76,7 @@ def network_attach(cfg: dict) -> None:
         instance.freeform_config = cfg.get("freeformConfig", [])
         instance.instance_values = cfg.get("instanceValues", "")
         instance.network_name = cfg.get("networkName")
-        instance.serial_number = cfg.get("serialNumber")
+        instance.switch_name = cfg.get("switch_name")
         instance.switch_ports = cfg.get("switchPorts", [])
         instance.tor_ports = cfg.get("torPorts", [])
         instance.untagged = cfg.get("untagged", False)
@@ -100,7 +100,7 @@ def network_attach(cfg: dict) -> None:
         return
     result_msg = f"Network {instance.network_name} "
     result_msg += f"attached to fabric {instance.fabric_name}, "
-    result_msg += f"serial number {instance.serial_number}."
+    result_msg += f"switch_name {instance.switch_name}."
     log.info(result_msg)
     print(result_msg)
 
@@ -132,7 +132,7 @@ def setup_parser() -> argparse.Namespace:
 args = setup_parser()
 NdfcPythonLogger()
 log = logging.getLogger("ndfc_python.main")
-log.setLevel = args.loglevel
+log.setLevel(args.loglevel)
 
 try:
     user_config = ReadConfig()
