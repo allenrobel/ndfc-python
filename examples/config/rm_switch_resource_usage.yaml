@@ -1,6 +1,8 @@
 ---
 config:
-  - serial_number: 9OW9132EH2M
+  - switch_name: LE1
+    fabric_name: SITE1
     pool_name: ALL
-  - serial_number: 9OW9132EH2M
+  - switch_name: BG1
+    fabric_name: SITE1
     pool_name: TOP_DOWN_VRF_VLAN

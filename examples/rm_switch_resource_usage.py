@@ -48,7 +48,8 @@ def rm_switch_resource_usage(config):
     Given a switch resource usage configuration, get the resource usage.
     """
     try:
-        instance.serial_number = config.get("serial_number")
+        instance.switch_name = config.get("switch_name", "")
+        instance.fabric_name = config.get("fabric_name", "")
         instance.filter = config.get("pool_name", "ALL")
         instance.commit()
     except ValueError as error:
@@ -58,7 +59,9 @@ def rm_switch_resource_usage(config):
         print(errmsg)
         return
 
-    result_msg = f"Switch {instance.serial_number} resource usage. Filter: {instance.filter}."
+    result_msg = f"fabric_name {instance.fabric_name}, "
+    result_msg += f"switch_name {instance.switch_name} ({instance.serial_number}), "
+    result_msg += f"filter {instance.filter}, resource usage:\n"
     result_msg += json.dumps(instance.resource_usage, indent=4)
     log.info(result_msg)
     print(result_msg)

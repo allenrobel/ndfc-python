@@ -17,8 +17,9 @@ class ResourcePool(Enum):
 class RmSwitchResourceUsageConfig(BaseModel):
     """Base validator for Resource Manager Switch Resource Usage parameters."""
 
+    fabric_name: str = Field(..., description="Fabric Name")
     pool_name: ResourcePool = Field(default=ResourcePool.ALL, description="Optional Resource Pool Name")
-    serial_number: str = Field(..., description="Switch Serial Number")
+    switch_name: str = Field(..., description="Switch Name")
 
 
 class RmSwitchResourceUsageConfigValidator(BaseModel):
