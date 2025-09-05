@@ -70,12 +70,12 @@ def vrf_detach(cfg: dict) -> None:
         instance.rest_send = rest_send
         instance.results = Results()
         instance.fabric_name = cfg.get("fabric", "")
-        instance.serial_number = cfg.get("serialNumber")
+        instance.switch_name = cfg.get("switch_name")
         instance.vrf_name = cfg.get("vrfName")
         instance.commit()
         errmsg = f"Error detaching fabric {instance.fabric_name}, "
         errmsg += f"VRF {instance.vrf_name}, "
-        errmsg += f"from serial_number {instance.serial_number}. "
+        errmsg += f"from switch_name {instance.switch_name}. "
         data = instance.rest_send.response_current.get("DATA", {})
     except ValueError as error:
         errmsg = "Error detaching VRF. "
@@ -92,7 +92,7 @@ def vrf_detach(cfg: dict) -> None:
         return
     result_msg = f"VRF {instance.vrf_name} "
     result_msg += f"detached from fabric {instance.fabric_name}, "
-    result_msg += f"serial number {instance.serial_number}."
+    result_msg += f"switch_name {instance.switch_name}."
     log.info(result_msg)
     print(result_msg)
 

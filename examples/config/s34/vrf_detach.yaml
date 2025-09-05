@@ -4,20 +4,20 @@ config:
 
   # BG3
   - fabric_name: SITE3
-    serial_number: 92RZ2OMQCNC
+    switch_name: BG3
     vrf_name: v1
 
   # LE3
   - fabric_name: SITE3
-    serial_number: 93M2LB9V37J
+    switch_name: LE3
     vrf_name: v1
 
   # BG4
   - fabric_name: SITE4
-    serial_number: 92BX6HD7BG0
+    switch_name: BG4
     vrf_name: v1
 
   # LE4
   - fabric_name: SITE4
-    serial_number: 9XS0QJEAI69
+    switch_name: LE4
     vrf_name: v1

@@ -36,6 +36,7 @@ Send vrf detach POST requests to the controller
 import inspect
 import logging
 
+from ndfc_python.common.fabric.fabric_inventory import FabricInventory
 from ndfc_python.validations import Validations
 from plugins.module_utils.common.properties import Properties
 from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
@@ -60,25 +61,23 @@ class VrfDetach:
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
+        self.fabric_inventory = FabricInventory()
         self.validations = Validations()
-
-        self._rest_send = None
-        self._results = None
 
         self.properties = {}
 
-    def _final_verification(self):
+    def _final_verification(self) -> None:
         """
         final verification of all parameters
         """
         method_name = inspect.stack()[0][3]
         # pylint: disable=no-member
-        if self.rest_send is None:
+        if self.rest_send is None:  # type: ignore[attr-defined]
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.rest_send must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
-        if self.results is None:
+        if self.results is None:  # type: ignore[attr-defined]
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.results must be set before calling "
             msg += f"{self.class_name}.commit"
@@ -154,7 +153,13 @@ class VrfDetach:
         _lan_attach_list_item = {}
         _lan_attach_list_item["deployment"] = False
         _lan_attach_list_item["fabric"] = self.fabric_name
-        _lan_attach_list_item["serialNumber"] = self.serial_number
+        try:
+            _lan_attach_list_item["serialNumber"] = self.fabric_inventory.switch_name_to_serial_number(self.switch_name)
+        except ValueError as error:
+            msg = f"{self.class_name}._build_payload: "
+            msg += f"Unable to get serial number for switch_name {self.switch_name}. "
+            msg += f"Error details: {error}"
+            raise ValueError(msg) from error
         _lan_attach_list_item["vrfName"] = self.vrf_name
 
         _lan_attach_list = []
@@ -163,29 +168,33 @@ class VrfDetach:
         _payload.append(_payload_item)
         return _payload
 
-    def commit(self):
+    def commit(self) -> None:
         """
         Detach a vrf from a switch
         """
         method_name = inspect.stack()[0][3]
-        payload = self._build_payload()
-
+        # pylint: disable=no-member
         self._final_verification()
+        self.fabric_inventory.fabric_name = self.fabric_name
+        self.fabric_inventory.rest_send = self.rest_send  # type: ignore[attr-defined]
+        self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
+        self.fabric_inventory.commit()
+
+        payload = self._build_payload()
 
         # TODO: Update when we add endpoint to ansible-dcnm
         path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics"
         path += f"/{self.fabric_name}/vrfs/attachments"
         verb = "POST"
 
-        # pylint: disable=no-member
         try:
-            self.rest_send.path = path
-            self.rest_send.verb = verb
-            self.rest_send.payload = payload
-            self.rest_send.commit()
+            self.rest_send.path = path  # type: ignore[attr-defined]
+            self.rest_send.verb = verb  # type: ignore[attr-defined]
+            self.rest_send.payload = payload  # type: ignore[attr-defined]
+            self.rest_send.commit()  # type: ignore[attr-defined]
         except (TypeError, ValueError) as error:
             msg = f"{self.class_name}.{method_name}: "
-            msg += f"Unable to send {self.rest_send.verb} request to the controller. "
+            msg += f"Unable to send {verb} request to the controller. "
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
 
@@ -201,15 +210,15 @@ class VrfDetach:
         self.properties["fabric"] = value
 
     @property
-    def serial_number(self) -> str:
+    def switch_name(self) -> str:
         """
-        return the current value of serialNumber
+        return the current value of switch_name
         """
-        return self.properties.get("serialNumber")
+        return self.properties.get("switch_name")
 
-    @serial_number.setter
-    def serial_number(self, value: str) -> None:
-        self.properties["serialNumber"] = value
+    @switch_name.setter
+    def switch_name(self, value: str) -> None:
+        self.properties["switch_name"] = value
 
     @property
     def vrf_name(self) -> str:
