@@ -72,7 +72,13 @@ def network_detach(cfg: dict) -> None:
         }
 
     """
-    errmsg = ""
+    # Prepopulate error message in case of failure
+    fabric_name = cfg.get("fabric")
+    network_name = cfg.get("networkName")
+    switch_name = cfg.get("switch_name")
+    errmsg = f"Error detaching fabric {fabric_name}, "
+    errmsg += f"network {network_name}, "
+    errmsg += f"from switch_name {switch_name}. "
     try:
         instance = NetworkDetach()
         instance.rest_send = rest_send
@@ -80,12 +86,9 @@ def network_detach(cfg: dict) -> None:
         instance.detach_switch_ports = cfg.get("detachSwitchPorts", [])
         instance.fabric_name = cfg.get("fabric", "")
         instance.network_name = cfg.get("networkName")
-        instance.serial_number = cfg.get("serialNumber")
+        instance.switch_name = cfg.get("switch_name")
         instance.vlan = cfg.get("vlan")
         instance.commit()
-        errmsg = f"Error detaching fabric {instance.fabric_name}, "
-        errmsg += f"network {instance.network_name}, "
-        errmsg += f"from serial_number {instance.serial_number}. "
         data = instance.rest_send.response_current.get("DATA", {})
     except ValueError as error:
         errmsg += f"Error detail: {error}"
@@ -93,7 +96,7 @@ def network_detach(cfg: dict) -> None:
         print(errmsg)
         return
 
-    response_messages = ", ".join(data.values())
+    response_messages = ", ".join(str(v) for v in data.values())
     if instance.rest_send.response_current.get("RETURN_CODE") not in (200, 201) or "SUCCESS" not in response_messages:
         errmsg += f"Controller response: {response_messages}"
         log.error(errmsg)
@@ -101,7 +104,7 @@ def network_detach(cfg: dict) -> None:
         return
     result_msg = f"Network {instance.network_name} "
     result_msg += f"detached from fabric {instance.fabric_name}, "
-    result_msg += f"serial number {instance.serial_number}."
+    result_msg += f"switch_name {instance.switch_name}."
     log.info(result_msg)
     print(result_msg)
 

@@ -1,13 +1,11 @@
 ---
 config:
-  # SITE1 LE1
   - switch_name: LE1
     detach_switch_ports:
       - Ethernet1/2
     fabric_name: SITE1
     network_name: v1n1
     vlan: 2301
-  # SITE2 LE2
   - switch_name: LE2
     detach_switch_ports:
       - Ethernet1/2

@@ -1,16 +1,23 @@
 ---
 config:
   # SITE3 LE3
-  - detach_switch_ports:
+  - switch_name: LE3
+    detach_switch_ports:
       - Ethernet1/2
     fabric_name: SITE3
     network_name: v1n1
-    serial_number: 93M2LB9V37J
     vlan: 2301
-  # SITE4 LE4
-  - detach_switch_ports:
+  # SITE4 VP3
+  - switch_name: VP3
+    detach_switch_ports:
       - Ethernet1/2
     fabric_name: SITE4
     network_name: v1n1
-    serial_number: 9XS0QJEAI69
+    vlan: 2301
+  # SITE4 VP4
+  - switch_name: VP4
+    detach_switch_ports:
+      - Ethernet1/2
+    fabric_name: SITE4
+    network_name: v1n1
     vlan: 2301
