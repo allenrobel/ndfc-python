@@ -186,7 +186,7 @@ class NetworkInfo:
 
     def commit(self):
         """
-        Detach a network from a switch
+        Retrieve network information from the controller.
         """
         method_name = inspect.stack()[0][3]
         self._final_verification()
