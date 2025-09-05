@@ -25,7 +25,6 @@ No JSON payload is required for this request.
 import inspect
 import logging
 
-from ndfc_python.validations import Validations
 from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import EpFabrics
 from plugins.module_utils.common.conversion import ConversionUtils
 from plugins.module_utils.common.properties import Properties
@@ -53,7 +52,6 @@ class ConfigDeploy:
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
         self.conversion = ConversionUtils()
-        self.validations = Validations()
         self.ep_rest_control_fabrics = EpFabrics()
 
         self._fabric_name = None
