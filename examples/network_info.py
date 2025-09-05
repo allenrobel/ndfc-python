@@ -89,7 +89,7 @@ def network_info(cfg: dict) -> None:
         if instance.rest_send.response_current.get("DATA", {}).get("message"):
             errmsg = instance.rest_send.response_current.get("DATA", {}).get("message")
         else:
-            errmsg = "Error attaching network. "
+            errmsg = "Error retrieving network information. "
             errmsg += f"Controller response: {instance.rest_send.response_current}"
         log.error(errmsg)
         print(errmsg)
