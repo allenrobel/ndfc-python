@@ -181,6 +181,7 @@ class NetworkDetach:
         """
         Build and return a lanAttachList item for the given switch_name
         """
+        method_name = inspect.stack()[0][3]
         _lan_attach_list_item = {}
         _lan_attach_list_item["deployment"] = False
         _lan_attach_list_item["detachSwitchPorts"] = self.detach_switch_ports
@@ -189,7 +190,7 @@ class NetworkDetach:
         try:
             _lan_attach_list_item["serialNumber"] = self.fabric_inventory.switch_name_to_serial_number(switch_name)
         except ValueError as error:
-            msg = f"{self.class_name}.build_lan_attach_list_item: "
+            msg = f"{self.class_name}.{method_name}: "
             msg += f"Unable to get serial number for switch_name {switch_name}. "
             msg += f"Error details: {error}"
             raise ValueError(msg) from error

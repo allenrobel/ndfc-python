@@ -111,6 +111,7 @@ def network_attach(cfg: dict) -> None:
     result_msg += f"switch_name {instance.switch_name}"
     if instance.peer_switch_name:
         result_msg += f", peer_switch_name {instance.peer_switch_name}"
+    result_msg += "."
     log.info(result_msg)
     print(result_msg)
 
