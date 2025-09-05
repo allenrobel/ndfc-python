@@ -3,7 +3,8 @@
 config:
 
   # BG1
-  - extension_values:
+  - switch_name: BG1
+    extension_values:
       - auto_vrf_lite_flag: true
         dot1q_id: "3"
         if_name: Ethernet1/1
@@ -21,12 +22,12 @@ config:
       loopback_ip_v6_address: ""
       switch_route_target_import_evpn: ""
       switch_route_target_export_evpn: ""
-    serial_number: 9T4PSZT7L7J
     vlan: 2001
     vrf_name: v1
 
   # LE1
-  - extension_values:
+  - switch_name: LE1
+    extension_values:
       - {}
     fabric_name: SITE1
     freeform_config: []
@@ -36,12 +37,12 @@ config:
       loopback_ip_v6_address: ""
       switch_route_target_import_evpn: ""
       switch_route_target_export_evpn: ""
-    serial_number: 9WPLALSNXK6
     vlan: 2001
     vrf_name: v1
 
   # BG2
-  - extension_values:
+  - switch_name: BG2
+    extension_values:
       - auto_vrf_lite_flag: true
         dot1q_id: "3"
         if_name: Ethernet1/1
@@ -59,12 +60,12 @@ config:
       loopback_ip_v6_address: ""
       switch_route_target_import_evpn: ""
       switch_route_target_export_evpn: ""
-    serial_number: 9Z72WV6IVJJ
     vlan: 2001
     vrf_name: v1
 
   # LE2
-  - extension_values:
+  - switch_name: LE2
+    extension_values:
       - {}
     fabric_name: SITE2
     freeform_config: []
@@ -74,6 +75,5 @@ config:
       loopback_ip_v6_address: ""
       switch_route_target_import_evpn: ""
       switch_route_target_export_evpn: ""
-    serial_number: 9BO7KZF9BH5
     vlan: 2001
     vrf_name: v1
