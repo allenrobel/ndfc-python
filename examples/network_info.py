@@ -120,7 +120,7 @@ def setup_parser() -> argparse.Namespace:
             parser_nd_password,
             parser_nd_username,
         ],
-        description="DESCRIPTION: Attach a network.",
+        description="DESCRIPTION: Retrieve information for networks.",
     )
     return parser.parse_args()
 
