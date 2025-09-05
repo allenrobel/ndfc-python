@@ -63,7 +63,7 @@ from pydantic import ValidationError
 
 def network_info(cfg: dict) -> None:
     """
-    Given a network-attach configuration, attach the network.
+    Given a network configuration, retrieve information for the specified network.
     """
     # Prepopulate error message
     fabric_name = cfg.get("fabric_name")
