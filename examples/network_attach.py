@@ -65,6 +65,13 @@ def network_attach(cfg: dict) -> None:
     """
     Given a network-attach configuration, attach the network.
     """
+    # Prepopulate error message in case of failure
+    fabric_name = cfg.get("fabric")
+    network_name = cfg.get("networkName")
+    switch_name = cfg.get("switch_name")
+    errmsg = f"Error attaching fabric {fabric_name}, "
+    errmsg += f"network {network_name}, "
+    errmsg += f"to switch_name {switch_name}. "
     try:
         instance = NetworkAttach()
         instance.rest_send = rest_send
@@ -72,28 +79,28 @@ def network_attach(cfg: dict) -> None:
         instance.detach_switch_ports = cfg.get("detachSwitchPorts", [])
         instance.dot1q_vlan = cfg.get("dot1qVlan")
         instance.extension_values = cfg.get("extensionValues", "")
-        instance.fabric_name = cfg.get("fabric", "")
+        instance.fabric_name = fabric_name
         instance.freeform_config = cfg.get("freeformConfig", [])
         instance.instance_values = cfg.get("instanceValues", "")
-        instance.network_name = cfg.get("networkName")
-        instance.switch_name = cfg.get("switch_name")
+        instance.network_name = network_name
+        instance.switch_name = switch_name
         instance.switch_ports = cfg.get("switchPorts", [])
         instance.tor_ports = cfg.get("torPorts", [])
         instance.untagged = cfg.get("untagged", False)
         instance.vlan = cfg.get("vlan")
         instance.commit()
+        data = instance.rest_send.response_current.get("DATA", {})
     except ValueError as error:
-        errmsg = "Error attaching network. "
         errmsg += f"Error detail: {error}"
         log.error(errmsg)
         print(errmsg)
         return
 
-    if instance.rest_send.response_current.get("RETURN_CODE") not in (200, 201):
+    response_messages = ", ".join(data.values())
+    if instance.rest_send.response_current.get("RETURN_CODE") not in (200, 201) or "SUCCESS" not in response_messages:
         if instance.rest_send.response_current.get("DATA", {}).get("message"):
             errmsg = instance.rest_send.response_current.get("DATA", {}).get("message")
         else:
-            errmsg = "Error attaching network. "
             errmsg += f"Controller response: {instance.rest_send.response_current}"
         log.error(errmsg)
         print(errmsg)
