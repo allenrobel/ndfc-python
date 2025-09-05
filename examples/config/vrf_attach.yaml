@@ -1,6 +1,7 @@
 ---
 config:
-  - deployment: true
+  # BG1 - Border Gateway
+  - switch_name: BG1
     extension_values:
       - auto_vrf_lite_flag: true
         dot1q_id: "3"
@@ -19,12 +20,11 @@ config:
       loopback_ip_v6_address: ""
       switch_route_target_import_evpn: ""
       switch_route_target_export_evpn: ""
-    serial_number: 9IMIT2HLNO2
     vlan: 2001
     vrf_name: ndfc-python-vrf1
 
   # LE1 - Leaf
-  - deployment: true
+  - switch_name: LE1
     extension_values:
       - {}
     fabric_name: SITE1
@@ -35,14 +35,13 @@ config:
       loopback_ip_v6_address: ""
       switch_route_target_import_evpn: ""
       switch_route_target_export_evpn: ""
-    serial_number: 96KWEIQE2HC
     vlan: 2001
     vrf_name: ndfc-python-vrf1
 
   # SITE2
 
   # BG2 - Border Gateway
-  - deployment: true
+  - switch_name: BG2
     extension_values:
       - auto_vrf_lite_flag: true
         dot1q_id: "3"
@@ -61,12 +60,11 @@ config:
       loopback_ip_v6_address: ""
       switch_route_target_import_evpn: ""
       switch_route_target_export_evpn: ""
-    serial_number: 9Q3FOROSWIP
     vlan: 2001
     vrf_name: ndfc-python-vrf1
 
   # LE2 - Leaf
-  - deployment: true
+  - switch_name: LE2
     extension_values:
       - {}
     fabric_name: SITE2
@@ -77,6 +75,5 @@ config:
       loopback_ip_v6_address: ""
       switch_route_target_import_evpn: ""
       switch_route_target_export_evpn: ""
-    serial_number: 9OW9132EH2M
     vlan: 2001
     vrf_name: ndfc-python-vrf1
