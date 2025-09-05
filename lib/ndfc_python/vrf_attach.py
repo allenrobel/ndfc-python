@@ -89,38 +89,6 @@ class VrfAttach:
         """
         return "\n".join(lst)
 
-    def is_vpc_peer(self, switch_name: str, peer_switch_name: str) -> bool:
-        """
-        Return True if switch_name and peer_switch_name are vPC peers.
-        Return False otherwise.
-        """
-        if not self.fabric_switches:
-            self.populate_fabric_switches()
-
-        serial_number = self.fabric_inventory.switch_name_to_serial_number(switch_name)
-        peer_serial_number = self.fabric_inventory.switch_name_to_serial_number(peer_switch_name)
-        switch = self.fabric_switches.get(switch_name)
-        peer_switch = self.fabric_switches.get(peer_switch_name)
-
-        if switch is None:
-            msg = f"Switch name {switch_name} not found in fabric {self.fabric_name}."
-            raise ValueError(msg)
-        if peer_switch is None:
-            msg = f"Switch name {peer_switch_name} not found in fabric {self.fabric_name}."
-            raise ValueError(msg)
-
-        if switch.get("isVpcConfigured") is not True:
-            return False
-        if peer_switch.get("isVpcConfigured") is not True:
-            return False
-
-        if switch.get("peerSerialNumber") != peer_serial_number:
-            return False
-        if peer_switch.get("peerSerialNumber") != serial_number:
-            return False
-
-        return True
-
     def _final_verification(self):
         """
         final verification of all parameters
@@ -168,7 +136,7 @@ class VrfAttach:
                 msg += f"peer_switch_name {self.peer_switch_name} "
                 msg += f"not found in fabric {self.fabric_name}."
                 raise ValueError(msg)
-            if not self.is_vpc_peer(self.switch_name, self.peer_switch_name):
+            if not self.fabric_inventory.is_vpc_peer(self.switch_name, self.peer_switch_name):
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"switch_name {self.switch_name} and "
                 msg += f"peer_switch_name {self.peer_switch_name} "

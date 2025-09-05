@@ -198,6 +198,38 @@ class FabricInventory:
             self._inventory[switch_name] = switch
         self._committed = True
 
+    def is_vpc_peer(self, switch_name: str, peer_switch_name: str) -> bool:
+        """
+        Return True if switch_name and peer_switch_name are vPC peers.
+        Return False otherwise.
+        """
+        if not self._committed:
+            self.commit()
+
+        serial_number = self.switch_name_to_serial_number(switch_name)
+        peer_serial_number = self.switch_name_to_serial_number(peer_switch_name)
+        switch = self.inventory.get(switch_name)
+        peer_switch = self.inventory.get(peer_switch_name)
+
+        if switch is None:
+            msg = f"Switch name {switch_name} not found in fabric {self.fabric_name}."
+            raise ValueError(msg)
+        if peer_switch is None:
+            msg = f"Switch name {peer_switch_name} not found in fabric {self.fabric_name}."
+            raise ValueError(msg)
+
+        if switch.get("isVpcConfigured") is not True:
+            return False
+        if peer_switch.get("isVpcConfigured") is not True:
+            return False
+
+        if switch.get("peerSerialNumber") != peer_serial_number:
+            return False
+        if peer_switch.get("peerSerialNumber") != serial_number:
+            return False
+
+        return True
+
     def switch_name_to_serial_number(self, switch_name: str) -> str:
         """
         Given a switch_name, return the associated serial number.
