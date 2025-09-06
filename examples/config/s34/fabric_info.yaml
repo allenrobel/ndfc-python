@@ -2,3 +2,4 @@
 config:
   - fabric_name: SITE3
   - fabric_name: SITE4
+  - fabric_name: MSD

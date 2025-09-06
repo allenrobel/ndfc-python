@@ -70,10 +70,6 @@ from ndfc_python.parsers.parser_nd_domain import parser_nd_domain
 from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
-
-# We are using our local copy of log_v2.py which is modified to
-# console logging.  The copy in the DCNM Ansible Collection specifically
-# disallows console logging.
 from ndfc_python.read_config import ReadConfig
 from ndfc_python.validators.fabric_info import FabricInfoConfigValidator
 
@@ -87,11 +83,11 @@ from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
-def fabric_info(config):
+def fabric_info(validator_item) -> None:
     """
     Given a fabric configuration, print information about the fabric.
     """
-    ep_fabric_details.fabric_name = config.get("fabric_name")
+    ep_fabric_details.fabric_name = validator_item.fabric_name
 
     rest_send.path = ep_fabric_details.path
     rest_send.verb = ep_fabric_details.verb
@@ -110,7 +106,8 @@ def fabric_info(config):
         log.info(result_msg)
         return
 
-    result_msg = f"{json.dumps(rest_send.response_current['DATA'], indent=4, sort_keys=True)}"
+    result_msg = f"fabric_name '{validator_item.fabric_name}':\n"
+    result_msg += f"{json.dumps(rest_send.response_current['DATA'], indent=4, sort_keys=True)}"
     print(result_msg)
 
 
@@ -127,11 +124,11 @@ def setup_parser() -> argparse.Namespace:
         parents=[
             parser_ansible_vault,
             parser_config,
+            parser_loglevel,
             parser_nd_domain,
             parser_nd_ip4,
             parser_nd_password,
             parser_nd_username,
-            parser_loglevel,
         ],
         description="DESCRIPTION: Print information about one or more fabrics.",
     )
@@ -144,9 +141,9 @@ log = logging.getLogger("ndfc_python.main")
 log.setLevel = args.loglevel
 
 try:
-    ndfc_config = ReadConfig()
-    ndfc_config.filename = args.config
-    ndfc_config.commit()
+    user_config = ReadConfig()
+    user_config.filename = args.config
+    user_config.commit()
 except ValueError as error:
     msg = f"Exiting: Error detail: {error}"
     print(msg)
@@ -154,7 +151,7 @@ except ValueError as error:
     sys.exit()
 
 try:
-    validator = FabricInfoConfigValidator(**ndfc_config.contents)
+    validator = FabricInfoConfigValidator(**user_config.contents)
 except ValidationError as error:
     msg = f"{error}"
     log.error(msg)
@@ -177,7 +174,5 @@ rest_send.sender = ndfc_sender.sender
 rest_send.response_handler = ResponseHandler()
 rest_send.results = Results()
 
-params_list = json.loads(validator.model_dump_json()).get("config", {})
-
-for params in params_list:
-    fabric_info(params)
+for item in validator.config:
+    fabric_info(item)
