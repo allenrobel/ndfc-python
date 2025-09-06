@@ -1,5 +1,3 @@
-from typing import List
-
 from pydantic import BaseModel, Field
 
 
@@ -20,4 +18,4 @@ class ConfigSaveConfigValidator(BaseModel):
     config is a list of ConfigSaveConfig
     """
 
-    config: List[ConfigSaveConfig]
+    config: list[ConfigSaveConfig]
