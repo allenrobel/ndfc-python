@@ -38,14 +38,14 @@ from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.fabric_inventory import FabricInventoryConfigValidator
+from ndfc_python.validators.fabric_inventory import FabricInventoryConfig, FabricInventoryConfigValidator
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
-def fabric_inventory(cfg: dict) -> None:
+def fabric_inventory(config: FabricInventoryConfig) -> None:
     """
     ### Summary
 
@@ -58,16 +58,16 @@ def fabric_inventory(cfg: dict) -> None:
         None
     """
     instance = FabricInventory()
-    instance.fabric_name = cfg.get("fabric_name")
+    instance.fabric_name = config.fabric_name
     instance.rest_send = rest_send
     instance.results = Results()
     instance.commit()
     if args.detailed:
-        print(f"Fabric {instance.fabric_name}:")
+        print(f"Fabric {config.fabric_name}:")
         for device in sorted(instance.devices):
             print(f"  {device}: {json.dumps(instance.inventory.get(device), sort_keys=True, indent=4)}")
     else:
-        print(f"Fabric {instance.fabric_name}: {sorted(instance.devices)}")
+        print(f"Fabric {config.fabric_name}: {sorted(instance.devices)}")
 
 
 def setup_parser() -> argparse.Namespace:
@@ -101,9 +101,9 @@ log = logging.getLogger("ndfc_python.main")
 log.setLevel(args.loglevel)
 
 try:
-    ndfc_config = ReadConfig()
-    ndfc_config.filename = args.config
-    ndfc_config.commit()
+    user_config = ReadConfig()
+    user_config.filename = args.config
+    user_config.commit()
 except ValueError as error:
     msg = f"Exiting: Error detail: {error}"
     print(msg)
@@ -111,7 +111,7 @@ except ValueError as error:
     sys.exit(1)
 
 try:
-    validator = FabricInventoryConfigValidator(**ndfc_config.contents)
+    validator = FabricInventoryConfigValidator(**user_config.contents)
 except ValidationError as error:
     msg = f"{error}"
     log.error(msg)
@@ -135,7 +135,5 @@ rest_send.results = Results()
 rest_send.timeout = 2
 rest_send.send_interval = 5
 
-params_list = json.loads(validator.model_dump_json()).get("config", {})
-
-for params in params_list:
-    fabric_inventory(params)
+for item in validator.config:
+    fabric_inventory(item)
