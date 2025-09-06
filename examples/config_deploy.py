@@ -117,11 +117,8 @@ rest_send.response_handler = ResponseHandler()
 # Set the timeout higher to give Nexus Dashboard time to complete the request
 rest_send.timeout = 300  # seconds
 
-fabrics = user_config.contents.get("config", [])
-
-for fabric in fabrics:
-    # fabric_name is already validated by pydantic
-    fabric_name = fabric.get("fabric_name")
+for item in validator.config:
+    fabric_name = item.fabric_name
     try:
         instance = ConfigDeploy()
         instance.rest_send = rest_send
