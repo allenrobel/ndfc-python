@@ -51,9 +51,11 @@ from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
+from ndfc_python.validators.config_save import ConfigSaveConfigValidator
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
+from pydantic import ValidationError
 
 
 def setup_parser() -> argparse.Namespace:
@@ -81,11 +83,19 @@ log = logging.getLogger("ndfc_python.main")
 log.setLevel(level=args.loglevel)
 
 try:
-    ndfc_config = ReadConfig()
-    ndfc_config.filename = args.config
-    ndfc_config.commit()
+    user_config = ReadConfig()
+    user_config.filename = args.config
+    user_config.commit()
 except ValueError as error:
     msg = f"Exiting: Error detail: {error}"
+    log.error(msg)
+    print(msg)
+    sys.exit(1)
+
+try:
+    validator = ConfigSaveConfigValidator(**user_config.contents)
+except ValidationError as error:
+    msg = f"{error}"
     log.error(msg)
     print(msg)
     sys.exit(1)
@@ -107,27 +117,17 @@ rest_send.response_handler = ResponseHandler()
 # Set the timeout higher to give Nexus Dashboard time to complete the request
 rest_send.timeout = 300  # seconds
 
-# Expecting config file like:
-# config:
-#   - fabric_name: MyFabric1
-#   - fabric_name: MyFabric2
-fabrics = ndfc_config.contents.get("config", [])
-
-for fabric in fabrics:
-    fabric_name = fabric.get("fabric_name")
-    if not fabric_name:
-        log.error("Missing fabric_name in config entry: %s", fabric)
-        continue
+for item in validator.config:
     try:
         instance = ConfigSave()
         instance.rest_send = rest_send
         instance.results = Results()
-        instance.fabric_name = fabric_name
+        instance.fabric_name = item.fabric_name
 
-        print(f"Triggering Config Save for fabric '{fabric_name}'")
+        print(f"Triggering Config Save for fabric '{item.fabric_name}'")
         instance.commit()
         print(instance.status)
     except (TypeError, ValueError) as error:
-        msg = f"Error triggering Config Save for fabric '{fabric_name}'. Error detail: {error}"
+        msg = f"Error triggering Config Save for fabric '{item.fabric_name}'. Error detail: {error}"
         log.error(msg)
         print(msg)
