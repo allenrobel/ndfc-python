@@ -52,7 +52,7 @@ mv ansible-dcnm dcnm
 ```bash
 cd $HOME/repos/ndfc-python
 # If python is in your path
-python -m venv .venv --prompt ndfc-python
+python3 -m venv .venv --prompt ndfc-python
 # If python is NOT in your path, and it was installed on MacOS
 /Library/Frameworks/Python.framework/Versions/3.13/bin/python3 -m venv .venv --prompt ndfc-python
 ```
@@ -62,8 +62,7 @@ python -m venv .venv --prompt ndfc-python
 - `source .venv/bin/activate`
 
 ```bash
-arobel@AROBEL-M-G793 ndfc-python % source .venv/bin/activate
-(ndfc-python) AROBEL-M-G793%
+source .venv/bin/activate
 ```
 
 ## 7. upgrade pip
@@ -98,7 +97,9 @@ uv sync
 # NOTE: For better security, follow the steps at Github Pages link at the top of this file.
 #
 # Once 02-nd is edited, source the following file (it, in turn, sources the other files)
+```
 
+```bash
 source $HOME/repos/ndfc-python/env/env
 ```
 
@@ -142,6 +143,12 @@ On Ubuntu
 Check if the locales are installed.
 
 ```bash
+locale -a | grep -i utf
+```
+
+Example
+
+```bash
 (ndfc-python) arobel@glide:~/repos/ndfc-python$ locale -a | grep -i utf
 C.utf8
 en_US.utf8
@@ -156,6 +163,12 @@ sudo locale-gen en_US.UTF-8
 
 Verify your locale is set.  If any of the following environment variables are set to something else,
 change them with `export VAR="en_US.UTF-8"`
+
+```bash
+locale
+```
+
+Example
 
 ```bash
 (ndfc-python) arobel@glide:~/repos/ndfc-python$ locale
@@ -214,7 +227,7 @@ Above, we are creating two VRFs in MyFabric1.
 
 Modify this to match your environment by changing each item's parameters.
 
-Since my local environment contains two child fabrics within a multi-site domain fabric,
+Since my local environment contains two child fabrics within a multi-site domain (MSD) fabric,
 the VRFs need to be created in the parent MSD fabric, rather than the child fabrics.
 
 ![Topology](./images/readme-topo.png)
@@ -225,20 +238,27 @@ Below are the edits for my environment.
 ---
 config:
   - fabric_name: MSD
-    vrf_display_name: ndfc-python-vrf1
+    vrf_display_name: v1
     vrf_id: 50005
-    vrf_name: ndfc-python-vrf1
+    vrf_name: v1
     vrf_vlan_id: 3005
   - fabric_name: MSD
-    vrf_display_name: ndfc-python-vrf2
+    vrf_display_name: v2
     vrf_id: 50006
-    vrf_name: ndfc-python-vrf2
+    vrf_name: v2
     vrf_vlan_id: 3006
 ```
 
 Save the file and then execute the associated script.
 
 First, we'll have a look at the help facility that all scripts provide.
+
+```bash
+cd $HOME/repos/ndfc-python/examples
+./vrf_create.py --help
+```
+
+Example
 
 ```bash
 cd $HOME/repos/ndfc-python/examples
@@ -275,13 +295,10 @@ From above, we see that we can override, on a script-by-script basis, the enviro
 We also see that the `--config` argument is mandatory.  This points to the config file we just edited.  Let's use our
 existing environment variables and provide only the `--config` argument.
 
-- `./vrf_create.py --config $HOME/repos/ndfc-python/examples/config/config_vrf_create.yaml`
-
 Let's first disable debugging for shorter output.
 
 ```bash
-(ndfc-python) arobel@Allen-M4 examples % unset NDFC_LOGGING_CONFIG
-(ndfc-python) arobel@Allen-M4 examples %
+unset NDFC_LOGGING_CONFIG
 ```
 
 Here is the current set of VRFs in the MSD fabric in my setup.
@@ -291,7 +308,13 @@ Here is the current set of VRFs in the MSD fabric in my setup.
 Now let's run the script.
 
 ```bash
-(ndfc-python) arobel@Allen-M4 examples % ./vrf_create.py --config $HOME/repos/ndfc-python/examples/config/config_vrf_create.yaml
+./vrf_create.py --config $HOME/repos/ndfc-python/examples/config/vrf_create.yaml
+```
+
+Example
+
+```bash
+(ndfc-python) arobel@Allen-M4 examples % ./vrf_create.py --config $HOME/repos/ndfc-python/examples/config/vrf_create.yaml
 Created vrf ndfc-python-vrf1 in fabric MSD
 Created vrf ndfc-python-vrf2 in fabric MSD
 (ndfc-python) arobel@Allen-M4 examples %
@@ -306,7 +329,13 @@ The previous script pushed a configuration to Nexus Dashboard, but did not save 
 Let's run a script to save this configuration into Nexus Dashboard's database.
 
 ```bash
-(ndfc-python) arobel@Allen-M4 examples % ./config_save.py --config test_config_save.yaml
+./config_save.py --config $HOME/repos/ndfc-python/examples/config/config_save.yaml
+```
+
+Example
+
+```bash
+(ndfc-python) arobel@Allen-M4 examples % ./config_save.py --config $HOME/repos/ndfc-python/examples/config/config_save.yaml
 Triggering Config Save for fabric 'SITE1'
 Config save is completed
 Triggering Config Save for fabric 'SITE2'
@@ -321,7 +350,13 @@ Config save is completed
 The previous script saved the configuration.  We'll now deploy the configuration.
 
 ```bash
-(ndfc-python) arobel@Allen-M4 examples % ./config_deploy.py --config test_config_deploy.yaml
+./config_deploy.py --config $HOME/repos/ndfc-python/examples/config/config_deploy.yaml
+```
+
+Example
+
+```bash
+(ndfc-python) arobel@Allen-M4 examples % ./config_deploy.py --config $HOME/repos/ndfc-python/examples/config/config_deploy.yaml
 Triggering Config Deploy for fabric 'SITE1'
 Configuration deployment completed for fabric [SITE1].
 Triggering Config Deploy for fabric 'SITE2'
