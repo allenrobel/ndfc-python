@@ -1,6 +1,4 @@
-from typing import List
-
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class FabricInventoryConfig(BaseModel):
@@ -10,7 +8,7 @@ class FabricInventoryConfig(BaseModel):
     Base validator for FabricInventory arguments
     """
 
-    fabric_name: str
+    fabric_name: str = Field(..., min_length=1, max_length=64, description="Name of the fabric")
 
 
 class FabricInventoryConfigValidator(BaseModel):
@@ -20,4 +18,4 @@ class FabricInventoryConfigValidator(BaseModel):
     config is a list of FabricInventoryConfig
     """
 
-    config: List[FabricInventoryConfig]
+    config: list[FabricInventoryConfig]
