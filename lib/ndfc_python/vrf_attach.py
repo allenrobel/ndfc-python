@@ -335,7 +335,7 @@ class VrfAttach:
         return self._instance_values
 
     @instance_values.setter
-    def instance_values(self, value: InstanceValues) -> None:
+    def instance_values(self, value: InstanceValues | dict) -> None:
         if not isinstance(value, InstanceValues) and not isinstance(value, dict):
             msg = "instance_values must be an InstanceValues object or dict"
             raise ValueError(msg)
