@@ -712,6 +712,8 @@ class NetworkCreate:
 
     @gateway_ip_address.setter
     def gateway_ip_address(self, value):
+        # It is assumed that value has already been validated
+        # in .lib/ndfc_python/validators/network_create.py
         self.template_config["gatewayIpAddress"] = value
 
     @property
