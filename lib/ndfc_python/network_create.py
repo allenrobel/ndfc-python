@@ -712,13 +712,8 @@ class NetworkCreate:
 
     @gateway_ip_address.setter
     def gateway_ip_address(self, value):
-        method_name = inspect.stack()[0][3]
-        try:
-            self.validations.verify_ipv4_address_with_prefix(value)
-        except AddressValueError as error:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"Error detail: {error}"
-            raise ValueError(msg) from error
+        # It is assumed that value has already been validated
+        # in .lib/ndfc_python/validators/network_create.py
         self.template_config["gatewayIpAddress"] = value
 
     @property
@@ -734,13 +729,6 @@ class NetworkCreate:
 
     @gateway_ipv6_address.setter
     def gateway_ipv6_address(self, value):
-        method_name = inspect.stack()[0][3]
-        try:
-            self.validations.verify_ipv6_address_with_prefix(value)
-        except AddressValueError as error:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"Error detail: {error}"
-            raise ValueError(msg) from error
         self.template_config["gatewayIpV6Address"] = value
 
     @property
