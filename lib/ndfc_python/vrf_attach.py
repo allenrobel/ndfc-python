@@ -293,7 +293,7 @@ class VrfAttach:
         return self._extension_values
 
     @extension_values.setter
-    def extension_values(self, value: list[ExtensionValues]) -> None:
+    def extension_values(self, value: list[ExtensionValues | dict]) -> None:
         if not isinstance(value, list):
             msg = "extension_values must be a list of ExtensionValues objects or list of dict"
             raise ValueError(msg)
