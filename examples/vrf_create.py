@@ -37,7 +37,6 @@ environment variables, you can override them like so:
 """
 # pylint: disable=duplicate-code
 import argparse
-import json
 import logging
 import sys
 
@@ -51,7 +50,7 @@ from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.vrf_create import VrfCreateConfigValidator
+from ndfc_python.validators.vrf_create import VrfCreateConfig, VrfCreateConfigValidator
 from ndfc_python.vrf_create import VrfCreate
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
@@ -59,7 +58,7 @@ from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
-def vrf_create(config):
+def action(cfg: VrfCreateConfig) -> None:
     """
     Given a VRF configuration, create the VRF.
     """
@@ -67,21 +66,24 @@ def vrf_create(config):
         instance = VrfCreate()
         instance.rest_send = rest_send
         instance.results = Results()
-        instance.display_name = config.get("vrf_display_name")
-        instance.fabric_name = config.get("fabric_name")
-        instance.vrf_id = config.get("vrf_id")
-        instance.vrf_name = config.get("vrf_name")
-        instance.vrf_vlan_id = config.get("vrf_vlan_id")
+        instance.display_name = cfg.vrf_display_name
+        instance.fabric_name = cfg.fabric_name
+        instance.vrf_id = cfg.vrf_id
+        instance.vrf_name = cfg.vrf_name
+        instance.vrf_vlan_id = cfg.vrf_vlan_id
         instance.commit()
     except (TypeError, ValueError) as error:
-        errmsg = f"Error creating vrf {instance.vrf_name}. "
+        errmsg = "Error creating "
+        errmsg += f"fabric {cfg.fabric_name}, "
+        errmsg += f"vrf {cfg.vrf_name}. "
         errmsg += f"Error detail: {error}"
         log.error(errmsg)
         print(errmsg)
         return
 
-    result_msg = f"Created vrf {instance.vrf_name} "
-    result_msg += f"in fabric {instance.fabric_name}"
+    result_msg = "Created "
+    result_msg += f"fabric {instance.fabric_name}, "
+    result_msg += f"vrf {instance.vrf_name}."
     log.info(result_msg)
     print(result_msg)
 
@@ -151,7 +153,5 @@ rest_send.response_handler = ResponseHandler()
 rest_send.timeout = 2
 rest_send.send_interval = 5
 
-params_list = json.loads(validator.model_dump_json()).get("config", {})
-
-for params in params_list:
-    vrf_create(params)
+for item in validator.config:
+    action(item)

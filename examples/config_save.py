@@ -51,11 +51,32 @@ from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.config_save import ConfigSaveConfigValidator
+from ndfc_python.validators.config_save import ConfigSaveConfig, ConfigSaveConfigValidator
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
+
+
+def action(cfg: ConfigSaveConfig) -> None:
+    """
+    Trigger a Config Save for a fabric.
+    """
+    # Prepopulate error message
+    errmsg = f"Error triggering Config Save for fabric '{cfg.fabric_name}'. "
+    try:
+        instance = ConfigSave()
+        instance.rest_send = rest_send
+        instance.results = Results()
+        instance.fabric_name = cfg.fabric_name
+
+        print(f"Triggering Config Save for fabric '{cfg.fabric_name}'")
+        instance.commit()
+        print(instance.status)
+    except (TypeError, ValueError) as error:
+        errmsg += f"Error detail: {error}"
+        log.error(errmsg)
+        print(errmsg)
 
 
 def setup_parser() -> argparse.Namespace:
@@ -118,16 +139,4 @@ rest_send.response_handler = ResponseHandler()
 rest_send.timeout = 300  # seconds
 
 for item in validator.config:
-    try:
-        instance = ConfigSave()
-        instance.rest_send = rest_send
-        instance.results = Results()
-        instance.fabric_name = item.fabric_name
-
-        print(f"Triggering Config Save for fabric '{item.fabric_name}'")
-        instance.commit()
-        print(instance.status)
-    except (TypeError, ValueError) as error:
-        msg = f"Error triggering Config Save for fabric '{item.fabric_name}'. Error detail: {error}"
-        log.error(msg)
-        print(msg)
+    action(item)

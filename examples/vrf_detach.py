@@ -39,7 +39,6 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 """
 # pylint: disable=duplicate-code
 import argparse
-import json
 import logging
 import sys
 
@@ -53,7 +52,7 @@ from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.vrf_detach import VrfDetachConfigValidator
+from ndfc_python.validators.vrf_detach import VrfDetachConfig, VrfDetachConfigValidator
 from ndfc_python.vrf_detach import VrfDetach
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
@@ -61,24 +60,24 @@ from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
-def vrf_detach(cfg: dict) -> None:
+def action(cfg: VrfDetachConfig) -> None:
     """
     Given a vrf-detach configuration, detach the VRF.
     """
+    errmsg = "Error detaching "
+    errmsg += f"fabric {cfg.fabric_name}, "
+    errmsg += f"vrf_name {cfg.vrf_name}, "
+    errmsg += f"from switch_name {cfg.switch_name}. "
     try:
         instance = VrfDetach()
         instance.rest_send = rest_send
         instance.results = Results()
-        instance.fabric_name = cfg.get("fabric", "")
-        instance.switch_name = cfg.get("switch_name")
-        instance.vrf_name = cfg.get("vrfName")
+        instance.fabric_name = cfg.fabric_name
+        instance.switch_name = cfg.switch_name
+        instance.vrf_name = cfg.vrf_name
         instance.commit()
-        errmsg = f"Error detaching fabric {instance.fabric_name}, "
-        errmsg += f"VRF {instance.vrf_name}, "
-        errmsg += f"from switch_name {instance.switch_name}. "
         data = instance.rest_send.response_current.get("DATA", {})
     except ValueError as error:
-        errmsg = "Error detaching VRF. "
         errmsg += f"Error detail: {error}"
         log.error(errmsg)
         print(errmsg)
@@ -160,7 +159,5 @@ rest_send.response_handler = ResponseHandler()
 rest_send.timeout = 2
 rest_send.send_interval = 5
 
-params_list = json.loads(validator.model_dump_json()).get("config", {})
-
-for params in params_list:
-    vrf_detach(params)
+for item in validator.config:
+    action(item)
