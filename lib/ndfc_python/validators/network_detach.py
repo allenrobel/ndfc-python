@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, PositiveInt, StrictBool
+from pydantic import BaseModel, Field, PositiveInt
 
 
 class NetworkDetachConfig(BaseModel):
@@ -8,7 +8,6 @@ class NetworkDetachConfig(BaseModel):
     Base validator for NetworkDetach arguments
     """
 
-    deployment: StrictBool = Field(default=False)
     detachSwitchPorts: list[str] = Field(alias="detach_switch_ports", default=[])
     dot1QVlan: PositiveInt | str = Field(alias="dot1q_vlan", default="")
     fabric: str = Field(..., alias="fabric_name")
