@@ -54,20 +54,20 @@ from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.network_info import NetworkInfoConfigValidator
+from ndfc_python.validators.network_info import NetworkInfoConfig, NetworkInfoConfigValidator
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
-def network_info(cfg: dict) -> None:
+def action(cfg: NetworkInfoConfig) -> None:
     """
     Given a network configuration, retrieve information for the specified network.
     """
     # Prepopulate error message
-    fabric_name = cfg.get("fabric_name")
-    network_name = cfg.get("network_name")
+    fabric_name = cfg.fabric_name
+    network_name = cfg.network_name
     errmsg = "Error retrieving network information for "
     errmsg += f"fabric_name {fabric_name} "
     errmsg += f"network_name {network_name}. "
@@ -164,7 +164,5 @@ rest_send.response_handler = ResponseHandler()
 rest_send.timeout = 2
 rest_send.send_interval = 5
 
-params_list = json.loads(validator.model_dump_json()).get("config", {})
-
-for params in params_list:
-    network_info(params)
+for item in validator.config:
+    action(item)

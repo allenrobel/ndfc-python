@@ -23,7 +23,6 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 """
 # pylint: disable=duplicate-code
 import argparse
-import json
 import logging
 import sys
 
@@ -38,30 +37,32 @@ from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.network_delete import NetworkDeleteConfigValidator
+from ndfc_python.validators.network_delete import NetworkDeleteConfig, NetworkDeleteConfigValidator
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
-def network_delete(config):
+def action(cfg: NetworkDeleteConfig):
     """
     Given a network configuration, delete the network.
     """
+    # Prepopulate error message in case of failure
+    errmsg = f"Error deleting fabric {cfg.fabric_name}, "
+    errmsg += f"network {cfg.network_name}. "
     try:
-        instance.fabric_name = config.get("fabric_name")
-        instance.network_name = config.get("network_name")
+        instance.fabric_name = cfg.fabric_name
+        instance.network_name = cfg.network_name
         instance.commit()
     except ValueError as error:
-        errmsg = "Error deleting network. "
         errmsg += f"Error detail: {error}"
         log.error(errmsg)
         print(errmsg)
         return
 
-    result_msg = f"Network {instance.network_name} "
-    result_msg += f"deleted from fabric {instance.fabric_name}"
+    result_msg = f"Network {cfg.network_name} "
+    result_msg += f"deleted from fabric {cfg.fabric_name}"
     log.info(result_msg)
     print(result_msg)
 
@@ -131,7 +132,5 @@ instance = NetworkDelete()
 instance.rest_send = rest_send
 instance.results = Results()
 
-params_list = json.loads(validator.model_dump_json()).get("config", {})
-
-for params in params_list:
-    network_delete(params)
+for item in validator.config:
+    action(item)

@@ -39,7 +39,6 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 """
 # pylint: disable=duplicate-code
 import argparse
-import json
 import logging
 import sys
 
@@ -54,14 +53,14 @@ from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.network_detach import NetworkDetachConfigValidator
+from ndfc_python.validators.network_detach import NetworkDetachConfig, NetworkDetachConfigValidator
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
-def network_detach(cfg: dict) -> None:
+def action(cfg: NetworkDetachConfig) -> None:
     """
     Detach the network.
 
@@ -73,9 +72,9 @@ def network_detach(cfg: dict) -> None:
 
     """
     # Prepopulate error message in case of failure
-    fabric_name = cfg.get("fabric")
-    network_name = cfg.get("networkName")
-    switch_name = cfg.get("switch_name")
+    fabric_name = cfg.fabric
+    network_name = cfg.networkName
+    switch_name = cfg.switch_name
     errmsg = f"Error detaching fabric {fabric_name}, "
     errmsg += f"network {network_name}, "
     errmsg += f"from switch_name {switch_name}. "
@@ -83,12 +82,12 @@ def network_detach(cfg: dict) -> None:
         instance = NetworkDetach()
         instance.rest_send = rest_send
         instance.results = Results()
-        instance.detach_switch_ports = cfg.get("detachSwitchPorts", [])
-        instance.fabric_name = cfg.get("fabric", "")
-        instance.network_name = cfg.get("networkName")
-        instance.peer_switch_name = cfg.get("peer_switch_name", "")
-        instance.switch_name = cfg.get("switch_name")
-        instance.vlan = cfg.get("vlan")
+        instance.detach_switch_ports = cfg.detachSwitchPorts
+        instance.fabric_name = fabric_name
+        instance.network_name = network_name
+        instance.peer_switch_name = cfg.peer_switch_name
+        instance.switch_name = cfg.switch_name
+        instance.vlan = cfg.vlan
         instance.commit()
         data = instance.rest_send.response_current.get("DATA", {})
     except ValueError as error:
@@ -179,7 +178,5 @@ rest_send.response_handler = ResponseHandler()
 rest_send.timeout = 2
 rest_send.send_interval = 5
 
-params_list = json.loads(validator.model_dump_json()).get("config", {})
-
-for params in params_list:
-    network_detach(params)
+for item in validator.config:
+    action(item)
