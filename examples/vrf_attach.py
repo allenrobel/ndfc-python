@@ -39,7 +39,6 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 """
 # pylint: disable=duplicate-code
 import argparse
-import json
 import logging
 import sys
 
@@ -53,7 +52,7 @@ from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.vrf_attach import VrfAttachConfigValidator
+from ndfc_python.validators.vrf_attach import VrfAttachConfig, VrfAttachConfigValidator
 from ndfc_python.vrf_attach import VrfAttach
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
@@ -61,7 +60,7 @@ from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
-def vrf_attach(cfg: dict) -> None:
+def action(cfg: VrfAttachConfig) -> None:
     """
     Given a vrf-attach configuration, attach the VRF.
     """
@@ -69,15 +68,15 @@ def vrf_attach(cfg: dict) -> None:
         instance = VrfAttach()
         instance.rest_send = rest_send
         instance.results = Results()
-        instance.extension_values = cfg.get("extensionValues", {})
-        instance.fabric_name = cfg.get("fabric")
-        instance.freeform_config = cfg.get("freeformConfig", [])
-        instance.instance_values = cfg.get("instanceValues", {})
-        instance.switch_name = cfg.get("switch_name")
-        instance.vlan = cfg.get("vlan")
-        instance.vrf_name = cfg.get("vrfName")
+        instance.extension_values = cfg.extensionValues
+        instance.fabric_name = cfg.fabric
+        instance.freeform_config = cfg.freeformConfig
+        instance.instance_values = cfg.instanceValues
+        instance.switch_name = cfg.switch_name
+        instance.vlan = cfg.vlan
+        instance.vrf_name = cfg.vrfName
         # Only for vPC peer switches
-        instance.peer_switch_name = cfg.get("peer_switch_name")
+        instance.peer_switch_name = cfg.peer_switch_name
         instance.commit()
     except ValueError as error:
         errmsg = "Error attaching VRF. "
@@ -168,7 +167,5 @@ rest_send.response_handler = ResponseHandler()
 rest_send.timeout = 2
 rest_send.send_interval = 5
 
-params_list = json.loads(validator.model_dump_json()).get("config", {})
-
-for params in params_list:
-    vrf_attach(params)
+for item in validator.config:
+    action(item)
