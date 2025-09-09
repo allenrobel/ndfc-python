@@ -54,21 +54,21 @@ from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.network_attach import NetworkAttachConfigValidator
+from ndfc_python.validators.network_attach import NetworkAttachConfig, NetworkAttachConfigValidator
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
-def network_attach(cfg: dict) -> None:
+def action(cfg: NetworkAttachConfig) -> None:
     """
     Given a network-attach configuration, attach the network.
     """
     # Prepopulate error message in case of failure
-    fabric_name = cfg.get("fabric")
-    network_name = cfg.get("networkName")
-    switch_name = cfg.get("switch_name")
+    fabric_name = cfg.fabric
+    network_name = cfg.networkName
+    switch_name = cfg.switch_name
     errmsg = f"Error attaching fabric {fabric_name}, "
     errmsg += f"network {network_name}, "
     errmsg += f"to switch_name {switch_name}. "
@@ -76,19 +76,19 @@ def network_attach(cfg: dict) -> None:
         instance = NetworkAttach()
         instance.rest_send = rest_send
         instance.results = Results()
-        instance.detach_switch_ports = cfg.get("detachSwitchPorts", [])
-        instance.dot1q_vlan = cfg.get("dot1qVlan")
-        instance.extension_values = cfg.get("extensionValues", "")
+        instance.detach_switch_ports = cfg.detachSwitchPorts
+        instance.dot1q_vlan = cfg.dot1QVlan
+        instance.extension_values = cfg.extensionValues
         instance.fabric_name = fabric_name
-        instance.freeform_config = cfg.get("freeformConfig", [])
-        instance.instance_values = cfg.get("instanceValues", "")
+        instance.freeform_config = cfg.freeformConfig
+        instance.instance_values = cfg.instanceValues
         instance.network_name = network_name
-        instance.peer_switch_name = cfg.get("peer_switch_name", "")
+        instance.peer_switch_name = cfg.peer_switch_name
         instance.switch_name = switch_name
-        instance.switch_ports = cfg.get("switchPorts", [])
-        instance.tor_ports = cfg.get("torPorts", [])
-        instance.untagged = cfg.get("untagged", False)
-        instance.vlan = cfg.get("vlan")
+        instance.switch_ports = cfg.switchPorts
+        instance.tor_ports = cfg.torPorts
+        instance.untagged = cfg.untagged
+        instance.vlan = cfg.vlan
         instance.commit()
         data = instance.rest_send.response_current.get("DATA", {})
     except ValueError as error:
@@ -179,7 +179,5 @@ rest_send.response_handler = ResponseHandler()
 rest_send.timeout = 2
 rest_send.send_interval = 5
 
-params_list = json.loads(validator.model_dump_json()).get("config", {})
-
-for params in params_list:
-    network_attach(params)
+for item in validator.config:
+    action(item)

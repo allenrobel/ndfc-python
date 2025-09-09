@@ -39,7 +39,6 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 """
 # pylint: disable=duplicate-code
 import argparse
-import json
 import logging
 import sys
 
@@ -54,39 +53,40 @@ from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.network_create import NetworkCreateConfigValidator
+from ndfc_python.validators.network_create import NetworkCreateConfig, NetworkCreateConfigValidator
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
-def network_create(config):
+def action(cfg: NetworkCreateConfig):
     """
     Given a network configuration, create the network.
     """
+    # Prepopulate error message in case of failure
+    errmsg = f"Error creating fabric {cfg.fabric_name}, "
+    errmsg += f"network {cfg.network_name}. "
     try:
         instance = NetworkCreate()
         instance.rest_send = rest_send
         instance.results = Results()
-        instance.fabric_name = config.get("fabric_name")
-        instance.network_name = config.get("network_name")
-        instance.enable_ir = config.get("enable_ir")
-        instance.gateway_ip_address = config.get("gateway_ip_address")
-        instance.network_id = config.get("network_id")
-        instance.suppress_arp = config.get("suppress_arp")
-        instance.vlan_id = config.get("vlan_id")
-        instance.vrf_name = config.get("vrf_name")
+        instance.fabric_name = cfg.fabric_name
+        instance.network_name = cfg.network_name
+        instance.gateway_ip_address = cfg.gateway_ip_address
+        instance.network_id = cfg.network_id
+        instance.suppress_arp = cfg.suppress_arp
+        instance.vlan_id = cfg.vlan_id
+        instance.vrf_name = cfg.vrf_name
         instance.commit()
     except ValueError as error:
-        errmsg = "Error creating network. "
         errmsg += f"Error detail: {error}"
         log.error(errmsg)
         print(errmsg)
         return
 
-    result_msg = f"Network {instance.network_name} with id {instance.network_id} "
-    result_msg += f"created in fabric {instance.fabric_name}"
+    result_msg = f"Network {cfg.network_name} with id {cfg.network_id} "
+    result_msg += f"created in fabric {cfg.fabric_name}"
     log.info(result_msg)
     print(result_msg)
 
@@ -154,7 +154,5 @@ rest_send.response_handler = ResponseHandler()
 rest_send.timeout = 2
 rest_send.send_interval = 5
 
-params_list = json.loads(validator.model_dump_json()).get("config", {})
-
-for params in params_list:
-    network_create(params)
+for item in validator.config:
+    action(item)
