@@ -44,6 +44,7 @@ import logging
 
 from ndfc_python.common.fabric.fabric_inventory import FabricInventory
 from ndfc_python.validations import Validations
+from ndfc_python.validators.vrf_attach import ExtensionValues, InstanceValues
 from plugins.module_utils.common.properties import Properties
 from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
@@ -72,6 +73,8 @@ class VrfAttach:
         self.fabric_inventory = FabricInventory()
         self.fabric_switches = {}
         self.validations = Validations()
+        self._extension_values = []
+        self._instance_values = []
 
         self.properties = {}
 
@@ -204,16 +207,35 @@ class VrfAttach:
         self.fabric_switches = copy.deepcopy(self.fabric_inventory.inventory)
         # pylint: enable=no-member
 
+    def build_extension_values(self, value: list[ExtensionValues]) -> str:
+        """
+        Build the extensionValues property from a list of ExtensionValues objects
+        and return it as a JSON string.
+        """
+        vrf_lite_conn_list = []
+        for item in value:
+            if isinstance(item, dict):
+                item = ExtensionValues.model_validate(item)
+            if item.IF_NAME is None or item.IF_NAME == "":
+                continue
+            vrf_lite_conn_item: dict = item.model_dump()
+            vrf_lite_conn_item["AUTO_VRF_LITE_FLAG"] = str(vrf_lite_conn_item.get("AUTO_VRF_LITE_FLAG", True)).lower()
+            vrf_lite_conn_list.append(vrf_lite_conn_item)
+        outer = {}
+        outer["VRF_LITE_CONN"] = json.dumps({"VRF_LITE_CONN": vrf_lite_conn_list})
+        outer["MULTISITE_CONN"] = json.dumps({"MULTISITE_CONN": []})
+        return json.dumps(outer)
+
     def _build_lan_attach_list_item(self, switch_name: str) -> dict:
         """
         Build the lanAttachList item for the payload.
         """
         _lan_attach_list_item = {}
         _lan_attach_list_item["deployment"] = True
-        _lan_attach_list_item["extensionValues"] = self.extension_values
+        _lan_attach_list_item["extensionValues"] = self.build_extension_values(self.extension_values)
         _lan_attach_list_item["fabric"] = self.fabric_name
         _lan_attach_list_item["freeformConfig"] = self.freeform_config
-        _lan_attach_list_item["instanceValues"] = self.instance_values
+        _lan_attach_list_item["instanceValues"] = json.dumps(self._instance_values.model_dump())
         _lan_attach_list_item["serialNumber"] = self.fabric_inventory.switch_name_to_serial_number(switch_name)
         _lan_attach_list_item["vlan"] = self.vlan
         _lan_attach_list_item["vrfName"] = self.vrf_name
@@ -264,25 +286,22 @@ class VrfAttach:
             raise ValueError(msg) from error
 
     @property
-    def extension_values(self) -> str:
+    def extension_values(self) -> list[ExtensionValues | dict]:
         """
         return the current value of extensionValues
         """
-        return self.properties.get("extensionValues")
+        return self._extension_values
 
     @extension_values.setter
-    def extension_values(self, value: list) -> None:
-        vrf_lite_conn_list = []
+    def extension_values(self, value: list[ExtensionValues | dict]) -> None:
+        if not isinstance(value, list):
+            msg = "extension_values must be a list of ExtensionValues objects or list of dict"
+            raise ValueError(msg)
         for item in value:
-            if item.get("IF_NAME") is None or item.get("IF_NAME") == "":
-                continue
-            vrf_lite_conn_item: dict = item.copy()
-            vrf_lite_conn_item["AUTO_VRF_LITE_FLAG"] = str(vrf_lite_conn_item.get("AUTO_VRF_LITE_FLAG", True)).lower()
-            vrf_lite_conn_list.append(vrf_lite_conn_item)
-        outer = {}
-        outer["VRF_LITE_CONN"] = json.dumps({"VRF_LITE_CONN": vrf_lite_conn_list})
-        outer["MULTISITE_CONN"] = json.dumps({"MULTISITE_CONN": []})
-        self.properties["extensionValues"] = json.dumps(outer)
+            if not isinstance(item, ExtensionValues) and not isinstance(item, dict):
+                msg = "extension_values must be a list of ExtensionValues objects or list of dict"
+                raise ValueError(msg)
+        self._extension_values = value
 
     @property
     def fabric_name(self) -> str:
@@ -313,11 +332,14 @@ class VrfAttach:
         """
         return the current value of instanceValues
         """
-        return self.properties.get("instanceValues")
+        return self._instance_values
 
     @instance_values.setter
-    def instance_values(self, value: dict) -> None:
-        self.properties["instanceValues"] = json.dumps(value)
+    def instance_values(self, value: InstanceValues | dict) -> None:
+        if not isinstance(value, InstanceValues) and not isinstance(value, dict):
+            msg = "instance_values must be an InstanceValues object or dict"
+            raise ValueError(msg)
+        self._instance_values = value
 
     @property
     def peer_switch_name(self) -> str:
