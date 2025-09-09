@@ -708,6 +708,8 @@ class NetworkCreate:
         """
         return the current template_config value of gatewayIpAddress
         """
+        if self.template_config.get("gatewayIpAddress") is None:
+            return ""
         return self.template_config.get("gatewayIpAddress")
 
     @gateway_ip_address.setter
