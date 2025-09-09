@@ -1,0 +1,6 @@
+---
+config:
+  - fabric_name: MSD
+    network_name: v1n1
+  - fabric_name: MSD
+    network_name: v1n2
