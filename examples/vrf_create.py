@@ -50,7 +50,7 @@ from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.vrf_create import VrfCreateConfigValidator, VrfCreateConfig
+from ndfc_python.validators.vrf_create import VrfCreateConfig, VrfCreateConfigValidator
 from ndfc_python.vrf_create import VrfCreate
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend

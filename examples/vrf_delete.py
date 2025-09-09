@@ -74,7 +74,7 @@ from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.vrf_delete import VrfDeleteConfigValidator, VrfDeleteConfig
+from ndfc_python.validators.vrf_delete import VrfDeleteConfig, VrfDeleteConfigValidator
 from ndfc_python.vrf_delete import VrfDelete
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
