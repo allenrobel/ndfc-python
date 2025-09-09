@@ -1,5 +1,3 @@
-from typing import List
-
 from pydantic import BaseModel
 
 
@@ -11,7 +9,7 @@ class VrfDeleteConfig(BaseModel):
     """
 
     fabric_name: str
-    vrf_names: List[str]
+    vrf_names: list[str]
 
 
 class VrfDeleteConfigValidator(BaseModel):
@@ -21,4 +19,4 @@ class VrfDeleteConfigValidator(BaseModel):
     config is a list of VrfDeleteConfig
     """
 
-    config: List[VrfDeleteConfig]
+    config: list[VrfDeleteConfig]

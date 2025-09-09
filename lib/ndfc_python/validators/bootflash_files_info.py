@@ -1,6 +1,5 @@
 from enum import Enum
 from ipaddress import IPv4Address
-from typing import List
 
 from pydantic import BaseModel
 from typing_extensions import TypedDict
@@ -49,7 +48,6 @@ class Switch(TypedDict):
     """
 
     ip_address: IPv4Address
-    # targets: Optional[List[Target]] = []
 
 
 class BootflashFilesInfoConfig(BaseModel):
@@ -59,8 +57,8 @@ class BootflashFilesInfoConfig(BaseModel):
     Base validator for BootflashFilesInfo and ImagePolicyReplace arguments
     """
 
-    targets: List[Target]
-    switches: List[Switch]
+    targets: list[Target]
+    switches: list[Switch]
 
 
 class BootflashFilesInfoConfigValidator(BaseModel):

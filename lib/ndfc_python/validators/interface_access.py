@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field, PositiveInt
 
@@ -33,4 +33,4 @@ class InterfaceAccessCreateConfigValidator(BaseModel):
     config is a list of InterfaceAccessCreateConfig
     """
 
-    config: List[InterfaceAccessCreateConfig]
+    config: list[InterfaceAccessCreateConfig]

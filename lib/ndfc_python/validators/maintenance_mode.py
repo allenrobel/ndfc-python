@@ -1,6 +1,6 @@
 from enum import Enum
 from ipaddress import IPv4Address
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -45,7 +45,7 @@ class MaintenanceModeConfigValidator(BaseModel):
     config is a list of MaintenanceModeConfig
     """
 
-    config: List[MaintenanceModeConfig]
+    config: list[MaintenanceModeConfig]
 
 
 class MaintenanceModeInfoConfigValidator(BaseModel):
@@ -55,4 +55,4 @@ class MaintenanceModeInfoConfigValidator(BaseModel):
     config is a list of MaintenanceModeInfoConfig
     """
 
-    config: List[MaintenanceModeInfoConfig]
+    config: list[MaintenanceModeInfoConfig]

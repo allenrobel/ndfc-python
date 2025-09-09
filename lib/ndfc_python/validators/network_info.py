@@ -1,5 +1,3 @@
-from typing import List
-
 from pydantic import BaseModel
 
 
@@ -21,4 +19,4 @@ class NetworkInfoConfigValidator(BaseModel):
     config is a list of NetworkInfoConfig
     """
 
-    config: List[NetworkInfoConfig]
+    config: list[NetworkInfoConfig]
