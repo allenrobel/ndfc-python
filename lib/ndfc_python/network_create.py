@@ -64,7 +64,7 @@ Send network create POST requests to the controller
 import inspect
 import json
 import logging
-from ipaddress import AddressValueError
+from ipaddress import AddressValueError, IPv4Interface
 
 from ndfc_python.validations import Validations
 from plugins.module_utils.common.properties import Properties
@@ -704,17 +704,20 @@ class NetworkCreate:
         self.template_config["enableL3OnBorderVpcBgw"] = value
 
     @property
-    def gateway_ip_address(self):
+    def gateway_ip_address(self) -> str:
         """
         return the current template_config value of gatewayIpAddress
         """
         return self.template_config.get("gatewayIpAddress")
 
     @gateway_ip_address.setter
-    def gateway_ip_address(self, value):
+    def gateway_ip_address(self, value: IPv4Interface | None):
         # It is assumed that value has already been validated
         # in .lib/ndfc_python/validators/network_create.py
-        self.template_config["gatewayIpAddress"] = value
+        if value is None:
+            self.template_config["gatewayIpAddress"] = ""
+            return
+        self.template_config["gatewayIpAddress"] = str(value)
 
     @property
     def gateway_ipv6_address(self):
