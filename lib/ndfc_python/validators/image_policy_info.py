@@ -1,5 +1,3 @@
-from typing import List
-
 from pydantic import BaseModel
 
 
@@ -20,4 +18,4 @@ class ImagePolicyInfoConfigValidator(BaseModel):
     config is a list of ImagePolicyInfoConfig
     """
 
-    config: List[ImagePolicyInfoConfig]
+    config: list[ImagePolicyInfoConfig]

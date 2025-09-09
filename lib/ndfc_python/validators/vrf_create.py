@@ -1,5 +1,3 @@
-from typing import List
-
 from pydantic import BaseModel
 
 
@@ -24,4 +22,4 @@ class VrfCreateConfigValidator(BaseModel):
     config is a list of VrfCreateConfig
     """
 
-    config: List[VrfCreateConfig]
+    config: list[VrfCreateConfig]

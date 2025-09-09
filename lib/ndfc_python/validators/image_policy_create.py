@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel
 from typing_extensions import TypedDict
@@ -11,13 +11,13 @@ class ImagePolicyPackages(TypedDict):
     Dictionary containing the following keys
 
     - install
-        - List of packages to install
+        - list of packages to install
     - uninstall
-        - List of packages to uninstall
+        - list of packages to uninstall
     """
 
-    install: Optional[List[str]]
-    uninstall: Optional[List[str]]
+    install: Optional[list[str]]
+    uninstall: Optional[list[str]]
 
 
 class ImagePolicyCreateConfig(BaseModel):
@@ -44,4 +44,4 @@ class ImagePolicyCreateConfigValidator(BaseModel):
     config is a list of ImagePolicyCreateConfig
     """
 
-    config: List[ImagePolicyCreateConfig]
+    config: list[ImagePolicyCreateConfig]

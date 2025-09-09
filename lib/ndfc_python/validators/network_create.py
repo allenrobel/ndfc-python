@@ -1,5 +1,5 @@
 from ipaddress import IPv4Interface
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, PositiveInt
 
@@ -28,4 +28,4 @@ class NetworkCreateConfigValidator(BaseModel):
     config is a list of NetworkCreateConfig
     """
 
-    config: List[NetworkCreateConfig]
+    config: list[NetworkCreateConfig]

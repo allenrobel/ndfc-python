@@ -1,5 +1,3 @@
-from typing import List
-
 from pydantic import BaseModel
 
 
@@ -20,4 +18,4 @@ class ImagePolicyDeleteConfigValidator(BaseModel):
     config is a list of ImagePolicyDeleteConfig
     """
 
-    config: List[ImagePolicyDeleteConfig]
+    config: list[ImagePolicyDeleteConfig]

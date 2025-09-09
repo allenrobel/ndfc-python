@@ -1,5 +1,4 @@
 from ipaddress import IPv4Address
-from typing import List
 
 from pydantic import BaseModel
 
@@ -21,4 +20,4 @@ class DeviceInfoConfigValidator(BaseModel):
     config is a list of DeviceInfoConfig
     """
 
-    config: List[DeviceInfoConfig]
+    config: list[DeviceInfoConfig]

@@ -1,5 +1,4 @@
 from ipaddress import IPv4Address
-from typing import List
 
 from pydantic import BaseModel
 
@@ -22,4 +21,4 @@ class ReachabilityConfigValidator(BaseModel):
     config is a list of ReachabilityConfig
     """
 
-    config: List[ReachabilityConfig]
+    config: list[ReachabilityConfig]

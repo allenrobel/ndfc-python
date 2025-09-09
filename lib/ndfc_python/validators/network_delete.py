@@ -1,5 +1,3 @@
-from typing import List
-
 from pydantic import BaseModel
 
 
@@ -21,4 +19,4 @@ class NetworkDeleteConfigValidator(BaseModel):
     config is a list of NetworkDeleteConfig
     """
 
-    config: List[NetworkDeleteConfig]
+    config: list[NetworkDeleteConfig]
