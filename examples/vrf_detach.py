@@ -39,7 +39,6 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 """
 # pylint: disable=duplicate-code
 import argparse
-import json
 import logging
 import sys
 
