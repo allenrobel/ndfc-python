@@ -62,7 +62,7 @@ from pydantic import ValidationError
 
 def action(cfg: InterfaceAccessCreateConfig) -> None:
     """
-    Given a network configuration, create the network.
+    Given an interface configuration, create the access-mode interface.
     """
     try:
         instance = InterfaceAccessCreate()
