@@ -1,5 +1,3 @@
-from ipaddress import IPv4Address
-
 from pydantic import BaseModel
 
 
@@ -10,7 +8,8 @@ class DeviceInfoConfig(BaseModel):
     Base validator for DeviceInfo arguments
     """
 
-    switch_ip4: IPv4Address
+    fabric_name: str
+    switch_name: str
 
 
 class DeviceInfoConfigValidator(BaseModel):

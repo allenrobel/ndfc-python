@@ -1,9 +1,14 @@
 ---
 config:
-  - switch_ip4: 192.168.12.131
-  - switch_ip4: 192.168.12.132
-  - switch_ip4: 192.168.12.141
-  - switch_ip4: 192.168.12.142
-  - switch_ip4: 192.168.12.151
-  - switch_ip4: 192.168.12.152
-
+  - switch_name: LE1
+    fabric_name: SITE1
+  - switch_name: SP1
+    fabric_name: SITE1
+  - switch_name: BG1
+    fabric_name: SITE1
+  - switch_name: LE2
+    fabric_name: SITE2
+  - switch_name: SP2
+    fabric_name: SITE2
+  - switch_name: BG2
+    fabric_name: SITE2
