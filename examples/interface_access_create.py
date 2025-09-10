@@ -39,7 +39,6 @@ export NDFC_LOGGING_CONFIG=$HOME/repos/ndfc-python/lib/ndfc_python/logging_confi
 """
 # pylint: disable=duplicate-code
 import argparse
-import json
 import logging
 import sys
 
@@ -54,35 +53,35 @@ from ndfc_python.parsers.parser_nd_ip4 import parser_nd_ip4
 from ndfc_python.parsers.parser_nd_password import parser_nd_password
 from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.interface_access import InterfaceAccessCreateConfigValidator
+from ndfc_python.validators.interface_access import InterfaceAccessCreateConfig, InterfaceAccessCreateConfigValidator
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
 from pydantic import ValidationError
 
 
-def interface_access_create(config):
+def action(cfg: InterfaceAccessCreateConfig) -> None:
     """
-    Given a network configuration, create the network.
+    Given an interface configuration, create the access-mode interface.
     """
     try:
         instance = InterfaceAccessCreate()
         instance.rest_send = rest_send
         instance.results = Results()
-        instance.access_vlan = config.get("access_vlan")
-        instance.bpduguard_enabled = config.get("bpduguard_enabled")
-        instance.conf = config.get("conf")
-        instance.desc = config.get("desc")
-        instance.enable_netflow = config.get("enable_netflow")
-        instance.fabric_name = config.get("fabric_name")
-        instance.intf_name = config.get("intf_name")
-        instance.if_name = config.get("intf_name")
-        instance.mtu = config.get("mtu")
-        instance.netflow_monitor = config.get("netflow_monitor")
-        instance.porttype_fast_enabled = config.get("porttype_fast_enabled")
-        instance.ptp = config.get("ptp")
-        instance.switch_name = config.get("switch_name")
-        instance.speed = config.get("speed")
+        instance.access_vlan = cfg.access_vlan
+        instance.bpduguard_enabled = cfg.bpduguard_enabled
+        instance.conf = cfg.conf
+        instance.desc = cfg.desc
+        instance.enable_netflow = cfg.enable_netflow
+        instance.fabric_name = cfg.fabric_name
+        instance.intf_name = cfg.intf_name
+        instance.if_name = cfg.intf_name
+        instance.mtu = cfg.mtu
+        instance.netflow_monitor = cfg.netflow_monitor
+        instance.porttype_fast_enabled = cfg.porttype_fast_enabled
+        instance.ptp = cfg.ptp
+        instance.switch_name = cfg.switch_name
+        instance.speed = cfg.speed
         result = instance.commit()
     except ValueError as error:
         errmsg = "Error creating interface. "
@@ -142,9 +141,9 @@ log = logging.getLogger("ndfc_python.main")
 log.setLevel = args.loglevel
 
 try:
-    cfg = ReadConfig()
-    cfg.filename = args.config
-    cfg.commit()
+    user_config = ReadConfig()
+    user_config.filename = args.config
+    user_config.commit()
 except ValueError as error:
     message = f"Exiting: Error detail: {error}"
     log.error(message)
@@ -152,7 +151,7 @@ except ValueError as error:
     sys.exit(1)
 
 try:
-    validator = InterfaceAccessCreateConfigValidator(**cfg.contents)
+    validator = InterfaceAccessCreateConfigValidator(**user_config.contents)
 except ValidationError as error:
     message = f"{error}"
     log.error(message)
@@ -175,7 +174,5 @@ rest_send.response_handler = ResponseHandler()
 rest_send.timeout = 2
 rest_send.send_interval = 5
 
-params_list = json.loads(validator.model_dump_json()).get("config", {})
-
-for params in params_list:
-    interface_access_create(params)
+for item in validator.config:
+    action(item)
