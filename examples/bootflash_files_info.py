@@ -91,24 +91,24 @@ def get_fabric_inventories(switches: list[SwitchSpec], send: RestSend) -> dict:
     return fabric_inventories
 
 
-def print_files(instance: BootflashInfo, switch_ip_addresses: dict, cfg: BootflashFilesInfoConfigValidator) -> None:
+def print_files(bootflash_info: BootflashInfo, switch_ip_addresses: dict, cfg: BootflashFilesInfoConfigValidator) -> None:
     """Print the bootflash files information for the specified switches.
 
     Args:
-        instance (BootflashInfo): The BootflashInfo instance containing the file information from the switches.
+        bootflash_info (BootflashInfo): The BootflashInfo instance containing the file information from the switches.
         switch_ip_addresses (dict): A dictionary mapping switch names to their IP addresses and fabric names.
         cfg (BootflashFilesInfoConfigValidator): The configuration validator containing target information.
     """
     for switch_name, switch_info in switch_ip_addresses.items():
-        instance.filter_switch = switch_info["ip_address"]
+        bootflash_info.filter_switch = switch_info["ip_address"]
         for target in cfg.targets:
-            instance.filter_filepath = target.filepath
-            instance.filter_supervisor = target.supervisor.value
+            bootflash_info.filter_filepath = target.filepath
+            bootflash_info.filter_supervisor = target.supervisor.value
             msg = f"Filtering on fabric_name {switch_info['fabric_name']}, "
             msg += f"switch_name {switch_name}, "
             msg += f"supervisor {target.supervisor.value}, "
             msg += f"filepath {target.filepath}\n"
-            msg += f"{json.dumps(instance.matches, sort_keys=True, indent=4)}"
+            msg += f"{json.dumps(bootflash_info.matches, sort_keys=True, indent=4)}"
             print(msg)
 
 
@@ -144,7 +144,8 @@ def build_switch_ip_addresses(cfg: BootflashFilesInfoConfigValidator, send: Rest
 
 
 def prepare_bootflash_info(switch_ip_addresses: dict, send: RestSend) -> BootflashInfo:
-    """Prepare the BootflashInfo instance with the necessary details.
+    """
+    Instantiate the BootflashInfo instance and inject mandatory dependencies.
 
     Args:
         switch_ip_addresses (dict): A mapping of switch names to their IP addresses and fabric names.
