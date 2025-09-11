@@ -14,10 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # pylint: disable=wrong-import-position
-from __future__ import absolute_import, division, print_function
-
-__metaclass__ = type
-__author__ = "Allen Robel"
 
 import argparse
 import json
@@ -95,57 +91,96 @@ def get_fabric_inventories(switches: list[SwitchSpec], send: RestSend) -> dict:
     return fabric_inventories
 
 
+def print_files(instance: BootflashInfo, switch_ip_addresses: dict, cfg: BootflashFilesInfoConfigValidator) -> None:
+    """Print the bootflash files information for the specified switches.
+
+    Args:
+        instance (BootflashInfo): The BootflashInfo instance containing the file information from the switches.
+        switch_ip_addresses (dict): A dictionary mapping switch names to their IP addresses and fabric names.
+        cfg (BootflashFilesInfoConfigValidator): The configuration validator containing target information.
+    """
+    for switch_name, switch_info in switch_ip_addresses.items():
+        instance.filter_switch = switch_info["ip_address"]
+        for target in cfg.targets:
+            instance.filter_filepath = target.filepath
+            instance.filter_supervisor = target.supervisor.value
+            instance.build_matches()
+            msg = f"Filtering on fabric_name {switch_info['fabric_name']}, "
+            msg += f"switch_name {switch_name}, "
+            msg += f"supervisor {target.supervisor.value}, "
+            msg += f"filepath {target.filepath}\n"
+            msg += f"{json.dumps(instance.matches, sort_keys=True, indent=4)}"
+            print(msg)
+
+
+def build_switch_ip_addresses(cfg: BootflashFilesInfoConfigValidator, send: RestSend) -> dict:
+    """Build a mapping of switch names to their IP addresses and fabric names.
+
+    Args:
+        cfg (BootflashFilesInfoConfigValidator): The configuration validator containing switch information.
+        send (RestSend): The RestSend instance for making API calls.
+
+    Returns:
+        dict: A mapping of switch names to their IP addresses and fabric names.
+
+    Raises:
+        ValueError: If a fabric name is missing or if a fabric associated with a switch is not found.
+    """
+    inventories = get_fabric_inventories(cfg.switches, send)
+    switch_ip_addresses = {}
+    for switch in cfg.switches:
+        fabric_name = switch.get("fabric_name")
+        switch_name = switch.get("switch_name")
+        if not fabric_name:
+            errmsg = f"fabric_name missing from switch entry {switch}"
+            raise ValueError(errmsg)
+        if fabric_name not in inventories:
+            errmsg = f"Fabric {fabric_name} "
+            errmsg += f"associated with switch {switch_name} "
+            errmsg += "not found on the controller."
+            raise ValueError(errmsg)
+        switch_ip = get_switch_ip_address(switch_name, inventories[fabric_name])
+        switch_ip_addresses[switch_name] = {"fabric_name": fabric_name, "ip_address": switch_ip}
+    return switch_ip_addresses
+
+
+def prepare_bootflash_info(switch_ip_addresses: dict, send: RestSend) -> BootflashInfo:
+    """Prepare the BootflashInfo instance with the necessary details.
+
+    Args:
+        switch_ip_addresses (dict): A mapping of switch names to their IP addresses and fabric names.
+        send (RestSend): The RestSend instance for making API calls.
+
+    Returns:
+        BootflashInfo: The prepared BootflashInfo instance.
+    """
+    bootflash_info = BootflashInfo()
+    bootflash_info.results = Results()
+    bootflash_info.switch_details = SwitchDetails()
+    bootflash_info.switch_details.results = Results()
+    bootflash_info.switches = [switch_data["ip_address"] for switch_data in switch_ip_addresses.values()]
+
+    send.state = "query"
+    bootflash_info.rest_send = send
+    bootflash_info.refresh()
+    return bootflash_info
+
+
 def action(cfg: BootflashFilesInfoConfigValidator, send: RestSend) -> None:
     """
     Given a bootflash files info validator object and a RestSend object,
     query the bootflash files on the switches specified in the validator object
     and print the results.
+
+    Raises:
+        ValueError: If there is an error in processing.
     """
-    inventories = get_fabric_inventories(cfg.switches, send)
     try:
-        instance = BootflashInfo()
-        instance.results = Results()
-        instance.switch_details = SwitchDetails()
-        instance.switch_details.results = Results()
-        switch_ip_addresses = {}  # keyed on switch_name, value is ip_address of switch
-        for switch in cfg.switches:
-            fabric_name = switch.get("fabric_name")
-            switch_name = switch.get("switch_name")
-            if not fabric_name:
-                errmsg = f"fabric_name missing from switch entry {switch}"
-                log.error(errmsg)
-                print(errmsg)
-                return
-            if fabric_name not in inventories:
-                errmsg = f"Fabric {fabric_name} "
-                errmsg += f"associated with switch {switch_name} "
-                errmsg += "not found on the controller."
-                log.error(errmsg)
-                print(errmsg)
-                return
-            switch_ip = get_switch_ip_address(switch_name, inventories[fabric_name])
-            switch_ip_addresses[switch_name] = switch_ip
-
-        instance.switches = list(switch_ip_addresses.values())
-        send.state = "query"
-        instance.rest_send = send
-        instance.refresh()
-
-        for switch_name, ip_address in switch_ip_addresses.items():
-            instance.filter_switch = ip_address
-            for target in cfg.targets:
-                instance.filter_filepath = target.filepath
-                instance.filter_supervisor = target.supervisor.value
-                instance.build_matches()
-                print(f"Filtering on fabric_name {fabric_name}, switch_name {switch_name}, supervisor {target.supervisor.value}, filepath {target.filepath}")
-                print(f"{json.dumps(instance.diff_dict, sort_keys=True, indent=4)}")
-
-    except (TypeError, ValueError) as error:
-        errmsg = "Error querying bootflash files info. "
-        errmsg += f"Error detail: {error}"
-        log.error(errmsg)
-        print(errmsg)
-        return
+        switch_ip_addresses = build_switch_ip_addresses(cfg, send)
+        bootflash_info = prepare_bootflash_info(switch_ip_addresses, send)
+        print_files(bootflash_info, switch_ip_addresses, cfg)
+    except ValueError as error:
+        raise ValueError from error
 
 
 def setup_parser() -> argparse.Namespace:
@@ -216,4 +251,10 @@ rest_send.sender = ndfc_sender.sender
 rest_send.response_handler = ResponseHandler()
 rest_send.results = Results()
 
-action(validator, rest_send)
+try:
+    action(validator, rest_send)
+except ValueError as error:
+    err_msg = f"Exiting.  Error detail: {error}"
+    log.error(err_msg)
+    print(err_msg)
+    sys.exit(1)
