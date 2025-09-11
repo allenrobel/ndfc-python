@@ -1,5 +1,4 @@
 from enum import Enum
-from ipaddress import IPv4Address
 
 from pydantic import BaseModel
 from typing_extensions import TypedDict
@@ -35,22 +34,23 @@ class Target(BaseModel):
     supervisor: SupervisorEnum
 
 
-class Switch(TypedDict):
+class SwitchSpec(TypedDict):
     """
     # Summary
 
     Dictionary containing the following keys
 
-    - ip_address
-        - The ipv4 address for a switch
-    - targets
-        - An optional list of Target()
+    - fabric_name
+        - The switch's hosting fabric_name
+    - switch_name
+        - The name of the switch
     """
 
-    ip_address: IPv4Address
+    fabric_name: str
+    switch_name: str
 
 
-class BootflashFilesInfoConfig(BaseModel):
+class BootflashFilesInfoConfigValidator(BaseModel):
     """
     # Summary
 
@@ -58,14 +58,4 @@ class BootflashFilesInfoConfig(BaseModel):
     """
 
     targets: list[Target]
-    switches: list[Switch]
-
-
-class BootflashFilesInfoConfigValidator(BaseModel):
-    """
-    # Summary
-
-    config is a dict containing BootflashFilesInfoConfig
-    """
-
-    config: BootflashFilesInfoConfig
+    switches: list[SwitchSpec]
