@@ -104,7 +104,6 @@ def print_files(instance: BootflashInfo, switch_ip_addresses: dict, cfg: Bootfla
         for target in cfg.targets:
             instance.filter_filepath = target.filepath
             instance.filter_supervisor = target.supervisor.value
-            instance.build_matches()
             msg = f"Filtering on fabric_name {switch_info['fabric_name']}, "
             msg += f"switch_name {switch_name}, "
             msg += f"supervisor {target.supervisor.value}, "
