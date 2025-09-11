@@ -78,8 +78,9 @@ def get_fabric_inventory(fabric_name: str, restsend: RestSend, results: Results)
 
 def action(cfg: DeviceInfoConfig, switch_details_instance: SwitchDetails) -> None:
     """
-    Given an instance of SwitchDetails, which has its filter set
-    to a switch ip address, print information about the switch.
+    Given a DeviceInfoConfig and a SwitchDetails instance, resolve the switch name to its IP address
+    using the fabric inventory, set the filter on the SwitchDetails instance internally, and print
+    information about the switch.
     """
     inventory = get_fabric_inventory(cfg.fabric_name, switch_details_instance.rest_send, switch_details_instance.results)
     if cfg.switch_name not in inventory:
