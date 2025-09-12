@@ -298,8 +298,12 @@ def print_results(bootflash_files: BootflashFiles) -> None:
         print("No files matched. Nothing to do.")
         return
     for deleted_file_list in results.values():
-        print(f"{deleted_file_list[0].get("device_name")} deleted files:")
-        print(f"{json.dumps(deleted_file_list, sort_keys=True, indent=4)}")
+        if len(deleted_file_list) == 0:
+            continue
+        device_name = deleted_file_list[0].get("device_name", "unknown")
+        result_msg = f"{device_name} deleted files:\n"
+        result_msg += f"{json.dumps(deleted_file_list, sort_keys=True, indent=4)}"
+        print(f"{result_msg}")
 
 
 def action(cfg: BootflashFilesInfoConfigValidator, send: RestSend) -> None:
