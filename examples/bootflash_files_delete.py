@@ -20,13 +20,12 @@ __metaclass__ = type
 __author__ = "Allen Robel"
 
 import argparse
-import copy
 import inspect
 import json
 import logging
 import sys
-from typing import Any
 
+from ndfc_python.common.fabric.fabric_inventory import FabricInventory
 from ndfc_python.ndfc_python_logger import NdfcPythonLogger
 from ndfc_python.ndfc_python_sender import NdfcPythonSender
 from ndfc_python.parsers.parser_ansible_vault import parser_ansible_vault
@@ -39,11 +38,10 @@ from ndfc_python.parsers.parser_nd_username import parser_nd_username
 from ndfc_python.parsers.parser_nxos_password import parser_nxos_password
 from ndfc_python.parsers.parser_nxos_username import parser_nxos_username
 from ndfc_python.read_config import ReadConfig
-from ndfc_python.validators.bootflash_files_info import BootflashFilesInfoConfigValidator
+from ndfc_python.validators.bootflash_files_info import BootflashFilesInfoConfigValidator, SwitchSpec
 from plugins.module_utils.bootflash.bootflash_files import BootflashFiles
 from plugins.module_utils.bootflash.bootflash_info import BootflashInfo
 from plugins.module_utils.bootflash.convert_target_to_params import ConvertTargetToParams
-from plugins.module_utils.common.properties import Properties
 from plugins.module_utils.common.response_handler import ResponseHandler
 from plugins.module_utils.common.rest_send_v2 import RestSend
 from plugins.module_utils.common.results import Results
@@ -51,353 +49,284 @@ from plugins.module_utils.common.switch_details import SwitchDetails
 from pydantic import ValidationError
 
 
-@Properties.add_rest_send
-class Common:
+def get_switch_ip_address(switch_name: str, inventory: dict) -> str:
     """
-    Common methods for all states
+    Get the IP address of a switch.
+
+    Args:
+        switch_name (str): The name of the switch.
+        inventory (dict): The fabric inventory
+
+    Returns:
+        ipv4 address (str) of switch_name
     """
-
-    def __init__(self, params) -> None:
-        self.class_name = self.__class__.__name__
-        method_name = inspect.stack()[0][3]
-
-        self.log = logging.getLogger(f"dcnm.{self.class_name}")
-
-        # Initialize the Results() object temporarily here
-        # in case we hit any errors below.  We will reinitialize
-        # below after we are sure we have valid params.  This is
-        # to avoid Results() being null in main() if we hit an
-        # error here.
-        self.results = Results()
-        self.results.state = "deleted"
-        self.results.check_mode = False
-
-        self.params = params
-
-        def raise_error(msg):
-            raise ValueError(f"{self.class_name}.{method_name}: {msg}")
-
-        self.check_mode = self.params.get("check_mode", None)
-        if self.check_mode is None:
-            msg = "params is missing mandatory key: check_mode."
-            raise_error(msg)
-
-        if self.check_mode not in [True, False]:
-            msg = "check_mode must be True or False. "
-            msg += f"Got {self.check_mode}."
-            raise_error(msg)
-
-        self._valid_states = ["deleted", "query"]
-
-        self.state = self.params.get("state", None)
-        if self.state is None:
-            msg = "params is missing mandatory key: state."
-            raise_error(msg)
-        if self.state not in self._valid_states:
-            msg = f"Invalid state: {self.state}. "
-            msg += f"Expected one of: {','.join(self._valid_states)}."
-            raise_error(msg)
-
-        self.config = self.params.get("config", {}).get("config", None)
-        if not isinstance(self.config, dict):
-            msg = "Expected dict for config. "
-            msg += f"Got {type(self.config).__name__}."
-            raise_error(msg)
-
-        self.targets = self.config.get("targets", None)
-        if not isinstance(self.targets, list):
-            self.targets = []
-
-        if len(self.targets) > 0:
-            for item in self.targets:
-                if not isinstance(item, dict):
-                    msg = "Expected list of dict for params.config.targets. "
-                    msg += f"Got list element of type {type(item).__name__}."
-                    raise_error(msg)
-
-        self.switches = self.config.get("switches", None)
-        if not isinstance(self.switches, list):
-            msg = "Expected list of dict for params.config.switches. "
-            msg += f"Got {type(self.switches).__name__}."
-            raise_error(msg)
-
-        for item in self.switches:
-            if not isinstance(item, dict):
-                msg = "Expected list of dict for params.config.switches. "
-                msg += f"Got list element of type {type(item).__name__}."
-                raise_error(msg)
-
-        self._rest_send = None
-
-        self.bootflash_info = BootflashInfo()
-        self.convert_target_to_params = ConvertTargetToParams()
-        self.results = Results()
-        self.results.state = self.state
-        self.results.check_mode = self.check_mode
-        self.want: list[Any] = []
-
-        msg = f"ENTERED Common().{method_name}: "
-        msg += f"state: {self.state}, "
-        msg += f"check_mode: {self.check_mode}"
-        self.log.debug(msg)
-
-    def get_want(self) -> None:
-        """
-        ### Summary
-        1.  Validate the playbook configs
-        2.  Convert the validated configs to the structure required by the
-            the Delete() and Query() classes.
-        3.  Update self.want with this list of payloads
-
-        If a switch in the switches list does not have a targets key, add the
-        targets key with the value of the global targets list from the
-        playbook.  Else, use the switch's targets info (i.e. the switch's
-        targets info overrides the global targets info).
-
-        ### Raises
-        -   ValueError if:
-            -   ``ip_address`` is missing from a switch dict.
-            -   ``filepath`` is missing from a target dict.
-        -   TypeError if:
-            -   The value of ``targets`` is not a list of dictionaries.
-
-        ### ``want`` Structure
-        -   A list of dictionaries.  Each dictionary contains the following keys:
-            -   ip_address: The ip address of the switch.
-            -   targets: A list of dictionaries.  Each dictionary contains the
-                following keys:
-                -   filepath: The path to the file to be deleted or queried.
-                -   supervisor: The supervisor containing the filepath.
-
-        ### Example ``want`` Structure
-        ```json
-        [
-            {
-                "ip_address": "192.168.1.1",
-                "targets": [
-                    {
-                        "filepath": "bootflash:/foo.txt",
-                        "supervisor": "active"
-                    },
-                    {
-                        "filepath": "bar",
-                        "supervisor": "standby"
-                    }
-                ]
-            }
-        ]
-        ```
-
-        """
-        method_name = inspect.stack()[0][3]
-        msg = f"ENTERED {self.class_name}.{method_name}"
-        self.log.debug(msg)
-
-        def raise_value_error(msg):
-            raise ValueError(f"{self.class_name}.{method_name}: {msg}")
-
-        def raise_type_error(msg):
-            raise TypeError(f"{self.class_name}.{method_name}: {msg}")
-
-        for switch in self.switches:
-            if switch.get("ip_address", None) is None:
-                msg = "Expected ip_address in switch dict. "
-                msg += f"Got {switch}."
-                raise_value_error(msg)
-
-            if switch.get("targets", None) is None:
-                switch["targets"] = self.targets
-            if not isinstance(switch["targets"], list):
-                msg = "Expected list of dictionaries for switch['targets']. "
-                msg += f"Got {type(switch['targets']).__name__}."
-                raise_type_error(msg)
-
-            for target in switch["targets"]:
-                if target.get("filepath", None) is None:
-                    msg = "Expected filepath in target dict. "
-                    msg += f"Got {target}."
-                    raise_value_error(msg)
-                if target.get("supervisor", None) is None:
-                    msg = "Expected supervisor in target dict. "
-                    msg += f"Got {target}."
-                    raise_value_error(msg)
-            self.want.append(copy.deepcopy(switch))
+    if switch_name not in inventory:
+        errmsg = f"Switch {switch_name} not found in inventory."
+        log.error(errmsg)
+        print(errmsg)
+        sys.exit(1)
+    switch_ip4 = inventory[switch_name].get("ipAddress")
+    if not switch_ip4:
+        errmsg = f"Switch {switch_name} has no ipAddress."
+        log.error(errmsg)
+        print(errmsg)
+        sys.exit(1)
+    return switch_ip4
 
 
-class Deleted(Common):
+def get_fabric_inventories(switches: list[SwitchSpec], send: RestSend) -> dict:
     """
-    ### Summary
-    Handle deleted state
+    Get the fabric inventories associated with the switches in SwitchSpec.
 
-    ### Raises
-    -   ValueError if:
-        -   ``Common.__init__()`` raises TypeError or ValueError.
+    Args:
+        switches (list[SwitchSpec]): The switch specifications, each consisting of fabric_name and switch_name.
+        rest_send (RestSend): The REST send object.
+
+    Returns:
+        dict: The fabric inventories, keyed by fabric name, then by switch name.
     """
+    instance = FabricInventory()
+    instance.rest_send = send
+    instance.results = Results()
+    # Build a set of unique fabric names from the switches list
+    fabric_names = set(switch.get("fabric_name") for switch in switches)
+    fabric_inventories = {}
+    for fabric_name in fabric_names:
+        instance.fabric_name = fabric_name
+        instance.commit()
+        fabric_inventories[fabric_name] = instance.inventory
+    return fabric_inventories
 
-    def __init__(self, params):
-        self.class_name = self.__class__.__name__
-        method_name = inspect.stack()[0][3]
-        try:
-            super().__init__(params)
-        except (TypeError, ValueError) as error:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += "Error during super().__init__(). "
-            msg += f"Error detail: {error}"
-            raise ValueError(msg) from error
 
-        self.bootflash_files = BootflashFiles()
-        self.files_to_delete = {}
+def build_files_to_delete(bootflash_info: BootflashInfo, switch_ip_addresses: dict, cfg: BootflashFilesInfoConfigValidator) -> dict[str, list[dict[str, str]]]:
+    """Build the list of files to delete for the specified switches.
 
-        msg = f"ENTERED {self.class_name}().{method_name}: "
-        msg += f"state: {self.state}, "
-        msg += f"check_mode: {self.check_mode}"
-        self.log.debug(msg)
+    Args:
+        bootflash_info (BootflashInfo): The BootflashInfo instance containing the file information from the switches.
+        switch_ip_addresses (dict): A dictionary mapping switch names to their IP addresses and fabric names.
+        cfg (BootflashFilesInfoConfigValidator): The configuration validator containing target information.
 
-    def populate_files_to_delete(self, switch) -> None:
-        """
-        ### Summary
-        Populate the ``files_to_delete`` dictionary with files
-        the user intends to delete.
+    Returns:
+        dict: A dictionary mapping switch names to lists of files to delete.
 
-        ### Raises
-        -   ``ValueError`` if:
-            -    ``supervisor`` is not one of:
-                    -   active
-                    -   standby
+    Example:
 
-        ### ``files_to_delete`` Structure
-        files_to_delete is a dictionary containing
-        -   key: switch ip address.
-        -   value: a list of dictionaries containing the files to delete.
-
-        ### ``files_to_delete`` Example
-        ```json
-        {
-            "10.1.1.2": [
+    {
+        "LE1": [
                 {
-                    "date": "2024-08-05 19:23:24",
-                    "device_name": "cvd-1211-spine",
-                    "filepath": "bootflash:/foo.txt",
-                    "ip_address": "10.1.1.2",
-                    "serial_number": "FOX12345ABC",
-                    "size": "2",
+                    "date": "2025-08-29 20:51:49",
+                    "device_name": "LE1",
+                    "filepath": "bootflash:/log_profile.yaml",
+                    "ip_address": "192.168.12.151",
+                    "serial_number": "9WPLALSNXK6",
+                    "size": "704",
                     "supervisor": "active"
                 }
             ]
-        }
-        ```
-        """
-        method_name = inspect.stack()[0][3]
-        self.bootflash_info.filter_switch = switch["ip_address"]
-        if switch["ip_address"] not in self.files_to_delete:
-            self.files_to_delete[switch["ip_address"]] = []
+    }
+    """
+    files_to_delete: dict[str, list[dict[str, str]]] = {}
+    files_to_delete_summary: dict[str, list[str]] = {}
+    for switch_name, switch_info in switch_ip_addresses.items():
+        bootflash_info.filter_switch = switch_info["ip_address"]
+        for target in cfg.targets:
+            bootflash_info.filter_filepath = target.filepath
+            bootflash_info.filter_supervisor = target.supervisor.value
+            if len(bootflash_info.matches) == 0:
+                continue
+            if switch_name not in files_to_delete:
+                files_to_delete[switch_name] = []
+            files_to_delete[switch_name].extend(bootflash_info.matches)
+    if len(files_to_delete) == 0:
+        print("No files matched. Nothing to do.")
+        sys.exit(0)
+    for switch_name, file_list in files_to_delete.items():
+        files_to_delete_summary[switch_name] = [item.get("filepath", "unknown") for item in file_list]
+    print("Summary of files to be deleted:")
+    print(json.dumps(files_to_delete_summary, sort_keys=True, indent=4))
+    print("File deletion can take a while, especially with many files across many switches.  Please be patient.")
+    return files_to_delete
 
-        for target in switch["targets"]:
-            self.bootflash_info.filter_filepath = target.get("filepath")
-            try:
-                self.bootflash_info.filter_supervisor = target.get("supervisor")
-            except ValueError as error:
-                msg = f"{self.class_name}.{method_name}: "
-                msg += "Error assigning BootflashInfo.filter_supervisor. "
-                msg += f"Error detail: {error}"
-                raise ValueError(msg) from error
-            self.files_to_delete[switch["ip_address"]].extend(self.bootflash_info.matches)
 
-    def update_bootflash_files(self, ip_address, target) -> None:
-        """
-        ### Summary
-        Call ``BootflashFiles().add_file()`` to add the file associated with
-        ``ip_address`` and ``target`` to the list of files to be deleted.
+def build_switch_ip_addresses(cfg: BootflashFilesInfoConfigValidator, send: RestSend) -> dict:
+    """Build a mapping of switch names to their IP addresses and fabric names.
 
-        ### Raises
-        -    ``TypeError`` if:
-                -   ``target`` is not a dictionary.
-        -    ``ValueError`` if:
-                -   ``BootflashFiles().add_file`` raises ``ValueError``.
-        """
-        method_name = inspect.stack()[0][3]
+    Args:
+        cfg (BootflashFilesInfoConfigValidator): The configuration validator containing switch information.
+        send (RestSend): The RestSend instance for making API calls.
 
+    Returns:
+        dict: A mapping of switch names to their IP addresses and fabric names.
+
+    Raises:
+        ValueError: If a fabric name is missing or if a fabric associated with a switch is not found.
+    """
+    inventories = get_fabric_inventories(cfg.switches, send)
+    switch_ip_addresses = {}
+    for switch in cfg.switches:
+        fabric_name = switch.get("fabric_name")
+        switch_name = switch.get("switch_name")
+        if not fabric_name:
+            errmsg = f"fabric_name missing from switch entry {switch}"
+            raise ValueError(errmsg)
+        if fabric_name not in inventories:
+            errmsg = f"Fabric {fabric_name} "
+            errmsg += f"associated with switch {switch_name} "
+            errmsg += "not found on the controller."
+            raise ValueError(errmsg)
+        switch_ip = get_switch_ip_address(switch_name, inventories[fabric_name])
+        switch_ip_addresses[switch_name] = {"fabric_name": fabric_name, "ip_address": switch_ip}
+    return switch_ip_addresses
+
+
+def instantiate_bootflash_info(switch_ip_addresses: dict, send: RestSend) -> BootflashInfo:
+    """
+    Instantiate the BootflashInfo instance and inject mandatory dependencies.
+
+    Args:
+        switch_ip_addresses (dict): A mapping of switch names to their IP addresses and fabric names.
+        send (RestSend): The RestSend instance for making API calls.
+
+    Returns:
+        BootflashInfo: The prepared BootflashInfo instance.
+    """
+    bootflash_info = BootflashInfo()
+    bootflash_info.results = Results()
+    bootflash_info.switch_details = SwitchDetails()
+    bootflash_info.switch_details.results = Results()
+    bootflash_info.switches = [switch_data["ip_address"] for switch_data in switch_ip_addresses.values()]
+
+    send.state = "query"
+    bootflash_info.rest_send = send
+    bootflash_info.refresh()
+    return bootflash_info
+
+
+def instantiate_bootflash_files(switch_ip_addresses: dict, send: RestSend, results: Results) -> BootflashFiles:
+    """
+    Instantiate the BootflashFiles instance and inject mandatory dependencies.
+
+    Args:
+        switch_ip_addresses (dict): A mapping of switch names to their IP addresses and fabric names.
+        send (RestSend): The RestSend instance for making API calls.
+        results (Results): The Results instance for tracking operation results.
+
+    Returns:
+        BootflashFiles: The prepared BootflashFiles instance.
+    """
+    # File deletion can take a while, especially with many files across many switches.
+    # Increase the timeout to accommodate this.
+    send.sender.timeout = 300
+    bootflash_files = BootflashFiles()
+    results.state = "deleted"
+    results.check_mode = False
+    send.state = "deleted"
+    bootflash_files.rest_send = send
+    bootflash_files.results = results
+    bootflash_files.switch_details = SwitchDetails()
+    bootflash_files.switch_details.results = Results()
+    bootflash_files.switches = [switch_data["ip_address"] for switch_data in switch_ip_addresses.values()]
+    return bootflash_files
+
+
+def add_files_to_bootflash_files(bootflash_files: BootflashFiles, converter: ConvertTargetToParams, targets: list) -> None:
+    """
+    # Summary
+
+    Call ``BootflashFiles().add_file()`` to add the file associated with ``target`` to the list of files to be deleted.
+
+    ### Args:
+
+    - bootflash_files (BootflashFiles): The BootflashFiles instance to which the file will be added.
+    - converter (ConvertTargetToParams): The ConvertTargetToParams instance for converting target to parameters.
+    - target (dict): A dictionary containing file information for the target file.
+
+    ### Raises
+    -    ``ValueError`` if:
+            -   ``ConvertTargetToParams`` raises ``ValueError``.
+            -     Updating ``BootflashFiles`` properties raises ``TypeError`` or ``ValueError``.
+            -   ``BootflashFiles().add_file`` raises ``ValueError``.
+    """
+    method_name = inspect.stack()[0][3]
+
+    for target in targets:
         try:
-            self.convert_target_to_params.target = target
-            self.convert_target_to_params.commit()
+            converter.target = target
+            converter.commit()
         except ValueError as error:
-            msg = f"{self.class_name}.{method_name}: "
+            msg = f"main.{method_name}: "
             msg += "Error converting target to params. "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
 
         try:
-            self.bootflash_files.filename = self.convert_target_to_params.filename
-            self.bootflash_files.filepath = self.convert_target_to_params.filepath
-            self.bootflash_files.ip_address = ip_address
-            self.bootflash_files.partition = self.convert_target_to_params.partition
-            self.bootflash_files.supervisor = self.convert_target_to_params.supervisor
+            bootflash_files.filename = converter.filename
+            bootflash_files.filepath = converter.filepath
+            bootflash_files.ip_address = target.get("ip_address")
+            bootflash_files.partition = converter.partition
+            bootflash_files.supervisor = converter.supervisor
             # we want to use the target as the diff, rather than the
             # payload, because it contains better information than
             # the payload. See BootflashFiles() class docstring and
             # BootflashFiles().target property docstring.
-            self.bootflash_files.target = target
+            bootflash_files.target = target
         except (TypeError, ValueError) as error:
-            msg = f"{self.class_name}.{method_name}: "
+            msg = f"main.{method_name}: "
             msg += "Error assigning BootflashFiles properties. "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
 
         try:
-            self.bootflash_files.add_file()
+            bootflash_files.add_file()
         except ValueError as error:
-            msg = f"{self.class_name}.{inspect.stack()[0][3]}: "
+            msg = f"main.{method_name}: "
             msg += "Error adding file to bootflash_files. "
             msg += f"Error detail: {error}"
             raise ValueError(msg) from error
 
-    def commit(self) -> None:
-        """
-        ### Summary
-        Delete the specified files if they exist.
 
-        ### Raises
-        None.  While this method does not directly raise exceptions, it
-        calls other methods that may raise the following exceptions:
+def print_results(bootflash_files: BootflashFiles) -> None:
+    """
+    Print the results of the bootflash files operation.
 
-        -   ControllerResponseError
-        -   TypeError
-        -   ValueError
-        """
-        # Populate self.switches
-        self.get_want()
+    Args:
+        bootflash_files (BootflashFiles): The BootflashFiles instance containing the results.
+    """
+    results = bootflash_files.results.diff_current
+    results.pop("sequence_number", None)
+    if len(results) == 0:
+        print("No files matched. Nothing to do.")
+        return
+    for deleted_file_list in results.values():
+        if len(deleted_file_list) == 0:
+            continue
+        device_name = deleted_file_list[0].get("device_name", "unknown")
+        result_msg = f"{device_name} deleted files:\n"
+        result_msg += f"{json.dumps(deleted_file_list, sort_keys=True, indent=4)}"
+        print(f"{result_msg}")
 
-        # Prepare BootflashInfo()
-        self.bootflash_info.results = Results()
-        # pylint: disable=no-member
-        self.bootflash_info.rest_send = self.rest_send  # type: ignore[attr-defined]
-        self.bootflash_info.switch_details = SwitchDetails()
 
-        # Retrieve bootflash contents for the user's switches.
-        switch_list = []
-        for switch in self.switches:
-            switch_list.append(switch["ip_address"])
-        self.bootflash_info.switches = switch_list
-        self.bootflash_info.refresh()
+def action(cfg: BootflashFilesInfoConfigValidator, send: RestSend) -> None:
+    """
+    Given a bootflash files info validator object and a RestSend object,
+    query the bootflash files on the switches specified in the validator object
+    and print the results.
 
-        # Prepare BootflashFiles()
-        self.results.state = self.state
-        self.results.check_mode = self.check_mode
-        self.bootflash_files.results = self.results
-        self.bootflash_files.rest_send = self.rest_send  # type: ignore[attr-defined]
-        self.bootflash_files.switch_details = SwitchDetails()
-        self.bootflash_files.switch_details.results = Results()
-
-        # Update BootflashFiles() with the files to delete
-        self.files_to_delete = {}
-        for switch in self.switches:
-            self.populate_files_to_delete(switch)
-        for ip_address, targets in self.files_to_delete.items():
-            for target in targets:
-                self.update_bootflash_files(ip_address, target)
-
-        # Delete the files
-        self.bootflash_files.commit()
+    Raises:
+        ValueError: If there is an error in processing.
+    """
+    try:
+        switch_ip_addresses = build_switch_ip_addresses(cfg, send)
+        bootflash_info = instantiate_bootflash_info(switch_ip_addresses, send)
+        files_to_delete = build_files_to_delete(bootflash_info, switch_ip_addresses, cfg)
+        bootflash_files = instantiate_bootflash_files(switch_ip_addresses, send, Results())
+        converter = ConvertTargetToParams()
+        for file_list in files_to_delete.values():
+            add_files_to_bootflash_files(bootflash_files, converter, file_list)
+        bootflash_files.commit()
+        print_results(bootflash_files)
+    except ValueError as error:
+        raise ValueError from error
 
 
 def setup_parser() -> argparse.Namespace:
@@ -428,74 +357,50 @@ def setup_parser() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main():
-    """
-    main entry point for module execution
-    """
-    args = setup_parser()
-    NdfcPythonLogger()
-    log = logging.getLogger("ndfc_python.main")
-    log.setLevel = args.loglevel
+args = setup_parser()
+NdfcPythonLogger()
+log = logging.getLogger("ndfc_python.main")
+log.setLevel = args.loglevel
 
-    try:
-        ndfc_config = ReadConfig()
-        ndfc_config.filename = args.config
-        ndfc_config.commit()
-    except ValueError as error:
-        err_msg = f"Exiting: Error detail: {error}"
-        log.error(err_msg)
-        print(err_msg)
-        sys.exit(1)
+try:
+    user_config = ReadConfig()
+    user_config.filename = args.config
+    user_config.commit()
+except ValueError as error:
+    err_msg = f"Exiting: Error detail: {error}"
+    log.error(err_msg)
+    print(err_msg)
+    sys.exit(1)
 
-    try:
-        validated_config = BootflashFilesInfoConfigValidator(**ndfc_config.contents)
-    except ValidationError as error:
-        err_msg = f"{error}"
-        log.error(err_msg)
-        print(err_msg)
-        sys.exit(1)
+try:
+    validator = BootflashFilesInfoConfigValidator(**user_config.contents)
+except ValidationError as error:
+    err_msg = f"{error}"
+    log.error(err_msg)
+    print(err_msg)
+    sys.exit(1)
 
-    try:
-        ndfc_sender = NdfcPythonSender()
-        ndfc_sender.args = args
-        ndfc_sender.commit()
-    except ValueError as error:
-        err_msg = f"Exiting.  Error detail: {error}"
-        log.error(err_msg)
-        print(err_msg)
-        sys.exit(1)
+try:
+    ndfc_sender = NdfcPythonSender()
+    ndfc_sender.args = args
+    ndfc_sender.commit()
+except ValueError as error:
+    err_msg = f"Exiting.  Error detail: {error}"
+    log.error(err_msg)
+    print(err_msg)
+    sys.exit(1)
 
-    params = {}
-    params["check_mode"] = False
-    params["state"] = "deleted"
-    params["config"] = json.loads(validated_config.model_dump_json())
+rest_send = RestSend({})
+rest_send.send_interval = 3
+rest_send.timeout = 9
+rest_send.sender = ndfc_sender.sender
+rest_send.response_handler = ResponseHandler()
+rest_send.results = Results()
 
-    rest_send = RestSend(params)
-    rest_send.send_interval = 3
-    rest_send.timeout = 9
-    rest_send.sender = ndfc_sender.sender
-    rest_send.response_handler = ResponseHandler()
-    rest_send.results = Results()
-
-    try:
-        task = Deleted(params)
-        # pylint: disable=attribute-defined-outside-init
-        task.rest_send = rest_send  # type: ignore[attr-defined]
-        task.commit()
-    except ValueError as error:
-        err_msg = f"Exiting.  Error detail: {error}"
-        log.error(err_msg)
-        print(err_msg)
-        sys.exit(1)
-
-    task.results.build_final_result()  # type: ignore[attr-defined]
-    # pylint: disable=unsupported-membership-test
-    if True in task.results.failed:  # type: ignore[attr-defined]
-        err_msg = "unable to delete bootflash files"
-        log.error(err_msg)
-        print(err_msg)
-    print(json.dumps(task.results.final_result, indent=4, sort_keys=True))  # type: ignore[attr-defined]
-
-
-if __name__ == "__main__":
-    main()
+try:
+    action(validator, rest_send)
+except ValueError as error:
+    err_msg = f"Exiting.  Error detail: {error}"
+    log.error(err_msg)
+    print(err_msg)
+    sys.exit(1)
