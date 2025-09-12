@@ -320,8 +320,9 @@ def action(cfg: BootflashFilesInfoConfigValidator, send: RestSend) -> None:
         bootflash_info = instantiate_bootflash_info(switch_ip_addresses, send)
         files_to_delete = build_files_to_delete(bootflash_info, switch_ip_addresses, cfg)
         bootflash_files = instantiate_bootflash_files(switch_ip_addresses, send, Results())
+        converter = ConvertTargetToParams()
         for file_list in files_to_delete.values():
-            add_files_to_bootflash_files(bootflash_files, ConvertTargetToParams(), file_list)
+            add_files_to_bootflash_files(bootflash_files, converter, file_list)
         bootflash_files.commit()
         print_results(bootflash_files)
     except ValueError as error:
