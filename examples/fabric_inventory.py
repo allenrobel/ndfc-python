@@ -136,4 +136,9 @@ rest_send.timeout = 2
 rest_send.send_interval = 5
 
 for item in validator.config:
-    fabric_inventory(item)
+    try:
+        fabric_inventory(item)
+    except ValueError as error:
+        msg = f"Error processing {item}: {error}"
+        print(msg)
+        log.error(msg)
