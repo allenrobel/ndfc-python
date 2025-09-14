@@ -69,13 +69,18 @@ class VrfAttach:
         self.api_v1 = "/appcenter/cisco/ndfc/api/v1"
         self.ep_fabrics = f"{self.api_v1}/lan-fabric/rest/top-down/fabrics"
         self.fabric_inventory = FabricInventory()
-        self._fabric_inventory_populated = False
         self.fabric_switches = {}
         self.validations = Validations()
-        self._extension_values = []
-        self._instance_values = []
 
-        self.properties = {}
+        self._extension_values = []
+        self._fabric_inventory_populated = False
+        self._fabric_name = ""
+        self._freeform_config = ""
+        self._instance_values = []
+        self._peer_switch_name = ""
+        self._switch_name = ""
+        self._vlan = ""
+        self._vrf_name = ""
 
     def _list_to_string(self, lst: list[str]) -> str:
         """
@@ -96,14 +101,13 @@ class VrfAttach:
         final verification of all parameters
         """
         method_name = inspect.stack()[0][3]
-        if not self._fabric_inventory_populated:
-            self.populate_fabric_inventory()
         # pylint: disable=no-member
         if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.rest_send must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
+
         if self.results is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.results must be set before calling "
@@ -111,25 +115,44 @@ class VrfAttach:
             raise ValueError(msg)
         # pylint: enable=no-member
 
+        if not self.fabric_name:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "fabric_name must be set before calling "
+            msg += f"{self.class_name}.commit"
+            raise ValueError(msg)
+
+        if not self.switch_name:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "switch_name must be set before calling "
+            msg += f"{self.class_name}.commit"
+            raise ValueError(msg)
+
+        if not self.vrf_name:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "vrf_name must be set before calling "
+            msg += f"{self.class_name}.commit"
+            raise ValueError(msg)
+
+        if self.peer_switch_name == self.switch_name:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"peer_switch_name {self.peer_switch_name} must be different from switch_name {self.switch_name}"
+            raise ValueError(msg)
+
+        if not self._fabric_inventory_populated:
+            self.populate_fabric_inventory()
+
         if self.vrf_name_exists_in_fabric() is False:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"vrfName {self.vrf_name} does not exist "
             msg += f"in fabric {self.fabric_name}. "
             msg += f"Create it first before calling {self.class_name}.commit"
             raise ValueError(msg)
-        if not self.switch_name:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += "switch_name must be set before calling "
-            msg += f"{self.class_name}.commit"
-            raise ValueError(msg)
+
         if self.switch_name not in self.fabric_inventory.devices:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"switch_name {self.switch_name} not found in fabric {self.fabric_name}."
             raise ValueError(msg)
-        if self.peer_switch_name and self.peer_switch_name == self.switch_name:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += "peer_switch_name must be different from switch_name"
-            raise ValueError(msg)
+
         if self.peer_switch_name:
             if self.peer_switch_name not in self.fabric_inventory.devices:
                 msg = f"{self.class_name}.{method_name}: "
@@ -292,11 +315,11 @@ class VrfAttach:
         """
         return the current value of fabric
         """
-        return self.properties.get("fabric")
+        return self._fabric_name
 
     @fabric_name.setter
     def fabric_name(self, value: str) -> None:
-        self.properties["fabric"] = value
+        self._fabric_name = value
 
     @property
     def freeform_config(self) -> str:
@@ -305,11 +328,11 @@ class VrfAttach:
 
         freeformConfig is converted from a list to a newline-separated string in the setter.
         """
-        return self.properties.get("freeformConfig")
+        return self._freeform_config
 
     @freeform_config.setter
     def freeform_config(self, value: list[str]) -> None:
-        self.properties["freeformConfig"] = self._freeform_config_to_string(value)
+        self._freeform_config = self._freeform_config_to_string(value)
 
     @property
     def instance_values(self) -> str:
@@ -330,42 +353,42 @@ class VrfAttach:
         """
         return the current value of peer_switch_name
         """
-        return self.properties.get("peer_switch_name")
+        return self._peer_switch_name
 
     @peer_switch_name.setter
     def peer_switch_name(self, value: str) -> None:
-        self.properties["peer_switch_name"] = value
+        self._peer_switch_name = value
 
     @property
     def switch_name(self) -> str:
         """
         return the current value of switch_name
         """
-        return self.properties.get("switch_name")
+        return self._switch_name
 
     @switch_name.setter
     def switch_name(self, value: str) -> None:
-        self.properties["switch_name"] = value
+        self._switch_name = value
 
     @property
     def vlan(self) -> str:
         """
         return the current value of vlan
         """
-        return self.properties.get("vlan")
+        return self._vlan
 
     @vlan.setter
     def vlan(self, value: str) -> None:
         self.validations.verify_vlan(value)
-        self.properties["vlan"] = value
+        self._vlan = value
 
     @property
     def vrf_name(self) -> str:
         """
         return the current value of vrfName
         """
-        return self.properties.get("vrfName")
+        return self._vrf_name
 
     @vrf_name.setter
     def vrf_name(self, value: str) -> None:
-        self.properties["vrfName"] = value
+        self._vrf_name = value
