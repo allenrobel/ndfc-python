@@ -46,7 +46,6 @@ import logging
 from ndfc_python.common.fabric.fabric_inventory import FabricInventory
 from ndfc_python.validations import Validations
 from plugins.module_utils.common.properties import Properties
-from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 
 @Properties.add_rest_send
@@ -73,10 +72,22 @@ class NetworkAttach:
         self.fabric_inventory = FabricInventory()
         self.validations = Validations()
 
+        self._detach_switch_ports = ""
+        self._dot1q_vlan = ""
+        self._extension_values = ""
+        self._fabric_inventory_populated = False
+        self._fabric_name = ""
+        self._freeform_config = ""
+        self._instance_values = ""
+        self._network_name = ""
+        self._peer_switch_name = ""
         self._rest_send = None
         self._results = None
-
-        self.properties = {}
+        self._switch_name = ""
+        self._switch_ports = ""
+        self._tor_ports = ""
+        self._untagged = False
+        self._vlan = ""
 
     def _list_to_string(self, lst: list[str]) -> str:
         """
@@ -103,6 +114,7 @@ class NetworkAttach:
             msg += f"{self.class_name}.rest_send must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
+
         if self.results is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.results must be set before calling "
@@ -110,11 +122,31 @@ class NetworkAttach:
             raise ValueError(msg)
         # pylint: enable=no-member
 
-        if self.fabric_exists() is False:
+        if not self.fabric_name:
             msg = f"{self.class_name}.{method_name}: "
-            msg += f"fabric_name {self.fabric_name} "
-            msg += "does not exist on the controller."
+            msg += "fabric_name must be set before calling "
+            msg += f"{self.class_name}.commit"
             raise ValueError(msg)
+
+        if not self.network_name:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "network_name must be set before calling "
+            msg += f"{self.class_name}.commit"
+            raise ValueError(msg)
+
+        if not self.switch_name:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "switch_name must be set before calling "
+            msg += f"{self.class_name}.commit"
+            raise ValueError(msg)
+
+        if self.peer_switch_name == self.switch_name:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"peer_switch_name {self.peer_switch_name} must be different from switch_name {self.switch_name}"
+            raise ValueError(msg)
+
+        if not self._fabric_inventory_populated:
+            self.populate_fabric_inventory()
 
         if self.network_name_exists_in_fabric() is False:
             msg = f"{self.class_name}.{method_name}: "
@@ -123,44 +155,25 @@ class NetworkAttach:
             msg += f"Create it first before calling {self.class_name}.commit"
             raise ValueError(msg)
 
-        if not self.switch_name:
+        if self.switch_name not in self.fabric_inventory.devices:
             msg = f"{self.class_name}.{method_name}: "
-            msg += "switch_name must be set before calling "
-            msg += f"{self.class_name}.commit"
+            msg += f"switch_name {self.switch_name} not found in fabric {self.fabric_name}."
             raise ValueError(msg)
+
         if self.peer_switch_name:
-            if self.peer_switch_name == self.switch_name:
-                msg = f"{self.class_name}.{method_name}: "
-                msg += f"peer_switch_name {self.peer_switch_name} must differ "
-                msg += f"from switch_name {self.switch_name}."
-                raise ValueError(msg)
+
             if self.peer_switch_name not in self.fabric_inventory.devices:
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"peer_switch_name {self.peer_switch_name} "
                 msg += f"not found in fabric {self.fabric_name}."
                 raise ValueError(msg)
+
             if not self.fabric_inventory.is_vpc_peer(self.switch_name, self.peer_switch_name):
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"switch_name {self.switch_name} and "
                 msg += f"peer_switch_name {self.peer_switch_name} "
                 msg += "are not vPC peer switches."
                 raise ValueError(msg)
-
-    def fabric_exists(self):
-        """
-        Return True if self.fabric_name exists on the controller.
-        Return False otherwise.
-        """
-        instance = FabricDetailsByName()
-        # pylint: disable=no-member
-        instance.rest_send = self.rest_send
-        instance.results = self.results
-        # pylint: enable=no-member
-        instance.refresh()
-        instance.filter = self.fabric_name
-        if instance.filtered_data is None:
-            return False
-        return True
 
     def network_name_exists_in_fabric(self):
         """
@@ -189,6 +202,24 @@ class NetworkAttach:
             if item["networkName"] == self.network_name:
                 return True
         return False
+
+    def populate_fabric_inventory(self) -> None:
+        """
+        Get switch inventory for a specific fabric.
+        """
+        # pylint: disable=no-member
+        try:
+            self.fabric_inventory.fabric_name = self.fabric_name
+            self.fabric_inventory.rest_send = self.rest_send  # type: ignore[attr-defined]
+            self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
+            self.fabric_inventory.commit()
+        except ValueError as error:
+            msg = f"{self.class_name}.populate_fabric_inventory: "
+            msg += f"Unable to populate fabric inventory for fabric {self.fabric_name}. "
+            msg += f"Error details: {error}"
+            raise ValueError(msg) from error
+        # pylint: enable=no-member
+        self._fabric_inventory_populated = True
 
     def _build_lan_attach_list_item(self, switch_name: str) -> dict:
         """
@@ -268,44 +299,44 @@ class NetworkAttach:
 
         detachSwitchPorts is converted from a list to a comma-separated string in the setter.
         """
-        return self.properties.get("detachSwitchPorts")
+        return self._detach_switch_ports
 
     @detach_switch_ports.setter
     def detach_switch_ports(self, value: list[str]) -> None:
-        self.properties["detachSwitchPorts"] = self._list_to_string(value)
+        self._detach_switch_ports = self._list_to_string(value)
 
     @property
     def dot1q_vlan(self) -> str:
         """
         return the current value of dot1QVlan
         """
-        return self.properties.get("dot1QVlan")
+        return self._dot1q_vlan
 
     @dot1q_vlan.setter
     def dot1q_vlan(self, value: str) -> None:
-        self.properties["dot1QVlan"] = value
+        self._dot1q_vlan = value
 
     @property
     def extension_values(self) -> str:
         """
         return the current value of extensionValues
         """
-        return self.properties.get("extensionValues")
+        return self._extension_values
 
     @extension_values.setter
     def extension_values(self, value: str) -> None:
-        self.properties["extensionValues"] = value
+        self._extension_values = value
 
     @property
     def fabric_name(self) -> str:
         """
         return the current value of fabric
         """
-        return self.properties.get("fabric")
+        return self._fabric_name
 
     @fabric_name.setter
     def fabric_name(self, value: str) -> None:
-        self.properties["fabric"] = value
+        self._fabric_name = value
 
     @property
     def freeform_config(self) -> str:
@@ -314,66 +345,66 @@ class NetworkAttach:
 
         freeformConfig is converted from a list to a newline-separated string in the setter.
         """
-        return self.properties.get("freeformConfig")
+        return self._freeform_config
 
     @freeform_config.setter
     def freeform_config(self, value: list[str]) -> None:
-        self.properties["freeformConfig"] = self._freeform_config_to_string(value)
+        self._freeform_config = self._freeform_config_to_string(value)
 
     @property
     def instance_values(self) -> str:
         """
         return the current value of instanceValues
         """
-        return self.properties.get("instanceValues")
+        return self._instance_values
 
     @instance_values.setter
     def instance_values(self, value: str) -> None:
-        self.properties["instanceValues"] = value
+        self._instance_values = value
 
     @property
     def network_name(self) -> str:
         """
         return the current value of networkName
         """
-        return self.properties.get("networkName")
+        return self._network_name
 
     @network_name.setter
     def network_name(self, value: str) -> None:
-        self.properties["networkName"] = value
+        self._network_name = value
 
     @property
     def peer_switch_name(self) -> str:
         """
         return the current value of peer_switch_name
         """
-        return self.properties.get("peer_switch_name")
+        return self._peer_switch_name
 
     @peer_switch_name.setter
     def peer_switch_name(self, value: str) -> None:
-        self.properties["peer_switch_name"] = value
+        self._peer_switch_name = value
 
     @property
     def switch_name(self) -> str:
         """
         return the current value of switch_name
         """
-        return self.properties.get("switch_name")
+        return self._switch_name
 
     @switch_name.setter
     def switch_name(self, value: str) -> None:
-        self.properties["switch_name"] = value
+        self._switch_name = value
 
     @property
     def switch_ports(self) -> str:
         """
         return the current value of switchPorts
         """
-        return self.properties.get("switchPorts")
+        return self._switch_ports
 
     @switch_ports.setter
     def switch_ports(self, value: list[str]) -> None:
-        self.properties["switchPorts"] = self._list_to_string(value)
+        self._switch_ports = self._list_to_string(value)
 
     @property
     def tor_ports(self) -> str:
@@ -382,31 +413,31 @@ class NetworkAttach:
 
         torPorts is converted from a list to a comma-separated string in the setter.
         """
-        return self.properties.get("torPorts")
+        return self._tor_ports
 
     @tor_ports.setter
     def tor_ports(self, value: list[str]) -> None:
-        self.properties["torPorts"] = self._list_to_string(value)
+        self._tor_ports = self._list_to_string(value)
 
     @property
     def untagged(self) -> bool:
         """
         return the current value of untagged
         """
-        return self.properties.get("untagged")
+        return self._untagged
 
     @untagged.setter
     def untagged(self, value: bool) -> None:
-        self.properties["untagged"] = value
+        self._untagged = value
 
     @property
     def vlan(self) -> str:
         """
         return the current value of vlan
         """
-        return self.properties.get("vlan")
+        return self._vlan
 
     @vlan.setter
     def vlan(self, value: str) -> None:
         self.validations.verify_vlan(value)
-        self.properties["vlan"] = value
+        self._vlan = value
