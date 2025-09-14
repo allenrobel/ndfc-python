@@ -39,7 +39,6 @@ import logging
 from ndfc_python.common.fabric.fabric_inventory import FabricInventory
 from ndfc_python.validations import Validations
 from plugins.module_utils.common.properties import Properties
-from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 
 @Properties.add_rest_send
@@ -49,6 +48,16 @@ class VrfDetach:
     # Summary
 
     Detach VRFs
+
+    ## Raises
+
+    - ValueError
+        - If any required parameter is missing or invalid
+        - Unable to populate fabric inventory for fabric {self.fabric_name}
+        - Unable to send GET request to the controller
+        - Unable to get serial number for switch_name {self.switch_name}
+        - Unable to send POST request to the controller
+        - vrf_name does not exist in fabric fabric_name
 
     ## Example VRF detach request
 
@@ -64,11 +73,21 @@ class VrfDetach:
         self.fabric_inventory = FabricInventory()
         self.validations = Validations()
 
-        self.properties = {}
+        self._fabric_name = ""
+        self._fabric_inventory_populated = False
+        self._switch_name = ""
+        self._vrf_name = ""
 
     def _final_verification(self) -> None:
         """
+        # Summary
+
         final verification of all parameters
+
+        ## Raises
+
+        ValueError
+            If any required parameter is missing or invalid
         """
         method_name = inspect.stack()[0][3]
         # pylint: disable=no-member
@@ -77,6 +96,7 @@ class VrfDetach:
             msg += f"{self.class_name}.rest_send must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
+
         if self.results is None:  # type: ignore[attr-defined]
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.results must be set before calling "
@@ -84,11 +104,26 @@ class VrfDetach:
             raise ValueError(msg)
         # pylint: enable=no-member
 
-        if self.fabric_exists() is False:
+        if not self.fabric_name:
             msg = f"{self.class_name}.{method_name}: "
-            msg += f"fabric_name {self.fabric_name} "
-            msg += "does not exist on the controller."
+            msg += "fabric_name must be set before calling "
+            msg += f"{self.class_name}.commit"
             raise ValueError(msg)
+
+        if not self.switch_name:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "switch_name must be set before calling "
+            msg += f"{self.class_name}.commit"
+            raise ValueError(msg)
+
+        if not self.vrf_name:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "vrf_name must be set before calling "
+            msg += f"{self.class_name}.commit"
+            raise ValueError(msg)
+
+        if not self._fabric_inventory_populated:
+            self.populate_fabric_inventory()
 
         if self.vrf_name_exists_in_fabric() is False:
             msg = f"{self.class_name}.{method_name}: "
@@ -97,26 +132,42 @@ class VrfDetach:
             msg += f"Create it first before calling {self.class_name}.commit"
             raise ValueError(msg)
 
-    def fabric_exists(self):
+    def populate_fabric_inventory(self) -> None:
         """
-        Return True if self.fabric_name exists on the controller.
-        Return False otherwise.
+        # Summary
+
+        Get switch inventory for a specific fabric.
+
+        ## Raises
+
+        ValueError
+            Unable to populate fabric inventory for fabric {self.fabric_name}
         """
-        instance = FabricDetailsByName()
         # pylint: disable=no-member
-        instance.rest_send = self.rest_send
-        instance.results = self.results
+        try:
+            self.fabric_inventory.fabric_name = self.fabric_name
+            self.fabric_inventory.rest_send = self.rest_send  # type: ignore[attr-defined]
+            self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
+            self.fabric_inventory.commit()
+        except ValueError as error:
+            msg = f"{self.class_name}.populate_fabric_inventory: "
+            msg += f"Unable to populate fabric inventory for fabric {self.fabric_name}. "
+            msg += f"Error details: {error}"
+            raise ValueError(msg) from error
         # pylint: enable=no-member
-        instance.refresh()
-        instance.filter = self.fabric_name
-        if instance.filtered_data is None:
-            return False
-        return True
+        self._fabric_inventory_populated = True
 
     def vrf_name_exists_in_fabric(self):
         """
+        # Summary
+
         Return True if self.vrf exists in self.fabric_name.
         Else, return False
+
+        ## Raises
+
+        ValueError
+            Unable to send GET request to the controller
         """
         method_name = inspect.stack()[0][3]
         # TODO: update when this path is added to ansible-dcnm
@@ -203,30 +254,30 @@ class VrfDetach:
         """
         return the current value of fabric
         """
-        return self.properties.get("fabric")
+        return self._fabric_name
 
     @fabric_name.setter
     def fabric_name(self, value: str) -> None:
-        self.properties["fabric"] = value
+        self._fabric_name = value
 
     @property
     def switch_name(self) -> str:
         """
         return the current value of switch_name
         """
-        return self.properties.get("switch_name")
+        return self._switch_name
 
     @switch_name.setter
     def switch_name(self, value: str) -> None:
-        self.properties["switch_name"] = value
+        self._switch_name = value
 
     @property
     def vrf_name(self) -> str:
         """
         return the current value of vrfName
         """
-        return self.properties.get("vrfName")
+        return self._vrf_name
 
     @vrf_name.setter
     def vrf_name(self, value: str) -> None:
-        self.properties["vrfName"] = value
+        self._vrf_name = value
