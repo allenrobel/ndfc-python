@@ -37,7 +37,6 @@ Send vrf attach POST requests to the controller
 # We are using isort for import sorting.
 # pylint: disable=wrong-import-order
 
-import copy
 import inspect
 import json
 import logging
@@ -46,7 +45,6 @@ from ndfc_python.common.fabric.fabric_inventory import FabricInventory
 from ndfc_python.validations import Validations
 from ndfc_python.validators.vrf_attach import ExtensionValues, InstanceValues
 from plugins.module_utils.common.properties import Properties
-from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 
 @Properties.add_rest_send
@@ -71,6 +69,7 @@ class VrfAttach:
         self.api_v1 = "/appcenter/cisco/ndfc/api/v1"
         self.ep_fabrics = f"{self.api_v1}/lan-fabric/rest/top-down/fabrics"
         self.fabric_inventory = FabricInventory()
+        self._fabric_inventory_populated = False
         self.fabric_switches = {}
         self.validations = Validations()
         self._extension_values = []
@@ -97,8 +96,8 @@ class VrfAttach:
         final verification of all parameters
         """
         method_name = inspect.stack()[0][3]
-        if not self.fabric_switches:
-            self.populate_fabric_switches()
+        if not self._fabric_inventory_populated:
+            self.populate_fabric_inventory()
         # pylint: disable=no-member
         if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
@@ -112,12 +111,6 @@ class VrfAttach:
             raise ValueError(msg)
         # pylint: enable=no-member
 
-        if self.fabric_exists() is False:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"fabric_name {self.fabric_name} "
-            msg += "does not exist on the controller."
-            raise ValueError(msg)
-
         if self.vrf_name_exists_in_fabric() is False:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"vrfName {self.vrf_name} does not exist "
@@ -129,12 +122,16 @@ class VrfAttach:
             msg += "switch_name must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
+        if self.switch_name not in self.fabric_inventory.devices:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"switch_name {self.switch_name} not found in fabric {self.fabric_name}."
+            raise ValueError(msg)
         if self.peer_switch_name and self.peer_switch_name == self.switch_name:
             msg = f"{self.class_name}.{method_name}: "
             msg += "peer_switch_name must be different from switch_name"
             raise ValueError(msg)
         if self.peer_switch_name:
-            if self.peer_switch_name not in self.fabric_switches:
+            if self.peer_switch_name not in self.fabric_inventory.devices:
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"peer_switch_name {self.peer_switch_name} "
                 msg += f"not found in fabric {self.fabric_name}."
@@ -145,22 +142,6 @@ class VrfAttach:
                 msg += f"peer_switch_name {self.peer_switch_name} "
                 msg += "are not vPC peer switches."
                 raise ValueError(msg)
-
-    def fabric_exists(self):
-        """
-        Return True if self.fabric_name exists on the controller.
-        Return False otherwise.
-        """
-        instance = FabricDetailsByName()
-        # pylint: disable=no-member
-        instance.rest_send = self.rest_send
-        instance.results = self.results
-        # pylint: enable=no-member
-        instance.refresh()
-        instance.filter = self.fabric_name
-        if instance.filtered_data is None:
-            return False
-        return True
 
     def vrf_name_exists_in_fabric(self):
         """
@@ -192,20 +173,23 @@ class VrfAttach:
         # pylint: enable=no-member
         return False
 
-    def populate_fabric_switches(self) -> None:
-        """Get switches for a specific fabric.
-
-        Populates self.fabric_switches:
-            dict keyed on switch_name, containing switch details.
-            See FabricInventory.inventory for details.
+    def populate_fabric_inventory(self) -> None:
+        """
+        Get switch inventory for a specific fabric.
         """
         # pylint: disable=no-member
-        self.fabric_inventory.fabric_name = self.fabric_name
-        self.fabric_inventory.rest_send = self.rest_send  # type: ignore[attr-defined]
-        self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
-        self.fabric_inventory.commit()
-        self.fabric_switches = copy.deepcopy(self.fabric_inventory.inventory)
+        try:
+            self.fabric_inventory.fabric_name = self.fabric_name
+            self.fabric_inventory.rest_send = self.rest_send  # type: ignore[attr-defined]
+            self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
+            self.fabric_inventory.commit()
+        except ValueError as error:
+            msg = f"{self.class_name}.populate_fabric_inventory: "
+            msg += f"Unable to populate fabric inventory for fabric {self.fabric_name}. "
+            msg += f"Error details: {error}"
+            raise ValueError(msg) from error
         # pylint: enable=no-member
+        self._fabric_inventory_populated = True
 
     def build_extension_values(self, value: list[ExtensionValues]) -> str:
         """
@@ -262,8 +246,8 @@ class VrfAttach:
         Attach a vrf to a switch
         """
         method_name = inspect.stack()[0][3]
-        if not self.fabric_switches:
-            self.populate_fabric_switches()
+        if not self._fabric_inventory_populated:
+            self.populate_fabric_inventory()
 
         payload = self._build_payload()
 
