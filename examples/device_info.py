@@ -58,7 +58,7 @@ from pydantic import ValidationError
 
 def get_fabric_inventory(fabric_name: str, restsend: RestSend, results: Results) -> FabricInventory:
     """
-    Given a fabric name, return the fabric inventory as a dictionary.
+    Given fabric_name, return a FabricInventory instance for fabric_name.
 
     Args:
         fabric_name (str): fabric name
@@ -66,7 +66,7 @@ def get_fabric_inventory(fabric_name: str, restsend: RestSend, results: Results)
         results (Results): results object
 
     Returns:
-        dict: fabric inventory
+        FabricInventory: fabric inventory instance
     """
     fabric_inventory = FabricInventory()
     fabric_inventory.fabric_name = fabric_name
