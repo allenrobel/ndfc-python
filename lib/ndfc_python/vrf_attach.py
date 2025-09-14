@@ -131,7 +131,6 @@ class VrfAttach:
             msg += "peer_switch_name must be different from switch_name"
             raise ValueError(msg)
         if self.peer_switch_name:
-            # if self.peer_switch_name not in self.fabric_switches:
             if self.peer_switch_name not in self.fabric_inventory.devices:
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"peer_switch_name {self.peer_switch_name} "
