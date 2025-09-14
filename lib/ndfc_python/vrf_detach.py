@@ -49,6 +49,16 @@ class VrfDetach:
 
     Detach VRFs
 
+    ## Raises
+
+    - ValueError
+        - If any required parameter is missing or invalid
+        - Unable to populate fabric inventory for fabric {self.fabric_name}
+        - Unable to send GET request to the controller
+        - Unable to get serial number for switch_name {self.switch_name}
+        - Unable to send POST request to the controller
+        - vrf_name does not exist in fabric fabric_name
+
     ## Example VRF detach request
 
     ### See
@@ -70,7 +80,14 @@ class VrfDetach:
 
     def _final_verification(self) -> None:
         """
+        # Summary
+
         final verification of all parameters
+
+        ## Raises
+
+        ValueError
+            If any required parameter is missing or invalid
         """
         method_name = inspect.stack()[0][3]
         # pylint: disable=no-member
@@ -117,7 +134,14 @@ class VrfDetach:
 
     def populate_fabric_inventory(self) -> None:
         """
+        # Summary
+
         Get switch inventory for a specific fabric.
+
+        ## Raises
+
+        ValueError
+            Unable to populate fabric inventory for fabric {self.fabric_name}
         """
         # pylint: disable=no-member
         try:
@@ -135,8 +159,15 @@ class VrfDetach:
 
     def vrf_name_exists_in_fabric(self):
         """
+        # Summary
+
         Return True if self.vrf exists in self.fabric_name.
         Else, return False
+
+        ## Raises
+
+        ValueError
+            Unable to send GET request to the controller
         """
         method_name = inspect.stack()[0][3]
         # TODO: update when this path is added to ansible-dcnm
