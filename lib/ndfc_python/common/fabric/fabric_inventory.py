@@ -1,3 +1,4 @@
+import copy
 import logging
 import sys
 
@@ -27,7 +28,11 @@ class FabricInventory:
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
         self._committed = False
         self._fabric_name = None
-        self._inventory = {}
+        self._inventory = {}  # legacy, keyed on switch name, remove in future
+        self._inventory_by_switch_name = {}
+        self._inventory_by_switch_ipv4_address = {}
+        self._inventory_by_switch_serial_number = {}
+        self._inventory_data = []
         self.api_v1 = "/appcenter/cisco/ndfc/api/v1"
         self.ep_fabrics = f"{self.api_v1}/lan-fabric/rest/control/fabrics"
 
@@ -191,12 +196,50 @@ class FabricInventory:
             msg = f"Unable to retrieve fabric inventory for fabric {self.fabric_name}. "
             msg += f"Controller response: {self.rest_send.response_current}."  # type: ignore[attr-defined]
             raise ValueError(msg)
-        for switch in self.rest_send.response_current.get("DATA", []):  # type: ignore[attr-defined]
+        # pylint: disable=no-member
+        self._inventory_data = self.rest_send.response_current.get("DATA", [])  # type: ignore[attr-defined]
+        # pylint: enable=no-member
+        self._build_legacy_inventory()
+        self._build_inventory_by_switch_name()
+        self._build_inventory_by_switch_ipv4_address()
+        self._build_inventory_by_switch_serial_number()
+        self._committed = True
+
+    def _build_legacy_inventory(self) -> None:
+        """Build the legacy fabric inventory keyed on switch name."""
+        self._inventory = {}
+        for switch in self._inventory_data:
             switch_name = switch.get("logicalName")
             if switch_name is None:
                 continue
             self._inventory[switch_name] = switch
-        self._committed = True
+
+    def _build_inventory_by_switch_ipv4_address(self) -> None:
+        """Build the fabric inventory keyed on switch IPv4 address."""
+        self._inventory_by_switch_ipv4_address = {}
+        for switch in self._inventory_data:
+            ipv4_address = switch.get("ipAddress")
+            if ipv4_address is None:
+                continue
+            self._inventory_by_switch_ipv4_address[ipv4_address] = switch
+
+    def _build_inventory_by_switch_name(self) -> None:
+        """Build the fabric inventory keyed on switch name."""
+        for switch in self._inventory_data:
+            switch_name = switch.get("logicalName")
+            if switch_name is None:
+                continue
+            self._inventory[switch_name] = switch
+        self._inventory_by_switch_name = copy.deepcopy(self._inventory)
+
+    def _build_inventory_by_switch_serial_number(self) -> None:
+        """Build the fabric inventory keyed on switch serial number."""
+        self._inventory_by_switch_serial_number = {}
+        for switch in self._inventory_data:
+            serial_number = switch.get("serialNumber")
+            if serial_number is None:
+                continue
+            self._inventory_by_switch_serial_number[serial_number] = switch
 
     def is_vpc_peer(self, switch_name: str, peer_switch_name: str) -> bool:
         """
@@ -236,7 +279,7 @@ class FabricInventory:
         """
         if not self._committed:
             self.commit()
-        switch = self.inventory.get(switch_name)
+        switch = self._inventory_by_switch_name.get(switch_name)
         if switch is None:
             msg = f"Switch name {switch_name} not found in fabric {self.fabric_name}."
             raise ValueError(msg)
@@ -245,6 +288,86 @@ class FabricInventory:
             msg = f"Switch name {switch_name} has no serial number in fabric {self.fabric_name}."
             raise ValueError(msg)
         return serial_number
+
+    def switch_name_to_ipv4_address(self, switch_name: str) -> str:
+        """
+        Given a switch_name, return the associated IPv4 address.
+        """
+        if not self._committed:
+            self.commit()
+        switch = self._inventory_by_switch_name.get(switch_name)
+        if switch is None:
+            msg = f"Switch name {switch_name} not found in fabric {self.fabric_name}."
+            raise ValueError(msg)
+        ipv4_address = switch.get("ipAddress")
+        if ipv4_address is None:
+            msg = f"Switch name {switch_name} has no IPv4 address in fabric {self.fabric_name}."
+            raise ValueError(msg)
+        return ipv4_address
+
+    def ipv4_address_to_switch_name(self, ipv4_address: str) -> str:
+        """
+        Given an IPv4 address, return the associated switch name.
+        """
+        if not self._committed:
+            self.commit()
+        switch = self._inventory_by_switch_ipv4_address.get(ipv4_address)
+        if switch is None:
+            msg = f"IPv4 address {ipv4_address} not found in fabric {self.fabric_name}."
+            raise ValueError(msg)
+        switch_name = switch.get("logicalName")
+        if switch_name is None:
+            msg = f"IPv4 address {ipv4_address} has no associated switch name in fabric {self.fabric_name}."
+            raise ValueError(msg)
+        return switch_name
+
+    def ipv4_address_to_serial_number(self, ipv4_address: str) -> str:
+        """
+        Given an IPv4 address, return the associated serial number.
+        """
+        if not self._committed:
+            self.commit()
+        switch = self._inventory_by_switch_ipv4_address.get(ipv4_address)
+        if switch is None:
+            msg = f"IPv4 address {ipv4_address} not found in fabric {self.fabric_name}."
+            raise ValueError(msg)
+        serial_number = switch.get("serialNumber")
+        if serial_number is None:
+            msg = f"IPv4 address {ipv4_address} has no associated serial number in fabric {self.fabric_name}."
+            raise ValueError(msg)
+        return serial_number
+
+    def serial_number_to_ipv4_address(self, serial_number: str) -> str:
+        """
+        Given a serial number, return the associated IPv4 address.
+        """
+        if not self._committed:
+            self.commit()
+        switch = self._inventory_by_switch_serial_number.get(serial_number)
+        if switch is None:
+            msg = f"Serial number {serial_number} not found in fabric {self.fabric_name}."
+            raise ValueError(msg)
+        ipv4_address = switch.get("ipAddress")
+        if ipv4_address is None:
+            msg = f"Serial number {serial_number} has no associated IPv4 address in fabric {self.fabric_name}."
+            raise ValueError(msg)
+        return ipv4_address
+
+    def serial_number_to_switch_name(self, serial_number: str) -> str:
+        """
+        Given a serial number, return the associated switch name.
+        """
+        if not self._committed:
+            self.commit()
+        switch = self._inventory_by_switch_serial_number.get(serial_number)
+        if switch is None:
+            msg = f"Serial number {serial_number} not found in fabric {self.fabric_name}."
+            raise ValueError(msg)
+        switch_name = switch.get("logicalName")
+        if switch_name is None:
+            msg = f"Serial number {serial_number} has no associated switch name in fabric {self.fabric_name}."
+            raise ValueError(msg)
+        return switch_name
 
     @property
     def devices(self):
@@ -259,10 +382,42 @@ class FabricInventory:
     def inventory(self):
         """
         return the fabric inventory dictionary
+
+        ## Notes
+
+        1. Legacy, kept for backward compatibility. Use inventory_by_switch_name instead.
+        2. Keyed on switch name.
         """
         if not self._committed:
             self.commit()
         return self._inventory
+
+    @property
+    def inventory_by_switch_ipv4_address(self):
+        """
+        return the fabric inventory dictionary keyed on switch IPv4 address
+        """
+        if not self._committed:
+            self.commit()
+        return self._inventory_by_switch_ipv4_address
+
+    @property
+    def inventory_by_switch_name(self):
+        """
+        return the fabric inventory dictionary keyed on switch name
+        """
+        if not self._committed:
+            self.commit()
+        return self._inventory_by_switch_name
+
+    @property
+    def inventory_by_switch_serial_number(self):
+        """
+        return the fabric inventory dictionary keyed on switch serial number
+        """
+        if not self._committed:
+            self.commit()
+        return self._inventory_by_switch_serial_number
 
     @property
     def fabric_name(self) -> str:
