@@ -56,7 +56,7 @@ from plugins.module_utils.common.switch_details import SwitchDetails
 from pydantic import ValidationError
 
 
-def get_fabric_inventory(fabric_name: str, restsend: RestSend, results: Results) -> dict:
+def get_fabric_inventory(fabric_name: str, restsend: RestSend, results: Results) -> FabricInventory:
     """
     Given a fabric name, return the fabric inventory as a dictionary.
 
@@ -73,7 +73,7 @@ def get_fabric_inventory(fabric_name: str, restsend: RestSend, results: Results)
     fabric_inventory.rest_send = restsend
     fabric_inventory.results = results
     fabric_inventory.commit()
-    return fabric_inventory.inventory
+    return fabric_inventory
 
 
 def action(cfg: DeviceInfoConfig, switch_details_instance: SwitchDetails) -> None:
@@ -83,15 +83,16 @@ def action(cfg: DeviceInfoConfig, switch_details_instance: SwitchDetails) -> Non
     information about the switch.
     """
     inventory = get_fabric_inventory(cfg.fabric_name, switch_details_instance.rest_send, switch_details_instance.results)
-    if cfg.switch_name not in inventory:
+    if cfg.switch_name not in inventory.devices:
         errmsg = f"Switch {cfg.switch_name} not found in fabric {cfg.fabric_name} inventory."
         log.error(errmsg)
         print(errmsg)
         return
 
-    switch_ip4 = inventory[cfg.switch_name].get("ipAddress")
-    if not switch_ip4:
-        errmsg = f"Switch {cfg.switch_name} in fabric {cfg.fabric_name} has no ipAddress."
+    try:
+        switch_ip4 = inventory.switch_name_to_ipv4_address(cfg.switch_name)
+    except ValueError as error:
+        errmsg = f"Error retrieving IP address for switch {cfg.switch_name}: {error}"
         log.error(errmsg)
         print(errmsg)
         return
