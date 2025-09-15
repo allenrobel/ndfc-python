@@ -68,7 +68,6 @@ from ipaddress import AddressValueError, IPv4Interface
 
 from ndfc_python.validations import Validations
 from plugins.module_utils.common.properties import Properties
-from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 
 @Properties.add_rest_send
@@ -357,6 +356,7 @@ class NetworkCreate:
             msg += f"{self.class_name}.rest_send must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
+
         if self.results is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.results must be set before calling "
@@ -380,7 +380,7 @@ class NetworkCreate:
                 raise ValueError(msg)
         # fmt: on
 
-        if self.fabric_exists() is False:
+        if not self.fabric_exists():
             msg = f"{self.class_name}.{method_name}: "
             msg += f"fabric_name {self.fabric_name} "
             msg += "does not exist on the controller."
@@ -400,21 +400,31 @@ class NetworkCreate:
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
 
-    def fabric_exists(self):
+    def fabric_exists(self) -> bool:
         """
         Return True if self.fabric_name exists on the controller.
         Return False otherwise.
         """
-        instance = FabricDetailsByName()
+        method_name = inspect.stack()[0][3]
+        path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations"
+        verb = "GET"
+
         # pylint: disable=no-member
-        instance.rest_send = self.rest_send
-        instance.results = self.results
+        try:
+            self.rest_send.path = path  # type: ignore[attr-defined]
+            self.rest_send.verb = verb  # type: ignore[attr-defined]
+            self.rest_send.commit()  # type: ignore[attr-defined]
+        except (TypeError, ValueError) as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Unable to send {verb} request to the controller. "
+            msg += f"Error details: {error}"
+            raise ValueError(msg) from error
+
+        for item in self.rest_send.response_current["DATA"]:  # type: ignore[attr-defined]
+            if item.get("fabricName") == self.fabric_name:
+                return True
         # pylint: enable=no-member
-        instance.refresh()
-        instance.filter = self.fabric_name
-        if instance.filtered_data is None:
-            return False
-        return True
+        return False
 
     def vrf_exists_in_fabric(self):
         """
