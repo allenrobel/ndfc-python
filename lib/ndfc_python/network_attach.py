@@ -213,9 +213,6 @@ class NetworkAttach:
 
         - ValueError: if FabricInventory raises
 
-        ## NOTES
-
-        1. This method is used only to verify that fabric_name exists on the controller
         """
         method_name = inspect.stack()[0][3]
         # pylint: disable=no-member
