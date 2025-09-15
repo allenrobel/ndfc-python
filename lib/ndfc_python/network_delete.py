@@ -16,7 +16,6 @@ import inspect
 import logging
 
 from plugins.module_utils.common.properties import Properties
-from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 
 @Properties.add_rest_send
@@ -54,6 +53,7 @@ class NetworkDelete:
             msg += f"{self.class_name}.rest_send must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
+
         if self.results is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.results must be set before calling "
@@ -66,27 +66,53 @@ class NetworkDelete:
             msg += f"Call {self.class_name}.networkName before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
+
         if self.fabric_name == "":
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Call {self.class_name}.fabric before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
 
-    def fabric_exists(self):
+        if not self.fabric_exists():
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"fabric_name {self.fabric_name} "
+            msg += "does not exist on the controller."
+            raise ValueError(msg)
+
+        if self.ok_to_delete_network() is False:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"network_name {self.network_name} "
+            msg += f"either does not exist in fabric {self.fabric_name}, "
+            msg += "or its status is DEPLOYED.  Check the network status "
+            msg += "and either create or detach the network before "
+            msg += "attempting to delete it."
+            raise ValueError(msg)
+
+    def fabric_exists(self) -> bool:
         """
         Return True if self.fabric_name exists on the controller.
         Return False otherwise.
         """
-        instance = FabricDetailsByName()
+        method_name = inspect.stack()[0][3]
+        path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations"
+        verb = "GET"
+
         # pylint: disable=no-member
-        instance.rest_send = self.rest_send
-        instance.results = self.results
+        try:
+            self.rest_send.path = path  # type: ignore[attr-defined]
+            self.rest_send.verb = verb  # type: ignore[attr-defined]
+            self.rest_send.commit()  # type: ignore[attr-defined]
+        except (TypeError, ValueError) as error:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"Unable to send {verb} request to the controller. "
+            msg += f"Error details: {error}"
+            raise ValueError(msg) from error
+
+        for item in self.rest_send.response_current["DATA"]:  # type: ignore[attr-defined]
+            if item.get("fabricName") == self.fabric_name:
+                return True
         # pylint: enable=no-member
-        instance.refresh()
-        instance.filter = self.fabric_name
-        if instance.filtered_data is None:
-            return False
-        return True
+        return False
 
     def vrf_exists_in_fabric(self):
         """
@@ -123,10 +149,10 @@ class NetworkDelete:
         # pylint: enable=no-member
         return False
 
-    def network_name_exists_in_fabric(self):
+    def ok_to_delete_network(self):
         """
-        Return True if networkName exists in the fabric.
-        Else return False
+        Return True if network_name exists in fabric_name and its status is not DEPLOYED.
+        Return False otherwise.
         """
         method_name = inspect.stack()[0][3]
         # TODO: Update when we add endpoint to ansible-dcnm
@@ -153,7 +179,14 @@ class NetworkDelete:
             if "networkName" not in item:
                 continue
             if item["networkName"] == self.network_name:
-                return True
+                network_status = item.get("networkStatus")
+                msg = f"{self.class_name}.{method_name}: "
+                msg += f"fabric_name {self.fabric_name}, "
+                msg += f"network_name {self.network_name}, "
+                msg += f"status: {network_status}."
+                self.log.debug(msg)
+                if network_status != "DEPLOYED":
+                    return True
         return False
 
     def commit(self):
@@ -162,18 +195,6 @@ class NetworkDelete:
         """
         method_name = inspect.stack()[0][3]
         self._final_verification()
-
-        if self.fabric_exists() is False:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"fabric_name {self.fabric_name} "
-            msg += "does not exist on the controller."
-            raise ValueError(msg)
-
-        if self.network_name_exists_in_fabric() is False:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"networkName {self.network_name} "
-            msg += f"does not exist in fabric {self.fabric_name}."
-            raise ValueError(msg)
 
         # TODO: Update when we add endpoint to ansible-dcnm
         path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics"
