@@ -33,6 +33,7 @@ class FabricInventory:
         self._inventory_by_switch_ipv4_address = {}
         self._inventory_by_switch_serial_number = {}
         self._inventory_data = []
+        self._return_code = 0
         self.api_v1 = "/appcenter/cisco/ndfc/api/v1"
         self.ep_fabrics = f"{self.api_v1}/lan-fabric/rest/control/fabrics"
 
@@ -192,7 +193,8 @@ class FabricInventory:
             msg = f"Unable to send {verb} request to the controller. "
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
-        if self.rest_send.response_current.get("RETURN_CODE") not in [200, 201]:  # type: ignore[attr-defined]
+        self._return_code = self.rest_send.response_current.get("RETURN_CODE", 0)  # type: ignore[attr-defined]
+        if self._return_code not in [200, 201]:  # type: ignore[attr-defined]
             msg = f"Unable to retrieve fabric inventory for fabric {self.fabric_name}. "
             msg += f"Controller response: {self.rest_send.response_current}."  # type: ignore[attr-defined]
             raise ValueError(msg)
@@ -429,6 +431,15 @@ class FabricInventory:
     @fabric_name.setter
     def fabric_name(self, value: str) -> None:
         self._fabric_name = value
+
+    @property
+    def return_code(self) -> int:
+        """
+        return the current value of return_code as an integer
+        """
+        if not self._committed:
+            self.commit()
+        return self._return_code
 
 
 if __name__ == "__main__":

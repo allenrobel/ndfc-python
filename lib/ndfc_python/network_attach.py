@@ -224,7 +224,7 @@ class NetworkAttach:
         except ValueError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Unable to populate fabric inventory for fabric {self.fabric_name}. "
-            if "404" in str(error):
+            if self.fabric_inventory.return_code == 404:  # type: ignore[attr-defined]
                 msg += f"fabric_name {self.fabric_name} does not exist on the controller. "
             else:
                 msg += f"Error details: {error}"
