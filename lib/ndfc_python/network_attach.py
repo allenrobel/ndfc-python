@@ -205,8 +205,16 @@ class NetworkAttach:
 
     def populate_fabric_inventory(self) -> None:
         """
-        Get switch inventory for a specific fabric.
+        # Summary
+
+        Populate switch inventory for fabric_name.
+
+        ## Raises
+
+        - ValueError: if FabricInventory raises
+
         """
+        method_name = inspect.stack()[0][3]
         # pylint: disable=no-member
         try:
             self.fabric_inventory.fabric_name = self.fabric_name
@@ -214,9 +222,12 @@ class NetworkAttach:
             self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
             self.fabric_inventory.commit()
         except ValueError as error:
-            msg = f"{self.class_name}.populate_fabric_inventory: "
+            msg = f"{self.class_name}.{method_name}: "
             msg += f"Unable to populate fabric inventory for fabric {self.fabric_name}. "
-            msg += f"Error details: {error}"
+            if "404" in str(error):
+                msg += f"fabric_name {self.fabric_name} does not exist on the controller. "
+            else:
+                msg += f"Error details: {error}"
             raise ValueError(msg) from error
         # pylint: enable=no-member
         self._fabric_inventory_populated = True
