@@ -79,7 +79,7 @@ class NetworkDelete:
             msg += "does not exist on the controller."
             raise ValueError(msg)
 
-        if self.ok_to_delete_network() is False:
+        if not self.ok_to_delete_network():
             msg = f"{self.class_name}.{method_name}: "
             msg += f"network_name {self.network_name} "
             msg += f"either does not exist in fabric {self.fabric_name}, "
