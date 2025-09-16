@@ -6,9 +6,9 @@ class VrfDetachConfig(BaseModel):
 
     deployment: StrictBool = Field(default=True)
 
-    fabric: str = Field(..., alias="fabric_name")
+    fabric_name: str
     switch_name: str
-    vrfName: str = Field(..., alias="vrf_name")
+    vrf_name: str
 
 
 class VrfDetachConfigValidator(BaseModel):
