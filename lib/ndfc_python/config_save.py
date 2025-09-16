@@ -25,15 +25,13 @@ No JSON payload is required for this request.
 import inspect
 import logging
 
+from ndfc_python.common.fabric.fabrics_info import FabricsInfo
+from ndfc_python.common.properties import Properties
 from ndfc_python.validations import Validations
 from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import EpFabrics
 from plugins.module_utils.common.conversion import ConversionUtils
-from plugins.module_utils.common.properties import Properties
-from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 
-@Properties.add_rest_send
-@Properties.add_results
 class ConfigSave:
     """
     # Summary
@@ -53,46 +51,50 @@ class ConfigSave:
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
         self.conversion = ConversionUtils()
-        self.validations = Validations()
         self.ep_rest_control_fabrics = EpFabrics()
+        self.fabrics_info = FabricsInfo()
+        self.properties = Properties()
+        self.validations = Validations()
 
-        self._fabric_name = None
+        self.rest_send = self.properties.rest_send
+
+        self._fabric_name = ""
         self._response_data = None
 
         self._init_payload()
 
-    def _init_payload(self):
+    def _init_payload(self) -> None:
         """
         Initialize the REST payload
         """
-        self.payload = {}
+        self.payload: dict = {}
 
-    def _final_verification(self):
+    def _final_verification(self) -> None:
         """
         Any final verification steps before sending the request
         """
-        if self.fabric_name is None:
-            msg = f"{self.class_name}._final_verification: "
-            msg += "fabric_name must be set before calling commit()."
+        method_name = inspect.stack()[0][3]
+        if not self.fabric_name:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "fabric_name must be set to a non-empty string before calling commit()."
             raise ValueError(msg)
 
-    def fabric_exists(self):
+        if self.rest_send is None:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "rest_send must be set before calling commit()."
+            raise ValueError(msg)
+
+    def fabric_exists(self) -> bool:
         """
         Return True if self.fabric_name exists on the controller.
         Return False otherwise.
         """
-        instance = FabricDetailsByName()
-        # pylint: disable=no-member
-        instance.rest_send = self.rest_send
-        instance.results = self.results
-        # pylint: enable=no-member
-        instance.refresh()
-        instance.filter = self.fabric_name
-        if instance.filtered_data is None:
-            return False
-        return True
+        self.fabrics_info.rest_send = self.rest_send
+        self.fabrics_info.commit()
+        self.fabrics_info.filter = self.fabric_name
+        return self.fabrics_info.fabric_exists
 
-    def commit(self):
+    def commit(self) -> None:
         """
         Send a POST request to the controller to the config-save endpoint
         """
@@ -150,14 +152,14 @@ class ConfigSave:
         return self.response_data.get(item)
 
     @property
-    def fabric_name(self):
+    def fabric_name(self) -> str:
         """
-        Return the current fabric name.
+        Set (setter) or return (getter) the current fabric name.
         """
         return self._fabric_name
 
     @fabric_name.setter
-    def fabric_name(self, param):
+    def fabric_name(self, param: str) -> None:
         self._fabric_name = param
 
     @property
