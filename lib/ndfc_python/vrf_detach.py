@@ -37,12 +37,10 @@ import inspect
 import logging
 
 from ndfc_python.common.fabric.fabric_inventory import FabricInventory
+from ndfc_python.common.properties import Properties
 from ndfc_python.validations import Validations
-from plugins.module_utils.common.properties import Properties
 
 
-@Properties.add_rest_send
-@Properties.add_results
 class VrfDetach:
     """
     # Summary
@@ -71,6 +69,11 @@ class VrfDetach:
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
         self.fabric_inventory = FabricInventory()
+
+        self.properties = Properties()
+        self.rest_send = self.properties.rest_send
+        self.results = self.properties.results
+
         self.validations = Validations()
 
         self._fabric_name = ""
@@ -90,19 +93,17 @@ class VrfDetach:
             If any required parameter is missing or invalid
         """
         method_name = inspect.stack()[0][3]
-        # pylint: disable=no-member
-        if self.rest_send is None:  # type: ignore[attr-defined]
+        if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.rest_send must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
 
-        if self.results is None:  # type: ignore[attr-defined]
+        if self.results is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.results must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
-        # pylint: enable=no-member
 
         if not self.fabric_name:
             msg = f"{self.class_name}.{method_name}: "
@@ -143,18 +144,16 @@ class VrfDetach:
         ValueError
             Unable to populate fabric inventory for fabric {self.fabric_name}
         """
-        # pylint: disable=no-member
         try:
             self.fabric_inventory.fabric_name = self.fabric_name
-            self.fabric_inventory.rest_send = self.rest_send  # type: ignore[attr-defined]
-            self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
+            self.fabric_inventory.rest_send = self.rest_send
+            self.fabric_inventory.results = self.results
             self.fabric_inventory.commit()
         except ValueError as error:
             msg = f"{self.class_name}.populate_fabric_inventory: "
             msg += f"Unable to populate fabric inventory for fabric {self.fabric_name}. "
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
-        # pylint: enable=no-member
         self._fabric_inventory_populated = True
 
     def vrf_name_exists_in_fabric(self):
@@ -174,7 +173,6 @@ class VrfDetach:
         path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{self.fabric_name}/vrfs"
         verb = "GET"
 
-        # pylint: disable=no-member
         try:
             self.rest_send.path = path
             self.rest_send.verb = verb
@@ -191,7 +189,6 @@ class VrfDetach:
             if item.get("vrfName") != self.vrf_name:
                 continue
             return True
-        # pylint: enable=no-member
         return False
 
     def _build_payload(self) -> list[dict]:
@@ -224,11 +221,10 @@ class VrfDetach:
         Detach a vrf from a switch
         """
         method_name = inspect.stack()[0][3]
-        # pylint: disable=no-member
         self._final_verification()
         self.fabric_inventory.fabric_name = self.fabric_name
-        self.fabric_inventory.rest_send = self.rest_send  # type: ignore[attr-defined]
-        self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
+        self.fabric_inventory.rest_send = self.rest_send
+        self.fabric_inventory.results = self.results
         self.fabric_inventory.commit()
 
         payload = self._build_payload()
@@ -239,10 +235,10 @@ class VrfDetach:
         verb = "POST"
 
         try:
-            self.rest_send.path = path  # type: ignore[attr-defined]
-            self.rest_send.verb = verb  # type: ignore[attr-defined]
-            self.rest_send.payload = payload  # type: ignore[attr-defined]
-            self.rest_send.commit()  # type: ignore[attr-defined]
+            self.rest_send.path = path
+            self.rest_send.verb = verb
+            self.rest_send.payload = payload
+            self.rest_send.commit()
         except (TypeError, ValueError) as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Unable to send {verb} request to the controller. "

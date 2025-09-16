@@ -10,12 +10,10 @@ import inspect
 import logging
 import re
 
+from ndfc_python.common.properties import Properties
 from ndfc_python.validations import Validations
-from plugins.module_utils.common.properties import Properties
 
 
-@Properties.add_rest_send
-@Properties.add_results
 class VrfDelete:
     """
     # Summary
@@ -30,6 +28,10 @@ class VrfDelete:
     def __init__(self):
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
+
+        self.properties = Properties()
+        self.rest_send = self.properties.rest_send
+        self.results = self.properties.results
 
         self.validations = Validations()
 
@@ -81,18 +83,16 @@ class VrfDelete:
         - `ValueError` if above verifications fail.
         """
         method_name = inspect.stack()[0][3]
-        # pylint: disable=no-member
-        if self.rest_send is None:  # type: ignore[attr-defined]
+        if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.rest_send must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
-        if self.results is None:  # type: ignore[attr-defined]
+        if self.results is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.results must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
-        # pylint: enable=no-member
 
         if self.fabric_name is None:
             msg = f"{self.class_name}.{method_name}: "
@@ -133,14 +133,13 @@ class VrfDelete:
         path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics"
         path += f"/{self.fabric_name}/bulk-delete/vrfs?vrf-names={vrf_names}"
 
-        # pylint: disable=no-member
         try:
-            self.rest_send.path = path  # type: ignore[attr-defined]
-            self.rest_send.verb = "DELETE"  # type: ignore[attr-defined]
-            self.rest_send.commit()  # type: ignore[attr-defined]
+            self.rest_send.path = path
+            self.rest_send.verb = "DELETE"
+            self.rest_send.commit()
         except (TypeError, ValueError) as error:
             msg = f"{self.class_name}.{method_name}: "
-            msg += f"Unable to send {self.rest_send.verb} request to the controller. "  # type: ignore[attr-defined]
+            msg += f"Unable to send {self.rest_send.verb} request to the controller. "
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
 
@@ -153,7 +152,6 @@ class VrfDelete:
             msg += f"{self.rest_send.result_current}. "  # type: ignore[attr-defined]
             msg += f"More detail (if any): {errmsg}"
             raise ValueError(msg)
-        # pylint: enable=no-member
 
     def get_vrfs(self) -> None:
         """
@@ -178,7 +176,6 @@ class VrfDelete:
         path += f"/{self.fabric_name}/vrfs"
         verb = "GET"
 
-        # pylint: disable=no-member
         try:
             self.rest_send.path = path  # type: ignore[attr-defined]
             self.rest_send.verb = verb  # type: ignore[attr-defined]

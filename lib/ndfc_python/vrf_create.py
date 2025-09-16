@@ -10,12 +10,10 @@ import json
 import logging
 from ipaddress import AddressValueError
 
+from ndfc_python.common.properties import Properties
 from ndfc_python.validations import Validations
-from plugins.module_utils.common.properties import Properties
 
 
-@Properties.add_rest_send
-@Properties.add_results
 class VrfCreate:
     """
     Create VRFs
@@ -24,6 +22,10 @@ class VrfCreate:
     def __init__(self):
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
+
+        self.properties = Properties()
+        self.rest_send = self.properties.rest_send
+        self.results = self.properties.results
 
         self.validations = Validations()
 
@@ -151,7 +153,6 @@ class VrfCreate:
         - self.vrf does not already exist in self.fabric_name
         """
         method_name = inspect.stack()[0][3]
-        # pylint: disable=no-member
         if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.rest_send must be set before calling "
@@ -162,7 +163,6 @@ class VrfCreate:
             msg += f"{self.class_name}.results must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
-        # pylint: enable=no-member
 
         for param in self.mandatory_payload_set:
             if self.payload[param] == "":
@@ -198,7 +198,6 @@ class VrfCreate:
         path += f"/{self.fabric_name}/vrfs"
         self.payload["vrfTemplateConfig"] = json.dumps(self.template_config)
 
-        # pylint: disable=no-member
         try:
             self.rest_send.path = path
             self.rest_send.verb = "POST"
@@ -217,7 +216,6 @@ class VrfCreate:
             msg += "More detail (if any): "
             msg += f"{self.rest_send.response_current.get('DATA', {}).get('message')}"
             raise ValueError(msg)
-        # pylint: enable=no-member
 
     def vrf_exists_in_fabric(self):
         """
@@ -229,7 +227,6 @@ class VrfCreate:
         path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{self.fabric_name}/vrfs"
         verb = "GET"
 
-        # pylint: disable=no-member
         try:
             self.rest_send.path = path
             self.rest_send.verb = verb
@@ -247,7 +244,6 @@ class VrfCreate:
             if item.get("vrfId") != self.vrf_id:
                 continue
             return True
-        # pylint: enable=no-member
         return False
 
     # top_level properties
