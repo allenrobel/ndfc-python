@@ -15,11 +15,9 @@ Send network delete DELETE requests to the controller
 import inspect
 import logging
 
-from plugins.module_utils.common.properties import Properties
+from ndfc_python.common.properties import Properties
 
 
-@Properties.add_rest_send
-@Properties.add_results
 class NetworkDelete:
     """
     # Summary
@@ -37,8 +35,10 @@ class NetworkDelete:
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
-        self._rest_send = None
-        self._results = None
+        self.properties = Properties()
+        self.rest_send = self.properties.rest_send
+        self.results = self.properties.results
+
         self._network_name = None
         self._fabric_name = None
 
@@ -47,7 +47,6 @@ class NetworkDelete:
         final verification of all parameters
         """
         method_name = inspect.stack()[0][3]
-        # pylint: disable=no-member
         if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.rest_send must be set before calling "
@@ -59,7 +58,6 @@ class NetworkDelete:
             msg += f"{self.class_name}.results must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
-        # pylint: enable=no-member
 
         if self.network_name == "":
             msg = f"{self.class_name}.{method_name}: "
@@ -97,56 +95,19 @@ class NetworkDelete:
         path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations"
         verb = "GET"
 
-        # pylint: disable=no-member
-        try:
-            self.rest_send.path = path  # type: ignore[attr-defined]
-            self.rest_send.verb = verb  # type: ignore[attr-defined]
-            self.rest_send.commit()  # type: ignore[attr-defined]
-        except (TypeError, ValueError) as error:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"Unable to send {verb} request to the controller. "
-            msg += f"Error details: {error}"
-            raise ValueError(msg) from error
-
-        for item in self.rest_send.response_current["DATA"]:  # type: ignore[attr-defined]
-            if item.get("fabricName") == self.fabric_name:
-                return True
-        # pylint: enable=no-member
-        return False
-
-    def vrf_exists_in_fabric(self):
-        """
-        Return True if self.vrf_name exists in self.fabric_name.
-        Else, return False
-        """
-        method_name = inspect.stack()[0][3]
-        # TODO: update when this path is added to ansible-dcnm
-        path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics"
-        path += f"/{self.fabric_name}/vrfs"
-        verb = "GET"
-
-        # pylint: disable=no-member
         try:
             self.rest_send.path = path
             self.rest_send.verb = verb
             self.rest_send.commit()
         except (TypeError, ValueError) as error:
             msg = f"{self.class_name}.{method_name}: "
-            msg += f"Unable to send {self.rest_send.verb} request to the controller. "
+            msg += f"Unable to send {verb} request to the controller. "
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
 
-        for item_d in self.rest_send.response_current["DATA"]:
-            if "fabric" not in item_d:
-                continue
-            if "vrfName" not in item_d:
-                continue
-            if item_d["fabric"] != self.fabric_name:
-                continue
-            if item_d["vrfName"] != self.vrf_name:
-                continue
-            return True
-        # pylint: enable=no-member
+        for item in self.rest_send.response_current["DATA"]:
+            if item.get("fabricName") == self.fabric_name:
+                return True
         return False
 
     def ok_to_delete_network(self):
@@ -160,7 +121,6 @@ class NetworkDelete:
         path += f"/{self.fabric_name}/networks"
         verb = "GET"
 
-        # pylint: disable=no-member
         try:
             self.rest_send.path = path
             self.rest_send.verb = verb
@@ -200,7 +160,6 @@ class NetworkDelete:
         path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics"
         path += f"/{self.fabric_name}/networks/{self.network_name}"
         verb = "DELETE"
-        # pylint: disable=no-member
         try:
             self.rest_send.path = path
             self.rest_send.verb = verb
