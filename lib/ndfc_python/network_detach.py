@@ -37,13 +37,11 @@ import inspect
 import logging
 
 from ndfc_python.common.fabric.fabric_inventory import FabricInventory
+from ndfc_python.common.properties import Properties
 from ndfc_python.validations import Validations
-from plugins.module_utils.common.properties import Properties
 from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 
-@Properties.add_rest_send
-@Properties.add_results
 class NetworkDetach:
     """
     # Summary
@@ -61,16 +59,22 @@ class NetworkDetach:
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
-        self.api_v1 = "/appcenter/cisco/ndfc/api/v1"
-        self.ep_fabrics = f"{self.api_v1}/lan-fabric/rest/top-down/fabrics"
+        self.properties = Properties()
+        self.rest_send = self.properties.rest_send
+        self.results = self.properties.results
 
         self.fabric_inventory = FabricInventory()
         self.validations = Validations()
 
-        self._rest_send = None
-        self._results = None
+        self.api_v1 = "/appcenter/cisco/ndfc/api/v1"
+        self.ep_fabrics = f"{self.api_v1}/lan-fabric/rest/top-down/fabrics"
 
-        self.properties = {}
+        self._detach_switch_ports = ""
+        self._fabric_name = ""
+        self._network_name = ""
+        self._peer_switch_name = ""
+        self._switch_name = ""
+        self._vlan = ""
 
     def _list_to_string(self, lst: list[str]) -> str:
         """
@@ -84,18 +88,17 @@ class NetworkDetach:
         final verification of all parameters
         """
         method_name = inspect.stack()[0][3]
-        # pylint: disable=no-member
         if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.rest_send must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
+
         if self.results is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.results must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
-        # pylint: enable=no-member
 
         if self.fabric_exists() is False:
             msg = f"{self.class_name}.{method_name}: "
@@ -139,10 +142,8 @@ class NetworkDetach:
         Return False otherwise.
         """
         instance = FabricDetailsByName()
-        # pylint: disable=no-member
         instance.rest_send = self.rest_send
         instance.results = self.results
-        # pylint: enable=no-member
         instance.refresh()
         instance.filter = self.fabric_name
         if instance.filtered_data is None:
@@ -160,7 +161,6 @@ class NetworkDetach:
         path += f"/{self.fabric_name}/networks"
         verb = "GET"
 
-        # pylint: disable=no-member
         try:
             self.rest_send.path = path
             self.rest_send.verb = verb
@@ -218,10 +218,9 @@ class NetworkDetach:
         Detach a network from a switch
         """
         method_name = inspect.stack()[0][3]
-        # pylint: disable=no-member
         self.fabric_inventory.fabric_name = self.fabric_name
-        self.fabric_inventory.rest_send = self.rest_send  # type: ignore[attr-defined]
-        self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
+        self.fabric_inventory.rest_send = self.rest_send
+        self.fabric_inventory.results = self.results
         self.fabric_inventory.commit()
 
         self._final_verification()
@@ -249,64 +248,64 @@ class NetworkDetach:
 
         detachSwitchPorts is converted from a list to a comma-separated string in the setter.
         """
-        return self.properties.get("detachSwitchPorts")
+        return self._detach_switch_ports
 
     @detach_switch_ports.setter
     def detach_switch_ports(self, value: list[str]) -> None:
-        self.properties["detachSwitchPorts"] = self._list_to_string(value)
+        self._detach_switch_ports = self._list_to_string(value)
 
     @property
     def fabric_name(self) -> str:
         """
         return the current value of fabric
         """
-        return self.properties.get("fabric")
+        return self._fabric_name
 
     @fabric_name.setter
     def fabric_name(self, value: str) -> None:
-        self.properties["fabric"] = value
+        self._fabric_name = value
 
     @property
     def network_name(self) -> str:
         """
         return the current value of networkName
         """
-        return self.properties.get("networkName")
+        return self._network_name
 
     @network_name.setter
     def network_name(self, value: str) -> None:
-        self.properties["networkName"] = value
+        self._network_name = value
 
     @property
     def peer_switch_name(self) -> str:
         """
         return the current value of peer_switch_name
         """
-        return self.properties.get("peer_switch_name")
+        return self._peer_switch_name
 
     @peer_switch_name.setter
     def peer_switch_name(self, value: str) -> None:
-        self.properties["peer_switch_name"] = value
+        self._peer_switch_name = value
 
     @property
     def switch_name(self) -> str:
         """
         return the current value of switch_name
         """
-        return self.properties.get("switch_name")
+        return self._switch_name
 
     @switch_name.setter
     def switch_name(self, value: str) -> None:
-        self.properties["switch_name"] = value
+        self._switch_name = value
 
     @property
     def vlan(self) -> str:
         """
         return the current value of vlan
         """
-        return self.properties.get("vlan")
+        return self._vlan
 
     @vlan.setter
     def vlan(self, value: str) -> None:
         self.validations.verify_vlan(value)
-        self.properties["vlan"] = value
+        self._vlan = value

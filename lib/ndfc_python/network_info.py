@@ -20,8 +20,8 @@ Path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{{fabric_nam
 import inspect
 import logging
 
+from ndfc_python.common.properties import Properties
 from ndfc_python.validations import Validations
-from plugins.module_utils.common.properties import Properties
 from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 
@@ -37,11 +37,28 @@ class NetworkInfoEndpoint:
         self.apiv1 = "/appcenter/cisco/ndfc/api/v1"
         self.ep_fabrics = f"{self.apiv1}/lan-fabric/rest/top-down/fabrics"
 
-        self._endpoint = None
-        self._fabric_name = None
-        self._network_name = None
+        self._endpoint = ""
+        self._fabric_name = ""
+        self._network_name = ""
 
         self.verb = "GET"
+
+    def _final_verification(self):
+        """
+        final verification of all parameters
+        """
+        method_name = inspect.stack()[0][3]
+        if not self.fabric_name:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"{self.class_name}.fabric_name must be set before calling "
+            msg += f"{self.class_name}.commit"
+            raise ValueError(msg)
+
+        if not self.network_name:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"{self.class_name}.network_name must be set before calling "
+            msg += f"{self.class_name}.commit"
+            raise ValueError(msg)
 
     def commit(self) -> None:
         """
@@ -83,8 +100,6 @@ class NetworkInfoEndpoint:
         self._network_name = value
 
 
-@Properties.add_rest_send
-@Properties.add_results
 class NetworkInfo:
     """
     # Summary
@@ -103,19 +118,21 @@ class NetworkInfo:
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
         self.endpoint = NetworkInfoEndpoint()
+
+        self.properties = Properties()
+        self.rest_send = self.properties.rest_send
+        self.results = self.properties.results
+
         self.validations = Validations()
 
-        self._rest_send = None
-        self._results = None
-
-        self.properties = {}
+        self._fabric_name = ""
+        self._network_name = ""
 
     def _final_verification(self):
         """
         final verification of all parameters
         """
         method_name = inspect.stack()[0][3]
-        # pylint: disable=no-member
         if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.rest_send must be set before calling "
@@ -126,7 +143,6 @@ class NetworkInfo:
             msg += f"{self.class_name}.results must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
-        # pylint: enable=no-member
 
         if self.fabric_exists() is False:
             msg = f"{self.class_name}.{method_name}: "
@@ -146,10 +162,8 @@ class NetworkInfo:
         Return False otherwise.
         """
         instance = FabricDetailsByName()
-        # pylint: disable=no-member
         instance.rest_send = self.rest_send
         instance.results = self.results
-        # pylint: enable=no-member
         instance.refresh()
         instance.filter = self.fabric_name
         if instance.filtered_data is None:
@@ -167,7 +181,6 @@ class NetworkInfo:
         path += f"/{self.fabric_name}/networks"
         verb = "GET"
 
-        # pylint: disable=no-member
         try:
             self.rest_send.path = path
             self.rest_send.verb = verb
@@ -197,7 +210,6 @@ class NetworkInfo:
         path = self.endpoint.endpoint
         verb = self.endpoint.verb
 
-        # pylint: disable=no-member
         try:
             self.rest_send.path = path
             self.rest_send.verb = verb
