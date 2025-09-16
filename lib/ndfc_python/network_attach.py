@@ -43,6 +43,7 @@ Send network attach POST requests to the controller
 import inspect
 import logging
 
+from ndfc_python.common.fabric.fabrics_info import FabricsInfo
 from ndfc_python.common.fabric.fabric_inventory import FabricInventory
 from ndfc_python.common.properties import Properties
 from ndfc_python.validations import Validations
@@ -65,6 +66,7 @@ class NetworkAttach:
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
+        self.fabrics_info = FabricsInfo()
         self.properties = Properties()
         self.rest_send = self.properties.rest_send
         self.results = self.properties.results
@@ -106,7 +108,7 @@ class NetworkAttach:
         """
         return "\n".join(lst)
 
-    def _final_verification(self):
+    def _final_verification(self) -> None:
         """
         final verification of all parameters
         """
@@ -146,6 +148,12 @@ class NetworkAttach:
             msg += f"peer_switch_name {self.peer_switch_name} must be different from switch_name {self.switch_name}"
             raise ValueError(msg)
 
+        if self.fabric_exists() is False:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"fabric_name {self.fabric_name} "
+            msg += "does not exist on the controller."
+            raise ValueError(msg)
+
         if not self._fabric_inventory_populated:
             self.populate_fabric_inventory()
 
@@ -176,7 +184,17 @@ class NetworkAttach:
                 msg += "are not vPC peer switches."
                 raise ValueError(msg)
 
-    def network_name_exists_in_fabric(self):
+    def fabric_exists(self) -> bool:
+        """
+        Return True if self.fabric_name exists on the controller.
+        Return False otherwise.
+        """
+        self.fabrics_info.rest_send = self.rest_send
+        self.fabrics_info.commit()
+        self.fabrics_info.filter = self.fabric_name
+        return self.fabrics_info.fabric_exists
+
+    def network_name_exists_in_fabric(self) -> bool:
         """
         Return True if networkName exists in the fabric.
         Else return False
@@ -272,7 +290,7 @@ class NetworkAttach:
         _payload.append(_payload_item)
         return _payload
 
-    def commit(self):
+    def commit(self) -> None:
         """
         Attach a network to a switch
         """

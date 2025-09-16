@@ -15,6 +15,7 @@ Send network delete DELETE requests to the controller
 import inspect
 import logging
 
+from ndfc_python.common.fabric.fabrics_info import FabricsInfo
 from ndfc_python.common.properties import Properties
 
 
@@ -35,9 +36,9 @@ class NetworkDelete:
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
+        self.fabrics_info = FabricsInfo()
         self.properties = Properties()
         self.rest_send = self.properties.rest_send
-        self.results = self.properties.results
 
         self._network_name = None
         self._fabric_name = None
@@ -50,12 +51,6 @@ class NetworkDelete:
         if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.rest_send must be set before calling "
-            msg += f"{self.class_name}.commit"
-            raise ValueError(msg)
-
-        if self.results is None:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"{self.class_name}.results must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
 
@@ -91,24 +86,10 @@ class NetworkDelete:
         Return True if self.fabric_name exists on the controller.
         Return False otherwise.
         """
-        method_name = inspect.stack()[0][3]
-        path = "/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/fabrics/msd/fabric-associations"
-        verb = "GET"
-
-        try:
-            self.rest_send.path = path
-            self.rest_send.verb = verb
-            self.rest_send.commit()
-        except (TypeError, ValueError) as error:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"Unable to send {verb} request to the controller. "
-            msg += f"Error details: {error}"
-            raise ValueError(msg) from error
-
-        for item in self.rest_send.response_current["DATA"]:
-            if item.get("fabricName") == self.fabric_name:
-                return True
-        return False
+        self.fabrics_info.rest_send = self.rest_send
+        self.fabrics_info.commit()
+        self.fabrics_info.filter = self.fabric_name
+        return self.fabrics_info.fabric_exists
 
     def ok_to_delete_network(self):
         """
