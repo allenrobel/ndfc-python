@@ -76,7 +76,7 @@ class ConfigSave:
         method_name = inspect.stack()[0][3]
         if not self.fabric_name:
             msg = f"{self.class_name}.{method_name}: "
-            msg += "fabric_name must be set before calling commit()."
+            msg += "fabric_name must be set to a non-empty string before calling commit()."
             raise ValueError(msg)
 
         if self.rest_send is None:
