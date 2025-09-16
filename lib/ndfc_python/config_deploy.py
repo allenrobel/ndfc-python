@@ -25,14 +25,12 @@ No JSON payload is required for this request.
 import inspect
 import logging
 
+from ndfc_python.common.fabric.fabrics_info import FabricsInfo
+from ndfc_python.common.properties import Properties
 from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import EpFabrics
 from plugins.module_utils.common.conversion import ConversionUtils
-from plugins.module_utils.common.properties import Properties
-from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 
-@Properties.add_rest_send
-@Properties.add_results
 class ConfigDeploy:
     """
     # Summary
@@ -53,19 +51,23 @@ class ConfigDeploy:
 
         self.conversion = ConversionUtils()
         self.ep_rest_control_fabrics = EpFabrics()
+        self.fabrics_info = FabricsInfo()
 
-        self._fabric_name = None
+        self.properties = Properties()
+        self.rest_send = self.properties.rest_send
+
+        self._fabric_name = ""
         self._response_data = None
 
         self._init_payload()
 
-    def _init_payload(self):
+    def _init_payload(self) -> None:
         """
         Initialize the REST payload
         """
         self.payload = {}
 
-    def _final_verification(self):
+    def _final_verification(self) -> None:
         """
         Any final verification steps before sending the request
         """
@@ -74,23 +76,17 @@ class ConfigDeploy:
             msg += "fabric_name must be set before calling commit()."
             raise ValueError(msg)
 
-    def fabric_exists(self):
+    def fabric_exists(self) -> bool:
         """
         Return True if self.fabric_name exists on the controller.
         Return False otherwise.
         """
-        instance = FabricDetailsByName()
-        # pylint: disable=no-member
-        instance.rest_send = self.rest_send
-        instance.results = self.results
-        # pylint: enable=no-member
-        instance.refresh()
-        instance.filter = self.fabric_name
-        if instance.filtered_data is None:
-            return False
-        return True
+        self.fabrics_info.rest_send = self.rest_send
+        self.fabrics_info.commit()
+        self.fabrics_info.filter = self.fabric_name
+        return self.fabrics_info.fabric_exists
 
-    def commit(self):
+    def commit(self) -> None:
         """
         Send a POST request to the controller to the config-deploy endpoint
         """
@@ -107,7 +103,6 @@ class ConfigDeploy:
         path.fabric_name = self.fabric_name
         verb = "POST"
 
-        # pylint: disable=no-member
         try:
             self.rest_send.path = f"{path.path_fabric_name}/config-deploy?forceShowRun=false"
             self.rest_send.payload = self.payload
@@ -131,7 +126,6 @@ class ConfigDeploy:
             msg += "Controller response: "
             msg += f"{self.rest_send.response_current}"
             raise ValueError(msg)
-        # pylint: enable=no-member
 
     def _get(self, item):
         """
@@ -148,14 +142,14 @@ class ConfigDeploy:
         return self.response_data.get(item)
 
     @property
-    def fabric_name(self):
+    def fabric_name(self) -> str:
         """
         Return the current fabric name.
         """
         return self._fabric_name
 
     @fabric_name.setter
-    def fabric_name(self, param):
+    def fabric_name(self, param: str) -> None:
         self._fabric_name = param
 
     @property
