@@ -37,9 +37,9 @@ import inspect
 import logging
 
 from ndfc_python.common.fabric.fabric_inventory import FabricInventory
+from ndfc_python.common.fabric.fabrics_info import FabricsInfo
 from ndfc_python.common.properties import Properties
 from ndfc_python.validations import Validations
-from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 
 class NetworkDetach:
@@ -59,6 +59,7 @@ class NetworkDetach:
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
+        self.fabrics_info = FabricsInfo()
         self.properties = Properties()
         self.rest_send = self.properties.rest_send
         self.results = self.properties.results
@@ -136,19 +137,15 @@ class NetworkDetach:
                 msg += "are not vPC peer switches."
                 raise ValueError(msg)
 
-    def fabric_exists(self):
+    def fabric_exists(self) -> bool:
         """
         Return True if self.fabric_name exists on the controller.
         Return False otherwise.
         """
-        instance = FabricDetailsByName()
-        instance.rest_send = self.rest_send
-        instance.results = self.results
-        instance.refresh()
-        instance.filter = self.fabric_name
-        if instance.filtered_data is None:
-            return False
-        return True
+        self.fabrics_info.rest_send = self.rest_send
+        self.fabrics_info.commit()
+        self.fabrics_info.filter = self.fabric_name
+        return self.fabrics_info.fabric_exists
 
     def network_name_exists_in_fabric(self):
         """
@@ -213,7 +210,7 @@ class NetworkDetach:
         _payload.append(_payload_item)
         return _payload
 
-    def commit(self):
+    def commit(self) -> None:
         """
         Detach a network from a switch
         """
@@ -244,9 +241,9 @@ class NetworkDetach:
     @property
     def detach_switch_ports(self) -> str:
         """
-        return the current value of detachSwitchPorts
+        Set (setter) or return (getter) the current value of detach_switch_ports
 
-        detachSwitchPorts is converted from a list to a comma-separated string in the setter.
+        detach_switch_ports is converted from a list to a comma-separated string in the setter.
         """
         return self._detach_switch_ports
 
@@ -257,7 +254,7 @@ class NetworkDetach:
     @property
     def fabric_name(self) -> str:
         """
-        return the current value of fabric
+        Set (setter) or return (getter) the current value of fabric_name
         """
         return self._fabric_name
 
@@ -268,7 +265,7 @@ class NetworkDetach:
     @property
     def network_name(self) -> str:
         """
-        return the current value of networkName
+        Set (setter) or return (getter) the current value of network_name
         """
         return self._network_name
 
@@ -279,7 +276,7 @@ class NetworkDetach:
     @property
     def peer_switch_name(self) -> str:
         """
-        return the current value of peer_switch_name
+        Set (setter) or return (getter) the current value of peer_switch_name
         """
         return self._peer_switch_name
 
@@ -290,7 +287,7 @@ class NetworkDetach:
     @property
     def switch_name(self) -> str:
         """
-        return the current value of switch_name
+        Set (setter) or return (getter) the current value of switch_name
         """
         return self._switch_name
 
@@ -301,7 +298,7 @@ class NetworkDetach:
     @property
     def vlan(self) -> str:
         """
-        return the current value of vlan
+        Set (setter) or return (getter) the current value of vlan
         """
         return self._vlan
 

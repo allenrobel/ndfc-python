@@ -20,9 +20,9 @@ Path: /appcenter/cisco/ndfc/api/v1/lan-fabric/rest/top-down/fabrics/{{fabric_nam
 import inspect
 import logging
 
+from ndfc_python.common.fabric.fabrics_info import FabricsInfo
 from ndfc_python.common.properties import Properties
 from ndfc_python.validations import Validations
-from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 
 class NetworkInfoEndpoint:
@@ -37,13 +37,13 @@ class NetworkInfoEndpoint:
         self.apiv1 = "/appcenter/cisco/ndfc/api/v1"
         self.ep_fabrics = f"{self.apiv1}/lan-fabric/rest/top-down/fabrics"
 
-        self._endpoint = ""
+        self._path = ""
         self._fabric_name = ""
         self._network_name = ""
 
         self.verb = "GET"
 
-    def _final_verification(self):
+    def _final_verification(self) -> None:
         """
         final verification of all parameters
         """
@@ -64,18 +64,18 @@ class NetworkInfoEndpoint:
         """
         Build and return the endpoint for the API request
         """
-        self.endpoint = f"{self.ep_fabrics}/{self.fabric_name}/networks/{self.network_name}"
+        self.path = f"{self.ep_fabrics}/{self.fabric_name}/networks/{self.network_name}"
 
     @property
-    def endpoint(self) -> str:
+    def path(self) -> str:
         """
-        return the current value of endpoint
+        Set (setter) or return (getter) the current value of the endpoint path
         """
-        return self._endpoint
+        return self._path
 
-    @endpoint.setter
-    def endpoint(self, value: str) -> None:
-        self._endpoint = value
+    @path.setter
+    def path(self, value: str) -> None:
+        self._path = value
 
     @property
     def fabric_name(self) -> str:
@@ -117,18 +117,17 @@ class NetworkInfo:
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
+        self.fabrics_info = FabricsInfo()
         self.endpoint = NetworkInfoEndpoint()
-
         self.properties = Properties()
-        self.rest_send = self.properties.rest_send
-        self.results = self.properties.results
-
         self.validations = Validations()
+
+        self.rest_send = self.properties.rest_send
 
         self._fabric_name = ""
         self._network_name = ""
 
-    def _final_verification(self):
+    def _final_verification(self) -> None:
         """
         final verification of all parameters
         """
@@ -136,11 +135,6 @@ class NetworkInfo:
         if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.rest_send must be set before calling "
-            msg += f"{self.class_name}.commit"
-            raise ValueError(msg)
-        if self.results is None:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"{self.class_name}.results must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
 
@@ -156,21 +150,17 @@ class NetworkInfo:
             msg += f"in fabric {self.fabric_name}."
             raise ValueError(msg)
 
-    def fabric_exists(self):
+    def fabric_exists(self) -> bool:
         """
         Return True if self.fabric_name exists on the controller.
         Return False otherwise.
         """
-        instance = FabricDetailsByName()
-        instance.rest_send = self.rest_send
-        instance.results = self.results
-        instance.refresh()
-        instance.filter = self.fabric_name
-        if instance.filtered_data is None:
-            return False
-        return True
+        self.fabrics_info.rest_send = self.rest_send
+        self.fabrics_info.commit()
+        self.fabrics_info.filter = self.fabric_name
+        return self.fabrics_info.fabric_exists
 
-    def network_name_exists_in_fabric(self):
+    def network_name_exists_in_fabric(self) -> bool:
         """
         Return True if networkName exists in the fabric.
         Else return False
@@ -197,7 +187,7 @@ class NetworkInfo:
                 return True
         return False
 
-    def commit(self):
+    def commit(self) -> None:
         """
         Retrieve network information from the controller.
         """
@@ -207,7 +197,7 @@ class NetworkInfo:
         self.endpoint.fabric_name = self.fabric_name
         self.endpoint.network_name = self.network_name
         self.endpoint.commit()
-        path = self.endpoint.endpoint
+        path = self.endpoint.path
         verb = self.endpoint.verb
 
         try:
@@ -223,7 +213,7 @@ class NetworkInfo:
     @property
     def fabric_name(self) -> str:
         """
-        return the current value of fabric_name
+        Set (setter) or return (getter) the current value of fabric_name
         """
         return self._fabric_name
 
@@ -234,7 +224,7 @@ class NetworkInfo:
     @property
     def network_name(self) -> str:
         """
-        return the current value of networkName
+        Set (setter) or return (getter) the current value of network_name
         """
         return self._network_name
 
