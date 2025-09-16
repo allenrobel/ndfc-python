@@ -65,15 +65,21 @@ class ConfigDeploy:
         """
         Initialize the REST payload
         """
-        self.payload = {}
+        self.payload: dict = {}
 
     def _final_verification(self) -> None:
         """
         Any final verification steps before sending the request
         """
+        method_name = inspect.stack()[0][3]
         if self.fabric_name is None:
-            msg = f"{self.class_name}._final_verification: "
+            msg = f"{self.class_name}.{method_name}: "
             msg += "fabric_name must be set before calling commit()."
+            raise ValueError(msg)
+
+        if self.rest_send is None:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += "rest_send must be set before calling commit()."
             raise ValueError(msg)
 
     def fabric_exists(self) -> bool:
