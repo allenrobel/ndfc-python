@@ -46,7 +46,7 @@ class FabricsInfo:
     def commit(self) -> None:
         """Retrieve information for all fabrics.
 
-        Populates self._fabrics_by_fabric_name.:
+        Populates self._fabrics_by_fabric_name:
             dict keyed on fabric_name, containing fabric details.
 
         """
