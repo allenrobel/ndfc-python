@@ -1,0 +1,5 @@
+---
+config:
+  - filter: NON_EXISTENT_FABRIC
+  - filter: SITE1
+  - filter: "" # All fabrics
