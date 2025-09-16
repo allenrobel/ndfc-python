@@ -43,8 +43,8 @@ Send network attach POST requests to the controller
 import inspect
 import logging
 
-from ndfc_python.common.fabric.fabrics_info import FabricsInfo
 from ndfc_python.common.fabric.fabric_inventory import FabricInventory
+from ndfc_python.common.fabric.fabrics_info import FabricsInfo
 from ndfc_python.common.properties import Properties
 from ndfc_python.validations import Validations
 
