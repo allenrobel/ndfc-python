@@ -42,13 +42,11 @@ import json
 import logging
 
 from ndfc_python.common.fabric.fabric_inventory import FabricInventory
+from ndfc_python.common.properties import Properties
 from ndfc_python.validations import Validations
 from ndfc_python.validators.vrf_attach import ExtensionValues, InstanceValues
-from plugins.module_utils.common.properties import Properties
 
 
-@Properties.add_rest_send
-@Properties.add_results
 class VrfAttach:
     """
     # Summary
@@ -66,11 +64,16 @@ class VrfAttach:
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
+        self.properties = Properties()
+        self.rest_send = self.properties.rest_send
+        self.results = self.properties.results
+
+        self.validations = Validations()
+
         self.api_v1 = "/appcenter/cisco/ndfc/api/v1"
         self.ep_fabrics = f"{self.api_v1}/lan-fabric/rest/top-down/fabrics"
         self.fabric_inventory = FabricInventory()
         self.fabric_switches = {}
-        self.validations = Validations()
 
         self._extension_values = []
         self._fabric_inventory_populated = False
@@ -101,7 +104,6 @@ class VrfAttach:
         final verification of all parameters
         """
         method_name = inspect.stack()[0][3]
-        # pylint: disable=no-member
         if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.rest_send must be set before calling "
@@ -113,7 +115,6 @@ class VrfAttach:
             msg += f"{self.class_name}.results must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
-        # pylint: enable=no-member
 
         if not self.fabric_name:
             msg = f"{self.class_name}.{method_name}: "
@@ -176,7 +177,6 @@ class VrfAttach:
         path = f"{self.ep_fabrics}/{self.fabric_name}/vrfs"
         verb = "GET"
 
-        # pylint: disable=no-member
         try:
             self.rest_send.path = path
             self.rest_send.verb = verb
@@ -193,25 +193,22 @@ class VrfAttach:
             if item.get("vrfName") != self.vrf_name:
                 continue
             return True
-        # pylint: enable=no-member
         return False
 
     def populate_fabric_inventory(self) -> None:
         """
         Get switch inventory for a specific fabric.
         """
-        # pylint: disable=no-member
         try:
             self.fabric_inventory.fabric_name = self.fabric_name
-            self.fabric_inventory.rest_send = self.rest_send  # type: ignore[attr-defined]
-            self.fabric_inventory.results = self.results  # type: ignore[attr-defined]
+            self.fabric_inventory.rest_send = self.rest_send
+            self.fabric_inventory.results = self.results
             self.fabric_inventory.commit()
         except ValueError as error:
             msg = f"{self.class_name}.populate_fabric_inventory: "
             msg += f"Unable to populate fabric inventory for fabric {self.fabric_name}. "
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
-        # pylint: enable=no-member
         self._fabric_inventory_populated = True
 
     def build_extension_values(self, value: list[ExtensionValues]) -> str:
@@ -280,7 +277,6 @@ class VrfAttach:
         path = f"{self.ep_fabrics}/{self.fabric_name}/vrfs/attachments?quick-attach=true"
         verb = "POST"
 
-        # pylint: disable=no-member
         try:
             self.rest_send.path = path
             self.rest_send.verb = verb
