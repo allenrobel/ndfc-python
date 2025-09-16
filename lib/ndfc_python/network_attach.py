@@ -39,6 +39,7 @@ Send network attach POST requests to the controller
 
 # We are using isort for import sorting.
 # pylint: disable=wrong-import-order
+# pylint: disable=too-many-branches
 
 import inspect
 import logging
