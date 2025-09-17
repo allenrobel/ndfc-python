@@ -10,6 +10,7 @@ import json
 import logging
 from ipaddress import AddressValueError
 
+from ndfc_python.common.fabric.fabrics_info import FabricsInfo
 from ndfc_python.common.properties import Properties
 from ndfc_python.validations import Validations
 
@@ -23,14 +24,11 @@ class VrfCreate:
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
+        self.fabrics_info = FabricsInfo()
         self.properties = Properties()
-        self.rest_send = self.properties.rest_send
-        self.results = self.properties.results
-
         self.validations = Validations()
 
-        self._rest_send = None
-        self._results = None
+        self.rest_send = self.properties.rest_send
 
         self._payload_set = set()
         self._payload_set.add("display_name")
@@ -105,7 +103,7 @@ class VrfCreate:
         self._init_payload()
         self._init_vrf_template_config()
 
-    def _init_payload(self):
+    def _init_payload(self) -> None:
         """
         initialize the REST payload
         """
@@ -116,7 +114,7 @@ class VrfCreate:
             else:
                 self.payload[param] = ""
 
-    def _init_vrf_template_config(self):
+    def _init_vrf_template_config(self) -> None:
         """
         initialize the vrf template_config
         """
@@ -128,7 +126,7 @@ class VrfCreate:
             else:
                 self.template_config[param] = ""
 
-    def _preprocess_payload(self):
+    def _preprocess_payload(self) -> None:
         """
         NOT USED CURRENTLY
         1. Set a default value for any properties that the caller has not set
@@ -143,12 +141,11 @@ class VrfCreate:
         self.template_config["vrfName"] = self.vrf_name
         self.template_config["vrfSegmentId"] = self.vrf_id
 
-    def _final_verification(self):
+    def _final_verification(self) -> None:
         """
         verify the following:
 
         - verify rest_send is set
-        - verify results is set
         - all mandatory parameters are set
         - self.vrf does not already exist in self.fabric_name
         """
@@ -158,11 +155,6 @@ class VrfCreate:
             msg += f"{self.class_name}.rest_send must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
-        if self.results is None:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"{self.class_name}.results must be set before calling "
-            msg += f"{self.class_name}.commit"
-            raise ValueError(msg)
 
         for param in self.mandatory_payload_set:
             if self.payload[param] == "":
@@ -170,19 +162,27 @@ class VrfCreate:
                 msg += f"Call {self.class_name}.{param} before calling "
                 msg += f"{self.class_name}.commit"
                 raise ValueError(msg)
+
         for param in self.mandatory_template_config_set:
             if self.template_config[param] == "":
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"Call {self.class_name}.{param} before calling "
                 msg += f"{self.class_name}.commit"
                 raise ValueError(msg)
+
+        if not self.fabric_exists():
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"fabric_name {self.fabric_name} "
+            msg += "does not exist on the controller."
+            raise ValueError(msg)
+
         if self.vrf_exists_in_fabric():
             msg = f"{self.class_name}.{method_name}: "
             msg += f"VRF {self.vrf_name} already exists in "
             msg += f"fabric {self.fabric_name}"
             raise ValueError(msg)
 
-    def commit(self):
+    def commit(self) -> None:
         """
         # Summary
         Commit VRF creation
@@ -217,7 +217,17 @@ class VrfCreate:
             msg += f"{self.rest_send.response_current.get('DATA', {}).get('message')}"
             raise ValueError(msg)
 
-    def vrf_exists_in_fabric(self):
+    def fabric_exists(self) -> bool:
+        """
+        Return True if self.fabric_name exists on the controller.
+        Return False otherwise.
+        """
+        self.fabrics_info.rest_send = self.rest_send
+        self.fabrics_info.commit()
+        self.fabrics_info.filter = self.fabric_name
+        return self.fabrics_info.fabric_exists
+
+    def vrf_exists_in_fabric(self) -> bool:
         """
         Return True if self.vrf exists in self.fabric_name.
         Else, return False
@@ -248,104 +258,104 @@ class VrfCreate:
 
     # top_level properties
     @property
-    def display_name(self):
+    def display_name(self) -> str:
         """
         return the current payload value of VRF display name
         """
         return self.payload["displayName"]
 
     @display_name.setter
-    def display_name(self, param):
+    def display_name(self, param: str) -> None:
         self.payload["displayName"] = param
 
     @property
-    def fabric_name(self):
+    def fabric_name(self) -> str:
         """
         return the current payload value of VRF fabric
         """
         return self.payload["fabric"]
 
     @fabric_name.setter
-    def fabric_name(self, value):
+    def fabric_name(self, value: str) -> None:
         self.payload["fabric"] = value
 
     @property
-    def vrf_extension_template(self):
+    def vrf_extension_template(self) -> str:
         """
         return the current payload value of vrf_extension_template
         """
         return self.payload["vrfExtensionTemplate"]
 
     @vrf_extension_template.setter
-    def vrf_extension_template(self, param):
+    def vrf_extension_template(self, param: str) -> None:
         self.payload["vrfExtensionTemplate"] = param
 
     @property
-    def vrf_id(self):
+    def vrf_id(self) -> str:
         """
         return the current payload value of vrf_id
         """
         return self.payload["vrfId"]
 
     @vrf_id.setter
-    def vrf_id(self, param):
+    def vrf_id(self, param: str) -> None:
         self.payload["vrfId"] = param
 
     @property
-    def vrf_name(self):
+    def vrf_name(self) -> str:
         """
         return the current payload value of vrf_name
         """
         return self.payload["vrfName"]
 
     @vrf_name.setter
-    def vrf_name(self, param):
+    def vrf_name(self, param: str) -> None:
         self.payload["vrfName"] = param
 
     @property
-    def vrf_template(self):
+    def vrf_template(self) -> str:
         """
         return the current payload value of vrf_template
         """
         return self.payload["vrfTemplate"]
 
     @vrf_template.setter
-    def vrf_template(self, param):
+    def vrf_template(self, param: str) -> None:
         self.payload["vrfTemplate"] = param
 
     @property
-    def service_vrf_template(self):
+    def service_vrf_template(self) -> str:
         """
         return the current payload value of service_vrf_template
         """
         return self.payload["serviceVrfTemplate"]
 
     @service_vrf_template.setter
-    def service_vrf_template(self, param):
+    def service_vrf_template(self, param: str) -> None:
         self.payload["serviceVrfTemplate"] = param
 
     @property
-    def source(self):
+    def source(self) -> str:
         """
         return the current payload value of source
         """
         return self.payload["source"]
 
     @source.setter
-    def source(self, param):
+    def source(self, param: str) -> None:
         self.payload["source"] = param
 
     # vrf_template_config properties
 
     @property
-    def advertise_host_route_flag(self):
+    def advertise_host_route_flag(self) -> bool:
         """
         return the current template_config value of advertise_host_route_flag
         """
         return self.template_config["advertiseHostRouteFlag"]
 
     @advertise_host_route_flag.setter
-    def advertise_host_route_flag(self, param):
+    def advertise_host_route_flag(self, param: bool) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_boolean(param)
@@ -356,7 +366,7 @@ class VrfCreate:
         self.template_config["advertiseHostRouteFlag"] = param
 
     @property
-    def advertise_default_route_flag(self):
+    def advertise_default_route_flag(self) -> bool:
         """
         return the current template_config value of
         advertise_default_route_flag
@@ -364,7 +374,7 @@ class VrfCreate:
         return self.template_config["advertiseDefaultRouteFlag"]
 
     @advertise_default_route_flag.setter
-    def advertise_default_route_flag(self, param):
+    def advertise_default_route_flag(self, param: bool) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_boolean(param)
@@ -375,25 +385,25 @@ class VrfCreate:
         self.template_config["advertiseDefaultRouteFlag"] = param
 
     @property
-    def bgp_password(self):
+    def bgp_password(self) -> str:
         """
         return the current template_config value of bgp_password
         """
         return self.template_config["bgpPassword"]
 
     @bgp_password.setter
-    def bgp_password(self, param):
+    def bgp_password(self, param: str) -> None:
         self.template_config["bgpPassword"] = param
 
     @property
-    def bgp_password_key_type(self):
+    def bgp_password_key_type(self) -> str:
         """
         return the current template_config value of bgp_password_key_type
         """
         return self.template_config["bgpPasswordKeyType"]
 
     @bgp_password_key_type.setter
-    def bgp_password_key_type(self, param):
+    def bgp_password_key_type(self, param: str) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_bgp_password_key_type(param)
@@ -404,7 +414,7 @@ class VrfCreate:
         self.template_config["bgpPasswordKeyType"] = param
 
     @property
-    def configure_static_default_route_flag(self):
+    def configure_static_default_route_flag(self) -> bool:
         """
         return the current template_config value of
         configure_static_default_route_flag
@@ -412,7 +422,7 @@ class VrfCreate:
         return self.template_config["configureStaticDefaultRouteFlag"]
 
     @configure_static_default_route_flag.setter
-    def configure_static_default_route_flag(self, param):
+    def configure_static_default_route_flag(self, param: bool) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_boolean(param)
@@ -423,14 +433,14 @@ class VrfCreate:
         self.template_config["configureStaticDefaultRouteFlag"] = param
 
     @property
-    def enable_netflow(self):
+    def enable_netflow(self) -> bool:
         """
         return the current template_config value of enable_netflow
         """
         return self.template_config["ENABLE_NETFLOW"]
 
     @enable_netflow.setter
-    def enable_netflow(self, param):
+    def enable_netflow(self, param: bool) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_boolean(param)
@@ -441,14 +451,14 @@ class VrfCreate:
         self.template_config["ENABLE_NETFLOW"] = param
 
     @property
-    def ipv6_link_local_flag(self):
+    def ipv6_link_local_flag(self) -> bool:
         """
         return the current template_config value of ipv6_link_local_flag
         """
         return self.template_config["ipv6LinkLocalFlag"]
 
     @ipv6_link_local_flag.setter
-    def ipv6_link_local_flag(self, param):
+    def ipv6_link_local_flag(self, param: bool) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_boolean(param)
@@ -459,14 +469,14 @@ class VrfCreate:
         self.template_config["ipv6LinkLocalFlag"] = param
 
     @property
-    def is_rp_external(self):
+    def is_rp_external(self) -> bool:
         """
         return the current template_config value of is_rp_external
         """
         return self.template_config["isRPExternal"]
 
     @is_rp_external.setter
-    def is_rp_external(self, param):
+    def is_rp_external(self, param: bool) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_boolean(param)
@@ -477,14 +487,14 @@ class VrfCreate:
         self.template_config["isRPExternal"] = param
 
     @property
-    def l3_vni_mcast_group(self):
+    def l3_vni_mcast_group(self) -> str:
         """
         return the current template_config value of l3_vni_mcast_group
         """
         return self.template_config["L3VniMcastGroup"]
 
     @l3_vni_mcast_group.setter
-    def l3_vni_mcast_group(self, param):
+    def l3_vni_mcast_group(self, param: str) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_ipv4_multicast_address(param)
@@ -495,14 +505,14 @@ class VrfCreate:
         self.template_config["L3VniMcastGroup"] = param
 
     @property
-    def loopback_number(self):
+    def loopback_number(self) -> str:
         """
         return the current template_config value of loopback_number
         """
         return self.template_config["loopbackNumber"]
 
     @loopback_number.setter
-    def loopback_number(self, param):
+    def loopback_number(self, param: str) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_loopback_id(param)
@@ -513,14 +523,14 @@ class VrfCreate:
         self.template_config["loopbackNumber"] = param
 
     @property
-    def max_bgp_paths(self):
+    def max_bgp_paths(self) -> int:
         """
         return the current template_config value of max_bgp_paths
         """
         return self.template_config["maxBgpPaths"]
 
     @max_bgp_paths.setter
-    def max_bgp_paths(self, param):
+    def max_bgp_paths(self, param: int) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_max_bgp_paths(param)
@@ -531,14 +541,14 @@ class VrfCreate:
         self.template_config["maxBgpPaths"] = param
 
     @property
-    def max_ibgp_paths(self):
+    def max_ibgp_paths(self) -> int:
         """
         return the current template_config value of max_ibgp_paths
         """
         return self.template_config["maxIbgpPaths"]
 
     @max_ibgp_paths.setter
-    def max_ibgp_paths(self, param):
+    def max_ibgp_paths(self, param: int) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_max_bgp_paths(param)
@@ -549,14 +559,14 @@ class VrfCreate:
         self.template_config["maxIbgpPaths"] = param
 
     @property
-    def multicast_group(self):
+    def multicast_group(self) -> str:
         """
         return the current template_config value of multicast_group
         """
         return self.template_config["multicastGroup"]
 
     @multicast_group.setter
-    def multicast_group(self, param):
+    def multicast_group(self, param: str) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_ipv4_multicast_address(param)
@@ -567,14 +577,14 @@ class VrfCreate:
         self.template_config["multicastGroup"] = param
 
     @property
-    def mtu(self):
+    def mtu(self) -> str:
         """
         return the current template_config value of mtu
         """
         return self.template_config["mtu"]
 
     @mtu.setter
-    def mtu(self, param):
+    def mtu(self, param: str) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_mtu(param)
@@ -585,25 +595,25 @@ class VrfCreate:
         self.template_config["mtu"] = param
 
     @property
-    def netflow_monitor(self):
+    def netflow_monitor(self) -> str:
         """
         return the current template_config value of netflow_monitor
         """
         return self.template_config["NETFLOW_MONITOR"]
 
     @netflow_monitor.setter
-    def netflow_monitor(self, param):
+    def netflow_monitor(self, param: str) -> None:
         self.template_config["NETFLOW_MONITOR"] = param
 
     @property
-    def nve_id(self):
+    def nve_id(self) -> str:
         """
         return the current template_config value of nve_id
         """
         return self.template_config["nveId"]
 
     @nve_id.setter
-    def nve_id(self, param):
+    def nve_id(self, param: str) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_nve_id(param)
@@ -614,14 +624,14 @@ class VrfCreate:
         self.template_config["nveId"] = param
 
     @property
-    def rp_address(self):
+    def rp_address(self) -> str:
         """
         return the current template_config value of rp_address
         """
         return self.template_config["rpAddress"]
 
     @rp_address.setter
-    def rp_address(self, param):
+    def rp_address(self, param: str) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_ipv4_address(param)
@@ -632,14 +642,14 @@ class VrfCreate:
         self.template_config["rpAddress"] = param
 
     @property
-    def tag(self):
+    def tag(self) -> str:
         """
         return the current template_config value of tag
         """
         return self.template_config["tag"]
 
     @tag.setter
-    def tag(self, param):
+    def tag(self, param: str) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_routing_tag(param)
@@ -650,14 +660,14 @@ class VrfCreate:
         self.template_config["tag"] = param
 
     @property
-    def trm_bgw_msite_enabled(self):
+    def trm_bgw_msite_enabled(self) -> bool:
         """
         return the current template_config value of trm_bgw_msite_enabled
         """
         return self.template_config["trmBGWMSiteEnabled"]
 
     @trm_bgw_msite_enabled.setter
-    def trm_bgw_msite_enabled(self, param):
+    def trm_bgw_msite_enabled(self, param: bool) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_boolean(param)
@@ -668,14 +678,14 @@ class VrfCreate:
         self.template_config["trmBGWMSiteEnabled"] = param
 
     @property
-    def trm_enabled(self):
+    def trm_enabled(self) -> bool:
         """
         return the current template_config value of trm_enabled
         """
         return self.template_config["trmEnabled"]
 
     @trm_enabled.setter
-    def trm_enabled(self, param):
+    def trm_enabled(self, param: bool) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_boolean(param)
@@ -686,47 +696,47 @@ class VrfCreate:
         self.template_config["trmEnabled"] = param
 
     @property
-    def vrf_description(self):
+    def vrf_description(self) -> str:
         """
         return the current template_config value of vrf_description
         """
         return self.template_config["vrfDescription"]
 
     @vrf_description.setter
-    def vrf_description(self, param):
+    def vrf_description(self, param: str) -> None:
         self.template_config["vrfDescription"] = param
 
     @property
-    def vrf_intf_description(self):
+    def vrf_intf_description(self) -> str:
         """
         return the current template_config value of vrf_intf_description
         """
         return self.template_config["vrfIntfDescription"]
 
     @vrf_intf_description.setter
-    def vrf_intf_description(self, param):
+    def vrf_intf_description(self, param: str) -> None:
         self.template_config["vrfIntfDescription"] = param
 
     @property
-    def vrf_route_map(self):
+    def vrf_route_map(self) -> str:
         """
         return the current template_config value of vrf_route_map
         """
         return self.template_config["vrfRouteMap"]
 
     @vrf_route_map.setter
-    def vrf_route_map(self, param):
+    def vrf_route_map(self, param: str) -> None:
         self.template_config["vrfRouteMap"] = param
 
     @property
-    def vrf_vlan_id(self):
+    def vrf_vlan_id(self) -> str:
         """
         return the current template_config value of vrf_vlan_id
         """
         return self.template_config["vrfVlanId"]
 
     @vrf_vlan_id.setter
-    def vrf_vlan_id(self, param):
+    def vrf_vlan_id(self, param: str) -> None:
         method_name = inspect.stack()[0][3]
         try:
             self.validations.verify_vrf_vlan_id(param)
@@ -737,12 +747,12 @@ class VrfCreate:
         self.template_config["vrfVlanId"] = param
 
     @property
-    def vrf_vlan_name(self):
+    def vrf_vlan_name(self) -> str:
         """
         return the current template_config value of vrf_vlan_name
         """
         return self.template_config["vrfVlanName"]
 
     @vrf_vlan_name.setter
-    def vrf_vlan_name(self, param):
+    def vrf_vlan_name(self, param: str) -> None:
         self.template_config["vrfVlanName"] = param
