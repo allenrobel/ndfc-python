@@ -169,7 +169,7 @@ class Reachability:
             if self.payload[param] == "":
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"exiting. call {self.class_name}.{param} before "
-                msg += f"calling {self.class_name}.create()"
+                msg += f"calling {self.class_name}.commit"
                 self.log.error(msg)
                 sys.exit(1)
 
@@ -219,7 +219,7 @@ class Reachability:
 
         self._response_data = self.rest_send.response_current.get("DATA")[0]
         if self.response_data is None:
-            msg = f"{self.class_name}.refresh() failed: response "
+            msg = f"{self.class_name}.{method_name} failed: response "
             msg += "does not contain DATA key. Controller response: "
             msg += f"{self.rest_send.response_current}"
             raise ValueError(msg)
@@ -303,7 +303,7 @@ class Reachability:
     @property
     def preserve_config(self):
         """
-        Set (setter) or return (getter) current payload value of preserve_config
+        Set (setter) or return (getter) the current payload value of preserve_config
         """
         return self.payload["preserveConfig"]
 
