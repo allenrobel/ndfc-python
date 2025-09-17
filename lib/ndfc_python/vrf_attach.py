@@ -42,6 +42,7 @@ import json
 import logging
 
 from ndfc_python.common.fabric.fabric_inventory import FabricInventory
+from ndfc_python.common.fabric.fabrics_info import FabricsInfo
 from ndfc_python.common.properties import Properties
 from ndfc_python.validations import Validations
 from ndfc_python.validators.vrf_attach import ExtensionValues, InstanceValues
@@ -64,15 +65,15 @@ class VrfAttach:
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
+        self.fabric_inventory = FabricInventory()
+        self.fabrics_info = FabricsInfo()
         self.properties = Properties()
-        self.rest_send = self.properties.rest_send
-        self.results = self.properties.results
-
         self.validations = Validations()
+
+        self.rest_send = self.properties.rest_send
 
         self.api_v1 = "/appcenter/cisco/ndfc/api/v1"
         self.ep_fabrics = f"{self.api_v1}/lan-fabric/rest/top-down/fabrics"
-        self.fabric_inventory = FabricInventory()
         self.fabric_switches = {}
 
         self._extension_values = []
@@ -99,7 +100,7 @@ class VrfAttach:
         """
         return "\n".join(lst)
 
-    def _final_verification(self):
+    def _final_verification(self) -> None:
         """
         final verification of all parameters
         """
@@ -107,12 +108,6 @@ class VrfAttach:
         if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.rest_send must be set before calling "
-            msg += f"{self.class_name}.commit"
-            raise ValueError(msg)
-
-        if self.results is None:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"{self.class_name}.results must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
 
@@ -137,6 +132,12 @@ class VrfAttach:
         if self.peer_switch_name == self.switch_name:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"peer_switch_name {self.peer_switch_name} must be different from switch_name {self.switch_name}"
+            raise ValueError(msg)
+
+        if self.fabric_exists() is False:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"fabric_name {self.fabric_name} "
+            msg += "does not exist on the controller."
             raise ValueError(msg)
 
         if not self._fabric_inventory_populated:
@@ -167,7 +168,17 @@ class VrfAttach:
                 msg += "are not vPC peer switches."
                 raise ValueError(msg)
 
-    def vrf_name_exists_in_fabric(self):
+    def fabric_exists(self) -> bool:
+        """
+        Return True if self.fabric_name exists on the controller.
+        Return False otherwise.
+        """
+        self.fabrics_info.rest_send = self.rest_send
+        self.fabrics_info.commit()
+        self.fabrics_info.filter = self.fabric_name
+        return self.fabrics_info.fabric_exists
+
+    def vrf_name_exists_in_fabric(self) -> bool:
         """
         Return True if self.vrf exists in self.fabric_name.
         Else, return False
@@ -202,7 +213,6 @@ class VrfAttach:
         try:
             self.fabric_inventory.fabric_name = self.fabric_name
             self.fabric_inventory.rest_send = self.rest_send
-            self.fabric_inventory.results = self.results
             self.fabric_inventory.commit()
         except ValueError as error:
             msg = f"{self.class_name}.populate_fabric_inventory: "
@@ -261,7 +271,7 @@ class VrfAttach:
         _payload.append(_payload_item)
         return _payload
 
-    def commit(self):
+    def commit(self) -> None:
         """
         Attach a vrf to a switch
         """
@@ -309,7 +319,7 @@ class VrfAttach:
     @property
     def fabric_name(self) -> str:
         """
-        return the current value of fabric
+        Set (setter) or return (getter) the current value of fabric
         """
         return self._fabric_name
 
@@ -320,7 +330,7 @@ class VrfAttach:
     @property
     def freeform_config(self) -> str:
         """
-        return the current value of freeformConfig
+        Set (setter) or return (getter) the current value of freeformConfig
 
         freeformConfig is converted from a list to a newline-separated string in the setter.
         """
@@ -333,7 +343,7 @@ class VrfAttach:
     @property
     def instance_values(self) -> str:
         """
-        return the current value of instanceValues
+        Set (setter) or return (getter) the current value of instanceValues
         """
         return self._instance_values
 
@@ -347,7 +357,7 @@ class VrfAttach:
     @property
     def peer_switch_name(self) -> str:
         """
-        return the current value of peer_switch_name
+        Set (setter) or return (getter) the current value of peer_switch_name
         """
         return self._peer_switch_name
 
@@ -358,7 +368,7 @@ class VrfAttach:
     @property
     def switch_name(self) -> str:
         """
-        return the current value of switch_name
+        Set (setter) or return (getter) the current value of switch_name
         """
         return self._switch_name
 
@@ -369,7 +379,7 @@ class VrfAttach:
     @property
     def vlan(self) -> str:
         """
-        return the current value of vlan
+        Set (setter) or return (getter) the current value of vlan
         """
         return self._vlan
 
@@ -381,7 +391,7 @@ class VrfAttach:
     @property
     def vrf_name(self) -> str:
         """
-        return the current value of vrfName
+        Set (setter) or return (getter) the current value of vrfName
         """
         return self._vrf_name
 

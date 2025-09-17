@@ -10,6 +10,7 @@ import inspect
 import logging
 import re
 
+from ndfc_python.common.fabric.fabrics_info import FabricsInfo
 from ndfc_python.common.properties import Properties
 from ndfc_python.validations import Validations
 
@@ -29,14 +30,14 @@ class VrfDelete:
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
+        self.fabrics_info = FabricsInfo()
         self.properties = Properties()
-        self.rest_send = self.properties.rest_send
-        self.results = self.properties.results
-
         self.validations = Validations()
 
-        self._rest_send = None
-        self._results = None
+        self.rest_send = self.properties.rest_send
+
+        self._fabric_name = None
+
         # _vrf_cache is keyed on fabric_name
         # The value is a dictionary, keyed on vrf_name.
         # _vrf_cache = {
@@ -64,8 +65,6 @@ class VrfDelete:
         #    }
         # }
         self._vrf_cache = {}
-
-        self._fabric_name = None
         self._vrf_names = None
 
     def _final_verification(self) -> None:
@@ -74,8 +73,7 @@ class VrfDelete:
 
         Verify the following:
 
-        - verify rest_send is set
-        - verify results is set
+        - rest_send is set
         - Each vrf in self.vrf_names exists in self.fabric_name
 
         # Raises
@@ -86,11 +84,6 @@ class VrfDelete:
         if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.rest_send must be set before calling "
-            msg += f"{self.class_name}.commit"
-            raise ValueError(msg)
-        if self.results is None:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"{self.class_name}.results must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
 
@@ -104,6 +97,12 @@ class VrfDelete:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.vrf_names must be set before calling "
             msg += f"{self.class_name}.commit"
+            raise ValueError(msg)
+
+        if self.fabric_exists() is False:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"fabric_name {self.fabric_name} "
+            msg += "does not exist on the controller."
             raise ValueError(msg)
 
         self.get_vrfs()
@@ -152,6 +151,16 @@ class VrfDelete:
             msg += f"{self.rest_send.result_current}. "
             msg += f"More detail (if any): {errmsg}"
             raise ValueError(msg)
+
+    def fabric_exists(self) -> bool:
+        """
+        Return True if self.fabric_name exists on the controller.
+        Return False otherwise.
+        """
+        self.fabrics_info.rest_send = self.rest_send
+        self.fabrics_info.commit()
+        self.fabrics_info.filter = self.fabric_name
+        return self.fabrics_info.fabric_exists
 
     def get_vrfs(self) -> None:
         """

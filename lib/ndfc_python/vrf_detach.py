@@ -37,6 +37,7 @@ import inspect
 import logging
 
 from ndfc_python.common.fabric.fabric_inventory import FabricInventory
+from ndfc_python.common.fabric.fabrics_info import FabricsInfo
 from ndfc_python.common.properties import Properties
 from ndfc_python.validations import Validations
 
@@ -69,12 +70,11 @@ class VrfDetach:
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
         self.fabric_inventory = FabricInventory()
-
+        self.fabrics_info = FabricsInfo()
         self.properties = Properties()
-        self.rest_send = self.properties.rest_send
-        self.results = self.properties.results
-
         self.validations = Validations()
+
+        self.rest_send = self.properties.rest_send
 
         self._fabric_name = ""
         self._fabric_inventory_populated = False
@@ -96,12 +96,6 @@ class VrfDetach:
         if self.rest_send is None:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.rest_send must be set before calling "
-            msg += f"{self.class_name}.commit"
-            raise ValueError(msg)
-
-        if self.results is None:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"{self.class_name}.results must be set before calling "
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
 
@@ -147,7 +141,6 @@ class VrfDetach:
         try:
             self.fabric_inventory.fabric_name = self.fabric_name
             self.fabric_inventory.rest_send = self.rest_send
-            self.fabric_inventory.results = self.results
             self.fabric_inventory.commit()
         except ValueError as error:
             msg = f"{self.class_name}.populate_fabric_inventory: "
@@ -224,7 +217,6 @@ class VrfDetach:
         self._final_verification()
         self.fabric_inventory.fabric_name = self.fabric_name
         self.fabric_inventory.rest_send = self.rest_send
-        self.fabric_inventory.results = self.results
         self.fabric_inventory.commit()
 
         payload = self._build_payload()
