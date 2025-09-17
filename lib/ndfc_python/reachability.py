@@ -55,15 +55,13 @@ import logging
 import sys
 from ipaddress import AddressValueError
 
+from ndfc_python.common.fabric.fabrics_info import FabricsInfo
+from ndfc_python.common.properties import Properties
 from ndfc_python.validations import Validations
 from plugins.module_utils.common.api.v1.lan_fabric.rest.control.fabrics.fabrics import EpFabrics
 from plugins.module_utils.common.conversion import ConversionUtils
-from plugins.module_utils.common.properties import Properties
-from plugins.module_utils.fabric.fabric_details_v2 import FabricDetailsByName
 
 
-@Properties.add_rest_send
-@Properties.add_results
 class Reachability:
     """
     # Summary
@@ -83,9 +81,12 @@ class Reachability:
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
         self.conversion = ConversionUtils()
+        self.fabrics_info = FabricsInfo()
+        self.properties = Properties()
         self.validations = Validations()
         self.ep_rest_control_fabrics = EpFabrics()
 
+        self.rest_send = self.properties.rest_send
         self._response_data = None
 
         self._init_payload_set()
@@ -93,7 +94,7 @@ class Reachability:
         self._init_payload_default()
         self._init_payload()
 
-    def _init_payload_set(self):
+    def _init_payload_set(self) -> None:
         """
         Initialize a set containing all payload keys
         """
@@ -107,7 +108,7 @@ class Reachability:
         self.payload_set.add("snmpV3AuthProtocol")
         self.payload_set.add("username")
 
-    def _init_payload_set_mandatory(self):
+    def _init_payload_set_mandatory(self) -> None:
         """
         Initialize a set containing mandatory payload keys
         """
@@ -117,7 +118,7 @@ class Reachability:
         self.payload_set_mandatory.add("seedIP")
         self.payload_set_mandatory.add("username")
 
-    def _init_payload_default(self):
+    def _init_payload_default(self) -> None:
         """
         Initialize default payload values
         """
@@ -129,7 +130,7 @@ class Reachability:
         self.payload_default["username"] = ""
         self.payload_default["password"] = ""
 
-    def _init_payload(self):
+    def _init_payload(self) -> None:
         """
         Initialize the REST payload
         """
@@ -140,7 +141,7 @@ class Reachability:
             else:
                 self.payload[param] = ""
 
-    def _preprocess_payload(self):
+    def _preprocess_payload(self) -> None:
         """
         1. Set a default value for any properties that the caller has not set
         and that NDFC provides a default for.
@@ -151,36 +152,38 @@ class Reachability:
         3. Any other fixup that may be required
         """
 
-    def _final_verification(self):
+    def _final_verification(self) -> None:
         """
         verify all mandatory parameters are set
         """
+        method_name = inspect.stack()[0][3]
         # TODO: If fabric is EasyFabric, and preserve_config is True
         # need to throw an error and exit here.
+        if self.rest_send is None:
+            msg = f"{self.class_name}.{method_name}: "
+            msg += f"{self.class_name}.rest_send must be set before calling "
+            msg += f"{self.class_name}.commit"
+            raise ValueError(msg)
+
         for param in self.payload_set_mandatory:
             if self.payload[param] == "":
-                msg = f"exiting. call instance.{param} before "
-                msg += "calling instance.create()"
+                msg = f"{self.class_name}.{method_name}: "
+                msg += f"exiting. call {self.class_name}.{param} before "
+                msg += f"calling {self.class_name}.create()"
                 self.log.error(msg)
                 sys.exit(1)
 
-    def fabric_exists(self):
+    def fabric_exists(self) -> bool:
         """
         Return True if self.fabric_name exists on the controller.
         Return False otherwise.
         """
-        instance = FabricDetailsByName()
-        # pylint: disable=no-member
-        instance.rest_send = self.rest_send
-        instance.results = self.results
-        # pylint: enable=no-member
-        instance.refresh()
-        instance.filter = self.fabric_name
-        if instance.filtered_data is None:
-            return False
-        return True
+        self.fabrics_info.rest_send = self.rest_send
+        self.fabrics_info.commit()
+        self.fabrics_info.filter = self.fabric_name
+        return self.fabrics_info.fabric_exists
 
-    def commit(self):
+    def commit(self) -> None:
         """
         Send a POST request to the controller to the test-reachability endpoint
         """
@@ -198,7 +201,6 @@ class Reachability:
         path.fabric_name = self.fabric_name
         verb = "POST"
 
-        # pylint: disable=no-member
         try:
             self.rest_send.path = f"{path.path_fabric_name}/inventory/test-reachability"
             self.rest_send.payload = self.payload
@@ -221,7 +223,6 @@ class Reachability:
             msg += "does not contain DATA key. Controller response: "
             msg += f"{self.rest_send.response_current}"
             raise ValueError(msg)
-        # pylint: enable=no-member
 
     def _get(self, item):
         """
@@ -241,7 +242,7 @@ class Reachability:
     @property
     def cdp_second_timeout(self):
         """
-        return the current payload value of cdp_second_timeout
+        Set (setter) or return (getter) the current payload value of cdp_second_timeout
         """
         return self.payload["cdpSecondTimeout"]
 
@@ -258,7 +259,7 @@ class Reachability:
     @property
     def fabric_name(self):
         """
-        return the current payload value of fabric
+        Set (setter) or return (getter) the current payload value of fabric
         """
         return self.payload["fabric"]
 
@@ -269,7 +270,7 @@ class Reachability:
     @property
     def max_hops(self):
         """
-        return the current payload value of max_hops
+        Set (setter) or return (getter) the current payload value of max_hops
         """
         return self.payload["maxHops"]
 
@@ -286,6 +287,8 @@ class Reachability:
     @property
     def nxos_password(self):
         """
+        Set (setter) or return (getter) the current payload value of nxos_password
+
         The password credential for the NX-OS switch which the controller
         uses for switch discovery.
 
@@ -300,7 +303,7 @@ class Reachability:
     @property
     def preserve_config(self):
         """
-        return the current payload value of preserve_config
+        Set (setter) or return (getter) current payload value of preserve_config
         """
         return self.payload["preserveConfig"]
 
@@ -324,7 +327,7 @@ class Reachability:
     @property
     def seed_ip(self):
         """
-        return the current payload value of seed_ip
+        Set (setter) or return (getter) the current payload value of seed_ip
         """
         return self.payload["seedIP"]
 
@@ -341,7 +344,7 @@ class Reachability:
     @property
     def snmp_v3_auth_protocol(self):
         """
-        return the current payload value of snmp_v3_auth_protocol
+        Set (setter) or return (getter) the current payload value of snmp_v3_auth_protocol
         """
         return self.payload["snmpV3AuthProtocol"]
 
@@ -358,6 +361,8 @@ class Reachability:
     @property
     def nxos_username(self):
         """
+        Set (setter) or return (getter) the current payload value of nxos_username
+
         The username credential for the NX-OS switch which the controller
         uses for switch discovery.
 
