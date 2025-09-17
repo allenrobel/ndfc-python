@@ -99,7 +99,7 @@ class VrfDelete:
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
 
-        if self.fabric_exists() is False:
+        if not self.fabric_exists():
             msg = f"{self.class_name}.{method_name}: "
             msg += f"fabric_name {self.fabric_name} "
             msg += "does not exist on the controller."
