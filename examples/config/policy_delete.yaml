@@ -1,0 +1,8 @@
+---
+config:
+  - switch_name: LE3
+    fabric_name: SITE3
+    description: management vrf static route to syslog server
+  - switch_name: LE4
+    fabric_name: SITE4
+    description: management vrf static route to syslog server
