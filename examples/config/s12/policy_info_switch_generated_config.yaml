@@ -1,0 +1,4 @@
+---
+config:
+  - switch_name: LE1
+    fabric_name: SITE1

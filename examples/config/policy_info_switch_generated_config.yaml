@@ -1,0 +1,6 @@
+---
+config:
+  - switch_name: LE3
+    fabric_name: SITE3
+  - switch_name: LE4
+    fabric_name: SITE4
