@@ -1,11 +1,11 @@
 """
 # Name
 
-switch_policy_info.py
+policy_info_switch.py
 
 # Description
 
-Send GET request to the controller for switch policy information.
+Send GET request to the controller for policy information for a specific switch.
 
 # Endpoint
 
@@ -25,9 +25,9 @@ from ndfc_python.common.fabric.fabrics_info import FabricsInfo
 from ndfc_python.common.properties import Properties
 
 
-class SwitchPolicyInfoEndpoint:
+class PolicyInfoSwitchEndpoint:
     """
-    SwitchPolicyInfoEndpoint class to build the endpoint for the SwitchPolicyInfo API request
+    PolicyInfoSwitchEndpoint class to build the endpoint for the PolicyInfoSwitch API request
     """
 
     def __init__(self):
@@ -93,7 +93,7 @@ class SwitchPolicyInfoEndpoint:
         self._serial_number = value
 
 
-class SwitchPolicyInfo:
+class PolicyInfoSwitch:
     """
     # Summary
 
@@ -103,14 +103,14 @@ class SwitchPolicyInfo:
 
     ### See
 
-    ./examples/switch_policy_info.py
+    ./examples/policy_info_switch.py
     """
 
     def __init__(self):
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
-        self.endpoint = SwitchPolicyInfoEndpoint()
+        self.endpoint = PolicyInfoSwitchEndpoint()
         self.fabric_inventory = FabricInventory()
         self.fabrics_info = FabricsInfo()
         self.properties = Properties()
@@ -219,7 +219,7 @@ class SwitchPolicyInfo:
 
         """
         method_name = inspect.stack()[0][3]
-        switch_policy_endpoint = SwitchPolicyInfoEndpoint()
+        switch_policy_endpoint = PolicyInfoSwitchEndpoint()
         switch_policy_endpoint.serial_number = self.fabric_inventory.switch_name_to_serial_number(self.switch_name)
         switch_policy_endpoint.commit()
         path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/switches?serialNumber={self.fabric_inventory.switch_name_to_serial_number(self.switch_name)}"

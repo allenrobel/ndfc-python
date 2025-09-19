@@ -15,7 +15,7 @@ import sys
 from ndfc_python.common.fabric.fabric_inventory import FabricInventory
 from ndfc_python.common.fabric.fabrics_info import FabricsInfo
 from ndfc_python.common.properties import Properties
-from ndfc_python.switch_policy_info import SwitchPolicyInfo
+from ndfc_python.policy_info_switch import PolicyInfoSwitch
 
 OUR_VERSION = 106
 
@@ -27,6 +27,11 @@ class PolicyCreate:
     Example create operation:
 
     See `action()` in examples/policy_create.py
+
+    NOTES:
+
+    1. This class assumes that input validation has already been performed.  See
+    for example, examples/policy_create.py
     """
 
     def __init__(self):
@@ -35,93 +40,18 @@ class PolicyCreate:
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
         self._fabric_inventory_populated = False
-        self.switch_policies = []
-        self._switch_policies_populated = False
+        self.policies = []
+        self._policies_populated = False
         self._fabric_name = ""
         self._nv_pairs = {}
         self.fabric_inventory = FabricInventory()
         self.fabrics_info = FabricsInfo()
         self.properties = Properties()
-        self.switch_policy_info = SwitchPolicyInfo()
+        self.policy_info_switch = PolicyInfoSwitch()
 
-        self._init_payload_set()
-        self._init_payload_set_mandatory()
-        self._init_payload_default()
-        self._init_payload_mapping_dict()
-        self._init_payload()
-
+        self.payload = {}
         self._fabric_inventory_populated = False
         self.rest_send = self.properties.rest_send
-
-    def _init_payload_set(self):
-        self._payload_set = set()
-        self._payload_set.add("description")
-        self._payload_set.add("entity_name")
-        self._payload_set.add("entity_type")
-        self._payload_set.add("ip_address")
-        self._payload_set.add("priority")
-        self._payload_set.add("serial_number")
-        self._payload_set.add("switch_name")
-        self._payload_set.add("source")
-        self._payload_set.add("template_name")
-        self._payload_set.add("template_content_type")
-
-    def _init_payload_set_mandatory(self):
-        self._payload_set_mandatory = set()
-        self._payload_set_mandatory.add("entity_name")
-        self._payload_set_mandatory.add("entity_type")
-        self._payload_set_mandatory.add("ip_address")
-        self._payload_set_mandatory.add("serial_number")
-        self._payload_set_mandatory.add("switch_name")
-
-    def _init_payload_default(self):
-        self._payload_default = {}
-        self._payload_default["source"] = ""
-        self._payload_default["template_content_type"] = "string"
-
-    def _init_payload(self):
-        self.payload = {}
-        for param in self._payload_set:
-            if param in self._payload_default:
-                value = self._payload_default[param]
-                self.payload[self._payload_mapping_dict[param]] = value
-            else:
-                self.payload[self._payload_mapping_dict[param]] = None
-
-    def _init_payload_mapping_dict(self):
-        """
-        see _map_payload_param()
-        """
-        self._payload_mapping_dict = {}
-        self._payload_mapping_dict["description"] = "description"
-        self._payload_mapping_dict["entity_name"] = "entityName"
-        self._payload_mapping_dict["entity_type"] = "entityType"
-        self._payload_mapping_dict["ip_address"] = "ipAddress"
-        self._payload_mapping_dict["nv_pairs"] = "nvPairs"
-        self._payload_mapping_dict["priority"] = "priority"
-        self._payload_mapping_dict["serial_number"] = "serialNumber"
-        self._payload_mapping_dict["source"] = "source"
-        self._payload_mapping_dict["switch_name"] = "switchName"
-        self._payload_mapping_dict["template_content_type"] = "templateContentType"
-        self._payload_mapping_dict["template_name"] = "templateName"
-
-    def _map_payload_param(self, param):
-        """
-        Because payload keys are camel case, and pylint does
-        not like camel case, we modified the corresponding
-        properties to be snake case.  This method maps the
-        camel case keys to their corresponding properties. It
-        is used in _final_verification to provide the user with
-        the correct property to call if there's a missing mandatory
-        payload property.
-        """
-        method_name = inspect.stack()[0][3]
-        if param not in self._payload_mapping_dict:
-            msg = f"{self.class_name}.{method_name}: "
-            msg += f"param {param} not in _payload_mapping_dict"
-            self.log.error(msg)
-            return param
-        return self._payload_mapping_dict[param]
 
     def _build_payload(self) -> None:
         """
@@ -153,15 +83,6 @@ class PolicyCreate:
             msg += f"{self.class_name}.commit"
             raise ValueError(msg)
 
-        for param in self._payload_set_mandatory:
-            mapped_param = self._payload_mapping_dict[param]
-            if self.payload[mapped_param] in (None, ""):
-                msg = f"{self.class_name}.{method_name}: "
-                msg += f"exiting. call {self.class_name}.{self._map_payload_param(param)} "
-                msg += f"before calling instance.{method_name}"
-                self.log.error(msg)
-                sys.exit(1)
-
         if self.fabric_exists() is False:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"fabric_name {self.fabric_name} "
@@ -178,7 +99,7 @@ class PolicyCreate:
         method_name = inspect.stack()[0][3]
 
         self._final_verification()
-        self._populate_switch_policies()
+        self._populate_policies_switch()
         self._validate_no_policy_name_conflict()
         self._build_payload()
 
@@ -232,7 +153,7 @@ class PolicyCreate:
 
         """
         method_name = inspect.stack()[0][3]
-        for policy in self.switch_policies:
+        for policy in self.policies:
             if policy.get("description") == self.description:
                 policy_id = policy.get("policyId", "N/A")
                 msg = f"{self.class_name}.{method_name}: "
@@ -241,11 +162,11 @@ class PolicyCreate:
                 msg += "Use a unique policy description or delete the existing policy."
                 raise ValueError(msg)
 
-    def _populate_switch_policies(self) -> None:
+    def _populate_policies_switch(self) -> None:
         """
         # Summary
 
-        Populate switch policies for switch_name.
+        Populate policies for switch_name.
 
         ## Raises
 
@@ -256,11 +177,11 @@ class PolicyCreate:
         if not self._fabric_inventory_populated:
             self.populate_fabric_inventory()
 
-        self.switch_policy_info.rest_send = self.rest_send
-        self.switch_policy_info.fabric_name = self.fabric_name
-        self.switch_policy_info.switch_name = self.switch_name
+        self.policy_info_switch.rest_send = self.rest_send
+        self.policy_info_switch.fabric_name = self.fabric_name
+        self.policy_info_switch.switch_name = self.switch_name
         try:
-            self.switch_policy_info.commit()
+            self.policy_info_switch.commit()
         except ValueError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Unable to populate switch policies for switch {self.switch_name} "
@@ -268,8 +189,8 @@ class PolicyCreate:
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
 
-        self.switch_policies = self.switch_policy_info.switch_policies
-        self._switch_policies_populated = True
+        self.policies = self.policy_info_switch.switch_policies
+        self._policies_populated = True
 
     def populate_fabric_inventory(self) -> None:
         """
