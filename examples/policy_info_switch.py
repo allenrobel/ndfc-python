@@ -8,7 +8,7 @@ policy_info_switch.py
 
 Retrieve policies for a switch
 
-#Usage
+# Usage
 
 Edit ``examples/config/policy_info_switch.yaml`` appropriately for your requirements.
 
