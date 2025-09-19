@@ -116,7 +116,7 @@ def setup_parser() -> argparse.Namespace:
             parser_nd_password,
             parser_nd_username,
         ],
-        description="DESCRIPTION: Create a vrf.",
+        description="Retrieve and display generated policy configurations for one or more switches.",
     )
     return parser.parse_args()
 
