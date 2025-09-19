@@ -116,8 +116,8 @@ class PolicyInfoSwitch:
         self.properties = Properties()
 
         self.rest_send = self.properties.rest_send
-        self._switch_policies = []
-        self._switch_policies_populated = False
+        self._policies = []
+        self._policies_populated = False
         self._fabric_inventory_populated = False
 
         self._fabric_name = ""
@@ -180,7 +180,7 @@ class PolicyInfoSwitch:
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
 
-        self._populate_switch_policies()
+        self._populate_policies()
 
     def fabric_exists(self) -> bool:
         """
@@ -207,7 +207,7 @@ class PolicyInfoSwitch:
             raise ValueError(msg) from error
         self._fabric_inventory_populated = True
 
-    def _populate_switch_policies(self) -> None:
+    def _populate_policies(self) -> None:
         """
         # Summary
 
@@ -229,14 +229,14 @@ class PolicyInfoSwitch:
             self.rest_send.verb = verb
             self.rest_send.payload = None
             self.rest_send.commit()
-            self._switch_policies = self.rest_send.response_current.get("DATA", [])
+            self._policies = self.rest_send.response_current.get("DATA", [])
         except ValueError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Unable to populate switch policies for switch {self.switch_name} "
             msg += f"in fabric {self.fabric_name}. "
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
-        self._switch_policies_populated = True
+        self._policies_populated = True
 
     @property
     def fabric_name(self) -> str:
@@ -261,8 +261,8 @@ class PolicyInfoSwitch:
         self._switch_name = value
 
     @property
-    def switch_policies(self) -> str:
+    def policies(self) -> str:
         """
-        Return the current value of switch_policies
+        Return the current value of policies
         """
-        return self._switch_policies
+        return self._policies

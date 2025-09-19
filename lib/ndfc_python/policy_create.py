@@ -189,7 +189,7 @@ class PolicyCreate:
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
 
-        self.policies = self.policy_info_switch.switch_policies
+        self.policies = self.policy_info_switch.policies
         self._policies_populated = True
 
     def populate_fabric_inventory(self) -> None:
