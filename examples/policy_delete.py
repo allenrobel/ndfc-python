@@ -30,19 +30,16 @@ config:
     description: management vrf static route to syslog server
 ```
 
-If you've set the standard ndfc-python Nexus Dashboard credentials
-environment variables (ND_DOMAIN, ND_IP4, ND_PASSWORD, ND_USERNAME)
-then you're good to go.
+If you've set the standard ndfc-python Nexus Dashboard credentials environment variables (ND_DOMAIN, ND_IP4, ND_PASSWORD, ND_USERNAME) then you're good to go.
 
 ```bash
-./policy_delete.py --config config/config_policy_create.yaml
+./policy_delete.py --config config/policy_delete.yaml
 ```
 
-If you haven't set the standard ndfc-python Nexus Dashboard credentials
-environment variables, you can override them like so:
+If you haven't set the standard ndfc-python Nexus Dashboard credentials environment variables, you can override them like so:
 
 ```bash
-./policy_delete.py --config config/config_policy_create.yaml --nd-username admin --nd-password MyPassword --nd-domain local --nd-ip4 10.1.1.2
+./policy_delete.py --config config/policy_delete.yaml --nd-username admin --nd-password MyPassword --nd-domain local --nd-ip4 10.1.1.2
 ```
 """
 # pylint: disable=duplicate-code

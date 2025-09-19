@@ -39,8 +39,8 @@ class PolicyDeleteEndpoint:
         """
         final verification of all parameters
         """
-        method_name = inspect.stack()[0][3]
         if not self.policy_ids:
+            method_name = inspect.stack()[0][3]
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.policy_ids must be set before calling "
             msg += f"{self.class_name}.commit"
@@ -63,7 +63,6 @@ class PolicyDeleteEndpoint:
 
         instance.commit() must be called before accessing this property.
         """
-        method_name = inspect.stack()[0][3]
         if not self._committed:
             method_name = inspect.stack()[0][3]
             msg = f"{self.class_name}.{method_name}: "
@@ -90,8 +89,8 @@ class PolicyDeleteEndpoint:
 
     @policy_ids.setter
     def policy_ids(self, value: list) -> None:
-        method_name = inspect.stack()[0][3]
         if not isinstance(value, list):
+            method_name = inspect.stack()[0][3]
             msg = f"{self.class_name}.{method_name}: "
             msg += f"exiting. expected type {type(value).__name__}, "
             msg += f"with value {value}."
