@@ -155,10 +155,10 @@ class PolicyCreate:
 
         for param in self._payload_set_mandatory:
             mapped_param = self._payload_mapping_dict[param]
-            if self.payload[mapped_param] == "":
+            if self.payload[mapped_param] in (None, ""):
                 msg = f"{self.class_name}.{method_name}: "
                 msg += f"exiting. call {self.class_name}.{self._map_payload_param(param)} "
-                msg += "before calling instance.create()"
+                msg += f"before calling instance.{method_name}"
                 self.log.error(msg)
                 sys.exit(1)
 

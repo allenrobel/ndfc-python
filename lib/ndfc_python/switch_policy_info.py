@@ -37,8 +37,8 @@ class SwitchPolicyInfoEndpoint:
         self.apiv1 = "/appcenter/cisco/ndfc/api/v1"
         self._path = f"{self.apiv1}/lan-fabric/rest/control/policies/switches?serialNumber="
         self.serial_number = ""
-        self.verb = "GET"
-        self._commited = False
+        self._verb = "GET"
+        self._committed = False
 
     def _final_verification(self) -> None:
         """
@@ -56,7 +56,7 @@ class SwitchPolicyInfoEndpoint:
         Build the endpoint path for the API request
         """
         self._path = f"{self._path}{self.serial_number}"
-        self._commited = True
+        self._committed = True
 
     @property
     def path(self) -> str:
@@ -66,13 +66,20 @@ class SwitchPolicyInfoEndpoint:
         instance.commit() must be called before accessing this property.
         """
         method_name = inspect.stack()[0][3]
-        if not self._commited:
+        if not self._committed:
             method_name = inspect.stack()[0][3]
             msg = f"{self.class_name}.{method_name}: "
             msg += f"{self.class_name}.commit() must be called before accessing "
             msg += f"{self.class_name}.{method_name}"
             raise ValueError(msg)
         return self._path
+
+    @property
+    def verb(self) -> str:
+        """
+        return the current value of verb
+        """
+        return self._verb
 
     @property
     def serial_number(self) -> str:
@@ -162,12 +169,10 @@ class SwitchPolicyInfo:
 
         self.endpoint.serial_number = self.fabric_inventory.switch_name_to_serial_number(self.switch_name)
         self.endpoint.commit()
-        path = self.endpoint.path
-        verb = self.endpoint.verb
 
         try:
-            self.rest_send.path = path
-            self.rest_send.verb = verb
+            self.rest_send.path = self.endpoint.path
+            self.rest_send.verb = self.endpoint.verb
             self.rest_send.commit()
         except (TypeError, ValueError) as error:
             msg = f"{self.class_name}.{method_name}: "
@@ -214,6 +219,9 @@ class SwitchPolicyInfo:
 
         """
         method_name = inspect.stack()[0][3]
+        switch_policy_endpoint = SwitchPolicyInfoEndpoint()
+        switch_policy_endpoint.serial_number = self.fabric_inventory.switch_name_to_serial_number(self.switch_name)
+        switch_policy_endpoint.commit()
         path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/switches?serialNumber={self.fabric_inventory.switch_name_to_serial_number(self.switch_name)}"
         verb = "GET"
         try:
