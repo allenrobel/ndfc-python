@@ -1,11 +1,11 @@
 """
 # Name
 
-switch_policy_info.py
+policy_info_switch.py
 
 # Description
 
-Send GET request to the controller for switch policy information.
+Send GET request to the controller for policy information for a specific switch.
 
 # Endpoint
 
@@ -25,9 +25,9 @@ from ndfc_python.common.fabric.fabrics_info import FabricsInfo
 from ndfc_python.common.properties import Properties
 
 
-class SwitchPolicyInfoEndpoint:
+class PolicyInfoSwitchEndpoint:
     """
-    SwitchPolicyInfoEndpoint class to build the endpoint for the SwitchPolicyInfo API request
+    PolicyInfoSwitchEndpoint class to build the endpoint for the PolicyInfoSwitch API request
     """
 
     def __init__(self):
@@ -93,7 +93,7 @@ class SwitchPolicyInfoEndpoint:
         self._serial_number = value
 
 
-class SwitchPolicyInfo:
+class PolicyInfoSwitch:
     """
     # Summary
 
@@ -103,21 +103,21 @@ class SwitchPolicyInfo:
 
     ### See
 
-    ./examples/switch_policy_info.py
+    ./examples/policy_info_switch.py
     """
 
     def __init__(self):
         self.class_name = __class__.__name__
         self.log = logging.getLogger(f"ndfc_python.{self.class_name}")
 
-        self.endpoint = SwitchPolicyInfoEndpoint()
+        self.endpoint = PolicyInfoSwitchEndpoint()
         self.fabric_inventory = FabricInventory()
         self.fabrics_info = FabricsInfo()
         self.properties = Properties()
 
         self.rest_send = self.properties.rest_send
-        self._switch_policies = []
-        self._switch_policies_populated = False
+        self._policies = []
+        self._policies_populated = False
         self._fabric_inventory_populated = False
 
         self._fabric_name = ""
@@ -180,7 +180,7 @@ class SwitchPolicyInfo:
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
 
-        self._populate_switch_policies()
+        self._populate_policies()
 
     def fabric_exists(self) -> bool:
         """
@@ -207,7 +207,7 @@ class SwitchPolicyInfo:
             raise ValueError(msg) from error
         self._fabric_inventory_populated = True
 
-    def _populate_switch_policies(self) -> None:
+    def _populate_policies(self) -> None:
         """
         # Summary
 
@@ -219,7 +219,7 @@ class SwitchPolicyInfo:
 
         """
         method_name = inspect.stack()[0][3]
-        switch_policy_endpoint = SwitchPolicyInfoEndpoint()
+        switch_policy_endpoint = PolicyInfoSwitchEndpoint()
         switch_policy_endpoint.serial_number = self.fabric_inventory.switch_name_to_serial_number(self.switch_name)
         switch_policy_endpoint.commit()
         path = f"/appcenter/cisco/ndfc/api/v1/lan-fabric/rest/control/policies/switches?serialNumber={self.fabric_inventory.switch_name_to_serial_number(self.switch_name)}"
@@ -229,14 +229,14 @@ class SwitchPolicyInfo:
             self.rest_send.verb = verb
             self.rest_send.payload = None
             self.rest_send.commit()
-            self._switch_policies = self.rest_send.response_current.get("DATA", [])
+            self._policies = self.rest_send.response_current.get("DATA", [])
         except ValueError as error:
             msg = f"{self.class_name}.{method_name}: "
             msg += f"Unable to populate switch policies for switch {self.switch_name} "
             msg += f"in fabric {self.fabric_name}. "
             msg += f"Error details: {error}"
             raise ValueError(msg) from error
-        self._switch_policies_populated = True
+        self._policies_populated = True
 
     @property
     def fabric_name(self) -> str:
@@ -261,8 +261,8 @@ class SwitchPolicyInfo:
         self._switch_name = value
 
     @property
-    def switch_policies(self) -> str:
+    def policies(self) -> str:
         """
-        Return the current value of switch_policies
+        Return the current value of policies
         """
-        return self._switch_policies
+        return self._policies
