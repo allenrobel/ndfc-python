@@ -4,11 +4,20 @@
 
 policy_create.py
 
-# Description
+## Description
 
 Create a policy
 
-#Usage
+## NOTES
+
+1. The policy scripts in this repository use the policy description as a unique identifier for a policy.
+This was a design decision made to improve user-friendliness of the scripts.  Nexus Dashboard uses
+a unique policy ID (e.g. POLICY-12810) to identify policies.  We felt that using the policy ID would
+be less user-friendly as users would have to look up the policy ID before they could use the scripts.
+
+The implication of this design is that your policy descriptions must be unique per switch.
+
+## Usage
 
 Edit ``examples/config/policy_create.yaml`` appropriately for your requirements.
 
@@ -16,7 +25,7 @@ Edit ``examples/config/policy_create.yaml`` appropriately for your requirements.
 ---
 config:
   - switch_name: LE1
-    fabric_name: SITE1 # fabric_name needed to retrieve switch information
+    fabric_name: SITE1
     description: management vrf static route to syslog server
     entity_name: SWITCH
     entity_type: SWITCH
@@ -42,6 +51,7 @@ environment variables, you can override them like so:
 
 ```bash
 ./policy_create.py --config config/config_policy_create.yaml --nd-username admin --nd-password MyPassword --nd-domain local --nd-ip4 10.1.1.2
+```
 """
 # pylint: disable=duplicate-code
 import argparse
