@@ -40,7 +40,6 @@ class SwitchPolicyInfoEndpoint:
         self.verb = "GET"
         self._commited = False
 
-
     def _final_verification(self) -> None:
         """
         final verification of all parameters
