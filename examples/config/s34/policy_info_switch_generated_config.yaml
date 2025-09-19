@@ -1,0 +1,4 @@
+---
+config:
+  - switch_name: VP3
+    fabric_name: SITE4
