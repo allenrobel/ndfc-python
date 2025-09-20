@@ -21,7 +21,6 @@ config:
   - switch_name: LE4
     fabric_name: SITE4
     description: management vrf static route to syslog server
-      VRF_NAME: management
 ```
 
 ## Example Usage
