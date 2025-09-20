@@ -96,6 +96,10 @@ nav:
       - network_attach.py: scripts/network_attach.md
       - network_create.py: scripts/network_create.md
       - network_delete.py: scripts/network_delete.md
+      - policy_create.py: scripts/policy_create.md
+      - policy_delete.py: scripts/policy_delete.md
+      - policy_info_switch.py: scripts/policy_info_switch.md
+      - policy_info_switch_generated_config.py: scripts/policy_info_switch_generated_config.md
       - reachability.py: scripts/reachability.md
       - rest_get_request.py: scripts/rest_get_request.md
       - rest_post_request.py: scripts/rest_post_request.md
